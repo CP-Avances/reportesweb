@@ -1,0 +1,129 @@
+<div class="card">
+    <h5 class="card-header">OCUPACIÓN</h5>
+    <div class="card-body">
+        <form>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link active" id="ocservicios-tab" data-toggle="tab" href="#ocservicios" role="tab" aria-controls="ocservicios" aria-selected="true">OCUPACIÓN POR SERVICIOS</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#ocserviciosgraf" role="tab" aria-controls="ocserviciosgraf" aria-selected="false">OCUPACIÓN POR SERVICIOS (GRÁFICO)</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="ocservicios" role="tabpanel" aria-labelledby="ocservicios-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateOcupOS">Fecha desde:</label>
+                                <input type="date" id="fromDateOcupOS" value="{{fromDate}}" [max]="toDate" name="fromDateOcupOS" #fromDateOcupOS>
+                                <br><br>
+                                <label for="toDateOcupOS">Fecha hasta: </label>
+                                <input type="date" id="toDateOcupOS" value="{{toDate}}" [max]="toDate" name="toDateOcupOS" #toDateOcupOS>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="select" #codSucursalOCs>
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerOcupacion()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>OCUPACIÓN SERVICIOS</h2>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="contentOcup" #contentOcup #tableOcup>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesO" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Desde</th>
+                                    <th scope="col" class="text-center">Hasta</th>
+                                    <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">T. Turno</th>
+                                    <th scope="col" class="text-center">Porcentaje Ocupación</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestOcupOS">
+                                <tr *ngFor="let serviciooc of serviciooc | paginate:configOS">
+                                    <td *ngIf="todasSucursalesO">{{serviciooc.nombreEmpresa}}</td>
+                                    <td>{{serviciooc.Usuario}}</td>
+                                    <td>{{serviciooc.fechaminima}}</td>
+                                    <td>{{serviciooc.fechamaxima}}</td>
+                                    <td>{{serviciooc.SERV_NOMBRE}}</td>
+                                    <td>{{serviciooc.total}}</td>
+                                    <td>{{serviciooc.PORCENTAJE}} %</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls 
+                            *ngIf="!malRequestOcupOSPag" 
+                            id= "Ocupos"
+                            [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel"  
+                            (pageChange)="pageChangedOS($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelOcupServs()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOcupServs('hola',1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="ocserviciosgraf" role="tabpanel" aria-labelledby="ocserviciosgraf-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateOcupG">Fecha desde:</label>
+                                <input type="date" id="fromDateOcupG" value="{{fromDate}}" [max]="toDate" name="fromDateOcupG" #fromDateOcupG>
+                                <br><br>
+                                <label for="toDateOcupG">Fecha hasta: </label>
+                                <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate" name="toDateOcupG" #toDateOcupG>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="select" #codSucursalOCsG>
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerGrafOcupacion()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                            <br><br>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div *ngIf="!malRequestOcupG" id="contentChart" #contentChart>
+                        <h2>OCUPACIÓN SERVICIOS GRÁFICO</h2><br>
+                        <canvas id="canvas">{{chart}}</canvas><br>
+                        <canvas id="canvas2">{{chart}}</canvas>
+                    </div>
+                    <br>
+                    <fieldset>
+                        <div>
+                            <label>Orientación de página: </label>
+
+                            <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
+                                value="portrait" (click)="cambiarOrientacion('portrait')" checked>
+                            <label for="vertical">Vertical </label>
+
+                            <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
+                                value="landscape" (click)="cambiarOrientacion('landscape')">
+                            <label for="horizontal">Horizontal </label>
+                        </div>
+                    </fieldset>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOcupServs('hola',2)">PDF</button>
+                    <br>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

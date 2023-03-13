@@ -1,0 +1,269 @@
+<div class="card">
+    <h5 class="card-header">USUARIOS</h5>
+    <div class="card-body">
+        <form>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">TURNOS POR FECHA</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">TIEMPO PROMEDIO DE ATENCIÓN</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">ENTRADAS Y SALIDAS AL SISTEMA</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="atencionusuario-tab" data-toggle="tab" href="#atencionusuario" role="tab" aria-controls="atencionusuario" aria-selected="false">ATENCIÓN AL USUARIO</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateTurnosFecha">Fecha desde: &nbsp;</label>
+                                <input type="date" id="fromDateTurnosFecha" value="{{fromDate}}" [max]="toDate" name="fromDateTurnosFecha" #fromDateTurnosFecha><br><br>
+                                <label for="toDateTurnosFecha">Fecha hasta: &nbsp;</label>
+                                <input type="date" id="toDateTurnosFecha" value="{{toDate}}" [max]="toDate" name="toDateTurnosFecha" #toDateTurnosFecha>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="selectmake" #codSucursal>
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="buscarTurnosFecha()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>TURNOS POR FECHA</h2> 
+                    <hr>
+                    <div class="table-responsive" >
+                        <table class="table table-striped" id="contentTurnosFecha" #contentTurnosFecha #tableTurnosFecha>
+                            <thead >
+                                <tr>
+                                    <th class="text-center" *ngIf="todasSucursalesTF" style="width: 300px;">Sucursal</th>
+                                    <th class="text-center">Usuario</th>
+                                    <th class="text-center">Servicio</th>
+                                    <th class="text-center">Fecha</th>
+                                    <th class="text-center">Atendidos</th>
+                                    <th class="text-center">No Atendidos</th>
+                                    <th class="text-center">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestTF">
+                                <tr id="tr-id-1" class="tr-class-1"  *ngFor="let servicioTurnosFecha of servicioTurnosFecha | paginate:configTF" >
+                                    <td *ngIf="todasSucursalesTF"> {{servicioTurnosFecha.nombreEmpresa}}</td>
+                                    <td> {{servicioTurnosFecha.Usuario}}</td>
+                                    <td> {{servicioTurnosFecha.Servicio}}</td>
+                                    <td> {{servicioTurnosFecha.Fecha}}</td>
+                                    <td> {{servicioTurnosFecha.Atendidos}} </td>
+                                    <td> {{servicioTurnosFecha.No_Atendidos}}</td>
+                                    <td> {{servicioTurnosFecha.Total}} </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls  
+                            *ngIf="!malRequestTFPag"
+                            id="usuariosTF"
+                            [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel"  
+                            (pageChange)="pageChangedTF($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosFecha()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosFecha('hola', 1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDatePromAtencion">Fecha desde:&nbsp;</label>
+                                <input type="date" id="fromDatePromAtencion" value="{{fromDate}}" [max]="toDate" name="fromDatePromAtencion" #fromDatePromAtencion><br><br>
+                                <label for="toDatePromAtencion">Fecha hasta:&nbsp;</label>
+                                <input type="date"  id="toDatePromAtencion" value="{{toDate}}"  [max]="toDate" name="toDatePromAtencion" #toDatePromAtencion>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="selectmake" #codSucursalPromAtencion (change)="getCajeros($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <select class="form-control"  name="selectmake" #codCajeroPromAtencion>
+                                    <option value="-1" selected>Seleccione usuario...</option>
+                                    <option *ngFor="let cajerosUsuarios of cajerosUsuarios" value="{{cajerosUsuarios.caje_codigo}}" [ngValue]="cajerosUsuarios.caje_codigo">{{cajerosUsuarios.caje_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="buscarTiempoPromedioAtencion()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar 
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>TIEMPO PROMEDIO DE ATENCIÓN</h2>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="contentPronAtencion" #contenPromAtencion #tablePromAtencion>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesTPA" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Promedio</th>
+                                    <th scope="col" class="text-center">Turnos</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestTPA">
+                                <tr *ngFor="let servicioPromAtencion of servicioPromAtencion | paginate:configTP" >
+                                    <td *ngIf="todasSucursalesTPA">{{servicioPromAtencion.nombreEmpresa}}</td>
+                                    <td>{{servicioPromAtencion.Nombre}}</td>
+                                    <td>{{servicioPromAtencion.Servicio}}</td>
+                                    <td>{{servicioPromAtencion.Promedio}}</td>
+                                    <td>{{servicioPromAtencion.Turnos}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls 
+                            *ngIf="!malRequestTPPag" 
+                            id="usuariosTP"
+                            [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel"  
+                            (pageChange)="pageChangedTP($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelPromAtencion()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfPromAtencion('hola', 1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateUES">Fecha desde: &nbsp;</label>
+                                <input type="date" id="fromDateUES" value="{{fromDate}}" [max]="toDate" name="fromDateUES" #fromDateUES><br><br>
+                                <label for="toDateUES">Fecha hasta: &nbsp;</label>
+                                <input type="date" id="toDateUES" value="{{toDate}}" [max]="toDate" name="toDateUES" #toDateUES>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="selectmake" #codSucursalEntradas (change)="getCajeros($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerEntradasSalidasSistema()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>ENTRADAS Y SALIDAS</h2>
+                    <hr>
+                    <div class="table-responsive">
+                        <table id="contentEntradaSalida" class="table table-striped" #contentEntradaSalida #tableEntradaSalida>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesES" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Hora Registrada</th>
+                                    <th scope="col" class="text-center">Razón</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestES">
+                                <tr *ngFor="let servicioEntradaSalida of servicioEntradaSalida | paginate:configES">
+                                    <td *ngIf="todasSucursalesES">{{servicioEntradaSalida.nombreEmpresa}}</td>
+                                    <td>{{servicioEntradaSalida.Usuario}}</td>
+                                    <td>{{servicioEntradaSalida.fecha}}</td>
+                                    <td>{{servicioEntradaSalida.Razon}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls 
+                            *ngIf="!malRequestESPag" 
+                            id="usuariosES"
+                            [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel"  
+                            (pageChange)="pageChangedES($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEntradaSalida()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfEntradaSalida('hola', 1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="atencionusuario" role="tabpanel" aria-labelledby="atencionusuario-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateAtencionUsua">Fecha desde:&nbsp;</label>
+                                <input type="date" id="fromDateAtencionUsua" value="{{fromDate}}" [max]="toDate" name="fromDateAtencionUsua" #fromDateAtencionUsua><br><br>
+                                <label for="toDateAtencionUsua">Fecha hasta:&nbsp;</label>
+                                <input type="date"  id="toDateAtencionUsua" value="{{toDate}}"  [max]="toDate" name="toDateAtencionUsua" #toDateAtencionUsua>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="selectmake" #codSucursalAtencionUsua (change)="getCajeros($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <select class="form-control"  name="selectmake" #codCajeroAtencionUsua>
+                                    <option value="-1" selected>Seleccione usuario...</option>
+                                    <option *ngFor="let cajerosUsuarios of cajerosUsuarios" value="{{cajerosUsuarios.caje_codigo}}" [ngValue]="cajerosUsuarios.caje_codigo">{{cajerosUsuarios.caje_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="buscarAtencionUsuario()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar 
+                                  </button>
+                            </div>
+                          </div>
+                    </div>
+                    <br>
+                    <h2>ATENCIÓN AL USUARIO</h2>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="contentAtencionUsua" #contentAtencionUsua #tableAtencionUsua>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesAU" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Nombre</th>
+                                    <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Atendidos</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestAU">
+                                <tr *ngFor="let servicioAtencionUsua of servicioAtencionUsua | paginate:configAU">
+                                    <td *ngIf="todasSucursalesAU">{{servicioAtencionUsua.nombreEmpresa}}</td>
+                                    <td>{{servicioAtencionUsua.Nombre}}</td>
+                                    <td>{{servicioAtencionUsua.Servicio}}</td>
+                                    <td>{{servicioAtencionUsua.Atendidos}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls 
+                            *ngIf="!malRequestAUPag" 
+                            id="usuariosAU"
+                            [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel"  
+                            (pageChange)="pageChangedAU($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelAtencionUsuario()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfAtencionUsuario('hola', 1)">PDF</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

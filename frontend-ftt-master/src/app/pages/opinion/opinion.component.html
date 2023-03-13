@@ -1,0 +1,131 @@
+<div class="card">
+    <h5 class="card-header">OPINIONES</h5>
+    <div class="card-body">
+        <form>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">INFORME</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#opserviciosgraf" role="tab" aria-controls="ocserviciosgraf" aria-selected="false">GRÁFICOS</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateAtM">Fecha desde:</label>
+                                <input type="date" id="fromDateAtM" value="{{fromDate}}" [max]="toDate" name="fromDateAtM" #fromDateAtM>
+                                <br><br>
+                                <label for="toDateAtM">Fecha hasta: </label>
+                                <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="select" #codSucursalAtM>
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerOpiniones()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>OPINIONES</h2>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="contentAtMul" #contentAtMul #tableAtMul>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Código</th>
+                                    <th scope="col" class="text-center">Tipo</th>
+                                    <th scope="col" class="text-center">Categoría</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Hora</th>
+                                    <th scope="col" class="text-center">Minuto</th>
+                                    <th scope="col" class="text-center">Caja</th>
+                                    <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestAtM">
+                                <tr *ngFor="let servicioOpinion of servicioOpinion | paginate:configAtM">
+                                    <td *ngIf="todasSucursalesI">{{servicioOpinion.empresa_empr_nombre}}</td>
+                                    <td>{{servicioOpinion.quejas_emi_codigo}}</td>
+                                    <td>{{servicioOpinion.quejas_emi_tipo}}</td>
+                                    <td>{{servicioOpinion.quejas_emi_categoria}}</td>
+                                    <td>{{servicioOpinion.quejas_emi_fecha}}</td>
+                                    <td>{{servicioOpinion.quejas_emi_hora}}</td>
+                                    <td>{{servicioOpinion.quejas_emi_minuto}}</td>
+                                    <td>{{servicioOpinion.caja_caja_nombre}}</td>
+                                    <td class="text-left">{{servicioOpinion.quejas_emi_queja}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls 
+                            *ngIf="!malRequestAtMPag" 
+                            id= "AtendidosMatm"
+                            [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel"  
+                            (pageChange)="pageChangedAtM($event)">
+                        </pagination-controls>
+                    </div>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpiniones()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="opserviciosgraf" role="tabpanel" aria-labelledby="ocserviciosgraf-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateOcupG">Fecha desde:</label>
+                                <input type="date" id="fromDateOcupG" value="{{fromDate}}" [max]="toDate" name="fromDateOcupG" #fromDateOcupG>
+                                <br><br>
+                                <label for="toDateOcupG">Fecha hasta: </label>
+                                <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate" name="toDateOcupG" #toDateOcupG>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="select" #codSucursalOcupG>
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerGrafOpinion()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div *ngIf="!malRequestAtM" id="contentChart" #contentChart>
+                        <h2>GRÁFICO - OPINIONES</h2><br>
+                        <canvas id="canvas">{{chart}}</canvas><br>
+                        <canvas id="canvas2">{{chart}}</canvas>
+                    </div>
+                    <br>
+                    <fieldset>
+                        <div>
+                            <label>Orientación de página: </label>
+
+                            <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
+                                value="portrait" (click)="cambiarOrientacion('portrait')" checked>
+                            <label for="vertical">Vertical </label>
+
+                            <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
+                                value="landscape" (click)="cambiarOrientacion('landscape')">
+                            <label for="horizontal">Horizontal </label>
+                        </div>
+                    </fieldset>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',2)">PDF</button>
+                    <br>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

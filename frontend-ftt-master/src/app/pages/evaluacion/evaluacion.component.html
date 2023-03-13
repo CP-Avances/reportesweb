@@ -1,0 +1,556 @@
+<div class="card">
+    <h5 class="card-header">EVALUACIÓN</h5>
+    <div class="card-body">
+        <form>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link active" id="servicio-tab" data-toggle="tab" href="#servicio" role="tab"
+                        aria-controls="servicio" aria-selected="true">SERVICIO</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="tiempromat-tab" data-toggle="tab" href="#tiempromat" role="tab"
+                        aria-controls="tiempromat" aria-selected="false">EMPLEADO</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="atencionusuario-tab" data-toggle="tab" href="#atencionusuario" role="tab"
+                        aria-controls="atencionusuario" aria-selected="false">EVALUACIÓN POR GRUPOS</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="graficoeva-tab" data-toggle="tab" href="#graficoeva" role="tab"
+                        aria-controls="graficoeva" aria-selected="false">GRÁFICOS</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="inoutsistema-tab" data-toggle="tab" href="#inoutsistema" role="tab"
+                        aria-controls="inoutsistema" aria-selected="false">ESTABLECIMIENTO</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="omitidas-tab" data-toggle="tab" href="#omitidas" role="tab"
+                        aria-controls="omitidas" aria-selected="false">EVALUACIONES OMITIDAS</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="servicio" role="tabpanel" aria-labelledby="servicio-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateServicios">Fecha desde:</label>
+                                <input type="date" id="fromDateServicios" value="{{fromDate}}" [max]="toDate"
+                                    name="fromDateServicios" #fromDateServicios><br><br>
+                                <label for="toDateServicios">Fecha hasta: </label>
+                                <input type="date" id="toDateServicios" value="{{toDate}}" [max]="toDate"
+                                    name="toDateServicios" #toDateServicios>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control" name="select" #codSucursalServicio (change)="getServicios($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
+                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <select class="form-control" name="selectmake" #codServicioServs>
+                                    <option value="-1" selected>Seleccione servicio...</option>
+                                    <option *ngFor="let serviciosServs of serviciosServs"
+                                        value="{{serviciosServs.serv_codigo}}" [ngValue]="serviciosServs.serv_codigo">
+                                        {{serviciosServs.serv_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="buscarServicios()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>SERVICIOS</h2>
+                    <hr>
+                    <div class="table-responsive" id="contentServicios" #contentServicios #tableServicios>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesS" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Excelente</th>
+                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center">Bueno</th>
+                                    <th scope="col" class="text-center">Regular</th>
+                                    <th scope="col" class="text-center">Malo</th>
+                                    <th scope="col" class="text-center">Total</th>
+                                    <th scope="col" class="text-center">Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestS">
+                                <tr *ngFor="let servicioServs of servicioServs | paginate:configS">
+                                    <td *ngIf="todasSucursalesS">{{servicioServs.nombreEmpresa}}</td>
+                                    <td>{{servicioServs.Usuario}}</td>
+                                    <td>{{servicioServs.Fecha}}</td>
+                                    <td>{{servicioServs.Excelente}}</td>
+                                    <td>{{servicioServs.Muy_Bueno}}</td>
+                                    <td>{{servicioServs.Bueno}}</td>
+                                    <td>{{servicioServs.Regular}}</td>
+                                    <td>{{servicioServs.Malo}}</td>
+                                    <td>{{servicioServs.Total}}</td>
+                                    <td>{{servicioServs.Promedio}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestSPag" id="Evals" [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedS($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <h2>MÁXIMOS Y MíNIMOS</h2>
+                    <hr>
+                    <div class="table-responsive" id="contentServsMaxMin" #contentServsMaxMin #tableServsMaxMin>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesS" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Excelente</th>
+                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center">Bueno</th>
+                                    <th scope="col" class="text-center">Regular</th>
+                                    <th scope="col" class="text-center">Malo</th>
+                                    <th scope="col" class="text-center">Total</th>
+                                    <th scope="col" class="text-center">Máx.</th>
+                                    <th scope="col" class="text-center">Mín.</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestMaxMin">
+                                <tr *ngFor="let servicioServsMaxMin of servicioServsMaxMin | paginate:configSMM">
+                                    <td *ngIf="todasSucursalesS">{{servicioServsMaxMin.nombreEmpresa}}</td>
+                                    <td>{{servicioServsMaxMin.Usuario}}</td>
+                                    <td>{{servicioServsMaxMin.Fecha}}</td>
+                                    <td>{{servicioServsMaxMin.Excelente}}</td>
+                                    <td>{{servicioServsMaxMin.Muy_Bueno}}</td>
+                                    <td>{{servicioServsMaxMin.Bueno}}</td>
+                                    <td>{{servicioServsMaxMin.Regular}}</td>
+                                    <td>{{servicioServsMaxMin.Malo}}</td>
+                                    <td>{{servicioServsMaxMin.Total}}</td>
+                                    <td>{{servicioServsMaxMin.max}}</td>
+                                    <td>{{servicioServsMaxMin.min}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestMaxMinPag" id="Evalsmm"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            (pageChange)="pageChangedSMM($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelServicios()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfServicios('hola', 1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="tiempromat" role="tabpanel" aria-labelledby="tiempromat-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateDesdeEvalEmpl">Fecha desde:</label>
+                                <input type="date" id="fromDateDesdeEvalEmpl" value="{{fromDate}}" [max]="toDate"
+                                    name="fromDateDesdeEvalEmpl" #fromDateDesdeEvalEmpl><br><br>
+                                <label for="toDateHastaEvalEmpl">Fecha hasta: </label>
+                                <input type="date" id="toDateHastaEvalEmpl" value="{{toDate}}" [max]="toDate"
+                                    name="toDateHastaEvalEmpl" #toDateHastaEvalEmpl>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control" name="select" #codSucursalEvalEmpl (change)="getCajeros($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
+                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <select class="form-control" name="selectmake" #codCajeroEvalEmpl>
+                                    <option value="-1" selected>Seleccione usuario...</option>
+                                    <option *ngFor="let cajerosEval of cajerosEval" value="{{cajerosEval.caje_codigo}}"
+                                        [ngValue]="cajerosEval.caje_codigo">{{cajerosEval.caje_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="buscarEvalEmpl()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>EMPLEADO</h2>
+                    <hr>
+                    <div class="table-responsive" id="contentEvalEmpl" #contentEvalEmpl #tableEvalEmpl>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesE" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Excelente</th>
+                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center">Bueno</th>
+                                    <th scope="col" class="text-center">Regular</th>
+                                    <th scope="col" class="text-center">Malo</th>
+                                    <th scope="col" class="text-center">Total</th>
+                                    <th scope="col" class="text-center">Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestE">
+                                <tr *ngFor="let servicioEvalEmpl of servicioEvalEmpl | paginate:configE">
+                                    <td *ngIf="todasSucursalesE">{{servicioEvalEmpl.nombreEmpresa}}</td>
+                                    <td>{{servicioEvalEmpl.usua_nombre}}</td>
+                                    <td>{{servicioEvalEmpl.fecha}}</td>
+                                    <td>{{servicioEvalEmpl.Excelente}}</td>
+                                    <td>{{servicioEvalEmpl.Muy_Bueno}}</td>
+                                    <td>{{servicioEvalEmpl.Bueno}}</td>
+                                    <td>{{servicioEvalEmpl.Regular}}</td>
+                                    <td>{{servicioEvalEmpl.Malo}}</td>
+                                    <td>{{servicioEvalEmpl.Total}}</td>
+                                    <td>{{servicioEvalEmpl.Promedio}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestEPag" id="Evale" [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedE($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <h2>MÁXIMOS Y MÍNIMOS EMPLEADO</h2>
+                    <hr>
+                    <div class="table-responsive" id="contentEvalMMEmpl" #contentEvalMMEmpl #TABLEEvalMMEmpl #table>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesE" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Excelente</th>
+                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center">Bueno</th>
+                                    <th scope="col" class="text-center">Regular</th>
+                                    <th scope="col" class="text-center">Malo</th>
+                                    <th scope="col" class="text-center">Total</th>
+                                    <th scope="col" class="text-center">Max.</th>
+                                    <th scope="col" class="text-center">Min.</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestE">
+                                <tr *ngFor="let servicioEvalMMEmpl of servicioEvalMMEmpl | paginate:configEMM">
+                                    <td *ngIf="todasSucursalesE">{{servicioEvalMMEmpl.nombreEmpresa}}</td>
+                                    <td>{{servicioEvalMMEmpl.usua_nombre}}</td>
+                                    <td>{{servicioEvalMMEmpl.fecha}}</td>
+                                    <td>{{servicioEvalMMEmpl.Excelente}}</td>
+                                    <td>{{servicioEvalMMEmpl.Muy_Bueno}}</td>
+                                    <td>{{servicioEvalMMEmpl.Bueno}}</td>
+                                    <td>{{servicioEvalMMEmpl.Regular}}</td>
+                                    <td>{{servicioEvalMMEmpl.Malo}}</td>
+                                    <td>{{servicioEvalMMEmpl.Total}}</td>
+                                    <td>{{servicioEvalMMEmpl.max}}</td>
+                                    <td>{{servicioEvalMMEmpl.min}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestEPag" id="Evalemm" [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedEMM($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEvalEmpl()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfEvalEmpl('hola', 1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="omitidas" role="tabpanel" aria-labelledby="tiempromat-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateDesdeEvalOmitidas">Fecha desde:</label>
+                                <input type="date" id="fromDateDesdeEvalOmitidas" value="{{fromDate}}" [max]="toDate"
+                                    name="fromDateDesdeEvalOmitidas" #fromDateDesdeEvalOmitidas><br><br>
+                                <label for="toDateHastaEvalOmitidas">Fecha hasta: </label>
+                                <input type="date" id="toDateHastaEvalOmitidas" value="{{toDate}}" [max]="toDate"
+                                    name="toDateHastaEvalOmitidas" #toDateHastaEvalOmitidas>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control" name="select" #codSucursalEvalOmitidas (change)="getCajerosOmitidas($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
+                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <select class="form-control" name="selectmake" #codCajeroEvalOmitidas>
+                                    <option value="-1" selected>Seleccione usuario...</option>
+                                    <option *ngFor="let cajerosEvalOmitidas of cajerosEvalOmitidas" value="{{cajerosEvalOmitidas.caje_codigo}}"
+                                        [ngValue]="cajerosEvalOmitidas.caje_codigo">{{cajerosEvalOmitidas.caje_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="buscarEvalOmitidas()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>EVALUACIONES OMITIDAS</h2>
+                    <hr>
+                    <div class="table-responsive" id="contentEvalOmitidas" #contentEvalOmitidas #tableEvalOmitidas>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesEO" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestEOmitidas">
+                                <tr
+                                    *ngFor="let servicioEvalOmitidas of servicioEvalOmitidas | paginate:configEOmitidas">
+                                    <td *ngIf="todasSucursalesEO">{{servicioEvalOmitidas.nombreEmpresa}}</td>
+                                    <td>{{servicioEvalOmitidas.usua_nombre}}</td>
+                                    <td>{{servicioEvalOmitidas.fecha}}</td>
+                                    <td>{{servicioEvalOmitidas.Total}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestEOmitidasPag" id="Evaleomitidas"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            (pageChange)="pageChangedEOmitidas($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2"
+                        (click)="exportarAExcelEvalOmitidas()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfEvalOmitidas('hola', 1)">PDF</button>
+                    <br><br>
+
+                </div>
+
+                <div class="tab-pane fade" id="inoutsistema" role="tabpanel" aria-labelledby="inoutsistema-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateEstb">Fecha desde:</label>
+                                <input type="date" id="fromDateEstb" value="{{fromDate}}" [max]="toDate"
+                                    name="fromDateEstb" #fromDateEstb><br><br>
+                                <label for="toDateEstb">Fecha hasta: </label>
+                                <input type="date" id="toDateEstb" value="{{toDate}}" [max]="toDate" name="toDateEstb"
+                                    #toDateEstb>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control" name="select" #codSucursalEst (change)="getServicios($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
+                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerEstablecimientos()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>ESTABLECIMIENTO</h2>
+                    <hr>
+                    <div class="table-responsive" id="contentEstb" #contentEstb #tableEstb>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesEST" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Excelente</th>
+                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center">Bueno</th>
+                                    <th scope="col" class="text-center">Regular</th>
+                                    <th scope="col" class="text-center">Malo</th>
+                                    <th scope="col" class="text-center">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestEstb">
+                                <tr *ngFor="let servicioEstb of servicioEstb | paginate:configEstb">
+                                    <td *ngIf="todasSucursalesEST">{{servicioEstb.nombreEmpresa}}</td>
+                                    <td>{{servicioEstb.fecha}}</td>
+                                    <td>{{servicioEstb.Excelente}}</td>
+                                    <td>{{servicioEstb.Muy_Bueno}}</td>
+                                    <td>{{servicioEstb.Bueno}}</td>
+                                    <td>{{servicioEstb.Regular}}</td>
+                                    <td>{{servicioEstb.Malo}}</td>
+                                    <td>{{servicioEstb.Total}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestEstbPag" id="EvalEstb"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            (pageChange)="pageChangedEstb($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEstb()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfEstb('hola', 1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="atencionusuario" role="tabpanel" aria-labelledby="atencionusuario-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateDesdeEvalGr">Fecha desde:</label>
+                                <input type="date" id="fromDateDesdeEvalGr" value="{{fromDate}}" [max]="toDate"
+                                    name="fromDateDesdeEvalGr" #fromDateDesdeEvalGr><br><br>
+                                <label for="toDateHastaEvalGr">Fecha hasta: </label>
+                                <input type="date" id="toDateHastaEvalGr" value="{{toDate}}" [max]="toDate"
+                                    name="toDateHastaEvalGr" #toDateHastaEvalGr>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control" name="select" #codSucursalEvalGr (change)="getCajerosG($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
+                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <select class="form-control" name="selectmake" #codCajeroEvalGr>
+                                    <option value="-1" selected>Seleccione usuario...</option>
+                                    <option *ngFor="let cajerosG of cajerosG" value="{{cajerosG.caje_codigo}}"
+                                        [ngValue]="cajerosG.caje_codigo">{{cajerosG.caje_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="buscarEvalGr()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>EVALUACIÓN POR GRUPOS</h2>
+                    <hr>
+                    <div class="table-responsive" id="contentEvalGr" #contentEvalGr #tableEvalGr>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesEG" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Bueno</th>
+                                    <th scope="col" class="text-center">Malo</th>
+                                    <th scope="col" class="text-center">Total</th>
+                                    <th scope="col" class="text-center">Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestG">
+                                <tr *ngFor="let servicioG of servicioG | paginate:configEG">
+                                    <td *ngIf="todasSucursalesEG">{{servicioG.nombreEmpresa}}</td>
+                                    <td>{{servicioG.usua_nombre}}</td>
+                                    <td>{{servicioG.fecha}}</td>
+                                    <td>{{servicioG.Bueno}}</td>
+                                    <td>{{servicioG.Malo}}</td>
+                                    <td>{{servicioG.Total}}</td>
+                                    <td>{{servicioG.Promedio}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestGPag" id="Evaleg" [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedEG($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEvalGr()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfEvalGr('hola', 1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="graficoeva" role="tabpanel" aria-labelledby="graficoeva-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateDesdeEvalGra">Fecha desde:</label>
+                                <input type="date" id="fromDateDesdeEvalGra" value="{{fromDate}}" [max]="toDate"
+                                    name="fromDateDesdeEvalGra" #fromDateDesdeEvalGra><br><br>
+
+                                <label for="toDateHastaEvalGra">Fecha hasta: </label>
+                                <input type="date" id="toDateHastaEvalGra" value="{{toDate}}" [max]="toDate"
+                                    name="toDateHastaEvalGra" #toDateHastaEvalGra>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control" name="select" #codSucursal (change)="getCajerosG($event.target.value)">
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
+                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <select class="form-control" name="selectmake" #codCajeroEvalGra>
+                                    <option value="-1" selected>Seleccione usuario...</option>
+                                    <option *ngFor="let cajerosG of cajerosG" value="{{cajerosG.caje_codigo}}"
+                                        [ngValue]="cajerosG.caje_codigo">{{cajerosG.caje_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerGraficosevabar()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <br>
+                    <h2>EVALUACIONES</h2>
+                    <hr>
+                    <div class="container" id="contentGra" #contentGra #tableGra>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col" class="text-center" *ngIf="todasSucursalesG" style="width: 300px;">Sucursal</th>
+                                        <th scope="col" class="text-center">Usuario</th>
+                                        <th scope="col" class="text-center">Evaluación</th>
+                                        <th scope="col" class="text-center">Total</th>
+                                        <th scope="col" class="text-center">Porcentajes</th>
+                                    </tr>
+                                </thead>
+                                <tbody *ngIf="!malRequestGra">
+                                    <tr *ngFor="let servicioGra of servicioGra | paginate:configG">
+                                        <td *ngIf="todasSucursalesG">{{servicioGra.nombreEmpresa}}</td>
+                                        <td>{{servicioGra.usuario}}</td>
+                                        <td>{{servicioGra.evaluacion}}</td>
+                                        <td>{{servicioGra.total}}</td>
+                                        <td>{{servicioGra.porcentaje}}</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <pagination-controls *ngIf="!malRequestGraPag" id="Evalg"
+                                [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                                (pageChange)="pageChangedG($event)">
+                            </pagination-controls>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-info mx-2" (click)="cambiar('pie')">pastel</button>
+                            <button type="button" class="btn btn-info" (click)="cambiar('bar')">barras</button>
+                        </div>
+                        <br>
+                        <div id="canvasCont" *ngIf="!malRequestGra">
+                            <h2>GRÁFICO EVALUACIONES</h2><br>
+                            <canvas id="canvas">{{chart}}</canvas>
+                        </div>
+                    </div>
+                    <br>
+                    <fieldset>
+                        <div>
+                            <label>Orientación de página: </label>
+
+                            <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
+                                value="portrait" (click)="cambiarOrientacion('portrait')" checked>
+                            <label for="vertical">Vertical </label>
+
+                            <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
+                                value="landscape" (click)="cambiarOrientacion('landscape')">
+                            <label for="horizontal">Horizontal </label>
+                        </div>
+                    </fieldset>
+                    <button type="button" class="btn btn-info" (click)="generarPdfGra('hola',1)">PDF</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

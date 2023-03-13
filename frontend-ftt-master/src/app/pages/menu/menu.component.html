@@ -1,0 +1,114 @@
+<!-- ============================================================== -->
+<!-- Stats box -->
+<!-- ============================================================== -->
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="m-r-10 align-self-center"><img src="../assets/images/icon/income.png" alt="Income" /></div>
+                    <div class="align-self-center">
+                        <h3 class="text-muted m-t-10 m-b-0">Tickets Emitidos</h3>
+                        <h6 class="text-muted m-t-10 m-b-0" id="fecha1">{{date}}</h6>
+                        <h2 class="m-t-0" *ngFor="let servgraf1 of servgraf1">{{ servgraf1.numeroturnos }}</h2>
+                        <a routerLink="usuarios" class="card-link">Más Info <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="m-r-20 align-self-center"><img src="../assets/images/icon/expense.png" alt="Income" /></div>
+                    <div class="align-self-center">
+                        <h3 class="text-muted m-t-10 m-b-0"> Tickets Atendidos </h3>
+                        <h6 class="text-muted m-t-10 m-b-0" id="fecha1">{{date}}</h6>
+                        <h2 class="m-t-0" *ngFor="let servgraf2 of servgraf2 "> {{ servgraf2.atendidostotales }} </h2>
+                        <a routerLink="atencion" class="card-link">Más Info <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="m-r-20 align-self-center"><img src="../assets/images/icon/assets.png" alt="Income" /></div>
+                    <div class="align-self-center">
+                        <h3 class="text-muted m-t-10 m-b-0"> Tickets No Atendidos</h3>
+                        <h6 class="text-muted m-t-10 m-b-0" id="fecha1">{{date}}</h6>
+                        <h2 class="m-t-0" *ngFor="let servgraf3 of servgraf3"> {{ servgraf3.noatendidos }} </h2>
+                        <a routerLink="distestadoturnos" class="card-link">Más Info <i class="fa fa-arrow-circle-right"></i></a>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="m-r-20 align-self-center"><img src="../assets/images/icon/staff.png" alt="Income" /></div>
+                    <div class="align-self-center">
+                        <h3 class="text-muted m-t-10 m-b-0">Promedio Atención</h3>
+                        <h6 class="text-muted m-t-10 m-b-0" id="fecha1">{{date}}</h6>
+                        <h2 class="m-t-0" *ngFor="let servgraf4 of servgraf4"> {{ servgraf4.PromedioAtencion }} </h2>
+                        <a routerLink="usuarios" class="card-link">Más Info <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ============================================================== -->
+<!-- Sales overview chart -->
+<!-- ============================================================== -->
+<div class="row">
+    <div class="col-lg-6 col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h3 class="card-title m-b-5"><span class="lstick"></span> Servicios más solicitados </h3>
+                    </div>
+                </div>
+                <br>
+                <div id="sales-overview2" class="p-relative" *ngFor="let servicio6 of servicio6">
+                    <div id="ct-sales3-chart" class="p-relative">
+                        <h5 class="m-t-30">{{servicio6.Servicio}}<span class="pull-right">{{servicio6.Total}}</span></h5>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" role="progressBar" style="height: 15px; padding-left: 5px;" [ngStyle]="{ 'width': ((servicio6.Total*100)/altoMA)+'%' }" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div>
+                        <h3 class="card-title m-b-5"><span class="lstick"></span> Promedio Evaluación Agencia </h3>
+                    </div>
+                </div>
+                <br>
+
+                <div id="sales-overview2" class="p-relative" *ngFor="let servicio5 of servicio5">
+                    <h5 class="m-t-30"> {{servicio5.evaluacion}} <span class="pull-right">{{servicio5.total}}</span></h5>
+                    <div class="progress ">
+                        <div class="progress-bar bg-info" role="progressbar" style="height: 15px; padding-left: 5px;" [ngStyle]="{ 'width': ((servicio5.total*100)/altoPr)+'%' }" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>

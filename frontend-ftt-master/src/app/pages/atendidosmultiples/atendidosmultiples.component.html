@@ -1,0 +1,70 @@
+<div class="card">
+    <h5 class="card-header">ATENDIDOS MÚLTIPLES</h5>
+    <div class="card-body">
+        <form>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">ATENDIDOS MÚLTIPLES</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="fromDateAtM">Fecha desde:</label>
+                                <input type="date" id="fromDateAtM" value="{{fromDate}}" [max]="toDate" name="fromDateAtM" #fromDateAtM>
+                                <br><br>
+                                <label for="toDateAtM">Fecha hasta: </label>
+                                <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-control"  name="select" #codSucursalAtM>
+                                    <option value="-1" selected>Sucursales</option>
+                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
+                                </select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerAtendidosMultiples()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                            <br><br>
+                        </div>
+                    </div>
+                    <br>
+                    <h2>ATENDIDOS MÚLTIPLES</h2>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="contentAtMul" #contentAtMul #tableAtMul>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursales" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Atendidos</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestAtM">
+                                <tr *ngFor="let servicioAtMul of servicioAtMul | paginate:configAtM">
+                                    <td *ngIf="todasSucursales">{{servicioAtMul.nombreEmpresa}}</td>
+                                    <td>{{servicioAtMul.Usuario}}</td>
+                                    <td>{{servicioAtMul.Atendidos}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls 
+                            *ngIf="!malRequestAtMPag" 
+                            id= "AtendidosMatm"
+                            [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel"  
+                            (pageChange)="pageChangedAtM($event)">
+                        </pagination-controls>
+                    </div>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelAtenMult()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfAtendMult('hola',1)">PDF</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

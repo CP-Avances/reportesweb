@@ -1,0 +1,35 @@
+body {
+    margin: 0;
+    padding: 0;
+    //background-color: #4a9acf;
+    height: 100vh;
+}
+
+#login .container #login-row #login-column #login-box {
+    margin-top: 10px;
+    max-width: 600px;
+    height: 400px;
+    border: 1px solid #9C9C9C;
+    background-color: #EAEAEA;
+    border-radius: 25px;
+    justify-content: center;
+}
+
+#login .container #login-row #login-column #login-box #login-form {
+    padding: 20px;
+}
+
+#login .container #login-row #login-column #login-box #login-form #register-link {
+    margin-top: -85px;
+}
+
+//imagencentro
+.centerimage {
+    display: flex;
+    height: 35%;
+    width: 35%;
+    //background-color: black;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
