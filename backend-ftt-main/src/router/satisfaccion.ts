@@ -135,7 +135,7 @@ router.get('/promedioatencion/:fecha', (req: Request, res: Response) => {
     const query =
         `
         SELECT turn_fecha, 
-            date_format(SEC_TO_TIME(AVG(turn_duracionatencion)),'%H:%i:%s') AS PromedioAtencion 
+            SEC_TO_TIME(AVG(turn_duracionatencion)) AS PromedioAtencion 
         FROM turno 
         WHERE turn_fecha = '${fechas}'
         `

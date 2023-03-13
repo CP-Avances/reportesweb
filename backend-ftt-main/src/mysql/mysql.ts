@@ -1,5 +1,5 @@
 
-import mysql = require('mysql2');
+import mysql = require('mysql');
 
 
 export default class MySQL {

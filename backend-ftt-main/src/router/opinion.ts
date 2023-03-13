@@ -32,7 +32,7 @@ router.get(
         FROM empresa 
         INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo 
         INNER JOIN caja ON quejas.caja_codigo = caja.caja_codigo 
-        WHERE emi_fecha BETWEEN ${fDesde} AND ${fHasta} 
+        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ORDER BY quejas.emi_fecha DESC, quejas.emi_hora DESC, quejas.emi_minuto DESC, quejas.emi_codigo DESC;
         `
     } else {
@@ -53,7 +53,7 @@ router.get(
         FROM empresa 
         INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo 
         INNER JOIN caja ON quejas.caja_codigo = caja.caja_codigo 
-        WHERE emi_fecha BETWEEN ${fDesde} AND ${fHasta} 
+        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           AND empresa.empr_codigo = ${cEmpresa}
         ORDER BY quejas.emi_fecha DESC, quejas.emi_hora DESC, quejas.emi_minuto DESC, quejas.emi_codigo DESC;
         `
@@ -99,7 +99,7 @@ router.get(
         quejas.emi_categoria AS quejas_emi_categoria
         FROM empresa 
         INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo
-        WHERE emi_fecha BETWEEN ${fDesde} AND ${fHasta}
+        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         GROUP BY emi_tipo, empresa.empr_nombre, quejas.emi_categoria;
         `
     } else {
@@ -113,7 +113,7 @@ router.get(
           empresa.empr_nombre AS empresa_empr_nombre,
           quejas.emi_categoria AS quejas_emi_categoria
         FROM empresa INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo
-        WHERE emi_fecha BETWEEN ${fDesde} AND ${fHasta}
+        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
           AND empresa.empr_codigo = ${cEmpresa}
         GROUP BY emi_tipo, quejas.emi_categoria;
         `

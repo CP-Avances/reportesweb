@@ -52,12 +52,23 @@ export class ServiceService {
     return this.http.get<servicio[]>(this.URL + "/getallservicios" + "/" + cod);
   }
 
+
+
+  /** ************************************************************************************************************ **
+   ** **                                    TIEMPO PROMEDIO DE ATENCION                                         ** ** 
+   ** ************************************************************************************************************ **/
+
+  getturnosF(fechaDesde: any, fechaHasta: any, cod: number): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + cod);
+  }
+
   getturnos(): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion");
   }
-  getturnosF(fechaDesde, fechaHasta, cod): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + cod);
-  }
+
+
+
+
 
   getentradassalidasistema(fechaDesde, fechaHasta, cod): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/entradasalidasistema/" + fechaDesde + "/" + fechaHasta + "/" + cod);

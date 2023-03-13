@@ -16,9 +16,9 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:cCajero', (req, res) => {
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario,
             serv_nombre AS Servicio, date_format(turn_fecha, '%Y-%m-%d') AS Fecha,
-            date_format(sec_to_time(avg(IFNULL(time_to_sec(turn_tiempoespera),0))),'%H:%i:%s') AS Tiempo_Espera,
+            sec_to_time(avg(IFNULL(time_to_sec(turn_tiempoespera),0))) AS Tiempo_Espera,
             AVG(IFNULL(time_to_sec(turn_tiempoespera),0)) AS Espera,
-            date_format(sec_to_Time(AVG(IFNULL(turn_duracionatencion,0))), '%H:%i:%s') AS Tiempo_Atencion,
+            sec_to_Time(AVG(IFNULL(turn_duracionatencion,0))) AS Tiempo_Atencion,
             AVG(IFNULL(turn_duracionatencion,0)) AS Atencion
         FROM turno t, servicio s, usuarios u, cajero c, empresa e
         WHERE t.serv_codigo = s.serv_codigo 
@@ -54,9 +54,9 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
     const cServ = req.params.cServ;
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, t.SERV_CODIGO, s.SERV_NOMBRE,
-            date_format(sec_to_time(avg(time_to_sec(turn_tiempoespera))), '%H:%i:%s') AS PromedioEspera,
+            sec_to_time(avg(time_to_sec(turn_tiempoespera))) AS PromedioEspera,
             AVG(time_to_sec(STR_TO_DATE(turn_tiempoespera, ' %T '))) AS Espera,
-            date_format(SEC_TO_TIME(AVG(turn_duracionatencion)),'%H:%i:%s') AS PromedioAtencion,
+            SEC_TO_TIME(AVG(turn_duracionatencion)) AS PromedioAtencion,
             AVG(turn_duracionatencion) AS Atencion,
             date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA, 
             (SELECT max(turn_fecha) FROM turno) AS fechamaxima,
@@ -94,7 +94,7 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
     const query = `
         SELECT empresa.empr_nombre AS nombreEmpresa, turno.SERV_CODIGO, servicio.SERV_NOMBRE,
             MAX(IFNULL(TURN_DURACIONATENCION,0)) AS duracion,
-            CONCAT(SEC_TO_TIME(MAX(IFNULL(TURN_DURACIONATENCION,0)))) AS Maximo,
+            SEC_TO_TIME(MAX(IFNULL(TURN_DURACIONATENCION,0))) AS Maximo,
             date_format(turno.TURN_FECHA, '%Y-%m-%d') AS Fecha,
             (SELECT MAX(turn_fecha) FROM turno) AS fechamaxima,
             (SELECT MIN(turn_fecha) FROM turno) AS fechaminima
@@ -222,16 +222,15 @@ router.get('/promediosatencionmenu/:fecha', (req, res) => {
     let fechas = req.params.fecha;
     const query = `
         SELECT t.SERV_CODIGO, s.SERV_NOMBRE, 
-            date_format(sec_to_time(avg(time_to_sec(STR_TO_DATE(turn_tiempoespera, ' %T ')))),'%H:%i:%s') AS PromedioEspera, 
+            sec_to_time(avg(time_to_sec(STR_TO_DATE(turn_tiempoespera, ' %T ')))) AS PromedioEspera, 
             avg(time_to_sec(STR_TO_DATE(turn_tiempoespera, ' %T '))) AS Espera, 
-            date_format(SEC_TO_TIME(AVG(turn_duracionatencion)),'%H:%i:%s') AS PromedioAtencion, 
+            SEC_TO_TIME(AVG(turn_duracionatencion)) AS PromedioAtencion, 
             AVG(turn_duracionatencion) AS Atencion, t.TURN_FECHA, 
             (SELECT max(turn_fecha) FROM turno) AS fechamaxima, 
             (SELECT MIN(turn_fecha) FROM turno) AS fechaminima 
         FROM turno t, servicio s 
         WHERE t.serv_codigo=s.serv_codigo 
             AND t.turn_estado = 1 
-            AND s.empr_codigo
             AND t.TURN_FECHA = '${fechas}' 
         GROUP BY t.serv_codigo;
     `;

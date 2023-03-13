@@ -121,6 +121,38 @@ router.get('/getallcajeros/:empresa', (req: Request, res: Response) => {
  ** **                               TIEMPO PROMEDIO DE ATENCION                                              ** ** 
  ** ************************************************************************************************************ **/
 
+router.get('/tiempopromedioatencion/:fechaDesde/:fechaHasta/:cajero', (req: Request, res: Response) => {
+    const fDesde = req.params.fechaDesde;
+    const fHasta = req.params.fechaHasta;
+    const cCajero = req.params.cajero;
+    const query =
+        `
+        SELECT e.empr_nombre AS nombreEmpresa, serv_nombre AS Servicio, caje_nombre AS Nombre, 
+            COUNT(turn_codigo) AS Turnos, 
+            sec_to_time(AVG(IFNUll(turn_duracionatencion, 0))) AS Promedio 
+        FROM cajero c, turno t, servicio s, empresa e 
+        WHERE t.caje_codigo = c.caje_codigo 
+            AND t.serv_codigo = s.serv_codigo 
+            AND s.empr_codigo = e.empr_codigo  
+            AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+            AND c.caje_codigo = ${cCajero} 
+        GROUP BY nombreEmpresa, Nombre, Servicio
+        `
+    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err
+            });
+        } else {
+            res.json({
+                ok: true,
+                turnos
+            })
+        }
+    })
+});
+
 router.get('/tiempopromedioatencion', (req: Request, res: Response) => {
 
     const query =
@@ -162,9 +194,7 @@ router.get('/entradasalidasistema/:fechaDesde/:fechaHasta/:empresa', (req: Reque
         query =
             `
             SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario,
-                CONCAT(CONCAT(dayofmonth(reg_fecha),'/', month(reg_fecha), '/', year(reg_fecha)),'  ', 
-                IF(reg_hora <= 9, CONCAT('0', reg_hora), reg_hora), ':',
-                IF(reg_minuto <= 9, CONCAT('0',reg_minuto),reg_minuto) ) AS fecha,
+            CAST(STR_TO_DATE(concat(reg_fecha," ",reg_hora,":",reg_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS CHAR) AS fecha,
                 reg_hora as Hora, reg_minuto as Minuto,
                 IF(reg_estado = 1, 'Entrada Servicio',
                 IF(reg_estado = 2, 'Salida Servicio', 
@@ -179,9 +209,7 @@ router.get('/entradasalidasistema/:fechaDesde/:fechaHasta/:empresa', (req: Reque
         query =
             `
             SELECT usua_nombre as Usuario,
-                CONCAT(CONCAT(dayofmonth(reg_fecha), '/', month(reg_fecha), '/', year(reg_fecha)), '  ', 
-                IF(reg_hora <= 9, CONCAT('0',reg_hora), reg_hora ), ':',
-                IF(reg_minuto<=9, CONCAT('0',reg_minuto), reg_minuto) ) AS fecha,
+            STR_TO_DATE(concat(reg_fecha," ",reg_hora,":",reg_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS fecha,
                 reg_hora AS Hora, reg_minuto AS Minuto,
                 IF(reg_estado = 1, 'Entrada Servicio',
                 IF(reg_estado = 2, 'Salida Servicio', 
@@ -354,43 +382,6 @@ router.get('/turnosfechas/:fechaDesde/:fechaHasta/:empresa', (req: Request, res:
             ORDER BY Fecha DESC, Usuario, Servicio;
             `
     }
-    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
-        if (err) {
-            res.status(400).json({
-                ok: false,
-                error: err
-            });
-        } else {
-            res.json({
-                ok: true,
-                turnos
-            })
-        }
-    })
-});
-
-
-/** ************************************************************************************************************ **
- ** **                                TIEMPO PROMEDIO DE ATENCION                                             ** ** 
- ** ************************************************************************************************************ **/
-
-router.get('/tiempopromedioatencion/:fechaDesde/:fechaHasta/:cajero', (req: Request, res: Response) => {
-    const fDesde = req.params.fechaDesde;
-    const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cajero;
-    const query =
-        `
-        SELECT e.empr_nombre AS nombreEmpresa, serv_nombre AS Servicio, caje_nombre AS Nombre, 
-            COUNT(turn_codigo) AS Turnos, 
-            date_format(sec_to_time(AVG(IFNUll(turn_duracionatencion, 0))), '%H:%i:%s') AS Promedio 
-        FROM cajero c, turno t, servicio s, empresa e 
-        WHERE t.caje_codigo = c.caje_codigo 
-            AND t.serv_codigo = s.serv_codigo 
-            AND s.empr_codigo = e.empr_codigo  
-            AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-            AND c.caje_codigo = ${cCajero} 
-        GROUP BY nombreEmpresa, Nombre, Servicio
-        `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
         if (err) {
             res.status(400).json({

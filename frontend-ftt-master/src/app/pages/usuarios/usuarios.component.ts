@@ -1,17 +1,19 @@
-import { Component,  OnInit,  ViewChild,  ElementRef,  EventEmitter,  Output,} from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, EventEmitter, Output, } from "@angular/core";
+import { DatePipe } from "@angular/common";
+import { Router } from "@angular/router";
+import { Utils } from "../../utils/util";
+
 import { ServiceService } from "../../services/service.service";
 import { AuthenticationService } from "../../services/authentication.service";
-import { Router } from "@angular/router";
 
-import { turno } from "../../models/turno";
 import { cajero } from "../../models/cajero";
-import { DatePipe } from "@angular/common";
+import { turno } from "../../models/turno";
 
-//Complementos para PDF y Excel
+// COMPLEMENTOS PARA PDF Y EXCEL
 import * as XLSX from "xlsx";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
-import { Utils } from "../../utils/util";
+import moment from "moment";
 
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 
@@ -22,11 +24,13 @@ const EXCEL_EXTENSION = ".xlsx";
   templateUrl: "./usuarios.component.html",
   styleUrls: ["./usuarios.component.scss"],
 })
+
 export class UsuariosComponent implements OnInit {
-  //Seteo de fechas primer dia del mes actual y dia actual
-  fromDate;
-  toDate;
-  //captura de elementos de la interfaz visual para tratarlos y capturar datos
+  // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
+  fromDate: any;
+  toDate: any;
+
+  // CAPTURA DE ELEMENTOS DE LA INTERFAZ VISUAL PARA TRATARLOS Y CAPTURAR DATOS
   @ViewChild("content") element: ElementRef;
   @ViewChild("fromDateTurnosFecha") fromDateTurnosFecha: ElementRef;
   @ViewChild("toDateTurnosFecha") toDateTurnosFecha: ElementRef;
@@ -45,23 +49,23 @@ export class UsuariosComponent implements OnInit {
   @ViewChild("codCajeroPromAtencion") codCajeroPromAtencion: ElementRef;
   @ViewChild("codCajeroAtencionUsua") codCajeroAtencionUsua: ElementRef;
 
-  //Servicios-Variables donde se almacenaran las consultas a la BD
+  // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   turno: turno[];
   cajero: cajero[];
   sucursales: any[];
-  servicioPromAtencion: any = [];
-  servicioTurnosFecha: any = [];
   cajerosUsuarios: any = [];
-  servicioEntradaSalida: any = [];
+  servicioTurnosFecha: any = [];
   servicioAtencionUsua: any = [];
+  servicioPromAtencion: any = [];
+  servicioEntradaSalida: any = [];
 
-  //Banderas para mostrar la tabla correspondiente a las consultas
-  todasSucursalesTF: boolean = false;
+  // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
   todasSucursalesTPA: boolean = false;
+  todasSucursalesTF: boolean = false;
   todasSucursalesES: boolean = false;
   todasSucursalesAU: boolean = false;
 
-  //Banderas para que no se quede en pantalla consultas anteriores
+  // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestTF: boolean = false;
   malRequestTFPag: boolean = false;
   malRequestTPA: boolean = false;
@@ -70,28 +74,35 @@ export class UsuariosComponent implements OnInit {
   malRequestAUPag: boolean = false;
   malRequestES: boolean = false;
   malRequestESPag: boolean = false;
-  //Usuario que ingreso al sistema
+
+  // USUARIO QUE INGRESO AL SISTEMA
   userDisplayName: any;
-  //Control paginacion
+
+  // CONTROL PAGINACION
   configTF: any;
   configTP: any;
   configES: any;
   configAU: any;
-  //Obtiene fecha actual para colocarlo en cuadro de fecha
+
+  // OBTIENE FECHA ACTUAL PARA COLOCARLO EN CUADRO DE FECHA
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
-  //Variable usada en exportacion a excel
+
+  // VARIABLE USADA EN EXPORTACION A EXCEL
   p_color: any;
-  //Maximo de items mostrado de tabla en pantalla
+
+  // MAXIMO DE ITEMS MOSTRADO DE TABLA EN PANTALLA
   private MAX_PAGS = 10;
-  //Palabras de componente de paginacion
+
+  // PALABRAS DE COMPONENTE DE PAGINACION
   public labels: any = {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
-  //Imagen Logo
+
+  // IMAGEN LOGO
   urlImagen: string;
 
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
@@ -166,11 +177,11 @@ export class UsuariosComponent implements OnInit {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
       this.cajerosUsuarios = cajeros.cajeros;
     },
-    (error)=>{
-      if (error.status == 400) {
-        this.cajerosUsuarios=[];
-      }
-    });
+      (error) => {
+        if (error.status == 400) {
+          this.cajerosUsuarios = [];
+        }
+      });
   }
 
   //Consulata para llenar la lista de surcursales.
@@ -187,9 +198,9 @@ export class UsuariosComponent implements OnInit {
   }
 
   //Comprueba si se realizo una busqueda por sucursales
-  comprobarBusquedaSucursales(cod: string){
+  comprobarBusquedaSucursales(cod: string) {
     console.log(cod);
-    return cod=="-1" ? true : false;
+    return cod == "-1" ? true : false;
   }
 
   buscarTurnosFecha() {
@@ -254,6 +265,10 @@ export class UsuariosComponent implements OnInit {
     this.router.navigateByUrl("/");
   }
 
+  /** ********************************************************************************************************** **
+   ** **                                     TIEMPO PROMEDIO DE ATENCION                                      ** **
+   ** ********************************************************************************************************** **/
+
   buscarTiempoPromedioAtencion() {
     //Captura de fecha y select de interfaz
     var fechaDesde = this.fromDatePromAtencion.nativeElement.value
@@ -279,7 +294,7 @@ export class UsuariosComponent implements OnInit {
               this.configTP.currentPage = 1;
             }
             //Comprobacion de la sucursal coonsultada
-           this.todasSucursalesTPA = this.comprobarBusquedaSucursales(codSucursal);
+            this.todasSucursalesTPA = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -401,7 +416,6 @@ export class UsuariosComponent implements OnInit {
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioEntradaSalida = servicio.turnos;
-          console.log('ver horas ', this.servicioEntradaSalida)
           this.malRequestES = false;
           this.malRequestESPag = false;
           //Seteo de paginacion cuando se hace una nueva busqueda
@@ -432,8 +446,8 @@ export class UsuariosComponent implements OnInit {
       );
   }
 
-  obtenerNombreSucursal(cod: string){
-    if (cod=="-1") {
+  obtenerNombreSucursal(cod: string) {
+    if (cod == "-1") {
       return "Todas las sucursales"
     } else {
       let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
@@ -477,10 +491,10 @@ export class UsuariosComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Entradas-Salidas");
     XLSX.writeFile(
       wb,
-      "Entradas y salidas - "+nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "Entradas y salidas - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -512,7 +526,7 @@ export class UsuariosComponent implements OnInit {
           Total: this.servicioTurnosFecha[i].Total,
         });
       }
-    } 
+    }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -526,7 +540,7 @@ export class UsuariosComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Turnos Fecha");
     XLSX.writeFile(
       wb,
-      "Turnos por fecha - "+nombreSucursal + " - " + new Date().toLocaleString() + EXCEL_EXTENSION
+      "Turnos por fecha - " + nombreSucursal + " - " + new Date().toLocaleString() + EXCEL_EXTENSION
     );
   }
 
@@ -546,7 +560,7 @@ export class UsuariosComponent implements OnInit {
           Turnos: this.servicioPromAtencion[i].Turnos,
         });
       }
-      tamanos=[this.servicioPromAtencion[0].nombreEmpresa]
+      tamanos = [this.servicioPromAtencion[0].nombreEmpresa]
     } else {
       for (let i = 0; i < this.servicioPromAtencion.length; i++) {
         jsonServicio.push({
@@ -555,7 +569,7 @@ export class UsuariosComponent implements OnInit {
           Promedio: this.servicioPromAtencion[i].Promedio,
           Turnos: this.servicioPromAtencion[i].Turnos,
         });
-      } 
+      }
     }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
@@ -570,10 +584,10 @@ export class UsuariosComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Promedio");
     XLSX.writeFile(
       wb,
-      "Promedio de atencion - " +nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "Promedio de atencion - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -613,10 +627,10 @@ export class UsuariosComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Atencion");
     XLSX.writeFile(
       wb,
-      "Atencion al usuario - " +nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "Atencion al usuario - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -629,7 +643,7 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTurnosFecha.nativeElement.value
       .toString()
       .trim();
-    
+
     var cod = this.codSucursal.nativeElement.value.toString().trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
@@ -775,7 +789,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
-  
+
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -811,7 +825,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           widths: ["*", "auto", "auto", "auto", "auto", "auto"],
-  
+
           body: [
             [
               { text: "Usuario", style: "tableHeader" },
@@ -850,7 +864,7 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDatePromAtencion.nativeElement.value
       .toString()
       .trim();
-    
+
     var cod = this.codSucursalPromAtencion.nativeElement.value.toString().trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
@@ -878,7 +892,7 @@ export class UsuariosComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentpromatencion(fechaDesde, fechaHasta,cod) {
+  getDocumentpromatencion(fechaDesde, fechaHasta, cod) {
     //Obtiene fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours());
@@ -976,7 +990,7 @@ export class UsuariosComponent implements OnInit {
           alignment: "center",
           margin: [0, 5, 0, 10],
         },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center"},
+        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
         CabeceraTabla: {
           fontSize: 12,
           alignment: "center",
@@ -997,7 +1011,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*","*", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -1188,7 +1202,7 @@ export class UsuariosComponent implements OnInit {
           alignment: "center",
           margin: [0, 5, 0, 10],
         },
-        tableMargin: { margin: [0, 20, 0, 0],alignment: "center" },
+        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
         CabeceraTabla: {
           fontSize: 12,
           alignment: "center",
@@ -1272,7 +1286,7 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateAtencionUsua.nativeElement.value
       .toString()
       .trim();
-      var cod = this.codSucursalAtencionUsua.nativeElement.value.toString().trim();
+    var cod = this.codSucursalAtencionUsua.nativeElement.value.toString().trim();
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
@@ -1399,7 +1413,7 @@ export class UsuariosComponent implements OnInit {
           alignment: "center",
           margin: [0, 5, 0, 10],
         },
-        tableMargin: { margin: [0, 20, 0, 0],alignment: "center" },
+        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
         CabeceraTabla: {
           fontSize: 12,
           alignment: "center",
@@ -1420,7 +1434,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*","*", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },

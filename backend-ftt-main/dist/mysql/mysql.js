@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const mysql = require("mysql2");
+const mysql = require("mysql");
 class MySQL {
     constructor() {
         this.conectado = false;
