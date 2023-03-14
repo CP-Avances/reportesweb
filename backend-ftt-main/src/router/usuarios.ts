@@ -62,7 +62,7 @@ router.get('/getallsucursales', (req: Request, res: Response) => {
 router.get('/getallcajeros', (req: Request, res: Response) => {
     const query =
         `
-        SELECT * FROM cajero ORDER BY caje_nombre;
+        SELECT * FROM cajero usua_codigo != 2 ORDER BY caje_nombre;
         `
     MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
 
@@ -89,14 +89,16 @@ router.get('/getallcajeros/:empresa', (req: Request, res: Response) => {
             `
             SELECT c.caje_codigo, c.usua_codigo, c.caje_apellido, c.caje_nombre, c.caje_estado 
             FROM cajero c, usuarios u 
-            WHERE u.usua_codigo = c.usua_codigo;
+            WHERE u.usua_codigo = c.usua_codigo
+            AND u.usua_codigo != 2;
             `
     } else {
         query =
             `
             SELECT c.caje_codigo, c.usua_codigo, c.caje_apellido, c.caje_nombre, c.caje_estado 
             FROM cajero c, usuarios u 
-            WHERE u.usua_codigo = c.usua_codigo AND u.empr_codigo = ${cEmpresa};
+            WHERE u.usua_codigo = c.usua_codigo AND u.empr_codigo = ${cEmpresa}
+            AND u.usua_codigo != 2;
             `
     }
     MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
@@ -203,6 +205,7 @@ router.get('/entradasalidasistema/:fechaDesde/:fechaHasta/:empresa', (req: Reque
             WHERE r.usua_codigo = u.usua_codigo
             AND u.empr_codigo = e.empr_codigo
             AND reg_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+            AND u.usua_codigo != 2
             ORDER BY reg_fecha desc, fecha;
             `
     } else {
@@ -218,6 +221,7 @@ router.get('/entradasalidasistema/:fechaDesde/:fechaHasta/:empresa', (req: Reque
             WHERE r.usua_codigo = u.usua_codigo
                 AND u.empr_codigo = ${cEmpresa}
                 AND reg_fecha BETWEEN '${fDesde} 'AND '${fHasta}'
+                AND u.usua_codigo != 2
             ORDER BY reg_fecha desc, fecha;
             `
     }
@@ -362,6 +366,7 @@ router.get('/turnosfechas/:fechaDesde/:fechaHasta/:empresa', (req: Request, res:
                 AND u.usua_codigo = c.usua_codigo 
                 AND u.empr_codigo = e.empr_codigo 
                 AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+                AND u.usua_codigo != 2
             GROUP BY nombreEmpresa, Fecha, Usuario, Servicio 
             ORDER BY Fecha DESC, Usuario, Servicio;
             `
@@ -378,6 +383,7 @@ router.get('/turnosfechas/:fechaDesde/:fechaHasta/:empresa', (req: Request, res:
                 AND u.usua_codigo = c.usua_codigo 
                 AND u.empr_codigo = ${cEmpresa}
                 AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+                AND u.usua_codigo != 2
             GROUP BY Fecha, Usuario, Servicio 
             ORDER BY Fecha DESC, Usuario, Servicio;
             `

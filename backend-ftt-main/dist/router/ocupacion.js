@@ -17,7 +17,7 @@ router.get('/ocupacionservicios/:fechaDesde/:fechaHasta/:empresa', (req, res) =>
     if (cEmpresa == "-1") {
         query =
             `
-            SELECT empresa.empr_nombre AS nombreEmpresa, cajero.caje_nombre AS Usuario, COUNT(turno.TURN_ESTADO) AS total,
+            SELECT empresa.empr_nombre AS nombreEmpresa, COUNT(turno.TURN_ESTADO) AS total,
                 servicio.SERV_NOMBRE, servicio.SERV_CODIGO,
                 ROUND((COUNT(turno.TURN_ESTADO)*100)/
                 (SELECT SUM(c) 
@@ -31,19 +31,19 @@ router.get('/ocupacionservicios/:fechaDesde/:fechaHasta/:empresa', (req, res) =>
                             date_format((SELECT MIN(turn_fecha) 
                                 FROM turno
                                 WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'), '%Y-%m-%d') AS fechaminima
-            FROM cajero, servicio 
+            FROM servicio 
             INNER JOIN turno
                 ON servicio.SERV_CODIGO = turno.SERV_CODIGO
             INNER JOIN empresa ON servicio.empr_codigo = empresa.empr_codigo
-            WHERE cajero.caje_codigo = turno.caje_codigo 
-                AND turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
-            GROUP BY servicio.SERV_CODIGO,cajero.caje_nombre;
+            WHERE turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
+            AND turno.caje_codigo != 0
+            GROUP BY servicio.SERV_CODIGO;
             `;
     }
     else {
         query =
             `
-            SELECT cajero.caje_nombre AS Usuario, COUNT(turno.TURN_ESTADO) AS total,
+            SELECT COUNT(turno.TURN_ESTADO) AS total,
                 servicio.SERV_NOMBRE, servicio.SERV_CODIGO,
                 ROUND((COUNT(turno.TURN_ESTADO)*100) / (SELECT SUM(c) 
                     FROM (SELECT COUNT(turn_estado) as c 
@@ -55,13 +55,13 @@ router.get('/ocupacionservicios/:fechaDesde/:fechaHasta/:empresa', (req, res) =>
                                     date_format((SELECT MIN(turn_fecha) 
                                     FROM turno
                                     WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'), '%Y-%m-%d') AS fechaminima
-            FROM cajero, servicio 
+            FROM  servicio 
             INNER JOIN turno
                 ON servicio.SERV_CODIGO = turno.SERV_CODIGO
-            WHERE cajero.caje_codigo = turno.caje_codigo 
-                AND turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
+            WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
                 AND servicio.empr_codigo = ${cEmpresa}
-            GROUP BY servicio.SERV_CODIGO,cajero.caje_nombre;
+                AND turno.caje_codigo != 0
+            GROUP BY servicio.SERV_CODIGO;
             `;
     }
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -108,6 +108,7 @@ router.get('/graficoocupacion/:fechaDesde/:fechaHasta/:empresa', (req, res) => {
                 ON servicio.SERV_CODIGO = turno.SERV_CODIGO
             INNER JOIN empresa ON servicio.empr_codigo = empresa.empr_codigo
             WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
+            AND turno.caje_codigo != 0
             GROUP BY servicio.SERV_CODIGO;
             `;
     }
@@ -132,6 +133,7 @@ router.get('/graficoocupacion/:fechaDesde/:fechaHasta/:empresa', (req, res) => {
                 ON servicio.SERV_CODIGO = turno.SERV_CODIGO
             WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
                 AND servicio.empr_codigo = ${cEmpresa}
+                AND turno.caje_codigo != 0
             GROUP BY servicio.SERV_CODIGO;
         `;
     }

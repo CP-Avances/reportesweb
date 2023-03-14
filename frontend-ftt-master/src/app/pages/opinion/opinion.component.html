@@ -43,7 +43,6 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesI" style="width: 300px;">Sucursal</th>
-                                    <th scope="col" class="text-center">Código</th>
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
@@ -56,7 +55,6 @@
                             <tbody *ngIf="!malRequestAtM">
                                 <tr *ngFor="let servicioOpinion of servicioOpinion | paginate:configAtM">
                                     <td *ngIf="todasSucursalesI">{{servicioOpinion.empresa_empr_nombre}}</td>
-                                    <td>{{servicioOpinion.quejas_emi_codigo}}</td>
                                     <td>{{servicioOpinion.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinion.quejas_emi_categoria}}</td>
                                     <td>{{servicioOpinion.quejas_emi_fecha}}</td>

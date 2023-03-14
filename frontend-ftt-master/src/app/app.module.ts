@@ -18,7 +18,8 @@ import { DatePipe } from '@angular/common';
 import { Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 Chart.register(ChartDataLabels);
-
+import { ToastrModule } from 'ngx-toastr';
+import {BrowserAnimationsModule} from '@Angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -27,13 +28,15 @@ Chart.register(ChartDataLabels);
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
     NgChartsModule,
     FormsModule,
     DpDatePickerModule,
     PagesModule,
-    AuthModule
+    AuthModule,
+    ToastrModule.forRoot(),
   ],
   providers: [
     DatePipe,

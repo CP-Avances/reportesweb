@@ -4,6 +4,7 @@ import { AuthenticationService } from "../../services/authentication.service";
 import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
 import { Chart } from "chart.js";
+import { ToastrService } from "ngx-toastr";
 
 //Complementos para PDF y Excel
 import * as pdfMake from "pdfmake/build/pdfmake";
@@ -78,7 +79,8 @@ export class OpinionComponent implements OnInit {
     private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router,
-    public datePipe: DatePipe
+    public datePipe: DatePipe,
+    private toastr: ToastrService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configAtM = {
@@ -185,6 +187,10 @@ export class OpinionComponent implements OnInit {
             itemsPerPage: this.MAX_PAGS,
             currentPage: 1,
           };
+          //Se informa que no se encontraron registros
+          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+            timeOut: 6000,
+          });
         }
       }
     );
@@ -227,6 +233,10 @@ export class OpinionComponent implements OnInit {
             itemsPerPage: this.MAX_PAGS,
             currentPage: 1,
           };
+          //Se informa que no se encontraron registros
+          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+            timeOut: 6000,
+          });
         }
       }
     );
@@ -380,7 +390,6 @@ export class OpinionComponent implements OnInit {
         for (let step = 0; step < this.servicioOpinion.length; step++) {
           jsonServicio.push({
             Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
-            Código: this.servicioOpinion[step].quejas_emi_codigo,
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
@@ -392,7 +401,6 @@ export class OpinionComponent implements OnInit {
       } else {
         for (let step = 0; step < this.servicioOpinion.length; step++) {
           jsonServicio.push({
-            Código: this.servicioOpinion[step].quejas_emi_codigo,
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
@@ -717,12 +725,11 @@ export class OpinionComponent implements OnInit {
         table: {
           alignment: "center",
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "*"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "*"],
   
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Código", style: "tableHeader" },
               { text: "Tipo", style: "tableHeader" },
               { text: "Categoría", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
@@ -733,7 +740,6 @@ export class OpinionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.empresa_empr_nombre },
-                { style: "itemsTable", text: res.quejas_emi_codigo },
                 { style: "itemsTable", text: res.quejas_emi_tipo },
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
@@ -756,11 +762,10 @@ export class OpinionComponent implements OnInit {
         table: {
           alignment: "center",
           headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
+          widths: ["auto", "auto", "auto", "auto", "auto", "*"],
   
           body: [
             [
-              { text: "Código", style: "tableHeader" },
               { text: "Tipo", style: "tableHeader" },
               { text: "Categoría", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
@@ -770,7 +775,6 @@ export class OpinionComponent implements OnInit {
             ],
             ...servicio.map((res) => {
               return [
-                { style: "itemsTable", text: res.quejas_emi_codigo },
                 { style: "itemsTable", text: res.quejas_emi_tipo },
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },

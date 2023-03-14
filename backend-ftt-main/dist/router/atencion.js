@@ -67,6 +67,7 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
             AND s.empr_codigo = e.empr_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             AND s.serv_codigo = ${cServ}
+            AND t.caje_codigo !=0
         GROUP BY t.serv_codigo, t.turn_fecha;
     `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -105,6 +106,7 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
             ON servicio.empr_codigo = empresa.empr_codigo
             AND turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             AND servicio.serv_codigo = ${cServ}
+            AND turno.caje_codigo !=0
         GROUP BY turno.serv_codigo, turno.turn_fecha;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -177,8 +179,9 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:empresa', (req, res) => {
             WHERE t.serv_codigo = s.serv_codigo
                 AND t.caje_codigo = c.caje_codigo
                 AND u.usua_codigo = c.usua_codigo
-                AND u.empr_codigo = e.empr_codigo
+                AND s.empr_codigo = e.empr_codigo
                 AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                AND u.usua_codigo !=2
             GROUP BY nombreEmpresa, Servicio
             ORDER BY Servicio;
             `;
@@ -196,10 +199,12 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:empresa', (req, res) => {
                 AND u.usua_codigo = c.usua_codigo
                 AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
                 AND s.empr_codigo = ${cEmpresa}
+                AND u.usua_codigo !=2
             GROUP BY Servicio
             ORDER BY Servicio;
             `;
     }
+    console.log(query);
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({

@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, EventEmitter, Output, } from 
 import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
 import { Utils } from "../../utils/util";
+import { ToastrService } from "ngx-toastr";
 
 import { ServiceService } from "../../services/service.service";
 import { AuthenticationService } from "../../services/authentication.service";
@@ -111,7 +112,8 @@ export class UsuariosComponent implements OnInit {
     private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router,
-    public datePipe: DatePipe
+    public datePipe: DatePipe,
+    private toastr: ToastrService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configTF = {
@@ -246,6 +248,10 @@ export class UsuariosComponent implements OnInit {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
           }
         }
       );
@@ -314,6 +320,10 @@ export class UsuariosComponent implements OnInit {
                 itemsPerPage: this.MAX_PAGS,
                 currentPage: 1,
               };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
             }
           }
         );
@@ -380,6 +390,10 @@ export class UsuariosComponent implements OnInit {
                 itemsPerPage: this.MAX_PAGS,
                 currentPage: 1,
               };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
             }
           }
         );
@@ -441,6 +455,10 @@ export class UsuariosComponent implements OnInit {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
           }
         }
       );
@@ -465,7 +483,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioEntradaSalida[i].nombreEmpresa,
           Usuario: this.servicioEntradaSalida[i].Usuario,
-          "Hora Registrada": this.servicioEntradaSalida[i].fecha,
+          "Fecha y hora": this.servicioEntradaSalida[i].fecha,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
       }
@@ -556,7 +574,7 @@ export class UsuariosComponent implements OnInit {
           Sucursal: this.servicioPromAtencion[i].nombreEmpresa,
           Usuario: this.servicioPromAtencion[i].Nombre,
           Servicio: this.servicioPromAtencion[i].Servicio,
-          Promedio: this.servicioPromAtencion[i].Promedio,
+          Tiempo: this.servicioPromAtencion[i].Promedio,
           Turnos: this.servicioPromAtencion[i].Turnos,
         });
       }
@@ -566,7 +584,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Usuario: this.servicioPromAtencion[i].Nombre,
           Servicio: this.servicioPromAtencion[i].Servicio,
-          Promedio: this.servicioPromAtencion[i].Promedio,
+          Tiempo: this.servicioPromAtencion[i].Promedio,
           Turnos: this.servicioPromAtencion[i].Turnos,
         });
       }
@@ -1017,7 +1035,7 @@ export class UsuariosComponent implements OnInit {
               { text: "Sucursal", style: "tableHeader" },
               { text: "Usuario", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
+              { text: "Tiempo", style: "tableHeader" },
               { text: "Turnos", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
@@ -1048,7 +1066,7 @@ export class UsuariosComponent implements OnInit {
             [
               { text: "Usuario", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
+              { text: "Tiempo", style: "tableHeader" },
               { text: "Turnos", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
@@ -1228,7 +1246,7 @@ export class UsuariosComponent implements OnInit {
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Usuario", style: "tableHeader" },
-              { text: "Hora Registrada", style: "tableHeader" },
+              { text: "Fecha y hora", style: "tableHeader" },
               { text: "Razón", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
@@ -1257,7 +1275,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Usuario", style: "tableHeader" },
-              { text: "Hora Registrada", style: "tableHeader" },
+              { text: "Fecha y hora", style: "tableHeader" },
               { text: "Razón", style: "tableHeader" },
             ],
             ...servicio.map((res) => {

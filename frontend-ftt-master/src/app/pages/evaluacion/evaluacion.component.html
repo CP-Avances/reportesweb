@@ -73,7 +73,7 @@
                                     <th scope="col" class="text-center">Usuario</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
-                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
                                     <th scope="col" class="text-center">Bueno</th>
                                     <th scope="col" class="text-center">Regular</th>
                                     <th scope="col" class="text-center">Malo</th>
@@ -87,7 +87,7 @@
                                     <td>{{servicioServs.Usuario}}</td>
                                     <td>{{servicioServs.Fecha}}</td>
                                     <td>{{servicioServs.Excelente}}</td>
-                                    <td>{{servicioServs.Muy_Bueno}}</td>
+                                    <td *ngIf="!opcionCuatro">{{servicioServs.Muy_Bueno}}</td>
                                     <td>{{servicioServs.Bueno}}</td>
                                     <td>{{servicioServs.Regular}}</td>
                                     <td>{{servicioServs.Malo}}</td>
@@ -111,7 +111,7 @@
                                     <th scope="col" class="text-center">Usuario</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
-                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
                                     <th scope="col" class="text-center">Bueno</th>
                                     <th scope="col" class="text-center">Regular</th>
                                     <th scope="col" class="text-center">Malo</th>
@@ -126,7 +126,7 @@
                                     <td>{{servicioServsMaxMin.Usuario}}</td>
                                     <td>{{servicioServsMaxMin.Fecha}}</td>
                                     <td>{{servicioServsMaxMin.Excelente}}</td>
-                                    <td>{{servicioServsMaxMin.Muy_Bueno}}</td>
+                                    <td *ngIf="!opcionCuatro">{{servicioServsMaxMin.Muy_Bueno}}</td>
                                     <td>{{servicioServsMaxMin.Bueno}}</td>
                                     <td>{{servicioServsMaxMin.Regular}}</td>
                                     <td>{{servicioServsMaxMin.Malo}}</td>
@@ -188,7 +188,7 @@
                                     <th scope="col" class="text-center">Usuario</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
-                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
                                     <th scope="col" class="text-center">Bueno</th>
                                     <th scope="col" class="text-center">Regular</th>
                                     <th scope="col" class="text-center">Malo</th>
@@ -202,7 +202,7 @@
                                     <td>{{servicioEvalEmpl.usua_nombre}}</td>
                                     <td>{{servicioEvalEmpl.fecha}}</td>
                                     <td>{{servicioEvalEmpl.Excelente}}</td>
-                                    <td>{{servicioEvalEmpl.Muy_Bueno}}</td>
+                                    <td *ngIf="!opcionCuatro">{{servicioEvalEmpl.Muy_Bueno}}</td>
                                     <td>{{servicioEvalEmpl.Bueno}}</td>
                                     <td>{{servicioEvalEmpl.Regular}}</td>
                                     <td>{{servicioEvalEmpl.Malo}}</td>
@@ -226,7 +226,7 @@
                                     <th scope="col" class="text-center">Usuario</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
-                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
                                     <th scope="col" class="text-center">Bueno</th>
                                     <th scope="col" class="text-center">Regular</th>
                                     <th scope="col" class="text-center">Malo</th>
@@ -241,7 +241,7 @@
                                     <td>{{servicioEvalMMEmpl.usua_nombre}}</td>
                                     <td>{{servicioEvalMMEmpl.fecha}}</td>
                                     <td>{{servicioEvalMMEmpl.Excelente}}</td>
-                                    <td>{{servicioEvalMMEmpl.Muy_Bueno}}</td>
+                                    <td *ngIf="!opcionCuatro">{{servicioEvalMMEmpl.Muy_Bueno}}</td>
                                     <td>{{servicioEvalMMEmpl.Bueno}}</td>
                                     <td>{{servicioEvalMMEmpl.Regular}}</td>
                                     <td>{{servicioEvalMMEmpl.Malo}}</td>
@@ -362,7 +362,7 @@
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesEST" style="width: 300px;">Sucursal</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
-                                    <th scope="col" class="text-center">Muy Bueno</th>
+                                    <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
                                     <th scope="col" class="text-center">Bueno</th>
                                     <th scope="col" class="text-center">Regular</th>
                                     <th scope="col" class="text-center">Malo</th>
@@ -374,7 +374,7 @@
                                     <td *ngIf="todasSucursalesEST">{{servicioEstb.nombreEmpresa}}</td>
                                     <td>{{servicioEstb.fecha}}</td>
                                     <td>{{servicioEstb.Excelente}}</td>
-                                    <td>{{servicioEstb.Muy_Bueno}}</td>
+                                    <td *ngIf="!opcionCuatro">{{servicioEstb.Muy_Bueno}}</td>
                                     <td>{{servicioEstb.Bueno}}</td>
                                     <td>{{servicioEstb.Regular}}</td>
                                     <td>{{servicioEstb.Malo}}</td>

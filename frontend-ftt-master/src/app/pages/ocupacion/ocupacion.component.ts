@@ -4,6 +4,7 @@ import { ServiceService } from "../../services/service.service";
 import { AuthenticationService } from "../../services/authentication.service";
 import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
+import { ToastrService } from "ngx-toastr";
 
 //Complementos para PDF y Excel
 import * as pdfMake from "pdfmake/build/pdfmake";
@@ -78,7 +79,8 @@ export class OcupacionComponent implements OnInit {
     private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router,
-    public datePipe: DatePipe
+    public datePipe: DatePipe,
+    private toastr: ToastrService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configOS = {
@@ -184,6 +186,10 @@ export class OcupacionComponent implements OnInit {
             itemsPerPage: this.MAX_PAGS,
             currentPage: 1,
           };
+          //Se informa que no se encontraron registros
+          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+            timeOut: 6000,
+          });
         }
       }
     );
@@ -225,6 +231,10 @@ export class OcupacionComponent implements OnInit {
             itemsPerPage: this.MAX_PAGS,
             currentPage: 1,
           };
+          //Se informa que no se encontraron registros
+          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+            timeOut: 6000,
+          });
         }
       }
     );
@@ -378,7 +388,6 @@ export class OcupacionComponent implements OnInit {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciooc[step].nombreEmpresa,
-          Usuario: this.serviciooc[step].Usuario,
           Desde: this.serviciooc[step].fechaminima,
           Hasta: this.serviciooc[step].fechamaxima,
           Servicio: this.serviciooc[step].SERV_NOMBRE,
@@ -389,7 +398,6 @@ export class OcupacionComponent implements OnInit {
     } else {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
-          Usuario: this.serviciooc[step].Usuario,
           Desde: this.serviciooc[step].fechaminima,
           Hasta: this.serviciooc[step].fechamaxima,
           Servicio: this.serviciooc[step].SERV_NOMBRE,
@@ -708,11 +716,10 @@ export class OcupacionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto","auto"],
+          widths: ["*", "auto", "auto", "auto", "auto","auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
               { text: "Desde", style: "tableHeader" },
               { text: "Hasta", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
@@ -722,7 +729,6 @@ export class OcupacionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Usuario },
                 { style: "itemsTable", text: res.fechaminima },
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
@@ -743,10 +749,9 @@ export class OcupacionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "*", "*", "*", "*"],
           body: [
             [
-              { text: "Usuario", style: "tableHeader" },
               { text: "Desde", style: "tableHeader" },
               { text: "Hasta", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
@@ -755,7 +760,6 @@ export class OcupacionComponent implements OnInit {
             ],
             ...servicio.map((res) => {
               return [
-                { style: "itemsTable", text: res.Usuario },
                 { style: "itemsTable", text: res.fechaminima },
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
@@ -781,11 +785,10 @@ export class OcupacionComponent implements OnInit {
           style: "tableMargin",
           table: {
             headerRows: 1,
-            widths: ["*", "*", "auto", "auto", "auto", "auto","auto"],
+            widths: ["*", "auto", "auto", "auto", "auto","auto"],
             body: [
               [
                 { text: "Sucursal", style: "tableHeader" },
-                { text: "Usuario", style: "tableHeader" },
                 { text: "Desde", style: "tableHeader" },
                 { text: "Hasta", style: "tableHeader" },
                 { text: "Servicio", style: "tableHeader" },
@@ -795,7 +798,6 @@ export class OcupacionComponent implements OnInit {
               ...servicio.map((res) => {
                 return [
                   { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Usuario },
                   { style: "itemsTable", text: res.fechaminima },
                   { style: "itemsTable", text: res.fechamaxima },
                   { style: "itemsTable", text: res.SERV_NOMBRE },
@@ -816,10 +818,9 @@ export class OcupacionComponent implements OnInit {
           style: "tableMargin",
           table: {
             headerRows: 1,
-            widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+            widths: ["*", "*", "*", "*", "*"],
             body: [
               [
-                { text: "Usuario", style: "tableHeader" },
                 { text: "Desde", style: "tableHeader" },
                 { text: "Hasta", style: "tableHeader" },
                 { text: "Servicio", style: "tableHeader" },

@@ -23,6 +23,7 @@ router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:empresa', (req: Request
                 AND t.turn_codigo = e.turn_codigo
                 AND u.empr_codigo = em.empr_codigo
                 AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                AND u.usua_codigo != 2
             GROUP BY usua_nombre, nombreEmpresa;
             `
     } else {
@@ -34,6 +35,7 @@ router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:empresa', (req: Request
                 AND t.turn_codigo = e.turn_codigo
                 AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
                 AND u.empr_codigo = ${cEmpresa}
+                AND u.usua_codigo != 2
             GROUP BY usua_nombre;
             `
     }

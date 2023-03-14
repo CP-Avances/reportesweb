@@ -18,6 +18,7 @@ router.get('/totaltickets/:fecha', (req: Request, res: Response) => {
     const query =
         `
         SELECT turn_fecha as fecha, count(*) AS numeroturnos FROM turno WHERE turn_fecha = '${fechas}'
+        AND caje_codigo !=0
         `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
         if (err) {
@@ -48,6 +49,7 @@ router.get('/promedioatencionporservicio', (req: Request, res: Response) => {
             date_format(SEC_TO_TIME(AVG(turn_duracionatencion)),'%H:%i:%s') AS PromedioAtencion
         FROM turno, servicio
         WHERE turno.serv_codigo = servicio.serv_codigo
+        AND caje_codigo !=0
         GROUP BY turn_codigo, serv_nombre;
         `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
@@ -77,6 +79,7 @@ router.get('/totalatendidos/:fecha', (req: Request, res: Response) => {
         SELECT turn_fecha, count(*) as atendidostotales 
         FROM turno  
         WHERE turn_estado = 1 and turn_fecha = '${fechas}'
+        AND caje_codigo !=0
         `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
 
@@ -107,6 +110,7 @@ router.get('/totalsinatender/:fecha', (req: Request, res: Response) => {
         SELECT turn_fecha, count(turn_codigo) AS noatendidos 
         FROM turno 
         WHERE turn_estado = 2 and turn_fecha = '${fechas}'
+        AND caje_codigo !=0
         `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
 

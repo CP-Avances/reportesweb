@@ -3,6 +3,7 @@ import { ServiceService } from '../../services/service.service';
 import { AuthenticationService } from '../../services/authentication.service';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common'
+import { ToastrService } from "ngx-toastr";
 
 //Complementos para PDF y Excel
 import * as pdfMake from "pdfmake/build/pdfmake";
@@ -56,7 +57,9 @@ export class IngresoclientesComponent implements OnInit {
 
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
-    private router: Router, public datePipe: DatePipe) {
+    private router: Router, public datePipe: DatePipe,
+    private toastr: ToastrService    
+    ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configTE = {
       id: 'IngClite',
@@ -147,6 +150,10 @@ export class IngresoclientesComponent implements OnInit {
             itemsPerPage: this.MAX_PAGS,
             currentPage: 1
           };
+          //Se informa que no se encontraron registros
+          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+            timeOut: 6000,
+          });
         }
       }
     );

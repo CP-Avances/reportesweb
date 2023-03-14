@@ -67,6 +67,10 @@ export class MenuComponent implements OnInit {
   altoMA: any;
   altoPr: any;
 
+  //Control de opciones de evaluacion
+  opcionCuatro: boolean = false;
+  opciones: any [];
+
 
   @ViewChild('dateDirectivePicker')
   datePickerDirective: DatePickerDirective;
@@ -80,6 +84,7 @@ export class MenuComponent implements OnInit {
     this.date = f.format('YYYY-MM-DD');
     this.tipo = 'pie';
     ///////
+    this.getOpcionesEvaluacion();
     this.gettotaltickets();
     this.gettotalatendidos();
     this.getsinatender();
@@ -97,6 +102,17 @@ export class MenuComponent implements OnInit {
   salir() {
     this.auth.logout();
     this.router.navigateByUrl('/');
+  }
+
+  //Obtinene el numero de opciones de evaluación
+  getOpcionesEvaluacion(){  
+    this.serviceService.getOpcionesEvaluacion().subscribe((opcion: any) => {
+      this.opciones=opcion.opcion;
+      if (this.opciones[0].gene_valor=="0") {
+        this.opcionCuatro=true;
+      }
+      this.getevaluacionsucursal();
+    });
   }
 
   ///////////////////////////////////////////////////
@@ -138,7 +154,7 @@ export class MenuComponent implements OnInit {
   }
 
   getevaluacionsucursal() {
-    this.serviceService.getgraficobarras().subscribe((servicio5: any) => {
+    this.serviceService.getgraficobarras(this.opcionCuatro.toString()).subscribe((servicio5: any) => {
       this.servicio5 = servicio5.turnos;
       this.altoPr = Math.max.apply(null, servicio5.turnos.map(res => res.total));
       let evaluaciones = servicio5.turnos.map(res => res.evaluacion);

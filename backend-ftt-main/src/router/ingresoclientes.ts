@@ -25,6 +25,7 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:empresa', (req: Request, r
             WHERE turno.serv_codigo=s.serv_codigo
                 AND s.empr_codigo = e.empr_codigo 
                 AND turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
+                AND turno.caje_codigo != 0
             GROUP BY turn_fecha, nombreEmpresa;
             `
     } else {
@@ -39,6 +40,7 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:empresa', (req: Request, r
             WHERE turno.serv_codigo = s.serv_codigo 
             AND turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
             AND s.empr_codigo = ${cEmpresa}
+            AND turno.caje_codigo != 0
             GROUP BY turn_fecha;
             `
     }

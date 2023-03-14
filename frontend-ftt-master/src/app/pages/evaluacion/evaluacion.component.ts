@@ -3,6 +3,7 @@ import { ServiceService } from "../../services/service.service";
 import { AuthenticationService } from "../../services/authentication.service";
 import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
+import { ToastrService } from "ngx-toastr";
 
 //Complemento para graficos
 import { Chart } from "chart.js";
@@ -79,6 +80,7 @@ export class EvaluacionComponent implements OnInit {
   cajerosEvalOmitidas: any = [];
   cajerosG: any = [];
   sucursales: any[];
+  opciones: any[];
   //Cambio de tipo de grafico y variable para guardar el usuario logueado
   tipo: string;
   chart: any;
@@ -107,6 +109,8 @@ export class EvaluacionComponent implements OnInit {
   malRequestGraPag: boolean = false;
   malRequestEstb: boolean = false;
   malRequestEstbPag: boolean = false;
+  //Control de opciones de evaluacion
+  opcionCuatro: boolean = false;
   //Control paginacion
   configS: any;
   configSMM: any;
@@ -139,7 +143,8 @@ export class EvaluacionComponent implements OnInit {
     private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router,
-    public datePipe: DatePipe
+    public datePipe: DatePipe,
+    private toastr: ToastrService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configS = {
@@ -222,6 +227,8 @@ export class EvaluacionComponent implements OnInit {
   }
 
   ngOnInit(): void {
+     //Cargamos las opciones de evaluacion
+     this.getOpcionesEvaluacion();
     //Cargamos componentes selects HTML
     this.getlastday();
     this.getServicios("-1");
@@ -305,6 +312,16 @@ export class EvaluacionComponent implements OnInit {
       });
   }
 
+  //Obtinene el numero de opciones de evaluación
+  getOpcionesEvaluacion() {
+    this.serviceService.getOpcionesEvaluacion().subscribe((opcion: any) => {
+      this.opciones = opcion.opcion;
+      if (this.opciones[0].gene_valor == "0") {
+        this.opcionCuatro = true;
+      }
+    });
+  }
+
   limpiar() {
     this.getCajeros("-1");
     this.getCajerosG("-1");
@@ -348,7 +365,7 @@ export class EvaluacionComponent implements OnInit {
     if (serv != "-1") {
       //Servicios
       this.serviceService
-        .getprmediosservicios(fechaDesde, fechaHasta, parseInt(serv))
+        .getprmediosservicios(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -379,13 +396,17 @@ export class EvaluacionComponent implements OnInit {
                 itemsPerPage: this.MAX_PAGS,
                 currentPage: 1,
               };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
             }
           }
         );
 
       //Max Mins
       this.serviceService
-        .getmaxminservicios(fechaDesde, fechaHasta, parseInt(serv))
+        .getmaxminservicios(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -443,7 +464,7 @@ export class EvaluacionComponent implements OnInit {
 
     if (cod != "-1") {
       this.serviceService
-        .getprmediosempleado(fechaDesde, fechaHasta, parseInt(cod))
+        .getprmediosempleado(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -474,12 +495,16 @@ export class EvaluacionComponent implements OnInit {
                 itemsPerPage: this.MAX_PAGS,
                 currentPage: 1,
               };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
             }
           }
         );
 
       this.serviceService
-        .getmaxminempleado(fechaDesde, fechaHasta, parseInt(cod))
+        .getmaxminempleado(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalMMEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -566,6 +591,10 @@ export class EvaluacionComponent implements OnInit {
                 itemsPerPage: this.MAX_PAGS,
                 currentPage: 1,
               };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
             }
           }
         );
@@ -591,7 +620,7 @@ export class EvaluacionComponent implements OnInit {
 
     if (serv != "-1") {
       this.serviceService
-        .getevalgrupo(fechaDesde, fechaHasta, parseInt(serv))
+        .getevalgrupo(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
         .subscribe(
           (servicioG: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -622,6 +651,10 @@ export class EvaluacionComponent implements OnInit {
                 itemsPerPage: this.MAX_PAGS,
                 currentPage: 1,
               };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
             }
           }
         );
@@ -640,7 +673,7 @@ export class EvaluacionComponent implements OnInit {
 
     var cod = this.codSucursalEst.nativeElement.value.toString().trim();
 
-    this.serviceService.getestablecimiento(fechaDesde, fechaHasta, cod).subscribe(
+    this.serviceService.getestablecimiento(fechaDesde, fechaHasta, cod,this.opcionCuatro.toString()).subscribe(
       (servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioEstb = servicio.turnos;
@@ -670,6 +703,10 @@ export class EvaluacionComponent implements OnInit {
             itemsPerPage: this.MAX_PAGS,
             currentPage: 1,
           };
+          //Se informa que no se encontraron registros
+          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+            timeOut: 6000,
+          });
         }
       }
     );
@@ -687,7 +724,7 @@ export class EvaluacionComponent implements OnInit {
     let codSucursal = this.codSucursal.nativeElement.value.toString().trim();
 
     this.serviceService
-      .getgraficobarrasfiltro(fechaDesde, fechaHasta, parseInt(cod))
+      .getgraficobarrasfiltro(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
       .subscribe(
         (servicioGra: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -830,6 +867,10 @@ export class EvaluacionComponent implements OnInit {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
           }
         }
       );
@@ -863,44 +904,36 @@ export class EvaluacionComponent implements OnInit {
     //Servicios
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesS) {
-      for (let i = 0; i < this.servicioServs.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioServs[i].nombreEmpresa,
-          Usuario: this.servicioServs[i].Usuario,
-          Fecha: this.servicioServs[i].Fecha,
-          Excelente: this.servicioServs[i].Excelente,
-          "Muy Bueno": this.servicioServs[i].Muy_Bueno,
-          Bueno: this.servicioServs[i].Bueno,
-          Regular: this.servicioServs[i].Regular,
-          Malo: this.servicioServs[i].Malo,
-          Total: this.servicioServs[i].Total,
-          Promedio: this.servicioServs[i].Promedio,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioServs.length; i++) {
-        jsonServicio.push({
-          Usuario: this.servicioServs[i].Usuario,
-          Fecha: this.servicioServs[i].Fecha,
-          Excelente: this.servicioServs[i].Excelente,
-          "Muy Bueno": this.servicioServs[i].Muy_Bueno,
-          Bueno: this.servicioServs[i].Bueno,
-          Regular: this.servicioServs[i].Regular,
-          Malo: this.servicioServs[i].Malo,
-          Total: this.servicioServs[i].Total,
-          Promedio: this.servicioServs[i].Promedio,
-        });
-      }
+    for (let i = 0; i < this.servicioServs.length; i++) {
+      const item = {
+        ...(this.todasSucursalesS
+          ? { Sucursal: this.servicioServs[i].nombreEmpresa }
+          : {}),
+        Usuario: this.servicioServs[i].Usuario,
+        Fecha: this.servicioServs[i].Fecha,
+        Excelente: this.servicioServs[i].Excelente,
+        ...(!this.opcionCuatro
+          ? { "Muy Bueno": this.servicioServs[i].Muy_Bueno }
+          : {}),
+        Bueno: this.servicioServs[i].Bueno,
+        Regular: this.servicioServs[i].Regular,
+        Malo: this.servicioServs[i].Malo,
+        Total: this.servicioServs[i].Total,
+        Promedio: this.servicioServs[i].Promedio,
+      };
+
+      jsonServicio.push(item);
     }
+
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioServs[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Servicios");
@@ -908,51 +941,45 @@ export class EvaluacionComponent implements OnInit {
     //Max Min
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicioAux = [];
-    if (this.todasSucursalesS) {
-      for (let i = 0; i < this.servicioServsMaxMin.length; i++) {
-        jsonServicioAux.push({
-          Sucursal: this.servicioServsMaxMin[i].empresaNombre,
-          Usuario: this.servicioServsMaxMin[i].Usuario,
-          Fecha: this.servicioServsMaxMin[i].Fecha,
-          Excelente: this.servicioServsMaxMin[i].Excelente,
-          "Muy Bueno": this.servicioServsMaxMin[i].Muy_Bueno,
-          Bueno: this.servicioServsMaxMin[i].Bueno,
-          Regular: this.servicioServsMaxMin[i].Regular,
-          Malo: this.servicioServsMaxMin[i].Malo,
-          Total: this.servicioServsMaxMin[i].Total,
-          Máx: this.servicioServsMaxMin[i].max,
-          Mín: this.servicioServsMaxMin[i].min,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioServsMaxMin.length; i++) {
-        jsonServicioAux.push({
-          Usuario: this.servicioServsMaxMin[i].Usuario,
-          Fecha: this.servicioServsMaxMin[i].Fecha,
-          Excelente: this.servicioServsMaxMin[i].Excelente,
-          "Muy Bueno": this.servicioServsMaxMin[i].Muy_Bueno,
-          Bueno: this.servicioServsMaxMin[i].Bueno,
-          Regular: this.servicioServsMaxMin[i].Regular,
-          Malo: this.servicioServsMaxMin[i].Malo,
-          Total: this.servicioServsMaxMin[i].Total,
-          Máx: this.servicioServsMaxMin[i].max,
-          Mín: this.servicioServsMaxMin[i].min,
-        });
-      }
+
+    for (let i = 0; i < this.servicioServsMaxMin.length; i++) {
+      const item = {
+        ...(this.todasSucursalesS
+          ? { Sucursal: this.servicioServsMaxMin[i].nombreEmpresa }
+          : {}),
+        Usuario: this.servicioServsMaxMin[i].Usuario,
+        Fecha: this.servicioServsMaxMin[i].Fecha,
+        Excelente: this.servicioServsMaxMin[i].Excelente,
+        ...(!this.opcionCuatro
+          ? { "Muy Bueno": this.servicioServsMaxMin[i].Muy_Bueno }
+          : {}),
+        Bueno: this.servicioServsMaxMin[i].Bueno,
+        Regular: this.servicioServsMaxMin[i].Regular,
+        Malo: this.servicioServsMaxMin[i].Malo,
+        Total: this.servicioServsMaxMin[i].Total,
+        Máx: this.servicioServsMaxMin[i].max,
+        Mín: this.servicioServsMaxMin[i].min,
+      };
+      jsonServicioAux.push(item);
     }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicioAux);
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header1 = Object.keys(this.servicioServsMaxMin[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols1 = [];
-    for (var i = 0; i < header1.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols1.push({ wpx: 150 })
+    for (var i = 0; i < header1.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols1.push({ wpx: 150 });
     }
     ws1["!cols"] = wscols1;
     XLSX.utils.book_append_sheet(wb, ws1, "Máximos y Mínimos");
     XLSX.writeFile(
       wb,
-      "Servicios - " + nombreSucursal + " - " + new Date().toLocaleString() + EXCEL_EXTENSION
+      "Servicios - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
@@ -961,35 +988,24 @@ export class EvaluacionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(cod);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesE) {
-      for (let i = 0; i < this.servicioEvalEmpl.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioEvalEmpl[i].nombreEmpresa,
-          Usuario: this.servicioEvalEmpl[i].usua_nombre,
-          Fecha: this.servicioEvalEmpl[i].fecha,
-          Excelente: this.servicioEvalEmpl[i].Excelente,
-          "Muy Bueno": this.servicioEvalEmpl[i].Muy_Bueno,
-          Bueno: this.servicioEvalEmpl[i].Bueno,
-          Regular: this.servicioEvalEmpl[i].Regular,
-          Malo: this.servicioEvalEmpl[i].Malo,
-          Total: this.servicioEvalEmpl[i].Total,
-          Promedio: this.servicioEvalEmpl[i].Promedio,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioEvalEmpl.length; i++) {
-        jsonServicio.push({
-          Usuario: this.servicioEvalEmpl[i].usua_nombre,
-          Fecha: this.servicioEvalEmpl[i].fecha,
-          Excelente: this.servicioEvalEmpl[i].Excelente,
-          "Muy Bueno": this.servicioEvalEmpl[i].Muy_Bueno,
-          Bueno: this.servicioEvalEmpl[i].Bueno,
-          Regular: this.servicioEvalEmpl[i].Regular,
-          Malo: this.servicioEvalEmpl[i].Malo,
-          Total: this.servicioEvalEmpl[i].Total,
-          Promedio: this.servicioEvalEmpl[i].Promedio,
-        });
-      }
+    for (let i = 0; i < this.servicioEvalEmpl.length; i++) {
+      const item = {
+        ...(this.todasSucursalesE
+          ? { Sucursal: this.servicioEvalEmpl[i].nombreEmpresa }
+          : {}),
+        Usuario: this.servicioEvalEmpl[i].usua_nombre,
+        Fecha: this.servicioEvalEmpl[i].fecha,
+        Excelente: this.servicioEvalEmpl[i].Excelente,
+        ...(!this.opcionCuatro
+          ? { "Muy Bueno": this.servicioEvalEmpl[i].Muy_Bueno }
+          : {}),
+        Bueno: this.servicioEvalEmpl[i].Bueno,
+        Regular: this.servicioEvalEmpl[i].Regular,
+        Malo: this.servicioEvalEmpl[i].Malo,
+        Total: this.servicioEvalEmpl[i].Total,
+        Promedio: this.servicioEvalEmpl[i].Promedio,
+      };
+      jsonServicio.push(item);
     }
     //Instrucción para generar excel a partir de JSON, y nombre de la hoja
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
@@ -997,8 +1013,9 @@ export class EvaluacionComponent implements OnInit {
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioEvalEmpl[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Empleado");
@@ -1006,98 +1023,87 @@ export class EvaluacionComponent implements OnInit {
     //Max Min
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicioAux = [];
-    if (this.todasSucursalesE) {
-      for (let i = 0; i < this.servicioEvalMMEmpl.length; i++) {
-        jsonServicioAux.push({
-          Sucursal: this.servicioEvalMMEmpl[i].nombreEmpresa,
-          Usuario: this.servicioEvalMMEmpl[i].usua_nombre,
-          Fecha: this.servicioEvalMMEmpl[i].fecha,
-          Excelente: this.servicioEvalMMEmpl[i].Excelente,
-          "Muy Bueno": this.servicioEvalMMEmpl[i].Muy_Bueno,
-          Bueno: this.servicioEvalMMEmpl[i].Bueno,
-          Regular: this.servicioEvalMMEmpl[i].Regular,
-          Malo: this.servicioEvalMMEmpl[i].Malo,
-          Total: this.servicioEvalMMEmpl[i].Total,
-          Máx: this.servicioEvalMMEmpl[i].max,
-          Mín: this.servicioEvalMMEmpl[i].min,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioEvalMMEmpl.length; i++) {
-        jsonServicioAux.push({
-          Usuario: this.servicioEvalMMEmpl[i].usua_nombre,
-          Fecha: this.servicioEvalMMEmpl[i].fecha,
-          Excelente: this.servicioEvalMMEmpl[i].Excelente,
-          "Muy Bueno": this.servicioEvalMMEmpl[i].Muy_Bueno,
-          Bueno: this.servicioEvalMMEmpl[i].Bueno,
-          Regular: this.servicioEvalMMEmpl[i].Regular,
-          Malo: this.servicioEvalMMEmpl[i].Malo,
-          Total: this.servicioEvalMMEmpl[i].Total,
-          Máx: this.servicioEvalMMEmpl[i].max,
-          Mín: this.servicioEvalMMEmpl[i].min,
-        });
-      }
+    for (let i = 0; i < this.servicioEvalMMEmpl.length; i++) {
+      const item = {
+        ...(this.todasSucursalesE
+          ? { Sucursal: this.servicioEvalMMEmpl[i].nombreEmpresa }
+          : {}),
+        Usuario: this.servicioEvalMMEmpl[i].usua_nombre,
+        Fecha: this.servicioEvalMMEmpl[i].fecha,
+        Excelente: this.servicioEvalMMEmpl[i].Excelente,
+        ...(!this.opcionCuatro
+          ? { "Muy Bueno": this.servicioEvalMMEmpl[i].Muy_Bueno }
+          : {}),
+        Bueno: this.servicioEvalMMEmpl[i].Bueno,
+        Regular: this.servicioEvalMMEmpl[i].Regular,
+        Malo: this.servicioEvalMMEmpl[i].Malo,
+        Total: this.servicioEvalMMEmpl[i].Total,
+        Máx: this.servicioEvalMMEmpl[i].max,
+        Mín: this.servicioEvalMMEmpl[i].min,
+      };
+      jsonServicioAux.push(item);
     }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicioAux);
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header1 = Object.keys(this.servicioEvalMMEmpl[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols1 = [];
-    for (var i = 0; i < header1.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols1.push({ wpx: 150 })
+    for (var i = 0; i < header1.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols1.push({ wpx: 150 });
     }
     ws1["!cols"] = wscols1;
     XLSX.utils.book_append_sheet(wb, ws1, "Máximos y Mínimos Empleado");
     XLSX.writeFile(
       wb,
-      "servicio-eval-empl - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
+      "servicio-eval-empl - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
   exportarAExcelEvalOmitidas() {
-    let cod = this.codSucursalEvalOmitidas.nativeElement.value.toString().trim();
+    let cod = this.codSucursalEvalOmitidas.nativeElement.value
+      .toString()
+      .trim();
     let nombreSucursal = this.obtenerNombreSucursal(cod);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesEO) {
-      for (let i = 0; i < this.servicioEvalOmitidas.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioEvalOmitidas[i].nombreEmpresa,
-          Usuario: this.servicioEvalOmitidas[i].usua_nombre,
-          Fecha: this.servicioEvalOmitidas[i].fecha,
-          Total: this.servicioEvalOmitidas[i].Total,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioEvalOmitidas.length; i++) {
-        jsonServicio.push({
-          Usuario: this.servicioEvalOmitidas[i].usua_nombre,
-          Fecha: this.servicioEvalOmitidas[i].fecha,
-          Total: this.servicioEvalOmitidas[i].Total,
-        });
-      }
+
+    for (let i = 0; i < this.servicioEvalOmitidas.length; i++) {
+      const item = {
+        ...(this.todasSucursalesEO
+          ? { Sucursal: this.servicioEvalOmitidas[i].nombreEmpresa }
+          : {}),
+        Usuario: this.servicioEvalOmitidas[i].usua_nombre,
+        Fecha: this.servicioEvalOmitidas[i].fecha,
+        Total: this.servicioEvalOmitidas[i].Total,
+      };
+      jsonServicio.push(item);
     }
+
     //Instrucción para generar excel a partir de JSON, y nombre de la hoja
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioEvalOmitidas[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "EvaluacionesOmitidas");
 
     XLSX.writeFile(
       wb,
-      "servicio-eval-omitidas - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
+      "servicio-eval-omitidas - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
@@ -1106,49 +1112,42 @@ export class EvaluacionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(cod);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesEST) {
-      for (let i = 0; i < this.servicioEstb.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioEstb[i].nombreEmpresa,
-          Fecha: this.servicioEstb[i].fecha,
-          Excelente: this.servicioEstb[i].Excelente,
-          "Muy Bueno": this.servicioEstb[i].Muy_Bueno,
-          Bueno: this.servicioEstb[i].Bueno,
-          Regular: this.servicioEstb[i].Regular,
-          Malo: this.servicioEstb[i].Malo,
-          Total: this.servicioEstb[i].Total,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioEstb.length; i++) {
-        jsonServicio.push({
-          Fecha: this.servicioEstb[i].fecha,
-          Excelente: this.servicioEstb[i].Excelente,
-          "Muy Bueno": this.servicioEstb[i].Muy_Bueno,
-          Bueno: this.servicioEstb[i].Bueno,
-          Regular: this.servicioEstb[i].Regular,
-          Malo: this.servicioEstb[i].Malo,
-          Total: this.servicioEstb[i].Total,
-        });
-      }
+
+    for (let i = 0; i < this.servicioEstb.length; i++) {
+      const item = {
+        ...(this.todasSucursalesEST
+          ? { Sucursal: this.servicioEstb[i].nombreEmpresa }
+          : {}),
+        Fecha: this.servicioEstb[i].fecha,
+        Excelente: this.servicioEstb[i].Excelente,
+        "Muy Bueno": this.servicioEstb[i].Muy_Bueno,
+        Bueno: this.servicioEstb[i].Bueno,
+        Regular: this.servicioEstb[i].Regular,
+        Malo: this.servicioEstb[i].Malo,
+        Total: this.servicioEstb[i].Total,
+      };
+      jsonServicio.push(item);
     }
+
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioEstb[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Establecimiento");
     XLSX.writeFile(
       wb,
-      "Establecimiento - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
+      "Establecimiento - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
@@ -1157,44 +1156,41 @@ export class EvaluacionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(cod);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesEG) {
-      for (let i = 0; i < this.servicioG.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioG[i].nombreEmpresa,
-          Usuario: this.servicioG[i].usua_nombre,
-          Fecha: this.servicioG[i].fecha,
-          Bueno: this.servicioG[i].Bueno,
-          Malo: this.servicioG[i].Malo,
-          Total: this.servicioG[i].Total,
-          Promedio: this.servicioG[i].Promedio,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioG.length; i++) {
-        jsonServicio.push({
-          Usuario: this.servicioG[i].usua_nombre,
-          Fecha: this.servicioG[i].fecha,
-          Bueno: this.servicioG[i].Bueno,
-          Malo: this.servicioG[i].Malo,
-          Total: this.servicioG[i].Total,
-          Promedio: this.servicioG[i].Promedio,
-        });
-      }
+
+    for (let i = 0; i < this.servicioG.length; i++) {
+      const item = {
+        ...(this.todasSucursalesEG
+          ? { Sucursal: this.servicioG[i].nombreEmpresa }
+          : {}),
+        Usuario: this.servicioG[i].usua_nombre,
+        Fecha: this.servicioG[i].fecha,
+        Bueno: this.servicioG[i].Bueno,
+        Malo: this.servicioG[i].Malo,
+        Total: this.servicioG[i].Total,
+        Promedio: this.servicioG[i].Promedio,
+      };
+      jsonServicio.push(item);
     }
+
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioG[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Grupos");
     XLSX.writeFile(
       wb,
-      "Evalgrupo - " + nombreSucursal + " - " + new Date().toLocaleString() + EXCEL_EXTENSION
+      "Evalgrupo - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
@@ -1203,1709 +1199,2207 @@ export class EvaluacionComponent implements OnInit {
     this.genGraficoPDF();
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesG) {
-      for (let i = 0; i < this.servicioGra.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioGra[i].nombreEmpresa,
-          Usuario: this.servicioGra[i].usuario,
-          Evaluación: this.servicioGra[i].evaluacion,
-          Total: this.servicioGra[i].total,
-          Porcentajes: this.servicioGra[i].porcentaje,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioGra.length; i++) {
-        jsonServicio.push({
-          Usuario: this.servicioGra[i].usuario,
-          Evaluación: this.servicioGra[i].evaluacion,
-          Total: this.servicioGra[i].total,
-          Porcentajes: this.servicioGra[i].porcentaje,
-        });
-      }
+
+    for (let i = 0; i < this.servicioGra.length; i++) {
+      const item = {
+        ...(this.todasSucursalesG
+          ? { Sucursal: this.servicioGra[i].nombreEmpresa }
+          : {}),
+        Usuario: this.servicioGra[i].usuario,
+        Evaluación: this.servicioGra[i].evaluacion,
+        Total: this.servicioGra[i].total,
+        Porcentajes: this.servicioGra[i].porcentaje,
+      };
+      jsonServicio.push(item);
     }
+
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioGra[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(
       wb,
       "graficoservicio" +
-      "_export_" +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
+        "_export_" +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+/////---Generacion de PDF's
+generarPdfServicios(action = "open", pdf: number) {
+  //Seteo de rango de fechas de la consulta para impresión en PDF
+  var fechaDesde = this.fromDateServicios.nativeElement.value
+    .toString()
+    .trim();
+  var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
+  var cod = this.codSucursalServicio.nativeElement.value.toString().trim();
+  //Definicion de funcion delegada para setear estructura del PDF
+  let documentDefinition;
+  if (pdf === 1) {
+    documentDefinition = this.getDocumentServicios(
+      fechaDesde,
+      fechaHasta,
+      cod
     );
   }
 
-  /////---Generacion de PDF's
-  generarPdfServicios(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
-    var fechaDesde = this.fromDateServicios.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
-    var cod = this.codSucursalServicio.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentServicios(fechaDesde, fechaHasta, cod);
-    }
+  //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+  switch (action) {
+    case "open":
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+    case "print":
+      pdfMake.createPdf(documentDefinition).print();
+      break;
+    case "download":
+      pdfMake.createPdf(documentDefinition).download();
+      break;
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
+    default:
+      pdfMake.createPdf(documentDefinition).open();
+      break;
   }
+}
 
-  //Funcion delegada para seteo de información en estructura
-  getDocumentServicios(fechaDesde, fechaHasta, cod) {
-    //Se obtiene la fecha actual
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+//Funcion delegada para seteo de información en estructura
+getDocumentServicios(fechaDesde, fechaHasta, cod) {
+  //Se obtiene la fecha actual
+  let f = new Date();
+  f.setUTCHours(f.getHours());
+  this.date = f.toJSON();
+  let nombreSucursal = this.obtenerNombreSucursal(cod);
 
-    return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
-      watermark: {
-        text: "FullTime Tickets",
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
-      content: [
+  return {
+    //Seteo de marca de agua y encabezado con nombre de usuario logueado
+    watermark: {
+      text: "FullTime Tickets",
+      color: "blue",
+      opacity: 0.1,
+      bold: true,
+      italics: false,
+      fontSize: 52,
+    },
+    header: {
+      text: "Impreso por:  " + this.userDisplayName,
+      margin: 10,
+      fontSize: 9,
+      opacity: 0.3,
+    },
+    //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+    footer: function (currentPage, pageCount, fecha) {
+      fecha = f.toJSON().split("T")[0];
+      var timer = f.toJSON().split("T")[1].slice(0, 5);
+      return [
         {
+          margin: [10, 20, 10, 0],
           columns: [
+            "Fecha: " + fecha + " Hora: " + timer,
             {
-              image: this.urlImagen,
-              width: 75,
-              height: 40,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Evaluación Servicio y Máximos y Mínimos",
-              bold: true,
-              fontSize: 15,
-              margin: [-75, 20, 0, 0],
+              text: [
+                {
+                  text:
+                    "© Pag " + currentPage.toString() + " of " + pageCount,
+                  alignment: "right",
+                  color: "blue",
+                  opacity: 0.5,
+                },
+              ],
             },
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        //Definicion de funcion delegada para setear informacion de tabla del PDF Servicio y Max Min
-        this.servicios(this.servicioServs),
-        this.maxmin(this.servicioServsMaxMin),
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
           fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
+          color: "#A4B8FF",
         },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  //Funcion para llenar la tabla con la consulta realizada al backend Servicios
-  servicios(servicio: any[]) {
-    if (this.todasSucursalesS) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  //Funcion para llenar la tabla con la consulta realizada al backend Max Mins
-  maxmin(servicio: any[]) {
-    if (this.todasSucursalesS) {
-      return {
-        style: "tableMargin",
-        table: {
-          Label: "Maximos y minimos",
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Max.", style: "tableHeader" },
-              { text: "Min.", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.max },
-                { style: "itemsTable", text: res.min },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          Label: "Maximos y minimos",
-          headerRows: 1,
-          widths: [
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Max.", style: "tableHeader" },
-              { text: "Min.", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.max },
-                { style: "itemsTable", text: res.min },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  generarPdfEvalEmpl(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
-    var fechaDesde = this.fromDateDesdeEvalEmpl.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateHastaEvalEmpl.nativeElement.value
-      .toString()
-      .trim();
-    var cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentEmpleado(fechaDesde, fechaHasta, cod);
-    }
-
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  //Funcion delegada para seteo de información de estructura
-  getDocumentEmpleado(fechaDesde, fechaHasta, cod) {
-    //Se obtiene la fecha actual
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
-
-    return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
-      watermark: {
-        text: "FullTime Tickets",
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
+      ];
+    },
+    //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+    content: [
+      {
+        columns: [
           {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
+            image: this.urlImagen,
+            width: 75,
+            height: 40,
           },
-        ];
-      },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 40,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text:
-                "Reporte" + "\n" + " Evaluación Empleado y Máximos y Mínimos",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        //Definicion de funcion delegada para setear informacion de tabla del PDF Empleado y Max, Min
-        this.empleado(this.servicioEvalEmpl),
-        this.maxmine(this.servicioEvalMMEmpl),
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  //Funcion para llenar la tabla con la consulta realizada al backend
-  empleado(servicio: any[]) {
-    if (this.todasSucursalesE) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  //Funcion para llenar la tabla con la consulta realizada al backend
-  maxmine(servicio: any[]) {
-    if (this.todasSucursalesE) {
-      return {
-        style: "tableMargin",
-        table: {
-          Label: "Maximos y minimos",
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Max.", style: "tableHeader" },
-              { text: "Min.", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.max },
-                { style: "itemsTable", text: res.min },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          Label: "Maximos y minimos",
-          headerRows: 1,
-          widths: [
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Max.", style: "tableHeader" },
-              { text: "Min.", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.max },
-                { style: "itemsTable", text: res.min },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  generarPdfEvalOmitidas(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
-    var fechaDesde = this.fromDateDesdeEvalOmitidas.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
-      .toString()
-      .trim();
-    var cod = this.codSucursalEvalOmitidas.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentEvaluacionesOmitidas(
-        fechaDesde,
-        fechaHasta,
-        cod
-      );
-    }
-
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  //Funcion delegada para seteo de información de estructura
-  getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta, cod) {
-    //Se obtiene la fecha actual
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
-
-    return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
-      watermark: {
-        text: "FullTime Tickets",
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
           {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
+            width: "*",
+            alignment: "center",
+            text: "Reporte - Evaluación Servicio y Máximos y Mínimos",
+            bold: true,
+            fontSize: 15,
+            margin: [-75, 20, 0, 0],
           },
-        ];
+        ],
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 40,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte" + "\n" + "Evaluaciones omitidas",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        //Definicion de funcion delegada para setear informacion de tabla del PDF Evaluaciones omitidas
-        this.omitidas(this.servicioEvalOmitidas),
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+      {
+        style: "subtitulos",
+        text: nombreSucursal,
       },
-    };
-  }
-
-  //Funcion para llenar la tabla con la consulta realizada al backend
-  omitidas(servicio: any[]) {
-    if (this.todasSucursalesEO) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto"],
-          body: [
-            [
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  generarPdfEstb(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
-    var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
-    var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
-    var cod = this.codSucursalEst.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentEstablecimiento(
-        fechaDesde,
-        fechaHasta,
-        cod
-      );
-    }
-
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  //Funcion delegada para seteo de información
-  getDocumentEstablecimiento(fD, fH, cod) {
-    //Se obtiene la fecha actual
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
-
-    return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
-      watermark: {
-        text: "FullTime Tickets",
-        color: "blue",
-        opacity: 0.1,
+      {
+        style: "subtitulos",
+        text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+      },
+      //Definicion de funcion delegada para setear informacion de tabla del PDF Servicio y Max Min
+      this.opcionCuatro
+        ? this.serviciosC(this.servicioServs)
+        : this.servicios(this.servicioServs),
+      this.opcionCuatro
+        ? this.maxminC(this.servicioServsMaxMin)
+        : this.maxmin(this.servicioServsMaxMin),
+    ],
+    styles: {
+      tableTotal: {
+        fontSize: 30,
         bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por: " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 40,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Evaluación Establecimiento",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fD + " hasta " + fH,
-        },
-        this.establecimientos(this.servicioEstb), //Definicion de funcion delegada para setear informacion de tabla del PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  //Definicion de funcion delegada para setear informacion de tabla del PDF en estructura
-  establecimientos(servicio: any[]) {
-    if (this.todasSucursalesEST) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  generarPdfEvalGr(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
-    var fechaDesde = this.fromDateDesdeEvalGr.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
-      .toString()
-      .trim();
-    var cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentEvaGrupo(fechaDesde, fechaHasta, cod);
-    }
-
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  //Funcion delegada para seteo de información
-  getDocumentEvaGrupo(fechaDesde, fechaHasta, cod) {
-    //Se obtiene la fecha actual
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
-
-    return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
-      watermark: {
-        text: "FullTime Tickets",
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 40,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Evaluación por Grupo",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        this.evagrupo(this.servicioG), //Definicion de funcion delegada para setear informacion de tabla del PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  //Funcion para llenar la tabla con la consulta realizada al backend
-  evagrupo(servicio: any[]) {
-    if (this.todasSucursalesEG) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Nombre", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Nombre", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  //PDF DE GRAFICOS
-  generarPdfGra(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
-    var fechaDesde = this.fromDateDesdeEvalGra.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
-      .toString()
-      .trim();
-    var cod = this.codSucursal.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentGr(fechaDesde, fechaHasta, cod);
-      // this.genGraficoPDF();
-    }
-
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  //Funcion delegada para seteo de información
-  getDocumentGr(fechaDesde, fechaHasta, cod) {
-    var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
-    //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
-    var canvasImg = canvas1.toDataURL("image/png");
-    //Se obtiene la fecha actual
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
-
-    //Formateo de datos para obtener, los valores de cada parámetro
-    let Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
-    let valNombres = [0, 0, 0, 0, 0];
-    for (var i = 0; i < Nombres.length; i++) {
-      if (
-        this.servicioGra.find((val) => val.evaluacion === Nombres[i]) != null
-      ) {
-        valNombres[i] = this.servicioGra.find(
-          (val) => val.evaluacion === Nombres[i]
-        ).total;
-      }
-    }
-
-    return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
-      watermark: {
-        text: "FullTime Tickets",
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      pageOrientation: this.orientacion,
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 40,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Gráfico Evaluaciones",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        this.grafico(this.servicioGra),
-        this.graficoImagen(canvasImg), //Definicion de funcion delegada para setear informacion de tabla del PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  graficoImagen(imagen: any) {
-    if (this.orientacion == "landscape") {
-      return {
-        image: imagen,
-        fit: [800, 500],
-        margin: [0, 50, 0, 10],
         alignment: "center",
-        pageBreak: "before",
-      };
-    } else {
-      return {
-        image: imagen,
-        fit: [500, 350],
-        margin: [0, 50, 0, 10],
+        fillColor: this.p_color,
+      },
+      tableHeader: {
+        fontSize: 9,
+        bold: true,
         alignment: "center",
-      };
+        fillColor: this.p_color,
+      },
+      itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+      itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+      subtitulos: {
+        fontSize: 16,
+        alignment: "center",
+        margin: [0, 5, 0, 10],
+      },
+      tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+      CabeceraTabla: {
+        fontSize: 12,
+        alignment: "center",
+        margin: [0, 8, 0, 8],
+        fillColor: this.p_color,
+      },
+      quote: { margin: [5, -2, 0, -2], italics: true },
+      small: { fontSize: 8, color: "blue", opacity: 0.5 },
+    },
+  };
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend Servicios
+servicios(servicio: any[]) {
+  if (this.todasSucursalesS) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: [
+          "*",
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.Usuario },
+              { style: "itemsTable", text: res.Fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: [
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.Usuario },
+              { style: "itemsTable", text: res.Fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend Max Mins
+maxmin(servicio: any[]) {
+  if (this.todasSucursalesS) {
+    return {
+      style: "tableMargin",
+      table: {
+        Label: "Maximos y minimos",
+        headerRows: 1,
+        widths: [
+          "*",
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Max.", style: "tableHeader" },
+            { text: "Min.", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.Usuario },
+              { style: "itemsTable", text: res.Fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.max },
+              { style: "itemsTable", text: res.min },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        Label: "Maximos y minimos",
+        headerRows: 1,
+        widths: [
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Max.", style: "tableHeader" },
+            { text: "Min.", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.Usuario },
+              { style: "itemsTable", text: res.Fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.max },
+              { style: "itemsTable", text: res.min },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend Servicios
+serviciosC(servicio: any[]) {
+  if (this.todasSucursalesS) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: [
+          "*",
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.Usuario },
+              { style: "itemsTable", text: res.Fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.Usuario },
+              { style: "itemsTable", text: res.Fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend Max Mins
+maxminC(servicio: any[]) {
+  if (this.todasSucursalesS) {
+    return {
+      style: "tableMargin",
+      table: {
+        Label: "Maximos y minimos",
+        headerRows: 1,
+        widths: [
+          "*",
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Max.", style: "tableHeader" },
+            { text: "Min.", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.Usuario },
+              { style: "itemsTable", text: res.Fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.max },
+              { style: "itemsTable", text: res.min },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        Label: "Maximos y minimos",
+        headerRows: 1,
+        widths: [
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Max.", style: "tableHeader" },
+            { text: "Min.", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.Usuario },
+              { style: "itemsTable", text: res.Fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.max },
+              { style: "itemsTable", text: res.min },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+generarPdfEvalEmpl(action = "open", pdf: number) {
+  //Seteo de rango de fechas de la consulta para impresión en PDF
+  var fechaDesde = this.fromDateDesdeEvalEmpl.nativeElement.value
+    .toString()
+    .trim();
+  var fechaHasta = this.toDateHastaEvalEmpl.nativeElement.value
+    .toString()
+    .trim();
+  var cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
+  //Definicion de funcion delegada para setear estructura del PDF
+  let documentDefinition;
+  if (pdf === 1) {
+    documentDefinition = this.getDocumentEmpleado(
+      fechaDesde,
+      fechaHasta,
+      cod
+    );
+  }
+
+  //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+  switch (action) {
+    case "open":
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+    case "print":
+      pdfMake.createPdf(documentDefinition).print();
+      break;
+    case "download":
+      pdfMake.createPdf(documentDefinition).download();
+      break;
+
+    default:
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+  }
+}
+
+//Funcion delegada para seteo de información de estructura
+getDocumentEmpleado(fechaDesde, fechaHasta, cod) {
+  //Se obtiene la fecha actual
+  let f = new Date();
+  f.setUTCHours(f.getHours());
+  this.date = f.toJSON();
+  let nombreSucursal = this.obtenerNombreSucursal(cod);
+
+  return {
+    //Seteo de marca de agua y encabezado con nombre de usuario logueado
+    watermark: {
+      text: "FullTime Tickets",
+      color: "blue",
+      opacity: 0.1,
+      bold: true,
+      italics: false,
+      fontSize: 52,
+    },
+    header: {
+      text: "Impreso por:  " + this.userDisplayName,
+      margin: 10,
+      fontSize: 9,
+      opacity: 0.3,
+    },
+    //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+    footer: function (currentPage, pageCount, fecha) {
+      fecha = f.toJSON().split("T")[0];
+      var timer = f.toJSON().split("T")[1].slice(0, 5);
+      return [
+        {
+          margin: [10, 20, 10, 0],
+          columns: [
+            "Fecha: " + fecha + " Hora: " + timer,
+            {
+              text: [
+                {
+                  text:
+                    "© Pag " + currentPage.toString() + " of " + pageCount,
+                  alignment: "right",
+                  color: "blue",
+                  opacity: 0.5,
+                },
+              ],
+            },
+          ],
+          fontSize: 9,
+          color: "#A4B8FF",
+        },
+      ];
+    },
+    //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+    content: [
+      {
+        columns: [
+          {
+            image: this.urlImagen,
+            width: 90,
+            height: 40,
+          },
+          {
+            width: "*",
+            alignment: "center",
+            text:
+              "Reporte" + "\n" + " Evaluación Empleado y Máximos y Mínimos",
+            bold: true,
+            fontSize: 15,
+            margin: [-90, 20, 0, 0],
+          },
+        ],
+      },
+      {
+        style: "subtitulos",
+        text: nombreSucursal,
+      },
+      {
+        style: "subtitulos",
+        text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+      },
+      //Definicion de funcion delegada para setear informacion de tabla del PDF Empleado y Max, Min
+      this.opcionCuatro
+        ? this.empleadoC(this.servicioEvalEmpl)
+        : this.empleado(this.servicioEvalEmpl),
+      this.opcionCuatro
+        ? this.maxmineC(this.servicioEvalMMEmpl)
+        : this.maxmine(this.servicioEvalMMEmpl),
+    ],
+    styles: {
+      tableTotal: {
+        fontSize: 30,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      tableHeader: {
+        fontSize: 9,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+      itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+      subtitulos: {
+        fontSize: 16,
+        alignment: "center",
+        margin: [0, 5, 0, 10],
+      },
+      tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+      CabeceraTabla: {
+        fontSize: 12,
+        alignment: "center",
+        margin: [0, 8, 0, 8],
+        fillColor: this.p_color,
+      },
+      quote: { margin: [5, -2, 0, -2], italics: true },
+      small: { fontSize: 8, color: "blue", opacity: 0.5 },
+    },
+  };
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend
+empleado(servicio: any[]) {
+  if (this.todasSucursalesE) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: [
+          "*",
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: [
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend
+maxmine(servicio: any[]) {
+  if (this.todasSucursalesE) {
+    return {
+      style: "tableMargin",
+      table: {
+        Label: "Maximos y minimos",
+        headerRows: 1,
+        widths: [
+          "*",
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Max.", style: "tableHeader" },
+            { text: "Min.", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.max },
+              { style: "itemsTable", text: res.min },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        Label: "Maximos y minimos",
+        headerRows: 1,
+        widths: [
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Max.", style: "tableHeader" },
+            { text: "Min.", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.max },
+              { style: "itemsTable", text: res.min },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend
+empleadoC(servicio: any[]) {
+  if (this.todasSucursalesE) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: [
+          "*",
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend
+maxmineC(servicio: any[]) {
+  if (this.todasSucursalesE) {
+    return {
+      style: "tableMargin",
+      table: {
+        Label: "Maximos y minimos",
+        headerRows: 1,
+        widths: [
+          "*",
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Max.", style: "tableHeader" },
+            { text: "Min.", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.max },
+              { style: "itemsTable", text: res.min },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        Label: "Maximos y minimos",
+        headerRows: 1,
+        widths: [
+          "*",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+          "auto",
+        ],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Max.", style: "tableHeader" },
+            { text: "Min.", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.max },
+              { style: "itemsTable", text: res.min },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+generarPdfEvalOmitidas(action = "open", pdf: number) {
+  //Seteo de rango de fechas de la consulta para impresión en PDF
+  var fechaDesde = this.fromDateDesdeEvalOmitidas.nativeElement.value
+    .toString()
+    .trim();
+  var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
+    .toString()
+    .trim();
+  var cod = this.codSucursalEvalOmitidas.nativeElement.value
+    .toString()
+    .trim();
+  //Definicion de funcion delegada para setear estructura del PDF
+  let documentDefinition;
+  if (pdf === 1) {
+    documentDefinition = this.getDocumentEvaluacionesOmitidas(
+      fechaDesde,
+      fechaHasta,
+      cod
+    );
+  }
+
+  //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+  switch (action) {
+    case "open":
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+    case "print":
+      pdfMake.createPdf(documentDefinition).print();
+      break;
+    case "download":
+      pdfMake.createPdf(documentDefinition).download();
+      break;
+
+    default:
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+  }
+}
+
+//Funcion delegada para seteo de información de estructura
+getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta, cod) {
+  //Se obtiene la fecha actual
+  let f = new Date();
+  f.setUTCHours(f.getHours());
+  this.date = f.toJSON();
+  let nombreSucursal = this.obtenerNombreSucursal(cod);
+
+  return {
+    //Seteo de marca de agua y encabezado con nombre de usuario logueado
+    watermark: {
+      text: "FullTime Tickets",
+      color: "blue",
+      opacity: 0.1,
+      bold: true,
+      italics: false,
+      fontSize: 52,
+    },
+    header: {
+      text: "Impreso por:  " + this.userDisplayName,
+      margin: 10,
+      fontSize: 9,
+      opacity: 0.3,
+    },
+    //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+    footer: function (currentPage, pageCount, fecha) {
+      fecha = f.toJSON().split("T")[0];
+      var timer = f.toJSON().split("T")[1].slice(0, 5);
+      return [
+        {
+          margin: [10, 20, 10, 0],
+          columns: [
+            "Fecha: " + fecha + " Hora: " + timer,
+            {
+              text: [
+                {
+                  text:
+                    "© Pag " + currentPage.toString() + " of " + pageCount,
+                  alignment: "right",
+                  color: "blue",
+                  opacity: 0.5,
+                },
+              ],
+            },
+          ],
+          fontSize: 9,
+          color: "#A4B8FF",
+        },
+      ];
+    },
+    //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+    content: [
+      {
+        columns: [
+          {
+            image: this.urlImagen,
+            width: 90,
+            height: 40,
+          },
+          {
+            width: "*",
+            alignment: "center",
+            text: "Reporte" + "\n" + "Evaluaciones omitidas",
+            bold: true,
+            fontSize: 15,
+            margin: [-90, 20, 0, 0],
+          },
+        ],
+      },
+      {
+        style: "subtitulos",
+        text: nombreSucursal,
+      },
+      {
+        style: "subtitulos",
+        text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+      },
+      //Definicion de funcion delegada para setear informacion de tabla del PDF Evaluaciones omitidas
+      this.omitidas(this.servicioEvalOmitidas),
+    ],
+    styles: {
+      tableTotal: {
+        fontSize: 30,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      tableHeader: {
+        fontSize: 9,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+      itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+      subtitulos: {
+        fontSize: 16,
+        alignment: "center",
+        margin: [0, 5, 0, 10],
+      },
+      tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+      CabeceraTabla: {
+        fontSize: 12,
+        alignment: "center",
+        margin: [0, 8, 0, 8],
+        fillColor: this.p_color,
+      },
+      quote: { margin: [5, -2, 0, -2], italics: true },
+      small: { fontSize: 8, color: "blue", opacity: 0.5 },
+    },
+  };
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend
+omitidas(servicio: any[]) {
+  if (this.todasSucursalesEO) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "*", "auto", "auto"],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Total },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "auto", "auto"],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Total },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+generarPdfEstb(action = "open", pdf: number) {
+  //Seteo de rango de fechas de la consulta para impresión en PDF
+  var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
+  var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
+  var cod = this.codSucursalEst.nativeElement.value.toString().trim();
+  //Definicion de funcion delegada para setear estructura del PDF
+  let documentDefinition;
+  if (pdf === 1) {
+    documentDefinition = this.getDocumentEstablecimiento(
+      fechaDesde,
+      fechaHasta,
+      cod
+    );
+  }
+
+  //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+  switch (action) {
+    case "open":
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+    case "print":
+      pdfMake.createPdf(documentDefinition).print();
+      break;
+    case "download":
+      pdfMake.createPdf(documentDefinition).download();
+      break;
+
+    default:
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+  }
+}
+
+//Funcion delegada para seteo de información
+getDocumentEstablecimiento(fD, fH, cod) {
+  //Se obtiene la fecha actual
+  let f = new Date();
+  f.setUTCHours(f.getHours());
+  this.date = f.toJSON();
+  let nombreSucursal = this.obtenerNombreSucursal(cod);
+
+  return {
+    //Seteo de marca de agua y encabezado con nombre de usuario logueado
+    watermark: {
+      text: "FullTime Tickets",
+      color: "blue",
+      opacity: 0.1,
+      bold: true,
+      italics: false,
+      fontSize: 52,
+    },
+    header: {
+      text: "Impreso por: " + this.userDisplayName,
+      margin: 10,
+      fontSize: 9,
+      opacity: 0.3,
+    },
+    //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+    footer: function (currentPage, pageCount, fecha) {
+      fecha = f.toJSON().split("T")[0];
+      var timer = f.toJSON().split("T")[1].slice(0, 5);
+      return [
+        {
+          margin: [10, 20, 10, 0],
+          columns: [
+            "Fecha: " + fecha + " Hora: " + timer,
+            {
+              text: [
+                {
+                  text:
+                    "© Pag " + currentPage.toString() + " of " + pageCount,
+                  alignment: "right",
+                  color: "blue",
+                  opacity: 0.5,
+                },
+              ],
+            },
+          ],
+          fontSize: 9,
+          color: "#A4B8FF",
+        },
+      ];
+    },
+    //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+    content: [
+      {
+        columns: [
+          {
+            image: this.urlImagen,
+            width: 90,
+            height: 40,
+          },
+          {
+            width: "*",
+            alignment: "center",
+            text: "Reporte - Evaluación Establecimiento",
+            bold: true,
+            fontSize: 15,
+            margin: [-90, 20, 0, 0],
+          },
+        ],
+      },
+      {
+        style: "subtitulos",
+        text: nombreSucursal,
+      },
+      {
+        style: "subtitulos",
+        text: "Periodo de " + fD + " hasta " + fH,
+      },
+      this.opcionCuatro
+        ? this.establecimientosC(this.servicioEstb)
+        : this.establecimientos(this.servicioEstb), //Definicion de funcion delegada para setear informacion de tabla del PDF
+    ],
+    styles: {
+      tableTotal: {
+        fontSize: 30,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      tableHeader: {
+        fontSize: 9,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+      itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+      subtitulos: {
+        fontSize: 16,
+        alignment: "center",
+        margin: [0, 5, 0, 10],
+      },
+      tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+      CabeceraTabla: {
+        fontSize: 12,
+        alignment: "center",
+        margin: [0, 8, 0, 8],
+        fillColor: this.p_color,
+      },
+      quote: { margin: [5, -2, 0, -2], italics: true },
+      small: { fontSize: 8, color: "blue", opacity: 0.5 },
+    },
+  };
+}
+
+//Definicion de funcion delegada para setear informacion de tabla del PDF en estructura
+establecimientos(servicio: any[]) {
+  if (this.todasSucursalesEST) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Muy Bueno", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Muy_Bueno },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+//Definicion de funcion delegada para setear informacion de tabla del PDF en estructura
+establecimientosC(servicio: any[]) {
+  if (this.todasSucursalesEST) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Excelente", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Regular", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Excelente },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Regular },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+generarPdfEvalGr(action = "open", pdf: number) {
+  //Seteo de rango de fechas de la consulta para impresión en PDF
+  var fechaDesde = this.fromDateDesdeEvalGr.nativeElement.value
+    .toString()
+    .trim();
+  var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
+    .toString()
+    .trim();
+  var cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
+  //Definicion de funcion delegada para setear estructura del PDF
+  let documentDefinition;
+  if (pdf === 1) {
+    documentDefinition = this.getDocumentEvaGrupo(
+      fechaDesde,
+      fechaHasta,
+      cod
+    );
+  }
+
+  //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+  switch (action) {
+    case "open":
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+    case "print":
+      pdfMake.createPdf(documentDefinition).print();
+      break;
+    case "download":
+      pdfMake.createPdf(documentDefinition).download();
+      break;
+
+    default:
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+  }
+}
+
+//Funcion delegada para seteo de información
+getDocumentEvaGrupo(fechaDesde, fechaHasta, cod) {
+  //Se obtiene la fecha actual
+  let f = new Date();
+  f.setUTCHours(f.getHours());
+  this.date = f.toJSON();
+  let nombreSucursal = this.obtenerNombreSucursal(cod);
+
+  return {
+    //Seteo de marca de agua y encabezado con nombre de usuario logueado
+    watermark: {
+      text: "FullTime Tickets",
+      color: "blue",
+      opacity: 0.1,
+      bold: true,
+      italics: false,
+      fontSize: 52,
+    },
+    header: {
+      text: "Impreso por:  " + this.userDisplayName,
+      margin: 10,
+      fontSize: 9,
+      opacity: 0.3,
+    },
+    //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+    footer: function (currentPage, pageCount, fecha) {
+      fecha = f.toJSON().split("T")[0];
+      var timer = f.toJSON().split("T")[1].slice(0, 5);
+      return [
+        {
+          margin: [10, 20, 10, 0],
+          columns: [
+            "Fecha: " + fecha + " Hora: " + timer,
+            {
+              text: [
+                {
+                  text:
+                    "© Pag " + currentPage.toString() + " of " + pageCount,
+                  alignment: "right",
+                  color: "blue",
+                  opacity: 0.5,
+                },
+              ],
+            },
+          ],
+          fontSize: 9,
+          color: "#A4B8FF",
+        },
+      ];
+    },
+    //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+    content: [
+      {
+        columns: [
+          {
+            image: this.urlImagen,
+            width: 90,
+            height: 40,
+          },
+          {
+            width: "*",
+            alignment: "center",
+            text: "Reporte - Evaluación por Grupo",
+            bold: true,
+            fontSize: 15,
+            margin: [-90, 20, 0, 0],
+          },
+        ],
+      },
+      {
+        style: "subtitulos",
+        text: nombreSucursal,
+      },
+      {
+        style: "subtitulos",
+        text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+      },
+      this.evagrupo(this.servicioG), //Definicion de funcion delegada para setear informacion de tabla del PDF
+    ],
+    styles: {
+      tableTotal: {
+        fontSize: 30,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      tableHeader: {
+        fontSize: 9,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+      itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+      subtitulos: {
+        fontSize: 16,
+        alignment: "center",
+        margin: [0, 5, 0, 10],
+      },
+      tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+      CabeceraTabla: {
+        fontSize: 12,
+        alignment: "center",
+        margin: [0, 8, 0, 8],
+        fillColor: this.p_color,
+      },
+      quote: { margin: [5, -2, 0, -2], italics: true },
+      small: { fontSize: 8, color: "blue", opacity: 0.5 },
+    },
+  };
+}
+
+//Funcion para llenar la tabla con la consulta realizada al backend
+evagrupo(servicio: any[]) {
+  if (this.todasSucursalesEG) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Nombre", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Nombre", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Bueno", style: "tableHeader" },
+            { text: "Malo", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Promedio", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.usua_nombre },
+              { style: "itemsTable", text: res.fecha },
+              { style: "itemsTable", text: res.Bueno },
+              { style: "itemsTable", text: res.Malo },
+              { style: "itemsTable", text: res.Total },
+              { style: "itemsTable", text: res.Promedio },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+//PDF DE GRAFICOS
+generarPdfGra(action = "open", pdf: number) {
+  //Seteo de rango de fechas de la consulta para impresión en PDF
+  var fechaDesde = this.fromDateDesdeEvalGra.nativeElement.value
+    .toString()
+    .trim();
+  var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
+    .toString()
+    .trim();
+  var cod = this.codSucursal.nativeElement.value.toString().trim();
+  //Definicion de funcion delegada para setear estructura del PDF
+  let documentDefinition;
+  if (pdf === 1) {
+    documentDefinition = this.getDocumentGr(fechaDesde, fechaHasta, cod);
+    // this.genGraficoPDF();
+  }
+
+  //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+  switch (action) {
+    case "open":
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+    case "print":
+      pdfMake.createPdf(documentDefinition).print();
+      break;
+    case "download":
+      pdfMake.createPdf(documentDefinition).download();
+      break;
+    default:
+      pdfMake.createPdf(documentDefinition).open();
+      break;
+  }
+}
+
+//Funcion delegada para seteo de información
+getDocumentGr(fechaDesde, fechaHasta, cod) {
+  var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
+  //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+  var canvasImg = canvas1.toDataURL("image/png");
+  //Se obtiene la fecha actual
+  let f = new Date();
+  f.setUTCHours(f.getHours());
+  this.date = f.toJSON();
+  let nombreSucursal = this.obtenerNombreSucursal(cod);
+
+  //Formateo de datos para obtener, los valores de cada parámetro
+  let Nombres = [];
+  let valNombres = [];
+
+  if (this.opcionCuatro) {
+    Nombres = ["Excelente", "Bueno", "Regular", "Malo"];
+    valNombres = [0, 0, 0, 0];
+  } else {
+    Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
+    valNombres = [0, 0, 0, 0, 0];
+  }
+
+  for (var i = 0; i < Nombres.length; i++) {
+    if (
+      this.servicioGra.find((val) => val.evaluacion === Nombres[i]) != null
+    ) {
+      valNombres[i] = this.servicioGra.find(
+        (val) => val.evaluacion === Nombres[i]
+      ).total;
     }
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
-  grafico(servicio: any[]) {
-    if (this.todasSucursalesG) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Evaluacion", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Porcentajes", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usuario },
-                { style: "itemsTable", text: res.evaluacion },
-                { style: "itemsTable", text: res.total },
-                { style: "itemsTable", text: res.porcentaje },
-              ];
-            }),
+  return {
+    //Seteo de marca de agua y encabezado con nombre de usuario logueado
+    watermark: {
+      text: "FullTime Tickets",
+      color: "blue",
+      opacity: 0.1,
+      bold: true,
+      italics: false,
+      fontSize: 52,
+    },
+    header: {
+      text: "Impreso por:  " + this.userDisplayName,
+      margin: 10,
+      fontSize: 9,
+      opacity: 0.3,
+    },
+    pageOrientation: this.orientacion,
+    //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+    footer: function (currentPage, pageCount, fecha) {
+      fecha = f.toJSON().split("T")[0];
+      var timer = f.toJSON().split("T")[1].slice(0, 5);
+      return [
+        {
+          margin: [10, 20, 10, 0],
+          columns: [
+            "Fecha: " + fecha + " Hora: " + timer,
+            {
+              text: [
+                {
+                  text:
+                    "© Pag " + currentPage.toString() + " of " + pageCount,
+                  alignment: "right",
+                  color: "blue",
+                  opacity: 0.5,
+                },
+              ],
+            },
           ],
+          fontSize: 9,
+          color: "#A4B8FF",
         },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+      ];
+    },
+    //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+    content: [
+      {
+        columns: [
+          {
+            image: this.urlImagen,
+            width: 90,
+            height: 40,
           },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "*", "*"],
-          body: [
-            [
-              { text: "Usuario", style: "tableHeader" },
-              { text: "Evaluacion", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Porcentajes", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usuario },
-                { style: "itemsTable", text: res.evaluacion },
-                { style: "itemsTable", text: res.total },
-                { style: "itemsTable", text: res.porcentaje },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          {
+            width: "*",
+            alignment: "center",
+            text: "Reporte - Gráfico Evaluaciones",
+            bold: true,
+            fontSize: 15,
+            margin: [-90, 20, 0, 0],
           },
-        },
-      };
-    }
-  }
+        ],
+      },
+      {
+        style: "subtitulos",
+        text: nombreSucursal,
+      },
+      {
+        style: "subtitulos",
+        text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+      },
+      this.grafico(this.servicioGra),
+      this.graficoImagen(canvasImg), //Definicion de funcion delegada para setear informacion de tabla del PDF
+    ],
+    styles: {
+      tableTotal: {
+        fontSize: 30,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      tableHeader: {
+        fontSize: 9,
+        bold: true,
+        alignment: "center",
+        fillColor: this.p_color,
+      },
+      itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+      itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+      subtitulos: {
+        fontSize: 16,
+        alignment: "center",
+        margin: [0, 5, 0, 10],
+      },
+      tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+      CabeceraTabla: {
+        fontSize: 12,
+        alignment: "center",
+        margin: [0, 8, 0, 8],
+        fillColor: this.p_color,
+      },
+      quote: { margin: [5, -2, 0, -2], italics: true },
+      small: { fontSize: 8, color: "blue", opacity: 0.5 },
+    },
+  };
+}
 
-  genGraficoPDF() {
-    //Selecciona de la interfaz el elemento que contiene la grafica
-    var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
-    //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
-    var canvasImg = canvas1.toDataURL("image/png");
-    //crea PDF
-    var doc = new jsPDF("l", "mm", "a4");
-    //Se obtiene el largo y ancho de la pagina este caso a4
-    let pageWidth = doc.internal.pageSize.getWidth();
-    let pageHeight = doc.internal.pageSize.getHeight();
-    //Obtiene fecha actual
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    var fecha = f.toJSON().split("T")[0];
-    var timer = f.toJSON().split("T")[1].slice(0, 5);
-    //Obtiene el centro superior de la pagina
-    let textEnc = "Reporte - Gráfico Evaluaciones";
-    let textEncWidth =
-      (doc.getStringUnitWidth(textEnc) * doc.getFontSize()) /
-      doc.internal.scaleFactor;
-    let xTextEnc = (pageWidth - textEncWidth) / 2;
-    //Imprime fecha, encabezado, pie de pagina respectivamente
-    doc.text("Fecha: " + fecha + " Hora: " + timer, 5, pageHeight - 10);
-    doc.text(textEnc, xTextEnc, 10);
-    doc.text("Impreso por: " + this.userDisplayName, 200, pageHeight - 10);
-    //añade imagen en el centro del documento
-    doc.addImage(canvasImg, "PNG", 10, 10, 280, 150);
-    //guarda PDF con un nombre propuesto
-    doc.save(`Gráfico-Evaluaciones ${fecha}, ${timer}.pdf`);
-    window.open(URL.createObjectURL(doc.output("blob")));
+graficoImagen(imagen: any) {
+  if (this.orientacion == "landscape") {
+    return {
+      image: imagen,
+      fit: [800, 500],
+      margin: [0, 50, 0, 10],
+      alignment: "center",
+      pageBreak: "before",
+    };
+  } else {
+    return {
+      image: imagen,
+      fit: [500, 350],
+      margin: [0, 50, 0, 10],
+      alignment: "center",
+    };
   }
+}
+
+//Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+grafico(servicio: any[]) {
+  if (this.todasSucursalesG) {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "*", "auto", "auto", "auto"],
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Evaluacion", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Porcentajes", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.nombreEmpresa },
+              { style: "itemsTable", text: res.usuario },
+              { style: "itemsTable", text: res.evaluacion },
+              { style: "itemsTable", text: res.total },
+              { style: "itemsTable", text: res.porcentaje },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  } else {
+    return {
+      style: "tableMargin",
+      table: {
+        headerRows: 1,
+        widths: ["*", "*", "*", "*"],
+        body: [
+          [
+            { text: "Usuario", style: "tableHeader" },
+            { text: "Evaluacion", style: "tableHeader" },
+            { text: "Total", style: "tableHeader" },
+            { text: "Porcentajes", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.usuario },
+              { style: "itemsTable", text: res.evaluacion },
+              { style: "itemsTable", text: res.total },
+              { style: "itemsTable", text: res.porcentaje },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+}
+
+genGraficoPDF() {
+  //Selecciona de la interfaz el elemento que contiene la grafica
+  var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
+  //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+  var canvasImg = canvas1.toDataURL("image/png");
+  //crea PDF
+  var doc = new jsPDF("l", "mm", "a4");
+  //Se obtiene el largo y ancho de la pagina este caso a4
+  let pageWidth = doc.internal.pageSize.getWidth();
+  let pageHeight = doc.internal.pageSize.getHeight();
+  //Obtiene fecha actual
+  let f = new Date();
+  f.setUTCHours(f.getHours());
+  this.date = f.toJSON();
+  var fecha = f.toJSON().split("T")[0];
+  var timer = f.toJSON().split("T")[1].slice(0, 5);
+  //Obtiene el centro superior de la pagina
+  let textEnc = "Reporte - Gráfico Evaluaciones";
+  let textEncWidth =
+    (doc.getStringUnitWidth(textEnc) * doc.getFontSize()) /
+    doc.internal.scaleFactor;
+  let xTextEnc = (pageWidth - textEncWidth) / 2;
+  //Imprime fecha, encabezado, pie de pagina respectivamente
+  doc.text("Fecha: " + fecha + " Hora: " + timer, 5, pageHeight - 10);
+  doc.text(textEnc, xTextEnc, 10);
+  doc.text("Impreso por: " + this.userDisplayName, 200, pageHeight - 10);
+  //añade imagen en el centro del documento
+  doc.addImage(canvasImg, "PNG", 10, 10, 280, 150);
+  //guarda PDF con un nombre propuesto
+  doc.save(`Gráfico-Evaluaciones ${fecha}, ${timer}.pdf`);
+  window.open(URL.createObjectURL(doc.output("blob")));
+}
 }
