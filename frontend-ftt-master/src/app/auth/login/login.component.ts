@@ -1,54 +1,31 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, NgForm } from '@angular/forms';
-import { ServiceService } from '../../services/service.service';
-import { AuthenticationService } from '../../services/authentication.service';
+import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { usuario } from '../../models/usuario';
 import Swal from 'sweetalert2';
 
-
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
 
-  //usuario: usuario = new usuario();
+export class LoginComponent implements OnInit {
 
   usua_login: "";
   usua_password: "";
   mostrar = true;
 
-
-  constructor(private serviceService: ServiceService,
-
-    //inyeccion de dependencias
+  constructor(
+    // INYECCION DE DEPENDENCIAS
     private authenticationService: AuthenticationService,
     public router: Router) { }
 
   ngOnInit(): void {
   }
 
-
-  //     //sacar info con el jwt y guardar en el localstorage; mandar todas las peticiones
-  // login(username, password) {
-  //   username = this.usua_login;
-  //   password = this.usua_password;
-
-  //   this.authenticationService.loginUsuario(username, password).subscribe((a) => {
-  //     localStorage.setItem("token", a.token);
-  //     this.router.navigateByUrl('/menu');
-
-
-
-
-  //   });
-
-  // }
-
-  login1(form: NgForm, username, password) {
+  login1(form: NgForm, username: any, password: any) {
     username = this.usua_login;
     password = this.usua_password;
     if (form.invalid) { return; }
@@ -67,11 +44,10 @@ export class LoginComponent implements OnInit {
         this.router.navigateByUrl('/menu');
         Swal.close();
       }, (err) => {
-
         Swal.fire({
           allowOutsideClick: false,
           title: 'Error!',
-          text: 'Usuario o password incorrecto',
+          text: 'Usuario o password incorrecto.',
           icon: 'error',
           confirmButtonText: 'ok'
         });

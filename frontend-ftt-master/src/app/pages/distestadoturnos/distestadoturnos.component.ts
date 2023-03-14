@@ -144,7 +144,6 @@ export class DistestadoturnosComponent implements OnInit {
 
   //Comprueba si se realizo una busqueda por sucursales
   comprobarBusquedaSucursales(cod: string){
-    console.log(cod);
     return cod=="-1" ? true : false;
   }
   

@@ -19,7 +19,7 @@ import { Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 Chart.register(ChartDataLabels);
 import { ToastrModule } from 'ngx-toastr';
-import {BrowserAnimationsModule} from '@Angular/platform-browser/animations';
+import { BrowserAnimationsModule } from '@Angular/platform-browser/animations';
 
 @NgModule({
   declarations: [

@@ -212,7 +212,7 @@ router.get('/entradasalidasistema/:fechaDesde/:fechaHasta/:empresa', (req: Reque
         query =
             `
             SELECT usua_nombre as Usuario,
-            STR_TO_DATE(concat(reg_fecha," ",reg_hora,":",reg_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS fecha,
+            CAST(STR_TO_DATE(concat(reg_fecha," ",reg_hora,":",reg_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS CHAR) AS fecha,
                 reg_hora AS Hora, reg_minuto AS Minuto,
                 IF(reg_estado = 1, 'Entrada Servicio',
                 IF(reg_estado = 2, 'Salida Servicio', 

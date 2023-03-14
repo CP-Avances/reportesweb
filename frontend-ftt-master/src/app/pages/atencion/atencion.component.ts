@@ -1,22 +1,19 @@
 import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
-import { Chart } from "chart.js";
-import { ServiceService } from "../../services/service.service";
-import { AuthenticationService } from "../../services/authentication.service";
-import { Router } from "@angular/router";
-import { DatePipe } from "@angular/common";
 import { ToastrService } from "ngx-toastr";
-
-//Complementos para PDF y Excel
-import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import { DatePipe } from "@angular/common";
+import { Router } from "@angular/router";
+import { Chart } from "chart.js";
 import { Utils } from "../../utils/util";
 
-(<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
+import { AuthenticationService } from "../../services/authentication.service";
+import { ServiceService } from "../../services/service.service";
 
+// COMPLEMENTOS PARA PDF Y EXCEL
+import * as pdfMake from "pdfmake/build/pdfmake";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-
+(<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 const EXCEL_EXTENSION = ".xlsx";
 
 @Component({
@@ -24,11 +21,14 @@ const EXCEL_EXTENSION = ".xlsx";
   templateUrl: "./atencion.component.html",
   styleUrls: ["./atencion.component.scss"],
 })
+
 export class AtencionComponent implements OnInit {
-  //Seteo de fechas primer dia del mes actual y dia actua
-  fromDate;
-  toDate;
-  //captura de elementos de la interfaz visual para tratarlos y capturar datos
+
+  // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
+  fromDate: any;
+  toDate: any;
+
+  // CAPTURA DE ELEMENTOS DE LA INTERFAZ VISUAL PARA TRATARLOS Y CAPTURAR DATOS
   @ViewChild("fromDateAtTC") fromDateAtTC: ElementRef;
   @ViewChild("toDateAtTC") toDateAtTC: ElementRef;
   @ViewChild("fromDateAtPA") fromDateAtPA: ElementRef;
@@ -51,7 +51,7 @@ export class AtencionComponent implements OnInit {
   @ViewChild("codSucursalAtMA") codSucursalAtMA: ElementRef;
   @ViewChild("codSucursalAtAS") codSucursalAtAS: ElementRef;
 
-  //Servicios-Variables donde se almacenaran las consultas a la BD
+  // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   servicioTiempoComp: any = [];
   serviciopa: any = [];
   serviciomax: any = [];
@@ -60,15 +60,18 @@ export class AtencionComponent implements OnInit {
   serviciosAtPA: any = [];
   cajerosAtencion: any = [];
   sucursales: any[];
-  //Variable usada en exportacion a excel
+
+  // VARIABLE USADA EN EXPORTACION A EXCEL
   p_color: any;
-  //Banderas para mostrar la tabla correspondiente a las consultas
+
+  // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
   todasSucursalesTC: boolean = false;
   todasSucursalesPA: boolean = false;
   todasSucursalesMA: boolean = false;
   todasSucursalesAS: boolean = false;
   todasSucursalesGS: boolean = false;
-  //Banderas para que no se quede en pantalla consultas anteriores
+
+  // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestAtTC: boolean = false;
   malRequestAtTCPag: boolean = false;
   malRequestAtPA: boolean = false;
@@ -79,44 +82,52 @@ export class AtencionComponent implements OnInit {
   malRequestAtASPag: boolean = false;
   malRequestAtG: boolean = false;
   malRequestAtGPag: boolean = false;
-  //Usuario que ingreso al sistema
+
+  // USUARIO QUE INGRESO AL SISTEMA
   userDisplayName: any;
-  //Grafico
+
+  // GRAFICO
   tipo: string;
   chart: any;
   legend: any;
-  //Maximo de items mostrado de tabla en pantalla
+
+  // MAXIMO DE ITEMS MOSTRADO DE TABLA EN PANTALLA
   private MAX_PAGS = 10;
-  //Palabras de componente de paginacion
+
+  // PALABRAS DE COMPONENTE DE PAGINACION
   public labels: any = {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
-  //Control paginacion
+
+  // CONTROL PAGINACION
   configTC: any;
   configPA: any;
   configMA: any;
   configAS: any;
   configGS: any;
-  //Obtiene fecha actual para colocarlo en cuadro de fecha
+
+  // OBTIENE FECHA ACTUAL PARA COLOCARLO EN CUADRO DE FECHA
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
-  //Imagen Logo
+
+  // IMAGEN LOGO
   urlImagen: string;
 
-  //Orientacion
+  // ORIENTACION
   orientacion: string;
 
   constructor(
     private serviceService: ServiceService,
-    private auth: AuthenticationService,
     private router: Router,
+    private toastr: ToastrService,
+    private auth: AuthenticationService,
     public datePipe: DatePipe,
-    private toastr: ToastrService
   ) {
-    //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
+
+    // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
     this.configTC = {
       id: "Atenciontc",
       itemsPerPage: this.MAX_PAGS,
@@ -148,54 +159,60 @@ export class AtencionComponent implements OnInit {
       totalItems: this.serviciograf.length,
     };
   }
-  //Eventos para avanzar o retroceder en la paginacion
-  pageChangedTC(event) {
+
+  // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
+  pageChangedTC(event: any) {
     this.configTC.currentPage = event;
   }
-  pageChangedPA(event1) {
+  pageChangedPA(event1: any) {
     this.configPA.currentPage = event1;
   }
-  pageChangedMA(event) {
+  pageChangedMA(event: any) {
     this.configMA.currentPage = event;
   }
-  pageChangedAS(event) {
+  pageChangedAS(event: any) {
     this.configAS.currentPage = event;
   }
-  pageChangedGS(event) {
+  pageChangedGS(event: any) {
     this.configGS.currentPage = event;
   }
 
   ngOnInit(): void {
-    //Cargamos componentes selects HTML
+    // CARGAMOS COMPONENTES SELECTS HTML
     this.getlastday();
     this.getCajeros("-1");
     this.getServicios("-1");
     this.getSucursales();
-    //Cargamos nombre de usuario logueado
+
+    // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
-    //Seteo de tipo de grafico
+
+    // SETEO DE TIPO DE GRAFICO
     this.tipo = "bar";
-    //seteo orientacion
+
+    // SETEO ORIENTACION
     this.orientacion = "portrait";
-    //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
+
+    // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestAtTCPag = true;
     this.malRequestAtPAPag = true;
     this.malRequestAtMAPag = true;
     this.malRequestAtASPag = true;
     this.malRequestAtGPag = true;
-    //Seteo de imagen en interfaz
+
+    // SETEO DE IMAGEN EN INTERFAZ
     Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
       (result) => (this.urlImagen = result)
     );
   }
 
-  //Se desloguea de la aplicacion
+  // SE DESLOGUEA DE LA APLICACION
   salir() {
     this.auth.logout();
     this.router.navigateByUrl("/");
   }
 
-  //Obtiene la fecha actual
+  // OBTIENE LA FECHA ACTUAL
   getlastday() {
     this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
     let lastweek = new Date();
@@ -203,7 +220,7 @@ export class AtencionComponent implements OnInit {
     this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
   }
 
-  //Funcion para llenar select con usuarios/cajeros existentes
+  // FUNCION PARA LLENAR SELECT CON USUARIOS/CAJEROS EXISTENTES
   getCajeros(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
       this.cajerosAtencion = cajeros.cajeros;
@@ -215,7 +232,7 @@ export class AtencionComponent implements OnInit {
       });
   }
 
-  //Consulata para llenar la lista de surcursales.
+  // CONSULATA PARA LLENAR LA LISTA DE SURCURSALES.
   getSucursales() {
     this.serviceService.getAllSucursales().subscribe((empresas: any) => {
       this.sucursales = empresas.empresas;
@@ -228,13 +245,12 @@ export class AtencionComponent implements OnInit {
     this.getServicios("-1");
   }
 
-  //Comprueba si se realizo una busqueda por sucursales
+  // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
   comprobarBusquedaSucursales(cod: string) {
-    console.log(cod);
     return cod == "-1" ? true : false;
   }
 
-  //Cambio de tipo de grafico
+  // CAMBIO DE TIPO DE GRAFICO
   cambiar(tipo: string) {
     this.tipo = tipo;
     if (this.chart) {
@@ -243,12 +259,12 @@ export class AtencionComponent implements OnInit {
     this.leerGrafico();
   }
 
-  //cambio orientacion
+  // CAMBIO ORIENTACION
   cambiarOrientacion(orientacion: string) {
     this.orientacion = orientacion;
   }
 
-  //Consulta para llenar select de interfaz
+  // CONSULTA PARA LLENAR SELECT DE INTERFAZ
   getServicios(sucursal: any) {
     this.serviceService.getAllServiciosS(sucursal).subscribe((serviciosAtPA: any) => {
       this.serviciosAtPA = serviciosAtPA.servicios;
@@ -261,7 +277,7 @@ export class AtencionComponent implements OnInit {
   }
 
   leerTiempcompleto() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTC.nativeElement.value.toString().trim();
     var cod = this.codCajeroAtTC.nativeElement.value.toString().trim();
@@ -270,11 +286,11 @@ export class AtencionComponent implements OnInit {
       .gettiemposcompletos(fechaDesde, fechaHasta, parseInt(cod))
       .subscribe(
         (servicio: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioTiempoComp = servicio.turnos;
           this.malRequestAtTC = false;
           this.malRequestAtTCPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configTC.currentPage > 1) {
             this.configTC.currentPage = 1;
           }
@@ -282,23 +298,23 @@ export class AtencionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioTiempoComp = null;
             this.malRequestAtTC = true;
             this.malRequestAtTCPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
             if (this.servicioTiempoComp == null) {
               this.configTC.totalItems = 0;
             } else {
               this.configTC.totalItems = this.servicioTiempoComp.length;
             }
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configTC = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -308,7 +324,7 @@ export class AtencionComponent implements OnInit {
   }
 
   leerPromAtencion() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtPA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtPA.nativeElement.value.toString().trim();
     var cod = this.codServicioAtPA.nativeElement.value.toString().trim();
@@ -317,11 +333,11 @@ export class AtencionComponent implements OnInit {
       .getpromatencion(fechaDesde, fechaHasta, parseInt(cod))
       .subscribe(
         (serviciopa: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.serviciopa = serviciopa.turnos;
           this.malRequestAtPA = false;
           this.malRequestAtPAPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configPA.currentPage > 1) {
             this.configPA.currentPage = 1;
           }
@@ -329,23 +345,23 @@ export class AtencionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.serviciopa = null;
             this.malRequestAtPA = true;
             this.malRequestAtPAPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
             if (this.serviciopa == null) {
               this.configPA.totalItems = 0;
             } else {
               this.configPA.totalItems = this.serviciopa.length;
             }
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configPA = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -355,7 +371,7 @@ export class AtencionComponent implements OnInit {
   }
 
   leerMaxAtencion() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
     var cod = this.codServicioAtMA.nativeElement.value.toString().trim();
@@ -364,11 +380,11 @@ export class AtencionComponent implements OnInit {
       .getmaxatencion(fechaDesde, fechaHasta, parseInt(cod))
       .subscribe(
         (serviciomax: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.serviciomax = serviciomax.turnos;
           this.malRequestAtMA = false;
           this.malRequestAtMAPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configMA.currentPage > 1) {
             this.configMA.currentPage = 1;
           }
@@ -376,23 +392,23 @@ export class AtencionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.serviciomax = null;
             this.malRequestAtMA = true;
             this.malRequestAtMAPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
             if (this.serviciomax == null) {
               this.configMA.totalItems = 0;
             } else {
               this.configMA.totalItems = this.serviciomax.length;
             }
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configMA = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -402,7 +418,7 @@ export class AtencionComponent implements OnInit {
   }
 
   leerAtencionServicio() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
     var cod = this.codCajeroAtAS.nativeElement.value.toString().trim();
@@ -412,11 +428,11 @@ export class AtencionComponent implements OnInit {
       .getatencionservicio(fechaDesde, fechaHasta, parseInt(cod))
       .subscribe(
         (servicioatser: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioatser = servicioatser.turnos;
           this.malRequestAtAS = false;
           this.malRequestAtASPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configAS.currentPage > 1) {
             this.configAS.currentPage = 1;
           }
@@ -424,23 +440,23 @@ export class AtencionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioatser = null;
             this.malRequestAtAS = true;
             this.malRequestAtASPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
             if (this.servicioatser == null) {
               this.configAS.totalItems = 0;
             } else {
               this.configAS.totalItems = this.servicioatser.length;
             }
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configAS = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -450,31 +466,31 @@ export class AtencionComponent implements OnInit {
   }
 
   leerGrafico() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
     var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
 
     this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, cod).subscribe(
       (serviciograf: any) => {
-        //verificacion de ancho de pantalla para mostrar o no labels
+        // VERIFICACION DE ANCHO DE PANTALLA PARA MOSTRAR O NO LABELS
         this.legend = screen.width < 575 ? false : true;
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
         this.serviciograf = serviciograf.turnos;
         this.malRequestAtG = false;
         this.malRequestAtGPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
+        // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
         if (this.configGS.currentPage > 1) {
           this.configGS.currentPage = 1;
         }
         this.todasSucursalesGS = this.comprobarBusquedaSucursales(cod);
-        //Mapeo de datos para imprimir en grafico
+        // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
         let Nombres = serviciograf.turnos.map((res) => res.Servicio);
         let totales = serviciograf.turnos.map((res) => res.Total);
         let atendidos = serviciograf.turnos.map((res) => res.Atendidos);
         let noAtendidos = serviciograf.turnos.map((res) => res.No_Atendidos);
 
-        //Seteo de cada grupo de datos
+        // SETEO DE CADA GRUPO DE DATOS
         var atendidosData = {
           label: "Atendidos",
           data: atendidos,
@@ -496,7 +512,7 @@ export class AtencionComponent implements OnInit {
           datasets: [atendidosData, noAtendidosData, totalesData],
         };
 
-        //Creacion del grafico
+        // CREACION DEL GRAFICO
         this.chart = new Chart("canvas", {
           type: "bar",
           data: graficoData,
@@ -528,30 +544,31 @@ export class AtencionComponent implements OnInit {
       },
       (error) => {
         if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+          // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
           this.serviciograf = null;
           this.malRequestAtG = true;
           this.malRequestAtGPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
+          // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+          // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
           if (this.serviciograf == null) {
             this.configGS.totalItems = 0;
           } else {
             this.configGS.totalItems = this.serviciograf.length;
           }
-          //Por error 400 se setea elementos de paginacion
+          // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
           this.configGS = {
             itemsPerPage: this.MAX_PAGS,
             currentPage: 1,
           };
-          //Se informa que no se encontraron registros
+          // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
           this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
             timeOut: 6000,
           });
         }
       }
     );
-    //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
+    // SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+    // EVITANDO SUPERPOSISION DEL NUEVO CHART
     if (this.chart != undefined || this.chart != null) {
       this.chart.destroy();
     }
@@ -570,7 +587,7 @@ export class AtencionComponent implements OnInit {
   exportarAExcelTiempoComp() {
     let cod = this.codSucursalAtTC.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(cod);
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
     if (this.todasSucursalesTC) {
       for (let step = 0; step < this.servicioTiempoComp.length; step++) {
@@ -583,7 +600,8 @@ export class AtencionComponent implements OnInit {
           "Tiempo Atención": this.servicioTiempoComp[step].Tiempo_Atencion,
         });
       }
-    } else {
+    }
+    else {
       for (let step = 0; step < this.servicioTiempoComp.length; step++) {
         jsonServicio.push({
           Usuario: this.servicioTiempoComp[step].Usuario,
@@ -595,7 +613,7 @@ export class AtencionComponent implements OnInit {
       }
     }
 
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCIÓN PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
@@ -618,7 +636,7 @@ export class AtencionComponent implements OnInit {
   exportarAExcelPromAtencion() {
     let cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(cod);
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
     if (this.todasSucursalesPA) {
       for (let step = 0; step < this.serviciopa.length; step++) {
@@ -630,7 +648,8 @@ export class AtencionComponent implements OnInit {
           "T. Promedio de Atención": this.serviciopa[step].PromedioAtencion,
         });
       }
-    } else {
+    }
+    else {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
           Servicios: this.serviciopa[step].SERV_NOMBRE,
@@ -640,7 +659,7 @@ export class AtencionComponent implements OnInit {
         });
       }
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCIÓN PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
@@ -663,7 +682,7 @@ export class AtencionComponent implements OnInit {
   exportarAExcelMaxAtencion() {
     let cod = this.codSucursalAtMA.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(cod);
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
     if (this.todasSucursalesMA) {
       for (let step = 0; step < this.serviciomax.length; step++) {
@@ -675,7 +694,8 @@ export class AtencionComponent implements OnInit {
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
         });
       }
-    } else {
+    }
+    else {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
           Cod: this.serviciomax[step].SERV_CODIGO,
@@ -685,7 +705,7 @@ export class AtencionComponent implements OnInit {
         });
       }
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
@@ -708,7 +728,7 @@ export class AtencionComponent implements OnInit {
   exportarAExcelAtServ() {
     let cod = this.codSucursalAtAS.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(cod);
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
     if (this.todasSucursalesAS) {
       for (let step = 0; step < this.servicioatser.length; step++) {
@@ -721,7 +741,8 @@ export class AtencionComponent implements OnInit {
           Total: this.servicioatser[step].total,
         });
       }
-    } else {
+    }
+    else {
       for (let step = 0; step < this.servicioatser.length; step++) {
         jsonServicio.push({
           Nombre: this.servicioatser[step].Nombre,
@@ -732,7 +753,7 @@ export class AtencionComponent implements OnInit {
         });
       }
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
@@ -753,7 +774,7 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelGraServ() {
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
     for (let step = 0; step < this.serviciograf.length; step++) {
       jsonServicio.push({
@@ -763,7 +784,7 @@ export class AtencionComponent implements OnInit {
         Total: this.serviciograf[step].Total,
       });
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
@@ -783,14 +804,14 @@ export class AtencionComponent implements OnInit {
     );
   }
 
-  //PDF'S
+  // PDF'S
   generarPdfTiempoComp(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTC.nativeElement.value.toString().trim();
     var cod = this.codSucursalAtTC.nativeElement.value.toString().trim();
     let documentDefinition;
-    //Definicion de funcion delegada para setear estructura del PDF
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     if (pdf === 1) {
       documentDefinition = this.getDocumentTiempoCompleto(
         fechaDesde,
@@ -799,7 +820,7 @@ export class AtencionComponent implements OnInit {
       );
     }
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -817,16 +838,16 @@ export class AtencionComponent implements OnInit {
     }
   }
 
-  //Funcion delegada para seteo de información
-  getDocumentTiempoCompleto(fechaDesde, fechaHasta, cod) {
-    //Se obtiene la fecha actual
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
+  getDocumentTiempoCompleto(fechaDesde: any, fechaHasta: any, cod: any) {
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(cod);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: "FullTime Tickets",
         color: "blue",
@@ -841,7 +862,7 @@ export class AtencionComponent implements OnInit {
         fontSize: 9,
         opacity: 0.3,
       },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
       footer: function (currentPage, pageCount, fecha) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
@@ -867,7 +888,7 @@ export class AtencionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -894,7 +915,8 @@ export class AtencionComponent implements OnInit {
           style: "subtitulos",
           text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
         },
-        this.tiempocompleto(this.servicioTiempoComp), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
+        this.tiempocompleto(this.servicioTiempoComp),
       ],
       styles: {
         tableTotal: {
@@ -929,7 +951,7 @@ export class AtencionComponent implements OnInit {
     };
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   tiempocompleto(servicio: any[]) {
     if (this.todasSucursalesTC) {
       return {
@@ -964,7 +986,8 @@ export class AtencionComponent implements OnInit {
           },
         },
       };
-    } else {
+    }
+    else {
       return {
         style: "tableMargin",
         table: {
@@ -999,11 +1022,11 @@ export class AtencionComponent implements OnInit {
   }
 
   generarPdfPromAtencion(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtPA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtPA.nativeElement.value.toString().trim();
     var cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
     if (pdf === 1) {
       documentDefinition = this.getDocumentPromedioAtencion(
@@ -1013,7 +1036,7 @@ export class AtencionComponent implements OnInit {
       );
     }
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -1031,16 +1054,16 @@ export class AtencionComponent implements OnInit {
     }
   }
 
-  //Funcion delegada para seteo de información
-  getDocumentPromedioAtencion(fechaDesde, fechaHasta, cod) {
-    //Se obtiene la fecha actual
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
+  getDocumentPromedioAtencion(fechaDesde: any, fechaHasta: any, cod: any) {
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(cod);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: "FullTime Tickets",
         color: "blue",
@@ -1055,8 +1078,8 @@ export class AtencionComponent implements OnInit {
         fontSize: 9,
         opacity: 0.3,
       },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -1081,7 +1104,7 @@ export class AtencionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -1108,7 +1131,8 @@ export class AtencionComponent implements OnInit {
           style: "subtitulos",
           text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
         },
-        this.promediosatencion(this.serviciopa), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
+        this.promediosatencion(this.serviciopa),
       ],
       styles: {
         tableTotal: {
@@ -1143,7 +1167,7 @@ export class AtencionComponent implements OnInit {
     };
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   promediosatencion(servicio: any[]) {
     if (this.todasSucursalesPA) {
       return {
@@ -1209,17 +1233,17 @@ export class AtencionComponent implements OnInit {
   }
 
   generarPdfMaxAtencion(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
     var cod = this.codSucursalAtMA.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
     if (pdf === 1) {
       documentDefinition = this.getDocumentMaxAtencion(fechaDesde, fechaHasta, cod);
     }
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -1237,8 +1261,8 @@ export class AtencionComponent implements OnInit {
     }
   }
 
-  getDocumentMaxAtencion(fechaDesde, fechaHasta, cod) {
-    //Se obtiene la fecha actual
+  getDocumentMaxAtencion(fechaDesde: any, fechaHasta: any, cod: any) {
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
@@ -1348,7 +1372,7 @@ export class AtencionComponent implements OnInit {
     };
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   maxatencion(servicio: any[]) {
     if (this.todasSucursalesMA) {
       return {
@@ -1381,7 +1405,8 @@ export class AtencionComponent implements OnInit {
           },
         },
       };
-    } else {
+    }
+    else {
       return {
         style: "tableMargin",
         table: {
@@ -1414,12 +1439,12 @@ export class AtencionComponent implements OnInit {
   }
 
   generarPdfAtServ(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
     var cod = this.codSucursalAtAS.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
+    let documentDefinition: any;
     if (pdf === 1) {
       documentDefinition = this.getDocumentAtencionServicio(
         fechaDesde,
@@ -1428,7 +1453,7 @@ export class AtencionComponent implements OnInit {
       );
     }
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -1446,9 +1471,9 @@ export class AtencionComponent implements OnInit {
     }
   }
 
-  //Funcion delegada para seteo de información
-  getDocumentAtencionServicio(fechaDesde, fechaHasta, cod) {
-    //Se obtiene la fecha actual
+  // FUNCION DELEGADA PARA SETEO DE INFORMACIÓN
+  getDocumentAtencionServicio(fechaDesde: any, fechaHasta: any, cod: any) {
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
@@ -1558,7 +1583,7 @@ export class AtencionComponent implements OnInit {
     };
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   atencionservicio(servicio: any[]) {
     if (this.todasSucursalesAS) {
       return {
@@ -1593,7 +1618,8 @@ export class AtencionComponent implements OnInit {
           },
         },
       };
-    } else {
+    }
+    else {
       return {
         style: "tableMargin",
         table: {
@@ -1628,12 +1654,12 @@ export class AtencionComponent implements OnInit {
   }
 
   generarPdfGraServ(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
     var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
 
-    //Definicion de funcion delegada para setear estructura del PDF
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
     if (pdf === 1) {
       documentDefinition = this.getDocumentAtencionServicioGraf(
@@ -1645,7 +1671,7 @@ export class AtencionComponent implements OnInit {
       // this.generarPDFGrafico();
     }
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -1663,14 +1689,14 @@ export class AtencionComponent implements OnInit {
     }
   }
 
-  //Funcion delegada para seteo de información
-  getDocumentAtencionServicioGraf(fechaDesde, fechaHasta, cod) {
-    //Selecciona de la interfaz el elemento que contiene la grafica
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
+  getDocumentAtencionServicioGraf(fechaDesde: any, fechaHasta: any, cod: any) {
+    // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
-    //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
     var canvasImg = canvas1.toDataURL("image/png");
 
-    //Se obtiene la fecha actual
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
@@ -1801,7 +1827,7 @@ export class AtencionComponent implements OnInit {
     }
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   atenciongrafservicio(servicio: any[]) {
     if (this.todasSucursalesGS) {
       return {
@@ -1867,34 +1893,35 @@ export class AtencionComponent implements OnInit {
   }
 
   generarPDFGrafico() {
-    //Selecciona de la interfaz el elemento que contiene la grafica
+    // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
-    //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
     var canvasImg = canvas1.toDataURL("image/png");
-    //crea PDF
+    // CREA PDF
     var doc = new jsPDF("l", "mm", "a4");
-    //Se obtiene el largo y ancho de la pagina este caso a4
+    // SE OBTIENE EL LARGO Y ANCHO DE LA PAGINA ESTE CASO A4
     let pageWidth = doc.internal.pageSize.getWidth();
     let pageHeight = doc.internal.pageSize.getHeight();
-    //Obtiene fecha actual
+
+    // OBTIENE FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     var fecha = f.toJSON().split("T")[0];
     var timer = f.toJSON().split("T")[1].slice(0, 5);
-    //Obtiene el centro superior de la pagina
+    // OBTIENE EL CENTRO SUPERIOR DE LA PAGINA
     let textEnc = "Reporte - Gráfico Atención Servicios";
     let textEncWidth =
       (doc.getStringUnitWidth(textEnc) * doc.getFontSize()) /
       doc.internal.scaleFactor;
     let xTextEnc = (pageWidth - textEncWidth) / 2;
-    //Imprime fecha, encabezado, pie de pagina respectivamente
+    // IMPRIME FECHA, ENCABEZADO, PIE DE PAGINA RESPECTIVAMENTE
     doc.text("Fecha: " + fecha + " Hora: " + timer, 5, pageHeight - 10);
     doc.text(textEnc, xTextEnc, 10);
     doc.text("Impreso por: " + this.userDisplayName, 200, pageHeight - 10);
-    //añade imagen en el centro del documento
+    // AÑADE IMAGEN EN EL CENTRO DEL DOCUMENTO
     doc.addImage(canvasImg, "PNG", 10, 10, 280, 150);
-    //guarda PDF con un nombre propuesto
+    // GUARDA PDF CON UN NOMBRE PROPUESTO
     doc.save(`Gráfico-Atención ${fecha}, ${timer}.pdf`);
     window.open(URL.createObjectURL(doc.output("blob")));
   }

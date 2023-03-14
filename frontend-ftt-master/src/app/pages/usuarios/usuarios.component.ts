@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, EventEmitter, Output, } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, EventEmitter, Output } from "@angular/core";
+import { ToastrService } from "ngx-toastr";
 import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
 import { Utils } from "../../utils/util";
-import { ToastrService } from "ngx-toastr";
 
 import { ServiceService } from "../../services/service.service";
 import { AuthenticationService } from "../../services/authentication.service";
@@ -85,11 +85,8 @@ export class UsuariosComponent implements OnInit {
   configES: any;
   configAU: any;
 
-  // OBTIENE FECHA ACTUAL PARA COLOCARLO EN CUADRO DE FECHA
-  day = new Date().getDate();
-  month = new Date().getMonth() + 1;
-  year = new Date().getFullYear();
-  date = this.year + "-" + this.month + "-" + this.day;
+  // FECHA CAPTURADA DEL SERVIDOR
+  date: any
 
   // VARIABLE USADA EN EXPORTACION A EXCEL
   p_color: any;
@@ -110,30 +107,36 @@ export class UsuariosComponent implements OnInit {
 
   constructor(
     private serviceService: ServiceService,
-    private auth: AuthenticationService,
+    private toastr: ToastrService,
     private router: Router,
+    private auth: AuthenticationService,
     public datePipe: DatePipe,
-    private toastr: ToastrService
   ) {
-    //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
+
+
+    // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
+    // TURNOS POR FECHA
     this.configTF = {
       id: "usuariosTF",
       itemsPerPage: this.MAX_PAGS,
       currentPage: 1,
       totalItems: this.servicioTurnosFecha.length,
     };
+    // TIEMPO PROMEDIO DE ATENCION
     this.configTP = {
       id: "usuariosTP",
       itemsPerPage: this.MAX_PAGS,
       currentPage: 1,
       totalItems: this.servicioPromAtencion.length,
     };
+    // ENTRADAS Y SALIDAS DEL SISTEMA
     this.configES = {
       id: "usuariosES",
       itemsPerPage: this.MAX_PAGS,
       currentPage: 1,
       totalItems: this.servicioEntradaSalida.length,
     };
+    // ATENCION AL USUARIO
     this.configAU = {
       id: "usuariosAU",
       itemsPerPage: this.MAX_PAGS,
@@ -141,40 +144,50 @@ export class UsuariosComponent implements OnInit {
       totalItems: this.servicioAtencionUsua.length,
     };
   }
-  //Eventos para avanzar o retroceder en la paginacion
-  pageChangedTF(event) {
+
+  // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
+  // TURNOS POR FECHA
+  pageChangedTF(event: any) {
     this.configTF.currentPage = event;
   }
-  pageChangedTP(event) {
+  // TIEMPO PROMEDIO DE ATENCION
+  pageChangedTP(event: any) {
     this.configTP.currentPage = event;
   }
-  pageChangedES(event) {
+  // ENTRADAS Y SALIDAS AL SISTEMA
+  pageChangedES(event: any) {
     this.configES.currentPage = event;
   }
-  pageChangedAU(event) {
+  // ATENCION AL USUARIO
+  pageChangedAU(event: any) {
     this.configAU.currentPage = event;
   }
 
   ngOnInit(): void {
-    //Cargamos componentes selects HTML
+    var f = moment();
+    this.date = f.format('YYYY-MM-DD');
+
+    // CARGAMOS COMPONENTES SELECTS HTML
     this.getCajeros("-1");
     this.getlastday();
     this.getSucursales();
-    //Cargamos nombre de usuario logueado
+
+    // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
-    //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
+
+    // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestTFPag = true;
     this.malRequestTPPag = true;
     this.malRequestESPag = true;
     this.malRequestAUPag = true;
-    //Seteo de imagen en interfaz
+
+    // SETEO DE IMAGEN EN INTERFAZ
     Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
       (result) => (this.urlImagen = result)
     );
   }
 
-  //Consulta para llenar select de interfaz
-
+  // CONSULTA DE LISTA DE CAJEROS
   getCajeros(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
       this.cajerosUsuarios = cajeros.cajeros;
@@ -186,27 +199,36 @@ export class UsuariosComponent implements OnInit {
       });
   }
 
-  //Consulata para llenar la lista de surcursales.
+  // CONSULATA PARA LLENAR LA LISTA DE SURCURSALES.
   getSucursales() {
     this.serviceService.getAllSucursales().subscribe((empresas: any) => {
       this.sucursales = empresas.empresas;
     });
   }
 
+  // METODO PARA LLAMAR CONSULTA DE DATOS
   limpiar() {
     this.getCajeros("-1");
     this.getSucursales();
-    // this.todasSucursales=false;
   }
 
-  //Comprueba si se realizo una busqueda por sucursales
+  // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
   comprobarBusquedaSucursales(cod: string) {
-    console.log(cod);
     return cod == "-1" ? true : false;
   }
 
+  // SE DESLOGUEA DE LA APLICACION
+  salir() {
+    this.auth.logout();
+    this.router.navigateByUrl("/");
+  }
+
+  /** ********************************************************************************************************** **
+   ** **                                     TIEMPO PROMEDIO DE ATENCION                                      ** **
+   ** ********************************************************************************************************** **/
+
   buscarTurnosFecha() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateTurnosFecha.nativeElement.value
       .toString()
       .trim();
@@ -219,36 +241,41 @@ export class UsuariosComponent implements OnInit {
       .getfiltroturnosfechas(fechaDesde, fechaHasta, parseInt(cod))
       .subscribe(
         (servicio: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioTurnosFecha = servicio.turnos;
           this.malRequestTF = false;
           this.malRequestTFPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configTF.currentPage > 1) {
             this.configTF.currentPage = 1;
           }
-          //Comprobacion de la sucursal coonsultada
+
+          // COMPROBACION DE LA SUCURSAL COONSULTADA
           this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y banderas cambian para quitar tabla de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y BANDERAS CAMBIAN PARA QUITAR TABLA DE INTERFAZ
             this.servicioTurnosFecha = null;
             this.malRequestTF = true;
             this.malRequestTFPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+
+            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
             if (this.servicioTurnosFecha == null) {
               this.configTF.totalItems = 0;
             } else {
               this.configTF.totalItems = this.servicioTurnosFecha.length;
             }
-            //Por error 400 se setea elementos de paginacion
+
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configTF = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -257,7 +284,7 @@ export class UsuariosComponent implements OnInit {
       );
   }
 
-  //Se obtiene la fecha actual
+  // SE OBTIENE LA FECHA ACTUAL
   getlastday() {
     this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
     let lastweek = new Date();
@@ -265,18 +292,13 @@ export class UsuariosComponent implements OnInit {
     this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
   }
 
-  //Se desloguea de la aplicacion
-  salir() {
-    this.auth.logout();
-    this.router.navigateByUrl("/");
-  }
 
   /** ********************************************************************************************************** **
    ** **                                     TIEMPO PROMEDIO DE ATENCION                                      ** **
    ** ********************************************************************************************************** **/
 
   buscarTiempoPromedioAtencion() {
-    //Captura de fecha y select de interfaz
+    // CAPTURA DE FECHA Y SELECT DE INTERFAZ
     var fechaDesde = this.fromDatePromAtencion.nativeElement.value
       .toString()
       .trim();
@@ -291,36 +313,36 @@ export class UsuariosComponent implements OnInit {
         .getturnosF(fechaDesde, fechaHasta, parseInt(cod))
         .subscribe(
           (servicio: any) => {
-            //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioPromAtencion = servicio.turnos;
             this.malRequestTPA = false;
             this.malRequestTPPag = false;
-            //Seteo de paginacion cuando se hace una nueva busqueda
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
             if (this.configTP.currentPage > 1) {
               this.configTP.currentPage = 1;
             }
-            //Comprobacion de la sucursal coonsultada
+            // COMPROBACION DE LA SUCURSAL COONSULTADA
             this.todasSucursalesTPA = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
-              //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
               this.servicioPromAtencion = null;
               this.malRequestTPA = true;
               this.malRequestTPPag = true;
-              //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-              //caso contrario se setea la cantidad de elementos
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
               if (this.servicioPromAtencion == null) {
                 this.configTP.totalItems = 0;
               } else {
                 this.configTP.totalItems = this.servicioPromAtencion.length;
               }
-              //Por error 400 se setea elementos de paginacion
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
               this.configTP = {
                 itemsPerPage: this.MAX_PAGS,
                 currentPage: 1,
               };
-              //Se informa que no se encontraron registros
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
               this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
                 timeOut: 6000,
               });
@@ -328,12 +350,12 @@ export class UsuariosComponent implements OnInit {
           }
         );
     } else {
-      //Si se selecciona el elemento por defecto de select se setea banderas para que tablas no sean visisbles de interfaz
-      //Se vacia variable de consulta
+      // SI SE SELECCIONA EL ELEMENTO POR DEFECTO DE SELECT SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE INTERFAZ
+      // SE VACIA VARIABLE DE CONSULTA
       this.servicioPromAtencion = null;
       this.malRequestTPA = true;
       this.malRequestTPPag = true;
-      //Si variabla de consulta es nula o vacia, se setea elementos de paginacion
+      // SI VARIABLA DE CONSULTA ES NULA O VACIA, SE SETEA ELEMENTOS DE PAGINACION
       if (this.servicioPromAtencion == null) {
         this.configTP.totalItems = 0;
       } else {

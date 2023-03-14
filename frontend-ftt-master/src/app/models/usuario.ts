@@ -1,5 +1,4 @@
 export class usuario {
-
   constructor(
     public usua_login: string,
     public usua_password: string,
@@ -9,9 +8,4 @@ export class usuario {
     public usua_estado?: number,
     public usua_tipo?: number
   ) { }
-
-  imprimirUsuario() {
-
-  }
-
 }

@@ -100,7 +100,6 @@ export class AtendidosmultiplesComponent implements OnInit {
   getSucursales() {
     this.serviceService.getAllSucursales().subscribe((empresas: any) => {
       this.sucursales = empresas.empresas;
-      console.log(this.sucursales);
     });
   }
 
@@ -111,7 +110,6 @@ export class AtendidosmultiplesComponent implements OnInit {
 
   //Comprueba si se realizo una busqueda por sucursales
   comprobarBusquedaSucursales(cod: string){
-    console.log(cod);
     return cod=="-1" ? true : false;
   }
 
