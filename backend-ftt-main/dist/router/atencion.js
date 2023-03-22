@@ -204,7 +204,6 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:empresa', (req, res) => {
             ORDER BY Servicio;
             `;
     }
-    console.log(query);
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({

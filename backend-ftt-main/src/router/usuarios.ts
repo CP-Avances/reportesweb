@@ -89,8 +89,7 @@ router.get('/getallcajeros/:empresa', (req: Request, res: Response) => {
             `
             SELECT c.caje_codigo, c.usua_codigo, c.caje_apellido, c.caje_nombre, c.caje_estado 
             FROM cajero c, usuarios u 
-            WHERE u.usua_codigo = c.usua_codigo
-            AND u.usua_codigo != 2;
+            WHERE u.usua_codigo = c.usua_codigo;
             `
     } else {
         query =

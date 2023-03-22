@@ -1,8 +1,22 @@
 import { Router, Request, Response } from 'express'
 import MySQL from '../mysql/mysql';
+import multer from 'multer';
 import cors from 'cors';
+import fs from 'fs';
+import path from 'path'
 let jwt = require('jsonwebtoken');
 const router = Router();
+
+const ImagenBase64LogosEmpresas = function(path_file:string) {
+    try {
+        path_file = path.resolve('uploads') + '/' + path_file
+        let data = fs.readFileSync(path_file);
+
+        return data.toString('base64');
+    } catch (error) {
+        return 0
+    }
+}
 
 //rutas prueba
 router.get('/heroes', (req: Request, res: Response) => {
@@ -125,6 +139,60 @@ router.get('/renew', (req: Request, res: Response) => {
         mensaje: 'todo esta bien'
     })
 });
+
+const upload = multer({ dest: 'uploads/' });
+
+//Guardar nombre imagen en la base de datos
+router.post('/uploadImage', upload.single('image'),(req, res) =>{
+    const filename = req.file?.path.split("\\")[1];
+    // const list: any = req.file;
+    // let logo = list.file.path.split("\\")[1];// const ruta = req.params.ruta;
+    const  query = `UPDATE general SET gene_valor = '${filename}' WHERE gene_codigo = 8;`
+    
+    MySQL.ejecutarQuery(query, (err: any, usuario: Object[]) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err
+            });
+
+        } else {
+            res.json({
+                ok: true,
+                //usuario: usuario[0], token
+            })
+        }
+    })
+}
+);
+
+
+
+router.get('/nombreImagen',(req: Request, res: Response) => {
+    const query = `
+      SELECT gene_valor FROM general WHERE gene_codigo = 8;
+      `;
+  
+      ;
+
+    let nombreImagen: any[];
+
+    MySQL.ejecutarQuery(query, (err: any, imagen: Object[]) => {
+      if (err) {
+        res.status(400).json({
+          ok: false,
+          error: err,
+        });
+      } else {
+          nombreImagen = imagen;
+        const codificado =  ImagenBase64LogosEmpresas(nombreImagen[0].gene_valor);
+        res.json({
+          ok: true,
+          imagen: codificado,
+        });
+      }
+    });
+  });
 
 export default router;
 

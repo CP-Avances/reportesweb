@@ -7,6 +7,7 @@ import { Utils } from "../../utils/util";
 
 import { AuthenticationService } from "../../services/authentication.service";
 import { ServiceService } from "../../services/service.service";
+import { ImagenesService } from "../../shared/imagenes.service";
 
 // COMPLEMENTOS PARA PDF Y EXCEL
 import * as pdfMake from "pdfmake/build/pdfmake";
@@ -125,6 +126,7 @@ export class AtencionComponent implements OnInit {
     private toastr: ToastrService,
     private auth: AuthenticationService,
     public datePipe: DatePipe,
+    private imagenesService: ImagenesService
   ) {
 
     // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
@@ -200,10 +202,18 @@ export class AtencionComponent implements OnInit {
     this.malRequestAtASPag = true;
     this.malRequestAtGPag = true;
 
-    // SETEO DE IMAGEN EN INTERFAZ
-    Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-      (result) => (this.urlImagen = result)
-    );
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
+      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
+        timeOut: 6000,
+      });
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
   }
 
   // SE DESLOGUEA DE LA APLICACION
@@ -774,16 +784,25 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelGraServ() {
+
+    let cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    
     // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
     for (let step = 0; step < this.serviciograf.length; step++) {
-      jsonServicio.push({
-        Servicio: this.serviciograf[step].Servicio,
-        Atendidos: this.serviciograf[step].Atendidos,
-        "No Atendidos": this.serviciograf[step].No_Atendidos,
-        Total: this.serviciograf[step].Total,
-      });
+      const item = {
+        ...(this.todasSucursalesGS
+          ? {Sucursal: this.serviciograf[step].nombreEmpresa}
+          : {}),
+          Servicio: this.serviciograf[step].Servicio,
+          Atendidos: this.serviciograf[step].Atendidos,
+          "No Atendidos": this.serviciograf[step].No_Atendidos,
+          Total: this.serviciograf[step].Total,
+      };
+      jsonServicio.push(item);
     }
+    
     // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -797,8 +816,9 @@ export class AtencionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(
       wb,
-      "at-graficoservicio" +
-      "_export_" +
+      "GraficoAtencion - " +
+      nombreSucursal +
+      " - " +
       new Date().toLocaleString() +
       EXCEL_EXTENSION
     );
@@ -895,7 +915,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1111,7 +1131,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1317,7 +1337,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1528,7 +1548,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1752,7 +1772,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",

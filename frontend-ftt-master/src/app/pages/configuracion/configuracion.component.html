@@ -1,0 +1,18 @@
+<div class="card">
+    <h5 class="card-header">CONFIGURACIÓN</h5>
+    <div class="card-body">
+        <form>
+            <p>Seleccione el logo de su empresa mediante el botón "Elegir archivo" y luego haga clic en "Guardar" para agregarlo.</p>
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" id="selectImagen" accept="image/*" class="my-button" (change)="onFileSelected($event)">
+                </div> 
+                <div class="input-group-append mt-3">
+                    <button class="btn btn-outline-secondary ml-2" type="button"(click)="guardarImagen()">Guardar</button>
+                </div>
+            </div>
+            <br><br>
+            <img *ngIf="imageUrl" [src]="imageUrl" alt="Imagen seleccionada" class="imagen ml-2">
+        </form>
+    </div>
+</div>

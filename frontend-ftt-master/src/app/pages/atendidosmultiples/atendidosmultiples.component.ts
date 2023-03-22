@@ -1,5 +1,6 @@
 import { Component, OnInit,ViewChild,ElementRef } from '@angular/core';
 import { ServiceService } from '../../services/service.service';
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from '../../services/authentication.service';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common'
@@ -59,7 +60,8 @@ export class AtendidosmultiplesComponent implements OnInit {
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router, public datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configAtM = {
@@ -82,10 +84,18 @@ export class AtendidosmultiplesComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem('loggedUser');
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
     this.malRequestAtMPag = true;
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1('assets/logotickets.png').then(
-      result => this.urlImagen = result
-    )
+     // CARGAR LOGO PARA LOS REPORTES
+     this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
+      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
+        timeOut: 6000,
+      });
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
   }
 
   //Se obtiene dia actual
@@ -265,7 +275,7 @@ export class AtendidosmultiplesComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: '*',

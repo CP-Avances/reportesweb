@@ -1,19 +1,20 @@
-import { Component, OnInit, ViewChild, ElementRef, EventEmitter, Output } from "@angular/core";
+import {Component, OnInit, ViewChild, ElementRef, EventEmitter, Output,} from "@angular/core";
 import { ToastrService } from "ngx-toastr";
 import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
 import { Utils } from "../../utils/util";
 
-import { ServiceService } from "../../services/service.service";
 import { AuthenticationService } from "../../services/authentication.service";
+import { ImagenesService } from "../../shared/imagenes.service";
+import { ServiceService } from "../../services/service.service";
 
 import { cajero } from "../../models/cajero";
 import { turno } from "../../models/turno";
 
 // COMPLEMENTOS PARA PDF Y EXCEL
-import * as XLSX from "xlsx";
-import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import * as pdfMake from "pdfmake/build/pdfmake";
+import * as XLSX from "xlsx";
 import moment from "moment";
 
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
@@ -25,7 +26,6 @@ const EXCEL_EXTENSION = ".xlsx";
   templateUrl: "./usuarios.component.html",
   styleUrls: ["./usuarios.component.scss"],
 })
-
 export class UsuariosComponent implements OnInit {
   // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
   fromDate: any;
@@ -86,7 +86,7 @@ export class UsuariosComponent implements OnInit {
   configAU: any;
 
   // FECHA CAPTURADA DEL SERVIDOR
-  date: any
+  date: any;
 
   // VARIABLE USADA EN EXPORTACION A EXCEL
   p_color: any;
@@ -102,6 +102,7 @@ export class UsuariosComponent implements OnInit {
 
   // IMAGEN LOGO
   urlImagen: string;
+  nombreImagen: any[];
 
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
@@ -111,9 +112,8 @@ export class UsuariosComponent implements OnInit {
     private router: Router,
     private auth: AuthenticationService,
     public datePipe: DatePipe,
+    private imagenesService: ImagenesService
   ) {
-
-
     // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
     // TURNOS POR FECHA
     this.configTF = {
@@ -165,7 +165,7 @@ export class UsuariosComponent implements OnInit {
 
   ngOnInit(): void {
     var f = moment();
-    this.date = f.format('YYYY-MM-DD');
+    this.date = f.format("YYYY-MM-DD");
 
     // CARGAMOS COMPONENTES SELECTS HTML
     this.getCajeros("-1");
@@ -181,22 +181,32 @@ export class UsuariosComponent implements OnInit {
     this.malRequestESPag = true;
     this.malRequestAUPag = true;
 
-    // SETEO DE IMAGEN EN INTERFAZ
-    Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-      (result) => (this.urlImagen = result)
-    );
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+        this.urlImagen = result;
+      }).catch((error) => {
+        // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
+        this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
+          timeOut: 6000,
+        });
+        Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+          (result) => (this.urlImagen = result)
+        );
+      });
   }
 
   // CONSULTA DE LISTA DE CAJEROS
   getCajeros(sucursal: any) {
-    this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
-      this.cajerosUsuarios = cajeros.cajeros;
-    },
+    this.serviceService.getAllCajerosS(sucursal).subscribe(
+      (cajeros: any) => {
+        this.cajerosUsuarios = cajeros.cajeros;
+      },
       (error) => {
         if (error.status == 400) {
           this.cajerosUsuarios = [];
         }
-      });
+      }
+    );
   }
 
   // CONSULATA PARA LLENAR LA LISTA DE SURCURSALES.
@@ -292,7 +302,6 @@ export class UsuariosComponent implements OnInit {
     this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
   }
 
-
   /** ********************************************************************************************************** **
    ** **                                     TIEMPO PROMEDIO DE ATENCION                                      ** **
    ** ********************************************************************************************************** **/
@@ -306,7 +315,9 @@ export class UsuariosComponent implements OnInit {
       .toString()
       .trim();
     var cod = this.codCajeroPromAtencion.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalPromAtencion.nativeElement.value.toString().trim();
+    let codSucursal = this.codSucursalPromAtencion.nativeElement.value
+      .toString()
+      .trim();
 
     if (cod != "-1") {
       this.serviceService
@@ -322,7 +333,8 @@ export class UsuariosComponent implements OnInit {
               this.configTP.currentPage = 1;
             }
             // COMPROBACION DE LA SUCURSAL COONSULTADA
-            this.todasSucursalesTPA = this.comprobarBusquedaSucursales(codSucursal);
+            this.todasSucursalesTPA =
+              this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -377,7 +389,9 @@ export class UsuariosComponent implements OnInit {
       .toString()
       .trim();
     var cod = this.codCajeroAtencionUsua.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtencionUsua.nativeElement.value.toString().trim();
+    let codSucursal = this.codSucursalAtencionUsua.nativeElement.value
+      .toString()
+      .trim();
 
     if (cod != "-1") {
       this.serviceService
@@ -393,7 +407,8 @@ export class UsuariosComponent implements OnInit {
               this.configAU.currentPage = 1;
             }
 
-            this.todasSucursalesAU = this.comprobarBusquedaSucursales(codSucursal);
+            this.todasSucursalesAU =
+              this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -444,7 +459,9 @@ export class UsuariosComponent implements OnInit {
     var fechaDesde = this.fromDateUES.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateUES.nativeElement.value.toString().trim();
     var cod = this.codSucursalEntradas.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalEntradas.nativeElement.value.toString().trim();
+    let codSucursal = this.codSucursalEntradas.nativeElement.value
+      .toString()
+      .trim();
 
     this.serviceService
       .getentradassalidasistema(fechaDesde, fechaHasta, parseInt(cod))
@@ -458,7 +475,8 @@ export class UsuariosComponent implements OnInit {
           if (this.configES.currentPage > 1) {
             this.configES.currentPage = 1;
           }
-          this.todasSucursalesES = this.comprobarBusquedaSucursales(codSucursal);
+          this.todasSucursalesES =
+            this.comprobarBusquedaSucursales(codSucursal);
         },
         (error) => {
           if (error.status == 400) {
@@ -488,9 +506,11 @@ export class UsuariosComponent implements OnInit {
 
   obtenerNombreSucursal(cod: string) {
     if (cod == "-1") {
-      return "Todas las sucursales"
+      return "Todas las sucursales";
     } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
+      let nombreSucursal = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
       return nombreSucursal;
     }
   }
@@ -524,17 +544,19 @@ export class UsuariosComponent implements OnInit {
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioEntradaSalida[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Entradas-Salidas");
     XLSX.writeFile(
       wb,
-      "Entradas y salidas - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
+      "Entradas y salidas - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
@@ -573,19 +595,26 @@ export class UsuariosComponent implements OnInit {
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioTurnosFecha[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Turnos Fecha");
     XLSX.writeFile(
       wb,
-      "Turnos por fecha - " + nombreSucursal + " - " + new Date().toLocaleString() + EXCEL_EXTENSION
+      "Turnos por fecha - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
   exportarAExcelPromAtencion() {
-    let cod = this.codSucursalPromAtencion.nativeElement.value.toString().trim();
+    let cod = this.codSucursalPromAtencion.nativeElement.value
+      .toString()
+      .trim();
     let nombreSucursal = this.obtenerNombreSucursal(cod);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -600,7 +629,7 @@ export class UsuariosComponent implements OnInit {
           Turnos: this.servicioPromAtencion[i].Turnos,
         });
       }
-      tamanos = [this.servicioPromAtencion[0].nombreEmpresa]
+      tamanos = [this.servicioPromAtencion[0].nombreEmpresa];
     } else {
       for (let i = 0; i < this.servicioPromAtencion.length; i++) {
         jsonServicio.push({
@@ -617,17 +646,19 @@ export class UsuariosComponent implements OnInit {
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioPromAtencion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Promedio");
     XLSX.writeFile(
       wb,
-      "Promedio de atencion - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
+      "Promedio de atencion - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
@@ -660,17 +691,19 @@ export class UsuariosComponent implements OnInit {
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioAtencionUsua[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
     XLSX.utils.book_append_sheet(wb, ws, "Atencion");
     XLSX.writeFile(
       wb,
-      "Atencion al usuario - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
+      "Atencion al usuario - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
     );
   }
 
@@ -689,7 +722,11 @@ export class UsuariosComponent implements OnInit {
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentturnosfecha(fechaDesde, fechaHasta, cod);
+      documentDefinition = this.getDocumentturnosfecha(
+        fechaDesde,
+        fechaHasta,
+        cod
+      );
     }
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
     switch (action) {
@@ -766,7 +803,7 @@ export class UsuariosComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -905,12 +942,18 @@ export class UsuariosComponent implements OnInit {
       .toString()
       .trim();
 
-    var cod = this.codSucursalPromAtencion.nativeElement.value.toString().trim();
+    var cod = this.codSucursalPromAtencion.nativeElement.value
+      .toString()
+      .trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentpromatencion(fechaDesde, fechaHasta, cod);
+      documentDefinition = this.getDocumentpromatencion(
+        fechaDesde,
+        fechaHasta,
+        cod
+      );
     }
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
@@ -988,7 +1031,7 @@ export class UsuariosComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1200,7 +1243,7 @@ export class UsuariosComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1326,7 +1369,9 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateAtencionUsua.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codSucursalAtencionUsua.nativeElement.value.toString().trim();
+    var cod = this.codSucursalAtencionUsua.nativeElement.value
+      .toString()
+      .trim();
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
@@ -1411,7 +1456,7 @@ export class UsuariosComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",

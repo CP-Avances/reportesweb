@@ -12,7 +12,7 @@ import { cajero } from '../models/cajero';
 
 export class ServiceService {
 
-  private URL = "http://192.168.0.145:3004";
+  private URL = "http://192.168.0.9:3004";
 
   constructor(
     private http: HttpClient
@@ -25,14 +25,6 @@ export class ServiceService {
   getfiltroturnosfechas(fechaDesde: any, fechaHasta: any, cod: number): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + cod);
   }
-
-
-
-
-
-
-
-
 
 
   /*   USUARIOS  */
@@ -236,4 +228,13 @@ export class ServiceService {
   getturnos(): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion");
   }
+
+  setImagen(formdata: any){
+    return this.http.post<any>(`${this.URL}/uploadImage`,formdata);
+  }
+
+  getImagen(): Observable<any> {
+    return this.http.get<any>(this.URL + "/nombreImagen");
+  }
+
 }

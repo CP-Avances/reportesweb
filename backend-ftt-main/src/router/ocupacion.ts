@@ -22,13 +22,14 @@ router.get('/ocupacionservicios/:fechaDesde/:fechaHasta/:empresa', (req: Request
                     FROM (SELECT COUNT(turn_estado) AS c 
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                        AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2) AS PORCENTAJE,
                             date_format((SELECT MAX(turn_fecha) 
                                 FROM turno
-                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'), '%Y-%m-%d') AS fechamaxima,
+                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0), '%Y-%m-%d') AS fechamaxima,
                             date_format((SELECT MIN(turn_fecha) 
                                 FROM turno
-                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'), '%Y-%m-%d') AS fechaminima
+                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0), '%Y-%m-%d') AS fechaminima
             FROM servicio 
             INNER JOIN turno
                 ON servicio.SERV_CODIGO = turno.SERV_CODIGO
@@ -46,12 +47,13 @@ router.get('/ocupacionservicios/:fechaDesde/:fechaHasta/:empresa', (req: Request
                     FROM (SELECT COUNT(turn_estado) as c 
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                        AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2) AS PORCENTAJE,
                             date_format((SELECT MAX(turn_fecha) FROM turno
-                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'), '%Y-%m-%d') AS fechamaxima,
+                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0), '%Y-%m-%d') AS fechamaxima,
                                     date_format((SELECT MIN(turn_fecha) 
                                     FROM turno
-                                    WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'), '%Y-%m-%d') AS fechaminima
+                                    WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0), '%Y-%m-%d') AS fechaminima
             FROM  servicio 
             INNER JOIN turno
                 ON servicio.SERV_CODIGO = turno.SERV_CODIGO
@@ -96,13 +98,14 @@ router.get('/graficoocupacion/:fechaDesde/:fechaHasta/:empresa', (req: Request, 
                     FROM (SELECT COUNT(turn_estado) as c
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                        AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2)AS PORCENTAJE, 
                             (SELECT MAX(turn_fecha) 
                             FROM turno
-                            WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechamaxima,
+                            WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0) AS fechamaxima,
                                 (SELECT MIN(turn_fecha)
                                 FROM turno
-                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') as fechaminima
+                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0) as fechaminima
             FROM servicio 
             INNER JOIN turno
                 ON servicio.SERV_CODIGO = turno.SERV_CODIGO
@@ -120,13 +123,14 @@ router.get('/graficoocupacion/:fechaDesde/:fechaHasta/:empresa', (req: Request, 
                     FROM (SELECT COUNT(turn_estado) as c
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                        AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2)AS PORCENTAJE,
                             (SELECT MAX(turn_fecha) 
                             FROM turno
-                            WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechamaxima,
+                            WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0) AS fechamaxima,
                                 (SELECT MIN(turn_fecha)
                                 FROM turno
-                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechaminima
+                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0) AS fechaminima
             FROM servicio 
             INNER JOIN turno
                 ON servicio.SERV_CODIGO = turno.SERV_CODIGO

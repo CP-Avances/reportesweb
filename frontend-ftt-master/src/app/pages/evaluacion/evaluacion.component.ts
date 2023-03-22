@@ -1,9 +1,14 @@
 import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { ServiceService } from "../../services/service.service";
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
 import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
 import { ToastrService } from "ngx-toastr";
+import { saveAs } from 'file-saver';
+
+import * as FileSaver from 'file-saver';
+import { Base64 } from 'js-base64';
 
 //Complemento para graficos
 import { Chart } from "chart.js";
@@ -127,6 +132,8 @@ export class EvaluacionComponent implements OnInit {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
+  
+
 
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
@@ -144,7 +151,8 @@ export class EvaluacionComponent implements OnInit {
     private auth: AuthenticationService,
     private router: Router,
     public datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService,
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configS = {
@@ -251,10 +259,18 @@ export class EvaluacionComponent implements OnInit {
     this.tipo = "bar";
     //seteo orientacion
     this.orientacion = "portrait";
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-      (result) => (this.urlImagen = result)
-    );
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
+      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
+        timeOut: 6000,
+      });
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
   }
 
   //Se obtiene fecha actual
@@ -1193,9 +1209,40 @@ export class EvaluacionComponent implements OnInit {
     );
   }
 
+  generarImagen() {
+    // Selecciona de la interfaz el elemento que contiene la grafica
+    const canvas = document.querySelector('#canvas') as HTMLCanvasElement;
+
+    // De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+    const canvasImg = canvas.toDataURL('image/png');
+
+    // Crea un blob con la imagen
+    const blob = this.dataURLtoBlob(canvasImg);
+
+    // Guarda el blob en un archivo
+    saveAs(blob, 'grafico.png');
+
+    // Llamamos a la función que genera el archivo de Excel y le pasamos la ruta del archivo como parámetro
+    this.exportarAExcelGra();
+
+  }
+
+  dataURLtoBlob(dataUrl: string): Blob {
+    const arr = dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  }
+
   exportarAExcelGra() {
-    //Generacion de archivo excel, al generar PDF
-    this.genGraficoPDF();
+    var cod = this.codSucursal.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(cod);
+
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
@@ -1226,12 +1273,14 @@ export class EvaluacionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(
       wb,
-      "graficoservicio" +
-        "_export_" +
+      "GraficoEvaluaciones - " +
+        nombreSucursal +
+        " - " +
         new Date().toLocaleString() +
         EXCEL_EXTENSION
     );
   }
+
 /////---Generacion de PDF's
 generarPdfServicios(action = "open", pdf: number) {
   //Seteo de rango de fechas de la consulta para impresión en PDF
@@ -1325,7 +1374,7 @@ getDocumentServicios(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 75,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -1899,7 +1948,7 @@ getDocumentEmpleado(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -2476,7 +2525,7 @@ getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -2683,7 +2732,7 @@ getDocumentEstablecimiento(fD, fH, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -2984,7 +3033,7 @@ getDocumentEvaGrupo(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -3229,7 +3278,7 @@ getDocumentGr(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",

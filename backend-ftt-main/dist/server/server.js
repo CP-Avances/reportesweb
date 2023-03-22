@@ -11,6 +11,7 @@ class Server {
         this.port = puerto;
         this.app = express();
         this.app.use((0, cors_1.default)());
+        this.app.use(express.static('uploads'));
     }
     static init(puerto) {
         return new Server(puerto);

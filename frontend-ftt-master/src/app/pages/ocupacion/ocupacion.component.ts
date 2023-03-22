@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { Chart } from "chart.js";
 import { ServiceService } from "../../services/service.service";
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
 import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
@@ -80,7 +81,8 @@ export class OcupacionComponent implements OnInit {
     private auth: AuthenticationService,
     private router: Router,
     public datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configOS = {
@@ -107,10 +109,18 @@ export class OcupacionComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
     this.malRequestOcupOSPag = true;
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-      (result) => (this.urlImagen = result)
-    );
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
+      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
+        timeOut: 6000,
+      });
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
   }
 
   //Se desloguea de la aplicacion
@@ -424,6 +434,53 @@ export class OcupacionComponent implements OnInit {
     );
   }
 
+  exportarAExcelOcupServsGrafico() {
+    let cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    let jsonServicio = [];
+    if (this.todasSucursalesOG) {
+      for (let step = 0; step < this.servicioocg.length; step++) {
+        jsonServicio.push({
+          Sucursal: this.servicioocg[step].nombreEmpresa,
+          Desde: this.servicioocg[step].fechaminima,
+          Hasta: this.servicioocg[step].fechamaxima,
+          Servicio: this.servicioocg[step].SERV_NOMBRE,
+          "T. Turno": this.servicioocg[step].total,
+          "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE,
+        });
+      }
+    } else {
+      for (let step = 0; step < this.servicioocg.length; step++) {
+        jsonServicio.push({
+          Desde: this.servicioocg[step].fechaminima,
+          Hasta: this.servicioocg[step].fechamaxima,
+          Servicio: this.servicioocg[step].SERV_NOMBRE,
+          "T. Turno": this.servicioocg[step].total,
+          "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE,
+        });
+      }
+    }
+    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioocg[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols = [];
+    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 })
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Servicios");
+    XLSX.writeFile(
+      wb,
+      "ocupacionserviciosGrafico - "+ nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+
   getDocumentAtencionServicioGraficos(fD, fH, cod) {
     //Selecciona de la interfaz el elemento que contiene la grafica
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -487,7 +544,7 @@ export class OcupacionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -652,7 +709,7 @@ export class OcupacionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",

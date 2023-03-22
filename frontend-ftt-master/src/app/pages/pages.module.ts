@@ -14,6 +14,7 @@ import { AppRoutingModule } from '../app-routing.module';
 
 import { NgxPaginationModule } from 'ngx-pagination';
 import { OpinionComponent } from './opinion/opinion.component';
+import { ConfiguracionComponent } from './configuracion/configuracion.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { OpinionComponent } from './opinion/opinion.component';
     AtendidosmultiplesComponent,
     PagesComponent,
     OpinionComponent,
+    ConfiguracionComponent,
   ],
   exports: [
     MenuComponent,
@@ -39,6 +41,7 @@ import { OpinionComponent } from './opinion/opinion.component';
     AtendidosmultiplesComponent,
     PagesComponent,
     OpinionComponent,
+    ConfiguracionComponent
   ],
   imports: [
     CommonModule,

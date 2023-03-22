@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { ServiceService } from "../../services/service.service";
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
 import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
@@ -80,7 +81,8 @@ export class OpinionComponent implements OnInit {
     private auth: AuthenticationService,
     private router: Router,
     public datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configAtM = {
@@ -108,10 +110,18 @@ export class OpinionComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
     this.malRequestAtMPag = true;
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-      (result) => (this.urlImagen = result)
-    );
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
+      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
+        timeOut: 6000,
+      });
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
   }
 
   //Se obtiene dia actual
@@ -428,6 +438,56 @@ export class OpinionComponent implements OnInit {
     );
   }
 
+  exportTOExcelOpinionesGrafico() {
+    let cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(cod);
+
+    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    let jsonServicio = [];
+      if (this.todasSucursalesG) {
+        for (let step = 0; step < this.servicioOpinion.length; step++) {
+          jsonServicio.push({
+            Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
+            Tipo: this.servicioOpinion[step].quejas_emi_tipo,
+            Categoría: this.servicioOpinion[step].quejas_emi_categoria,
+            Fecha: this.servicioOpinion[step].quejas_emi_fecha,
+            Hora: this.servicioOpinion[step].quejas_emi_hora,
+            Caja: this.servicioOpinion[step].caja_caja_nombre,
+            Opinión: this.servicioOpinion[step].quejas_emi_queja,
+          });
+        }
+      } else {
+        for (let step = 0; step < this.servicioOpinion.length; step++) {
+          jsonServicio.push({
+            Tipo: this.servicioOpinion[step].quejas_emi_tipo,
+            Categoría: this.servicioOpinion[step].quejas_emi_categoria,
+            Fecha: this.servicioOpinion[step].quejas_emi_fecha,
+            Hora: this.servicioOpinion[step].quejas_emi_hora,
+            Caja: this.servicioOpinion[step].caja_caja_nombre,
+            Opinión: this.servicioOpinion[step].quejas_emi_queja,
+          });
+        }
+      }
+    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioOpinion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols = [];
+    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 })
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Informe");
+    XLSX.writeFile(
+      wb,
+      "informeOpinionesExcel - "+nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+
   //---PDF
   generarPdfOpiniones(action = "open", pdf: number) {
     //Seteo de rango de fechas de la consulta para impresión en PDF
@@ -520,7 +580,7 @@ export class OpinionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -639,7 +699,7 @@ export class OpinionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
