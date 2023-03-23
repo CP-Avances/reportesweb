@@ -16,8 +16,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res) => 
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
         SUM(eval_califica = 40) AS Excelente, 
         SUM(eval_califica = 30) AS Bueno,
@@ -40,8 +39,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res) => 
       `;
     }
     else {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
         SUM(eval_califica = 50) AS Excelente, 
         SUM(eval_califica = 40) AS Muy_Bueno,
@@ -101,15 +99,13 @@ router.get("/getallservicios", (req, res) => {
 router.get("/getallservicios/:empresa", (req, res) => {
     const cEmpresa = req.params.empresa;
     let query;
-    if (cEmpresa == '-1') {
-        query =
-            `
+    if (cEmpresa == "-1") {
+        query = `
       SELECT * FROM servicio WHERE serv_codigo != 1 ORDER BY serv_nombre;
       `;
     }
     else {
-        query =
-            `
+        query = `
       SELECT * FROM servicio WHERE empr_codigo = ${cEmpresa} AND Serv_codigo != 1 ORDER BY serv_nombre;
       `;
     }
@@ -138,8 +134,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha,
         SUM(eval_califica = 40) AS Excelente,
         SUM(eval_califica = 30) AS Bueno,
@@ -179,8 +174,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res
       `;
     }
     else {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha,
         SUM(eval_califica = 50) AS Excelente,
         SUM(eval_califica = 40) AS Muy_Bueno,
@@ -247,22 +241,22 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res
 /** ************************************************************************************************************ **
  ** **                                           EMPLEADO                                                     ** **
  ** ************************************************************************************************************ **/
-router.get("/promediose/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res) => {
+router.get("/promediose/:fechaDesde/:fechaHasta/:cCajero/:sucursal/:opcion", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const cCajero = req.params.cCajero;
+    const cSucursal = req.params.sucursal;
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
       SUM(eval_califica = 40) AS Excelente,
       SUM(eval_califica = 30) AS Bueno,
       SUM(eval_califica = 20) AS Regular,
       SUM(eval_califica = 10) AS Malo,
       count(eval_califica) AS Total,
-      IF(AVG(eval_califica) >= 34, 'ExcelenteMuy Bueno',
+      IF(AVG(eval_califica) >= 34, 'Excelente',
       IF(AVG(eval_califica) >= 26, 'Bueno',
       IF(AVG(eval_califica) >= 18, 'Regular',
       IF(AVG(eval_califica) >= 10, 'Malo', 'No existe')))) AS Promedio
@@ -271,34 +265,35 @@ router.get("/promediose/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res) =>
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
         AND eval_califica != 50
+        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
       `;
     }
     else {
-        query =
-            `
-      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
-      SUM(eval_califica = 50) AS Excelente,
-      SUM(eval_califica = 40) AS Muy_Bueno,
-      SUM(eval_califica = 30) AS Bueno,
-      SUM(eval_califica = 20) AS Regular,
-      SUM(eval_califica = 10) AS Malo,
-      count(eval_califica) AS Total,
-      IF(AVG(eval_califica) >= 42, 'Excelente',
-      IF(AVG(eval_califica) >= 34, 'Muy Bueno',
-      IF(AVG(eval_califica) >= 26, 'Bueno',
-      IF(AVG(eval_califica) >= 18, 'Regular',
-      IF(AVG(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
-      FROM usuarios a, evaluacion f ,empresa e, cajero c
-      WHERE a.usua_codigo = f.usua_codigo 
-        AND e.empr_codigo = a.empr_codigo
-        AND a.usua_codigo = c.usua_codigo
-        AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
-      GROUP BY f.eval_fecha, f.usua_codigo;
-      `;
+        query = `
+        SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
+        SUM(eval_califica = 50) AS Excelente,
+        SUM(eval_califica = 40) AS Muy_Bueno,
+        SUM(eval_califica = 30) AS Bueno,
+        SUM(eval_califica = 20) AS Regular,
+        SUM(eval_califica = 10) AS Malo,
+        count(eval_califica) AS Total,
+        IF(AVG(eval_califica) >= 42, 'Excelente',
+        IF(AVG(eval_califica) >= 34, 'Muy Bueno',
+        IF(AVG(eval_califica) >= 26, 'Bueno',
+        IF(AVG(eval_califica) >= 18, 'Regular',
+        IF(AVG(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
+        FROM usuarios a, evaluacion f ,empresa e, cajero c
+        WHERE a.usua_codigo = f.usua_codigo 
+          AND e.empr_codigo = a.empr_codigo
+          AND a.usua_codigo = c.usua_codigo
+          AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+          ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
+        GROUP BY f.eval_fecha, f.usua_codigo;
+        `;
     }
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -318,15 +313,15 @@ router.get("/promediose/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res) =>
 /** ************************************************************************************************************ **
  ** **                                    MAXIMOS Y MINIMOS EMPLEADO                                          ** **
  ** ************************************************************************************************************ **/
-router.get("/maximosminimose/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res) => {
+router.get("/maximosminimose/:fechaDesde/:fechaHasta/:cCajero/:sucursal/:opcion", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const cCajero = req.params.cCajero;
+    const cSucursal = req.params.sucursal;
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         SUM(eval_califica = 40) AS Excelente,
         SUM(eval_califica = 30) AS Bueno,
@@ -358,14 +353,14 @@ router.get("/maximosminimose/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, re
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
         AND eval_califica != 50
       GROUP BY f.eval_fecha, f.usua_codigo;
       `;
     }
     else {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         SUM(eval_califica = 50) AS Excelente,
         SUM(eval_califica = 40) AS Muy_Bueno,
@@ -408,7 +403,8 @@ router.get("/maximosminimose/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, re
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
       `;
     }
@@ -430,10 +426,11 @@ router.get("/maximosminimose/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, re
 /** ************************************************************************************************************ **
  ** **                                     EVALUACIONES OMITIDAS                                              ** **
  ** ************************************************************************************************************ **/
-router.get("/omitidas/:fechaDesde/:fechaHasta/:cCajero", (req, res) => {
+router.get("/omitidas/:fechaDesde/:fechaHasta/:cCajero/:sucursal", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const cCajero = req.params.cCajero;
+    const cSucursal = req.params.sucursal;
     const query = `
       SELECT e.empr_nombre as nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         COUNT(eval_califica) AS Total
@@ -442,7 +439,8 @@ router.get("/omitidas/:fechaDesde/:fechaHasta/:cCajero", (req, res) => {
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
       GROUP BY  f.eval_fecha, f.usua_codigo;
       `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -467,8 +465,7 @@ router.get("/graficobarras/:opcion", (req, res) => {
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
-        query =
-            `
+        query = `
     SELECT eval_califica, COUNT(eval_califica) AS total,
       IF((eval_califica) = 40, 'Excelente',
       IF((eval_califica) >= 30, 'Bueno',
@@ -486,8 +483,7 @@ router.get("/graficobarras/:opcion", (req, res) => {
     `;
     }
     else {
-        query =
-            `
+        query = `
     SELECT eval_califica, COUNT(eval_califica) AS total,
       IF((eval_califica) = 50, 'Excelente',
       IF((eval_califica) >= 40, 'Muy Bueno',
@@ -518,15 +514,15 @@ router.get("/graficobarras/:opcion", (req, res) => {
         }
     });
 });
-router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res) => {
+router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:cCajero/:sucursal/:opcion", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const cCajero = req.params.cCajero;
+    const cSucursal = req.params.sucursal;
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, eval_califica, COUNT(eval_califica) AS total, usua_nombre AS usuario,
         IF((eval_califica) = 40, 'Excelente',
         IF((eval_califica) >= 30, 'Bueno',
@@ -537,7 +533,8 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND cajero.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND cajero.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND usuarios.empr_codigo = ${cSucursal}` : ""}
         AND eval_califica != 50
       GROUP BY eval_califica)as tl),3) AS porcentaje
       FROM evaluacion, usuarios, cajero, empresa e 
@@ -545,15 +542,15 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND usuarios.empr_codigo = e.empr_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND cajero.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND cajero.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND usuarios.empr_codigo = ${cSucursal}` : ""}
         AND eval_califica != 50
       GROUP BY eval_califica, usua_nombre 
       ORDER BY eval_califica DESC;
       `;
     }
     else {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, eval_califica, COUNT(eval_califica) AS total, usua_nombre AS usuario,
         IF((eval_califica) = 50, 'Excelente',
         IF((eval_califica) >= 40, 'Muy Bueno',
@@ -565,14 +562,16 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND cajero.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND cajero.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND usuarios.empr_codigo = ${cSucursal}` : ""}
       GROUP BY eval_califica)as tl),3) AS porcentaje
       FROM evaluacion, usuarios, cajero, empresa e 
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND usuarios.empr_codigo = e.empr_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND cajero.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND cajero.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND usuarios.empr_codigo = ${cSucursal}` : ""}
       GROUP BY eval_califica, usua_nombre 
       ORDER BY eval_califica DESC;
       `;
@@ -632,9 +631,8 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:empresa/:opcion", (req, re
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
-        if (cEmpresa == '-1') {
-            query =
-                `
+        if (cEmpresa == "-1") {
+            query = `
           SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
             SUM(eval_califica = 40) AS Excelente,
             SUM(eval_califica = 30) AS Bueno,
@@ -656,8 +654,7 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:empresa/:opcion", (req, re
           `;
         }
         else {
-            query =
-                `
+            query = `
           SELECT date_format(eval_fecha, '%Y-%m-%d') AS fecha,
             SUM(eval_califica = 40) AS Excelente,
             SUM(eval_califica = 30) AS Bueno,
@@ -680,9 +677,8 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:empresa/:opcion", (req, re
         }
     }
     else {
-        if (cEmpresa == '-1') {
-            query =
-                `
+        if (cEmpresa == "-1") {
+            query = `
           SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
             SUM(eval_califica = 50) AS Excelente,
             SUM(eval_califica = 40) AS Muy_Bueno,
@@ -705,8 +701,7 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:empresa/:opcion", (req, re
           `;
         }
         else {
-            query =
-                `
+            query = `
           SELECT date_format(eval_fecha, '%Y-%m-%d') AS fecha,
             SUM(eval_califica = 50) AS Excelente,
             SUM(eval_califica = 40) AS Muy_Bueno,
@@ -747,15 +742,15 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:empresa/:opcion", (req, re
 /** ************************************************************************************************************ **
  ** **                                       EVALUACION POR GRUPOS                                            ** **
  ** ************************************************************************************************************ **/
-router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, res) => {
+router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:cCajero/:sucursal/:opcion", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const cCajero = req.params.cCajero;
+    const cSucursal = req.params.sucursal;
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         SUM(eval_califica = 40) + SUM(eval_califica = 30) AS Bueno,
         SUM(eval_califica = 20) + SUM(eval_califica = 10) AS Malo,
@@ -767,14 +762,14 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, r
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
         AND eval_califica != 50
       GROUP BY f.eval_fecha, f.usua_codigo;
       `;
     }
     else {
-        query =
-            `
+        query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         SUM(eval_califica = 50) + SUM(eval_califica = 40) + SUM(eval_califica = 30) AS Bueno,
         SUM(eval_califica = 20) + SUM(eval_califica = 10) AS Malo,
@@ -786,7 +781,8 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:cCajero/:opcion", (req, r
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
       `;
     }

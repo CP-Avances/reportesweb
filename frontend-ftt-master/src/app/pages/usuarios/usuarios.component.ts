@@ -321,7 +321,7 @@ export class UsuariosComponent implements OnInit {
 
     if (cod != "-1") {
       this.serviceService
-        .getturnosF(fechaDesde, fechaHasta, parseInt(cod))
+        .getturnosF(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -395,7 +395,7 @@ export class UsuariosComponent implements OnInit {
 
     if (cod != "-1") {
       this.serviceService
-        .getatencionusuarios(fechaDesde, fechaHasta, parseInt(cod))
+        .getatencionusuarios(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas

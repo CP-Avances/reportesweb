@@ -171,7 +171,7 @@ export class DistestadoturnosComponent implements OnInit {
     var cServ = this.codCajeroDist.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalDist.nativeElement.value.toString().trim();
 
-    this.serviceService.getdistribucionturnos(fD, fH, parseInt(cServ)).subscribe((servicio: any) => {
+    this.serviceService.getdistribucionturnos(fD, fH, parseInt(cServ), parseInt(codSucursal)).subscribe((servicio: any) => {
       //Si se consulta correctamente se guarda en variable y setea banderas de tablas
       this.servicioDist = servicio.turnos;
       this.malRequestDist = false;
@@ -215,7 +215,7 @@ export class DistestadoturnosComponent implements OnInit {
     var cServ = this.codCajeroDistRes.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalDistRes.nativeElement.value.toString().trim();
     
-    this.serviceService.getdistribucionturnosresumen(fD, fH, parseInt(cServ)).subscribe((servicioRes: any) => {
+    this.serviceService.getdistribucionturnosresumen(fD, fH, parseInt(cServ), parseInt(codSucursal)).subscribe((servicioRes: any) => {
       //Si se consulta correctamente se guarda en variable y setea banderas de tablas
       this.servicioRes = servicioRes.turnos;
       this.malRequestDistPagRes = false;

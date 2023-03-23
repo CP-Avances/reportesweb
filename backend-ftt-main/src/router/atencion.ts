@@ -7,10 +7,11 @@ const router = Router();
  ** **                                    TIEMPOS COMPLETOS                                                 ** **
  ** ********************************************************************************************************** **/
 
-router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:cCajero', (req: Request, res: Response) => {
+router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const cCajero = req.params.cCajero;
+    const cSucursal = req.params.sucursal;
     const query =
         `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario,
@@ -25,7 +26,8 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:cCajero', (req: Request, 
             AND u.usua_codigo = c.usua_codigo
             AND u.empr_codigo = e.empr_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
-            AND c.caje_codigo = ${cCajero}
+            ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+            ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
         GROUP BY Servicio, Usuario, Fecha
         ORDER BY Servicio, Usuario, Fecha;
         `
@@ -136,10 +138,11 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:cServ', (req: Request, res: Re
  ** **                                     ATENCION SERVICIO                                             ** ** 
  ** ******************************************************************************************************* **/
 
-router.get('/atencionservicio/:fechaDesde/:fechaHasta/:cCajero', (req: Request, res: Response) => {
+router.get('/atencionservicio/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const cCajero = req.params.cCajero;
+    const cSucursal = req.params.sucursal;
     const query =
         `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio,
@@ -152,7 +155,8 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:cCajero', (req: Request, 
             AND t.serv_codigo = s.serv_codigo
             AND u.empr_codigo = e.empr_codigo
             AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-            AND c.caje_codigo = ${cCajero}
+            ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+            ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
         GROUP BY Servicio, Nombre;
         `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {

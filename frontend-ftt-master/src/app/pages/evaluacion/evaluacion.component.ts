@@ -479,7 +479,7 @@ export class EvaluacionComponent implements OnInit {
 
     if (cod != "-1") {
       this.serviceService
-        .getprmediosempleado(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
+        .getprmediosempleado(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal) ,this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -519,7 +519,7 @@ export class EvaluacionComponent implements OnInit {
         );
 
       this.serviceService
-        .getmaxminempleado(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
+        .getmaxminempleado(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal), this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalMMEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -574,7 +574,7 @@ export class EvaluacionComponent implements OnInit {
 
     if (cod != "-1") {
       this.serviceService
-        .getevalomitidasempleado(fechaDesde, fechaHasta, parseInt(cod))
+        .getevalomitidasempleado(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
         .subscribe(
           (servicioEvalOmitidas: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -635,7 +635,7 @@ export class EvaluacionComponent implements OnInit {
 
     if (serv != "-1") {
       this.serviceService
-        .getevalgrupo(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
+        .getevalgrupo(fechaDesde, fechaHasta, parseInt(serv), parseInt(codSucursal), this.opcionCuatro.toString())
         .subscribe(
           (servicioG: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -739,7 +739,7 @@ export class EvaluacionComponent implements OnInit {
     let codSucursal = this.codSucursal.nativeElement.value.toString().trim();
 
     this.serviceService
-      .getgraficobarrasfiltro(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
+      .getgraficobarrasfiltro(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal), this.opcionCuatro.toString())
       .subscribe(
         (servicioGra: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -754,15 +754,28 @@ export class EvaluacionComponent implements OnInit {
           //Formateo y mapeo de datos para imprimir valores en grafico
           let evOrig = this.servicioGra;
           let total = servicioGra.turnos.map((res) => res.total);
-          let evaluaciones = servicioGra.turnos.map((res) => res.usuario);
+          let evaluaciones = (cod=="-2" ? ["Todos los usuarios"] : servicioGra.turnos.map((res) => res.usuario));
           let evaluacionesNombre = servicioGra.turnos.map(
             (res) => res.evaluacion
           );
 
-          let Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
-          let valNombres = [0, 0, 0, 0, 0];
-          let totalPorc = 0;
-          let porcts = [0, 0, 0, 0, 0];
+          let Nombres: string | any[] ;
+          let valNombres: number[] ;
+          let totalPorc: number ;
+          let porcts: string[] | number[] ;
+
+          if (this.opcionCuatro) {
+            Nombres = ["Excelente", "Bueno", "Regular", "Malo"];
+            valNombres = [0, 0, 0, 0];
+            totalPorc = 0;
+            porcts = [0, 0, 0, 0];
+          } else {
+            Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
+            valNombres = [0, 0, 0, 0, 0];
+            totalPorc = 0;
+            porcts = [0, 0, 0, 0, 0];
+          }
+          
           //Empate para obtener porcentajes de Nombres que no posea la consulta (Si una consulta no tiene Malos, aqui se completa para mostrar mejor los datos al usuario)
           for (var i = 0; i < Nombres.length; i++) {
             if (evOrig.find((val) => val.evaluacion === Nombres[i]) != null) {

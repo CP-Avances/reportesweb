@@ -167,6 +167,7 @@
                                 <br><br>
                                 <select class="form-control" name="selectmake" #codCajeroEvalEmpl>
                                     <option value="-1" selected>Seleccione usuario...</option>
+                                    <option value="-2">Todos los usuarios</option>
                                     <option *ngFor="let cajerosEval of cajerosEval" value="{{cajerosEval.caje_codigo}}"
                                         [ngValue]="cajerosEval.caje_codigo">{{cajerosEval.caje_nombre}}</option>
                                 </select>
@@ -281,6 +282,7 @@
                                 <br><br>
                                 <select class="form-control" name="selectmake" #codCajeroEvalOmitidas>
                                     <option value="-1" selected>Seleccione usuario...</option>
+                                    <option value="-2">Todos los usuarios</option>
                                     <option *ngFor="let cajerosEvalOmitidas of cajerosEvalOmitidas" value="{{cajerosEvalOmitidas.caje_codigo}}"
                                         [ngValue]="cajerosEvalOmitidas.caje_codigo">{{cajerosEvalOmitidas.caje_nombre}}</option>
                                 </select>
@@ -413,6 +415,7 @@
                                 <br><br>
                                 <select class="form-control" name="selectmake" #codCajeroEvalGr>
                                     <option value="-1" selected>Seleccione usuario...</option>
+                                    <option value="-2">Todos los usuarios</option>
                                     <option *ngFor="let cajerosG of cajerosG" value="{{cajerosG.caje_codigo}}"
                                         [ngValue]="cajerosG.caje_codigo">{{cajerosG.caje_nombre}}</option>
                                 </select>
@@ -482,6 +485,7 @@
                                 <br><br>
                                 <select class="form-control" name="selectmake" #codCajeroEvalGra>
                                     <option value="-1" selected>Seleccione usuario...</option>
+                                    <option value="-2">Todos los usuarios</option>
                                     <option *ngFor="let cajerosG of cajerosG" value="{{cajerosG.caje_codigo}}"
                                         [ngValue]="cajerosG.caje_codigo">{{cajerosG.caje_nombre}}</option>
                                 </select>

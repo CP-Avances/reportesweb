@@ -293,7 +293,7 @@ export class AtencionComponent implements OnInit {
     var cod = this.codCajeroAtTC.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalAtTC.nativeElement.value.toString().trim();
     this.serviceService
-      .gettiemposcompletos(fechaDesde, fechaHasta, parseInt(cod))
+      .gettiemposcompletos(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
       .subscribe(
         (servicio: any) => {
           // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -435,7 +435,7 @@ export class AtencionComponent implements OnInit {
     let codSucursal = this.codSucursalAtAS.nativeElement.value.toString().trim();
 
     this.serviceService
-      .getatencionservicio(fechaDesde, fechaHasta, parseInt(cod))
+      .getatencionservicio(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
       .subscribe(
         (servicioatser: any) => {
           // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS

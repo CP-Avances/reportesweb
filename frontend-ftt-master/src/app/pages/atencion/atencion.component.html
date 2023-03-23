@@ -48,6 +48,7 @@
                                 <br><br>
                                 <select class="form-control" name="selectmake" #codCajeroAtTC>
                                     <option value="-1" selected>Seleccione usuario...</option>
+                                    <option value="-2">Todos los usuarios</option>
                                     <option *ngFor="let cajerosAtencion of cajerosAtencion"
                                         value="{{cajerosAtencion.caje_codigo}}" [ngValue]="cajerosAtencion.caje_codigo">
                                         {{cajerosAtencion.caje_nombre}}</option>
@@ -254,6 +255,7 @@
                                 <br><br>
                                 <select class="form-control" name="selectmake" #codCajeroAtAS>
                                     <option value="-1" selected>Seleccione usuario...</option>
+                                    <option value="-2" >Todos los usuarios</option>
                                     <option *ngFor="let cajerosAtencion of cajerosAtencion"
                                         value="{{cajerosAtencion.caje_codigo}}" [ngValue]="cajerosAtencion.caje_codigo">
                                         {{cajerosAtencion.caje_nombre}}</option>
