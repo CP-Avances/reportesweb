@@ -25,6 +25,7 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req: 
             AND s.empr_codigo = e.empr_codigo
             AND c.usua_codigo = u.usua_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
+            AND u.usua_codigo != 2
             ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
             ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
         GROUP BY t.serv_codigo, t.turn_fecha
@@ -69,6 +70,7 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:cCajero/:sucursal',
             AND s.empr_codigo = e.empr_codigo
             AND c.usua_codigo = u.usua_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
+            AND u.usua_codigo != 2
             ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
             ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
         GROUP BY t.serv_codigo, t.turn_fecha

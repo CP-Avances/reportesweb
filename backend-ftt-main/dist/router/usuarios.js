@@ -129,6 +129,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:cajero/:sucursal", 
     AND s.empr_codigo = e.empr_codigo  
     AND c.usua_codigo = u.usua_codigo
     AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+    AND u.usua_codigo != 2
     `;
     if (cCajero == "-2") {
         if (cSucursal != "-1") {
@@ -275,7 +276,8 @@ router.get("/atencionusuario/:fechaDesde/:fechaHasta/:cajero/:sucursal", (req, r
         AND c.caje_codigo = t.caje_codigo 
         AND t.serv_codigo = s.serv_codigo 
         AND u.empr_codigo = e.empr_codigo 
-        AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+        AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+        AND u.usua_codigo != 2 
   `;
     if (cCajero == "-2") {
         if (cSucursal != "-1") {
