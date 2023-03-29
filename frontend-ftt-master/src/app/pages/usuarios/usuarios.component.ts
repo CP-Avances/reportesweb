@@ -104,6 +104,9 @@ export class UsuariosComponent implements OnInit {
   urlImagen: string;
   nombreImagen: any[];
 
+  //OPCIONES MULTIPLES
+  selectedOptions: any;
+
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
   constructor(
@@ -318,6 +321,8 @@ export class UsuariosComponent implements OnInit {
     let codSucursal = this.codSucursalPromAtencion.nativeElement.value
       .toString()
       .trim();
+    
+    console.log(cod);
 
     if (cod != "-1") {
       this.serviceService

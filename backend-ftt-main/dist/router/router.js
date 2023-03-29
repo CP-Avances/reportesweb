@@ -104,7 +104,8 @@ router.post('/login/:usua_login/:usua_password', (req, res) => {
     const username = req.params.usua_login;
     const pass = req.params.usua_password;
     const query = `
-        SELECT 1 FROM usuarios where usua_login = '${username}' and usua_password=MD5('${pass}')
+        SELECT 1 FROM usuarios WHERE usua_login = '${username}' AND usua_password=MD5('${pass}') 
+        AND usua_tipo = 1
         `;
     mysql_1.default.ejecutarQuery(query, (err, usuario) => {
         if (err) {

@@ -42,12 +42,10 @@
                         <table class="table table-striped" id="contentAtMul" #contentAtMul #tableAtMul>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI">Sucursal</th>
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
-                                    <th scope="col" class="text-center">Hora</th>
-                                    <th scope="col" class="text-center">Minuto</th>
                                     <th scope="col" class="text-center">Caja</th>
                                     <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
                                 </tr>
@@ -58,8 +56,6 @@
                                     <td>{{servicioOpinion.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinion.quejas_emi_categoria}}</td>
                                     <td>{{servicioOpinion.quejas_emi_fecha}}</td>
-                                    <td>{{servicioOpinion.quejas_emi_hora}}</td>
-                                    <td>{{servicioOpinion.quejas_emi_minuto}}</td>
                                     <td>{{servicioOpinion.caja_caja_nombre}}</td>
                                     <td class="text-left">{{servicioOpinion.quejas_emi_queja}}</td>
                                 </tr>

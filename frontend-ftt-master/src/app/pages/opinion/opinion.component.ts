@@ -401,7 +401,7 @@ export class OpinionComponent implements OnInit {
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Hora: this.servicioOpinion[step].quejas_emi_hora,
+            Hora: this.servicioOpinion[step].quejas_emi_hora + ':' + this.servicioOpinion[step].quejas_emi_minuto,
             Caja: this.servicioOpinion[step].caja_caja_nombre,
             Opinión: this.servicioOpinion[step].quejas_emi_queja,
           });
@@ -412,7 +412,7 @@ export class OpinionComponent implements OnInit {
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Hora: this.servicioOpinion[step].quejas_emi_hora,
+            Hora: this.servicioOpinion[step].quejas_emi_hora + ':' + this.servicioOpinion[step].quejas_emi_minuto,
             Caja: this.servicioOpinion[step].caja_caja_nombre,
             Opinión: this.servicioOpinion[step].quejas_emi_queja,
           });
@@ -451,7 +451,6 @@ export class OpinionComponent implements OnInit {
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Hora: this.servicioOpinion[step].quejas_emi_hora,
             Caja: this.servicioOpinion[step].caja_caja_nombre,
             Opinión: this.servicioOpinion[step].quejas_emi_queja,
           });
@@ -462,7 +461,6 @@ export class OpinionComponent implements OnInit {
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Hora: this.servicioOpinion[step].quejas_emi_hora,
             Caja: this.servicioOpinion[step].caja_caja_nombre,
             Opinión: this.servicioOpinion[step].quejas_emi_queja,
           });
@@ -783,7 +781,7 @@ export class OpinionComponent implements OnInit {
         table: {
           alignment: "center",
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "*"],
+          widths: ["*", "auto", "auto", "auto", "auto", "*"],
   
           body: [
             [
@@ -791,7 +789,6 @@ export class OpinionComponent implements OnInit {
               { text: "Tipo", style: "tableHeader" },
               { text: "Categoría", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
-              { text: "Hora", style: "tableHeader" },
               { text: "Caja", style: "tableHeader" },
               { text: "Opinión", style: "tableHeader" },
             ],
@@ -801,7 +798,6 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_tipo },
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
-                { style: "itemsTable", text: res.quejas_emi_hora },
                 { style: "itemsTable", text: res.caja_caja_nombre },
                 { style: "itemsTable",alignment: "left", text: res.quejas_emi_queja },
               ];
@@ -820,14 +816,13 @@ export class OpinionComponent implements OnInit {
         table: {
           alignment: "center",
           headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "*"],
+          widths: ["auto", "auto", "auto", "auto", "*"],
   
           body: [
             [
               { text: "Tipo", style: "tableHeader" },
               { text: "Categoría", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
-              { text: "Hora", style: "tableHeader" },
               { text: "Caja", style: "tableHeader" },
               { text: "Opinión", style: "tableHeader" },
             ],
@@ -836,7 +831,6 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_tipo },
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
-                { style: "itemsTable", text: res.quejas_emi_hora },
                 { style: "itemsTable", text: res.caja_caja_nombre },
                 { style: "itemsTable",alignment: "left", text: res.quejas_emi_queja },
               ];

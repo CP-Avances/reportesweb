@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MenuComponent } from './menu/menu.component';
 import { PagesComponent } from './pages.component';
+import { MenuComponent } from './menu/menu.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { UsuariosComponent } from './usuarios/usuarios.component';
 import { AtencionComponent } from './atencion/atencion.component';
 import { EvaluacionComponent } from './evaluacion/evaluacion.component';
@@ -47,7 +49,9 @@ import { ConfiguracionComponent } from './configuracion/configuracion.component'
     CommonModule,
     SharedModule,
     AppRoutingModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    NgSelectModule,
+    FormsModule
   ]
 })
 export class PagesModule { }

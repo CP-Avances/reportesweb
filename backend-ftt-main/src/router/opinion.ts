@@ -23,15 +23,12 @@ router.get(
           IF((quejas.emi_tipo = 3), 'Sugerencia', 
           IF((quejas.emi_tipo = 4), 'Felicitaciones', 'No Existe')))) AS quejas_emi_tipo, 
           quejas.emi_categoria AS quejas_emi_categoria, 
-          date_format(quejas.emi_fecha, '%Y-%m-%d') AS quejas_emi_fecha, 
-          quejas.emi_hora AS quejas_emi_hora, 
-          quejas.emi_minuto AS quejas_emi_minuto, 
+          CAST(STR_TO_DATE(concat(quejas.emi_fecha," ",quejas.emi_hora,":",quejas.emi_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS CHAR) AS quejas_emi_fecha,  
           empresa.empr_nombre AS empresa_empr_nombre, 
-          caja.caja_nombre AS caja_caja_nombre, 
+          quejas.caja_codigo AS caja_caja_nombre, 
           quejas.emi_queja AS quejas_emi_queja 
         FROM empresa 
         INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo 
-        INNER JOIN caja ON quejas.caja_codigo = caja.caja_codigo 
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ORDER BY quejas.emi_fecha DESC, quejas.emi_hora DESC, quejas.emi_minuto DESC, quejas.emi_codigo DESC;
         `
@@ -44,15 +41,12 @@ router.get(
           IF((quejas.emi_tipo = 3), 'Sugerencia',
           IF((quejas.emi_tipo = 4), 'Felicitaciones', 'No Existe')))) AS quejas_emi_tipo, 
           quejas.emi_categoria AS quejas_emi_categoria, 
-          date_format(quejas.emi_fecha, '%Y-%m-%d') AS quejas_emi_fecha, 
-          quejas.emi_hora AS quejas_emi_hora, 
-          quejas.emi_minuto AS quejas_emi_minuto, 
+          CAST(STR_TO_DATE(concat(quejas.emi_fecha," ",quejas.emi_hora,":",quejas.emi_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS CHAR) AS quejas_emi_fecha, 
           empresa.empr_nombre AS empresa_empr_nombre, 
-          caja.caja_nombre AS caja_caja_nombre, 
+          quejas.caja_codigo AS caja_caja_nombre, 
           quejas.emi_queja AS quejas_emi_queja 
         FROM empresa 
         INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo 
-        INNER JOIN caja ON quejas.caja_codigo = caja.caja_codigo 
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           AND empresa.empr_codigo = ${cEmpresa}
         ORDER BY quejas.emi_fecha DESC, quejas.emi_hora DESC, quejas.emi_minuto DESC, quejas.emi_codigo DESC;
