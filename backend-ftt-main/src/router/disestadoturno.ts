@@ -7,11 +7,19 @@ const router = Router();
  ** **                                    DISTRIBUCION Y ESTADO DE TURNOS                                      ** **
  ** ************************************************************************************************************* **/
 
-router.get('/distestadoturno/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req: Request, res: Response) => {
+router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+
+    let todosCajeros = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    } 
+
     const query =
         `
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS Usuario, COUNT(t.turn_codigo) AS turnos,
@@ -21,12 +29,13 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req: 
             (SELECT MAX(turn_fecha) FROM turno WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechamaxima,
             (SELECT MIN(turn_fecha) FROM turno WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechaminima
         FROM servicio s, turno t, cajero c, empresa e, usuarios u
-        WHERE s.serv_codigo = t.serv_codigo AND c.caje_codigo = t.caje_codigo
+        WHERE t.serv_codigo = s.serv_codigo 
+            AND t.caje_codigo = c.caje_codigo
             AND s.empr_codigo = e.empr_codigo
             AND c.usua_codigo = u.usua_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             AND u.usua_codigo != 2
-            ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+            ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
             ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
         GROUP BY t.serv_codigo, t.turn_fecha
         ORDER BY t.turn_fecha;
@@ -51,11 +60,19 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req: 
  ** **                                    DISTRIBUCION Y ESTADO DE TURNOS RESUMEN                                  ** **
  ** ***************************************************************************************************************** **/
 
-router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req: Request, res: Response) => {
+router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+
+    let todosCajeros = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    } 
+
     const query =
         `
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS Usuario, COUNT(t.turn_codigo) AS turnos,
@@ -71,7 +88,7 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:cCajero/:sucursal',
             AND c.usua_codigo = u.usua_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             AND u.usua_codigo != 2
-            ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+            ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
             ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
         GROUP BY t.serv_codigo, t.turn_fecha
         ORDER BY t.turn_fecha;

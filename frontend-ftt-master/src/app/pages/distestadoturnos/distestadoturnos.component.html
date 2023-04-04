@@ -28,11 +28,19 @@
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
                                 </select>
                                 <br><br>
-                                <select class="form-control"  name="selectmake" #codCajeroDist>
+                                <!-- <select class="form-control"  name="selectmake" #codCajeroDist>
                                     <option value="-1" selected>Seleccione usuario...</option>
                                     <option value="-2" >Todos los usuarios</option>
                                     <option *ngFor="let cajerosDist of cajerosDist" value="{{cajerosDist.caje_codigo}}" [ngValue]="cajerosDist.caje_codigo">{{cajerosDist.caje_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
+                                    <mat-option [value]="-2"  (click)="selectAll()" >
+                                        Todos los usuarios
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo" [disabled]="allSelected">
+                                        {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerDistribucionTurnos()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar 
@@ -97,11 +105,19 @@
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
                                 </select>
                                 <br><br>
-                                <select class="form-control"  name="selectmake" #codCajeroDistRes>
+                                <!-- <select class="form-control"  name="selectmake" #codCajeroDistRes>
                                     <option value="-1" selected>Seleccione usuario...</option>
                                     <option value="-2">Todos los usuarios</option>
                                     <option *ngFor="let cajerosDist of cajerosDist" value="{{cajerosDist.caje_codigo}}" [ngValue]="cajerosDist.caje_codigo">{{cajerosDist.caje_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
+                                    <mat-option [value]="-2"  (click)="selectAll()" >
+                                        Todos los usuarios
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo" [disabled]="allSelected">
+                                        {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerDistribucionTurnosResumen()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar 

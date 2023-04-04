@@ -88,10 +88,6 @@ export class AtendidosmultiplesComponent implements OnInit {
      this.imagenesService.cargarImagen().then((result: string) => {
       this.urlImagen = result;
     }).catch((error) => {
-      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
-      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
-        timeOut: 6000,
-      });
       Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
         (result) => (this.urlImagen = result)
       );

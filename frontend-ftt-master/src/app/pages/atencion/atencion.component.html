@@ -46,13 +46,21 @@
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
                                 </select>
                                 <br><br>
-                                <select class="form-control" name="selectmake" #codCajeroAtTC>
+                                <!-- <select class="form-control" name="selectmake" #codCajeroAtTC>
                                     <option value="-1" selected>Seleccione usuario...</option>
                                     <option value="-2">Todos los usuarios</option>
                                     <option *ngFor="let cajerosAtencion of cajerosAtencion"
                                         value="{{cajerosAtencion.caje_codigo}}" [ngValue]="cajerosAtencion.caje_codigo">
                                         {{cajerosAtencion.caje_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
+                                    <mat-option [value]="-2"  (click)="selectAll()" >
+                                        Todos los usuarios
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosAtencion" [value]="option.caje_codigo" [disabled]="allSelected">
+                                        {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerTiempcompleto()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -77,7 +85,7 @@
                             </thead>
                             <tbody *ngIf="!malRequestAtTC">
                                 <tr *ngFor="let servicioTiempoComp of servicioTiempoComp | paginate:configTC">
-                                    <td *ngIf="todasSucursalesTC">{{servicioTiempoComp.Usuario}}</td>
+                                    <td *ngIf="todasSucursalesTC">{{servicioTiempoComp.nombreEmpresa}}</td>
                                     <td>{{servicioTiempoComp.Usuario}}</td>
                                     <td>{{servicioTiempoComp.Servicio}}</td>
                                     <td>{{servicioTiempoComp.Fecha}}</td>
@@ -253,13 +261,21 @@
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
                                 </select>
                                 <br><br>
-                                <select class="form-control" name="selectmake" #codCajeroAtAS>
+                                <!-- <select class="form-control" name="selectmake" #codCajeroAtAS>
                                     <option value="-1" selected>Seleccione usuario...</option>
                                     <option value="-2" >Todos los usuarios</option>
                                     <option *ngFor="let cajerosAtencion of cajerosAtencion"
                                         value="{{cajerosAtencion.caje_codigo}}" [ngValue]="cajerosAtencion.caje_codigo">
                                         {{cajerosAtencion.caje_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
+                                    <mat-option [value]="-2"  (click)="selectAll()" >
+                                        Todos los usuarios
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosAtencion" [value]="option.caje_codigo" [disabled]="allSelected">
+                                        {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerAtencionServicio()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar

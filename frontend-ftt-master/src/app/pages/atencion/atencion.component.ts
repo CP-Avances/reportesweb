@@ -117,6 +117,10 @@ export class AtencionComponent implements OnInit {
   // IMAGEN LOGO
   urlImagen: string;
 
+  //OPCIONES MULTIPLES
+  allSelected = false;
+  selectedItems: string[] = [];
+
   // ORIENTACION
   orientacion: string;
 
@@ -206,14 +210,18 @@ export class AtencionComponent implements OnInit {
     this.imagenesService.cargarImagen().then((result: string) => {
       this.urlImagen = result;
     }).catch((error) => {
-      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
-      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
-        timeOut: 6000,
-      });
       Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
         (result) => (this.urlImagen = result)
       );
     });
+  }
+
+  selectAll() {
+    if (this.allSelected==false) {
+      this.allSelected = true;
+    } else {
+      this.allSelected = false;
+    }
   }
 
   // SE DESLOGUEA DE LA APLICACION
@@ -253,6 +261,8 @@ export class AtencionComponent implements OnInit {
     this.getCajeros("-1");
     this.getSucursales();
     this.getServicios("-1");
+    this.selectedItems = [];
+    this.allSelected = false;
   }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
@@ -290,47 +300,48 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTC.nativeElement.value.toString().trim();
-    var cod = this.codCajeroAtTC.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalAtTC.nativeElement.value.toString().trim();
-    this.serviceService
-      .gettiemposcompletos(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
-      .subscribe(
-        (servicio: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.servicioTiempoComp = servicio.turnos;
-          this.malRequestAtTC = false;
-          this.malRequestAtTCPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configTC.currentPage > 1) {
-            this.configTC.currentPage = 1;
-          }
-          this.todasSucursalesTC = this.comprobarBusquedaSucursales(codSucursal);
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.servicioTiempoComp = null;
-            this.malRequestAtTC = true;
-            this.malRequestAtTCPag = true;
-            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.servicioTiempoComp == null) {
-              this.configTC.totalItems = 0;
-            } else {
-              this.configTC.totalItems = this.servicioTiempoComp.length;
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .gettiemposcompletos(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal))
+        .subscribe(
+          (servicio: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.servicioTiempoComp = servicio.turnos;
+            this.malRequestAtTC = false;
+            this.malRequestAtTCPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configTC.currentPage > 1) {
+              this.configTC.currentPage = 1;
             }
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configTC = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+            this.todasSucursalesTC = this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.servicioTiempoComp = null;
+              this.malRequestAtTC = true;
+              this.malRequestAtTCPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.servicioTiempoComp == null) {
+                this.configTC.totalItems = 0;
+              } else {
+                this.configTC.totalItems = this.servicioTiempoComp.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configTC = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
   leerPromAtencion() {
@@ -431,48 +442,49 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
-    var cod = this.codCajeroAtAS.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalAtAS.nativeElement.value.toString().trim();
 
-    this.serviceService
-      .getatencionservicio(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
-      .subscribe(
-        (servicioatser: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.servicioatser = servicioatser.turnos;
-          this.malRequestAtAS = false;
-          this.malRequestAtASPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configAS.currentPage > 1) {
-            this.configAS.currentPage = 1;
-          }
-          this.todasSucursalesAS = this.comprobarBusquedaSucursales(codSucursal);
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.servicioatser = null;
-            this.malRequestAtAS = true;
-            this.malRequestAtASPag = true;
-            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.servicioatser == null) {
-              this.configAS.totalItems = 0;
-            } else {
-              this.configAS.totalItems = this.servicioatser.length;
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .getatencionservicio(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal))
+        .subscribe(
+          (servicioatser: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.servicioatser = servicioatser.turnos;
+            this.malRequestAtAS = false;
+            this.malRequestAtASPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configAS.currentPage > 1) {
+              this.configAS.currentPage = 1;
             }
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configAS = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+            this.todasSucursalesAS = this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.servicioatser = null;
+              this.malRequestAtAS = true;
+              this.malRequestAtASPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.servicioatser == null) {
+                this.configAS.totalItems = 0;
+              } else {
+                this.configAS.totalItems = this.servicioatser.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configAS = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
   leerGrafico() {

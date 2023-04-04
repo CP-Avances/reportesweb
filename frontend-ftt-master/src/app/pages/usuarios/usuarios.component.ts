@@ -4,6 +4,7 @@ import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
 import { Utils } from "../../utils/util";
 
+
 import { AuthenticationService } from "../../services/authentication.service";
 import { ImagenesService } from "../../shared/imagenes.service";
 import { ServiceService } from "../../services/service.service";
@@ -105,7 +106,9 @@ export class UsuariosComponent implements OnInit {
   nombreImagen: any[];
 
   //OPCIONES MULTIPLES
-  selectedOptions: any;
+  allSelected = false;
+  selectedItems: string[] = [];
+  sucursalesSeleccionadas: string[] = [];
 
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
@@ -188,18 +191,31 @@ export class UsuariosComponent implements OnInit {
     this.imagenesService.cargarImagen().then((result: string) => {
         this.urlImagen = result;
       }).catch((error) => {
-        // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
-        this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
-          timeOut: 6000,
-        });
         Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
           (result) => (this.urlImagen = result)
         );
       });
   }
 
+  selectAll() {
+    if (this.allSelected==false) {
+      this.allSelected = true;
+    } else {
+      this.allSelected = false;
+    }
+  }
+
+  // SE OBTIENE LA FECHA ACTUAL
+  getlastday() {
+    this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
+    let lastweek = new Date();
+    var firstDay = new Date(lastweek.getFullYear(), lastweek.getMonth(), 1);
+    this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
+  }
+
   // CONSULTA DE LISTA DE CAJEROS
   getCajeros(sucursal: any) {
+    console.log(sucursal);
     this.serviceService.getAllCajerosS(sucursal).subscribe(
       (cajeros: any) => {
         this.cajerosUsuarios = cajeros.cajeros;
@@ -223,6 +239,12 @@ export class UsuariosComponent implements OnInit {
   limpiar() {
     this.getCajeros("-1");
     this.getSucursales();
+    this.selectedItems = [];
+    this.allSelected = false;
+    this.todasSucursalesTPA = false;
+    this.todasSucursalesTF = false;
+    this.todasSucursalesES = false;
+    this.todasSucursalesAU = false;
   }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
@@ -265,7 +287,7 @@ export class UsuariosComponent implements OnInit {
           }
 
           // COMPROBACION DE LA SUCURSAL COONSULTADA
-          this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
+          // this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
         },
         (error) => {
           if (error.status == 400) {
@@ -297,13 +319,6 @@ export class UsuariosComponent implements OnInit {
       );
   }
 
-  // SE OBTIENE LA FECHA ACTUAL
-  getlastday() {
-    this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
-    let lastweek = new Date();
-    var firstDay = new Date(lastweek.getFullYear(), lastweek.getMonth(), 1);
-    this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
-  }
 
   /** ********************************************************************************************************** **
    ** **                                     TIEMPO PROMEDIO DE ATENCION                                      ** **
@@ -317,16 +332,10 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDatePromAtencion.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codCajeroPromAtencion.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalPromAtencion.nativeElement.value
-      .toString()
-      .trim();
-    
-    console.log(cod);
-
-    if (cod != "-1") {
+  
+    if (this.selectedItems.length!==0) {
       this.serviceService
-        .getturnosF(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
+        .getturnosF(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -337,9 +346,9 @@ export class UsuariosComponent implements OnInit {
             if (this.configTP.currentPage > 1) {
               this.configTP.currentPage = 1;
             }
-            // COMPROBACION DE LA SUCURSAL COONSULTADA
-            this.todasSucursalesTPA =
-              this.comprobarBusquedaSucursales(codSucursal);
+            // // COMPROBACION DE LA SUCURSAL COONSULTADA
+            // this.todasSucursalesTPA =
+            //   this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -393,14 +402,13 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateAtencionUsua.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codCajeroAtencionUsua.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalAtencionUsua.nativeElement.value
       .toString()
       .trim();
 
-    if (cod != "-1") {
+    if (this.selectedItems.length!==0) {
       this.serviceService
-        .getatencionusuarios(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
+        .getatencionusuarios(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal))
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas

@@ -7,9 +7,6 @@ import { DatePipe } from "@angular/common";
 import { ToastrService } from "ngx-toastr";
 import { saveAs } from 'file-saver';
 
-import * as FileSaver from 'file-saver';
-import { Base64 } from 'js-base64';
-
 //Complemento para graficos
 import { Chart } from "chart.js";
 //Complementos para PDF y Excel
@@ -125,23 +122,28 @@ export class EvaluacionComponent implements OnInit {
   configEG: any;
   configG: any;
   configEstb: any;
+
   //Maximo de items mostrado de tabla en pantalla
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
-  
-
 
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  allSelected = false;
+  selectedItems: string[] = [];
 
   //Orientacion
   orientacion: string;
@@ -263,14 +265,18 @@ export class EvaluacionComponent implements OnInit {
     this.imagenesService.cargarImagen().then((result: string) => {
       this.urlImagen = result;
     }).catch((error) => {
-      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
-      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
-        timeOut: 6000,
-      });
       Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
         (result) => (this.urlImagen = result)
       );
     });
+  }
+
+  selectAll() {
+    if (this.allSelected==false) {
+      this.allSelected = true;
+    } else {
+      this.allSelected = false;
+    }
   }
 
   //Se obtiene fecha actual
@@ -344,6 +350,8 @@ export class EvaluacionComponent implements OnInit {
     this.getCajerosOmitidas("-1");
     this.getSucursales();
     this.getServicios("-1");
+    this.selectedItems = [];
+    this.allSelected = false;
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -474,12 +482,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalEmpl.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codCajeroEvalEmpl.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
 
-    if (cod != "-1") {
+    if (this.selectedItems.length!==0) {
       this.serviceService
-        .getprmediosempleado(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal) ,this.opcionCuatro.toString())
+        .getprmediosempleado(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal) ,this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -519,7 +526,7 @@ export class EvaluacionComponent implements OnInit {
         );
 
       this.serviceService
-        .getmaxminempleado(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal), this.opcionCuatro.toString())
+        .getmaxminempleado(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal), this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalMMEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -569,12 +576,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codCajeroEvalOmitidas.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalEvalOmitidas.nativeElement.value.toString().trim();
 
-    if (cod != "-1") {
+    if (this.selectedItems.length!==0) {
       this.serviceService
-        .getevalomitidasempleado(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal))
+        .getevalomitidasempleado(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal))
         .subscribe(
           (servicioEvalOmitidas: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -630,12 +636,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
       .toString()
       .trim();
-    var serv = this.codCajeroEvalGr.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalEvalGr.nativeElement.value.toString().trim();
 
-    if (serv != "-1") {
+    if (this.selectedItems.length!==0) {
       this.serviceService
-        .getevalgrupo(fechaDesde, fechaHasta, parseInt(serv), parseInt(codSucursal), this.opcionCuatro.toString())
+        .getevalgrupo(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal), this.opcionCuatro.toString())
         .subscribe(
           (servicioG: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -735,176 +740,172 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codCajeroEvalGra.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursal.nativeElement.value.toString().trim();
 
-    this.serviceService
-      .getgraficobarrasfiltro(fechaDesde, fechaHasta, parseInt(cod), parseInt(codSucursal), this.opcionCuatro.toString())
-      .subscribe(
-        (servicioGra: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-          this.servicioGra = servicioGra.turnos;
-          this.malRequestGra = false;
-          this.malRequestGraPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
-          if (this.configG.currentPage > 1) {
-            this.configG.currentPage = 1;
-          }
-          this.todasSucursalesG = this.comprobarBusquedaSucursales(codSucursal);
-          //Formateo y mapeo de datos para imprimir valores en grafico
-          let evOrig = this.servicioGra;
-          let total = servicioGra.turnos.map((res) => res.total);
-          let evaluaciones = (cod=="-2" ? ["Todos los usuarios"] : servicioGra.turnos.map((res) => res.usuario));
-          let evaluacionesNombre = servicioGra.turnos.map(
-            (res) => res.evaluacion
-          );
-
-          let Nombres: string | any[] ;
-          let valNombres: number[] ;
-          let totalPorc: number ;
-          let porcts: string[] | number[] ;
-
-          if (this.opcionCuatro) {
-            Nombres = ["Excelente", "Bueno", "Regular", "Malo"];
-            valNombres = [0, 0, 0, 0];
-            totalPorc = 0;
-            porcts = [0, 0, 0, 0];
-          } else {
-            Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
-            valNombres = [0, 0, 0, 0, 0];
-            totalPorc = 0;
-            porcts = [0, 0, 0, 0, 0];
-          }
-          
-          //Empate para obtener porcentajes de Nombres que no posea la consulta (Si una consulta no tiene Malos, aqui se completa para mostrar mejor los datos al usuario)
-          for (var i = 0; i < Nombres.length; i++) {
-            if (evOrig.find((val) => val.evaluacion === Nombres[i]) != null) {
-              valNombres[i] = evOrig.find(
-                (val) => val.evaluacion === Nombres[i]
-              ).total;
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .getgraficobarrasfiltro(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal), this.opcionCuatro.toString())
+        .subscribe(
+          (servicioGra: any) => {
+            //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+            this.servicioGra = servicioGra.turnos;
+            this.malRequestGra = false;
+            this.malRequestGraPag = false;
+            //Seteo de paginacion cuando se hace una nueva busqueda
+            if (this.configG.currentPage > 1) {
+              this.configG.currentPage = 1;
             }
-            totalPorc = totalPorc + valNombres[i];
-          }
-          for (var i = 0; i < Nombres.length; i++) {
-            porcts[i] =
-              Math.round(((valNombres[i] * 100) / totalPorc) * 1000) / 1000;
-            Nombres[i] = Nombres[i] + "\n" + porcts[i] + "%";
-          }
-          //Seteo de titulo de grafico
-          var titulo = true;
-          if (this.tipo == "bar") {
-            titulo = false;
-          } else {
-            titulo = true;
-          }
-
-          //Creacion de chart [imagen] de tipo canvas si es bar
-          if (this.tipo == "bar") {
-            //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
-            this.chart = new Chart("canvas", {
-              type: this.tipo,
-              data: {
-                labels: Nombres, //eje x
-                datasets: [
-                  {
-                    label: "",
-                    data: valNombres,
-                    backgroundColor: [
-                      "rgba(51, 172, 32, 0.4)",
-                      "rgba(55, 171, 228, 1)",
-                      "rgba(213, 220, 102, 0.77)",
-                      "rgba(251, 182, 55, 0.77)",
-                      "rgba(149, 148, 204, 0.86)",
-                    ],
-                  },
-                ],
-              },
-              options: {
-                plugins: {
-                  title: {
-                    display: true,
-                    text: evaluaciones[0],
-                  },
-                  legend: {
-                    display: false,
-                  },
+            this.todasSucursalesG = this.comprobarBusquedaSucursales(codSucursal);
+            //Formateo y mapeo de datos para imprimir valores en grafico
+            let evOrig = this.servicioGra;
+            let evaluaciones = (this.selectedItems[0]=="-2" ? ["Todos los usuarios"] : servicioGra.turnos.map((res) => res.usuario));  
+            let Nombres: string | any[] ;
+            let valNombres: number[] ;
+            let totalPorc: number ;
+            let porcts: string[] | number[] ;
+  
+            if (this.opcionCuatro) {
+              Nombres = ["Excelente", "Bueno", "Regular", "Malo"];
+              valNombres = [0, 0, 0, 0];
+              totalPorc = 0;
+              porcts = [0, 0, 0, 0];
+            } else {
+              Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
+              valNombres = [0, 0, 0, 0, 0];
+              totalPorc = 0;
+              porcts = [0, 0, 0, 0, 0];
+            }
+            
+            //Empate para obtener porcentajes de Nombres que no posea la consulta (Si una consulta no tiene Malos, aqui se completa para mostrar mejor los datos al usuario)
+            for (var i = 0; i < Nombres.length; i++) {
+              if (evOrig.find((val) => val.evaluacion === Nombres[i]) != null) {
+                valNombres[i] = evOrig.find(
+                  (val) => val.evaluacion === Nombres[i]
+                ).total;
+              }
+              totalPorc = totalPorc + valNombres[i];
+            }
+            for (var i = 0; i < Nombres.length; i++) {
+              porcts[i] =
+                Math.round(((valNombres[i] * 100) / totalPorc) * 1000) / 1000;
+              Nombres[i] = Nombres[i] + "\n" + porcts[i] + "%";
+            }
+            //Seteo de titulo de grafico
+            var titulo = true;
+            if (this.tipo == "bar") {
+              titulo = false;
+            } else {
+              titulo = true;
+            }
+  
+            //Creacion de chart [imagen] de tipo canvas si es bar
+            if (this.tipo == "bar") {
+              //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
+              this.chart = new Chart("canvas", {
+                type: this.tipo,
+                data: {
+                  labels: Nombres, //eje x
+                  datasets: [
+                    {
+                      label: "",
+                      data: valNombres,
+                      backgroundColor: [
+                        "rgba(51, 172, 32, 0.4)",
+                        "rgba(55, 171, 228, 1)",
+                        "rgba(213, 220, 102, 0.77)",
+                        "rgba(251, 182, 55, 0.77)",
+                        "rgba(149, 148, 204, 0.86)",
+                      ],
+                    },
+                  ],
                 },
-                responsive: true,
-                maintainAspectRatio: true,
-              },
-            });
-          } else {
-            //Creacion de chart [imagen] de tipo canvas de tipo pie
-            //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
-            this.chart = new Chart("canvas", {
-              //type: this.tipo,
-              type: 'pie',
-              data: {
-                labels: Nombres, //eje x
-                datasets: [
-                  {
-                    label: evaluaciones[0],
-                    data: valNombres, //eje y
-                    backgroundColor: [
-                      "rgba(51, 172, 32, 0.4)",
-                      "rgba(55, 171, 228, 1)",
-                      "rgba(213, 220, 102, 0.77)",
-                      "rgba(251, 182, 55, 0.77)",
-                      "rgba(149, 148, 204, 0.86)",
-                    ],
+                options: {
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: evaluaciones[0],
+                    },
+                    legend: {
+                      display: false,
+                    },
                   },
-                ],
-              },
-              options: {
-                plugins: {
-                  title: {
-                    display: titulo,
-                    text: evaluaciones[0],
-                  },
-                  datalabels: {
-                    color: "black",
-                    labels: {
-                      title: {
-                        font: {
-                          weight: "bold",
+                  responsive: true,
+                  maintainAspectRatio: true,
+                },
+              });
+            } else {
+              //Creacion de chart [imagen] de tipo canvas de tipo pie
+              //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
+              this.chart = new Chart("canvas", {
+                //type: this.tipo,
+                type: 'pie',
+                data: {
+                  labels: Nombres, //eje x
+                  datasets: [
+                    {
+                      label: evaluaciones[0],
+                      data: valNombres, //eje y
+                      backgroundColor: [
+                        "rgba(51, 172, 32, 0.4)",
+                        "rgba(55, 171, 228, 1)",
+                        "rgba(213, 220, 102, 0.77)",
+                        "rgba(251, 182, 55, 0.77)",
+                        "rgba(149, 148, 204, 0.86)",
+                      ],
+                    },
+                  ],
+                },
+                options: {
+                  plugins: {
+                    title: {
+                      display: titulo,
+                      text: evaluaciones[0],
+                    },
+                    datalabels: {
+                      color: "black",
+                      labels: {
+                        title: {
+                          font: {
+                            weight: "bold",
+                          },
                         },
                       },
                     },
                   },
+                  responsive: true,
                 },
-                responsive: true,
-              },
-            });
-          }
-        },
-        (error) => {
-          if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-            this.servicioGra = null;
-            this.malRequestGra = true;
-            this.malRequestGraPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
-            if (this.servicioGra == null) {
-              this.configG.totalItems = 0;
-            } else {
-              this.configG.totalItems = this.servicioGra.length;
+              });
             }
-            //Por error 400 se setea elementos de paginacion
-            this.configG = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            //Se informa que no se encontraron registros
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+          },
+          (error) => {
+            if (error.status == 400) {
+              //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+              this.servicioGra = null;
+              this.malRequestGra = true;
+              this.malRequestGraPag = true;
+              //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+              //caso contrario se setea la cantidad de elementos
+              if (this.servicioGra == null) {
+                this.configG.totalItems = 0;
+              } else {
+                this.configG.totalItems = this.servicioGra.length;
+              }
+              //Por error 400 se setea elementos de paginacion
+              this.configG = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
-    //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
-    if (this.chart != undefined || this.chart != null) {
-      this.chart.destroy();
+        );
+      //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
+      if (this.chart != undefined || this.chart != null) {
+        this.chart.destroy();
+      }
     }
   }
 

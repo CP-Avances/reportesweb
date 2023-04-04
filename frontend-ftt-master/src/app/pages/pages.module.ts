@@ -13,6 +13,8 @@ import { IngresoclientesComponent } from './ingresoclientes/ingresoclientes.comp
 import { AtendidosmultiplesComponent } from './atendidosmultiples/atendidosmultiples.component';
 import { SharedModule } from '../shared/shared.module';
 import { AppRoutingModule } from '../app-routing.module';
+import { MatSelectModule } from '@angular/material/select';
+
 
 import { NgxPaginationModule } from 'ngx-pagination';
 import { OpinionComponent } from './opinion/opinion.component';
@@ -51,7 +53,8 @@ import { ConfiguracionComponent } from './configuracion/configuracion.component'
     AppRoutingModule,
     NgxPaginationModule,
     NgSelectModule,
-    FormsModule
+    FormsModule,
+    MatSelectModule
   ]
 })
 export class PagesModule { }

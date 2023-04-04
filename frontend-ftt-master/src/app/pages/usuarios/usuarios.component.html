@@ -1,5 +1,5 @@
 <div class="card">
-    <h5 class="card-header">USUARIOS</h5>
+    <h2 class="card-header">CAJEROS</h2>
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -49,7 +49,7 @@
                         </div>
                     </div>
                     <br>
-                    <h2>TURNOS POR FECHA</h2>
+                    <h3>TURNOS POR FECHA</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentTurnosFecha" #contentTurnosFecha
@@ -58,7 +58,7 @@
                                 <tr>
                                     <th class="text-center" *ngIf="todasSucursalesTF" style="width: 200px;">Sucursal
                                     </th>
-                                    <th class="text-center">Usuario</th>
+                                    <th class="text-center">Cajero</th>
                                     <th class="text-center">Servicio</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
@@ -110,13 +110,16 @@
                                         [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
                                 </select>
                                 <br><br>
-                                <select class="form-control" name="selectmake" #codCajeroPromAtencion>
-                                    <option value="-1" selected>Seleccione usuario...</option>
-                                    <option value="-2">Todos los usuarios</option>
-                                    <option *ngFor="let cajerosUsuarios of cajerosUsuarios"
-                                        value="{{cajerosUsuarios.caje_codigo}}" [ngValue]="cajerosUsuarios.caje_codigo">
-                                        {{cajerosUsuarios.caje_nombre}}</option>
-                                </select>
+                                <!-- <mat-form-field> -->
+                                    <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
+                                        <mat-option [value]="-2"  (click)="selectAll()" >
+                                            Todos los cajeros
+                                        </mat-option>
+                                        <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo" [disabled]="allSelected">
+                                            {{option.caje_nombre}}
+                                        </mat-option>
+                                    </mat-select>
+                                <!-- </mat-form-field> -->
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarTiempoPromedioAtencion()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -125,7 +128,7 @@
                         </div>
                     </div>
                     <br>
-                    <h2>TIEMPO PROMEDIO DE ATENCIÓN</h2>
+                    <h3>TIEMPO PROMEDIO DE ATENCIÓN</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentPronAtencion" #contenPromAtencion
@@ -134,7 +137,7 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTPA"
                                         style="width: 300px;">Sucursal</th>
-                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Cajero</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Tiempo</th>
                                     <th scope="col" class="text-center">Turnos</th>
@@ -188,7 +191,7 @@
                         </div>
                     </div>
                     <br>
-                    <h2>ENTRADAS Y SALIDAS</h2>
+                    <h3>ENTRADAS Y SALIDAS</h3>
                     <hr>
                     <div class="table-responsive">
                         <table id="contentEntradaSalida" class="table table-striped" #contentEntradaSalida
@@ -197,7 +200,7 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesES" style="width: 300px;">
                                         Sucursal</th>
-                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Cajero</th>
                                     <th scope="col" class="text-center">Fecha y hora</th>
                                     <th scope="col" class="text-center">Razón</th>
                                 </tr>
@@ -242,13 +245,14 @@
                                         [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
                                 </select>
                                 <br><br>
-                                <select class="form-control" name="selectmake" #codCajeroAtencionUsua>
-                                    <option value="-1" selected>Seleccione usuario...</option>
-                                    <option value="-2">Todos los usuarios</option>
-                                    <option *ngFor="let cajerosUsuarios of cajerosUsuarios"
-                                        value="{{cajerosUsuarios.caje_codigo}}" [ngValue]="cajerosUsuarios.caje_codigo">
-                                        {{cajerosUsuarios.caje_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
+                                    <mat-option [value]="-2"  (click)="selectAll()" >
+                                        Todos los cajeros
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo" [disabled]="allSelected">
+                                        {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarAtencionUsuario()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -257,7 +261,7 @@
                         </div>
                     </div>
                     <br>
-                    <h2>ATENCIÓN AL USUARIO</h2>
+                    <h3>ATENCIÓN AL USUARIO</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentAtencionUsua" #contentAtencionUsua

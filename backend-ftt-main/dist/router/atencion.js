@@ -9,11 +9,16 @@ const router = (0, express_1.Router)();
 /** ********************************************************************************************************** **
  ** **                                    TIEMPOS COMPLETOS                                                 ** **
  ** ********************************************************************************************************** **/
-router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req, res) => {
+router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    let todosCajeros = false;
+    if (codigosArray.includes("-2")) {
+        todosCajeros = true;
+    }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario,
             serv_nombre AS Servicio, date_format(turn_fecha, '%Y-%m-%d') AS Fecha,
@@ -27,7 +32,8 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req,
             AND u.usua_codigo = c.usua_codigo
             AND u.empr_codigo = e.empr_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
-            ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+            AND u.usua_codigo != 2
+            ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
             ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
         GROUP BY Servicio, Usuario, Fecha
         ORDER BY Servicio, Usuario, Fecha;
@@ -129,11 +135,16 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
 /** ******************************************************************************************************* **
  ** **                                     ATENCION SERVICIO                                             ** **
  ** ******************************************************************************************************* **/
-router.get('/atencionservicio/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req, res) => {
+router.get('/atencionservicio/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    let todosCajeros = false;
+    if (codigosArray.includes("-2")) {
+        todosCajeros = true;
+    }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio,
             SUM(turn_estado = 1) AS Atendidos,
@@ -145,7 +156,8 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:cCajero/:sucursal', (req,
             AND t.serv_codigo = s.serv_codigo
             AND u.empr_codigo = e.empr_codigo
             AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-            ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+            AND u.usua_codigo != 2
+            ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
             ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
         GROUP BY Servicio, Nombre;
         `;

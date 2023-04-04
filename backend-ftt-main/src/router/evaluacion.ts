@@ -251,13 +251,20 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/promediose/:fechaDesde/:fechaHasta/:cCajero/:sucursal/:opcion",
+  "/promediose/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
     const opcion = req.params.opcion;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+
+    let todosCajeros = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    } 
 
     let query;
 
@@ -279,7 +286,8 @@ router.get(
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND eval_califica != 50
-        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        AND a.usua_codigo != 2
+        ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
       `;      
@@ -302,7 +310,8 @@ router.get(
           AND e.empr_codigo = a.empr_codigo
           AND a.usua_codigo = c.usua_codigo
           AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-          ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+          AND a.usua_codigo != 2
+          ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
           ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
         GROUP BY f.eval_fecha, f.usua_codigo;
         `;
@@ -329,13 +338,20 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/maximosminimose/:fechaDesde/:fechaHasta/:cCajero/:sucursal/:opcion",
+  "/maximosminimose/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
     const opcion = req.params.opcion;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+
+    let todosCajeros = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    } 
 
     let query;
 
@@ -372,7 +388,8 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        AND a.usua_codigo != 2
+        ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
         AND eval_califica != 50
       GROUP BY f.eval_fecha, f.usua_codigo;
@@ -421,7 +438,8 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        AND a.usua_codigo != 2
+        ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
       `;
@@ -448,12 +466,20 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/omitidas/:fechaDesde/:fechaHasta/:cCajero/:sucursal",
+  "/omitidas/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+
+    let todosCajeros = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    } 
+
     const query = `
       SELECT e.empr_nombre as nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         COUNT(eval_califica) AS Total
@@ -462,7 +488,8 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        AND a.usua_codigo != 2
+        ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
       GROUP BY  f.eval_fecha, f.usua_codigo;
       `;
@@ -501,10 +528,12 @@ router.get("/graficobarras/:opcion", (req: Request, res: Response) => {
         FROM evaluacion, usuarios 
         WHERE evaluacion.usua_codigo = usuarios.usua_codigo 
         AND eval_califica != 50
+        AND usuarios.usua_codigo != 2
     GROUP BY eval_califica)as tl),2) AS porcentaje
     FROM evaluacion, usuarios 
     WHERE evaluacion.usua_codigo = usuarios.usua_codigo
     AND eval_califica != 50
+    AND usuarios.usua_codigo != 2
     GROUP BY eval_califica ORDER BY eval_califica DESC;
     `;
   } else {
@@ -517,10 +546,12 @@ router.get("/graficobarras/:opcion", (req: Request, res: Response) => {
       IF((eval_califica) >= 10, 'Malo', 'No existe'))))) AS evaluacion,
 		ROUND((COUNT(eval_califica)*100)/(SELECT SUM(c) FROM (SELECT COUNT(eval_califica) AS c 
         FROM evaluacion, usuarios 
-        WHERE evaluacion.usua_codigo = usuarios.usua_codigo 
+        WHERE evaluacion.usua_codigo = usuarios.usua_codigo
+        AND usuarios.usua_codigo != 2 
     GROUP BY eval_califica)as tl),2) AS porcentaje
     FROM evaluacion, usuarios 
     WHERE evaluacion.usua_codigo = usuarios.usua_codigo
+    AND usuarios.usua_codigo != 2
     GROUP BY eval_califica ORDER BY eval_califica DESC;
     `;
   }
@@ -541,13 +572,20 @@ router.get("/graficobarras/:opcion", (req: Request, res: Response) => {
 });
 
 router.get(
-  "/graficobarrasfiltro/:fechaDesde/:fechaHasta/:cCajero/:sucursal/:opcion",
+  "/graficobarrasfiltro/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
     const opcion = req.params.opcion;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+
+    let todosCajeros = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    } 
 
     let query;
 
@@ -563,7 +601,8 @@ router.get(
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND cajero.caje_codigo = ${cCajero}`}
+        AND usuarios.usua_codigo != 2
+        ${todosCajeros ? "" : `AND cajero.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND usuarios.empr_codigo = ${cSucursal}` : ""}
         AND eval_califica != 50
       GROUP BY eval_califica)as tl),3) AS porcentaje
@@ -572,7 +611,8 @@ router.get(
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND usuarios.empr_codigo = e.empr_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND cajero.caje_codigo = ${cCajero}`}
+        AND usuarios.usua_codigo != 2
+        ${todosCajeros ? "" : `AND cajero.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND usuarios.empr_codigo = ${cSucursal}` : ""}
         AND eval_califica != 50
       GROUP BY eval_califica, usua_nombre 
@@ -591,7 +631,8 @@ router.get(
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND cajero.caje_codigo = ${cCajero}`}
+        AND usuarios.usua_codigo != 2
+        ${todosCajeros ? "" : `AND cajero.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND usuarios.empr_codigo = ${cSucursal}` : ""}
       GROUP BY eval_califica)as tl),3) AS porcentaje
       FROM evaluacion, usuarios, cajero, empresa e 
@@ -599,7 +640,8 @@ router.get(
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND usuarios.empr_codigo = e.empr_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND cajero.caje_codigo = ${cCajero}`}
+        AND usuarios.usua_codigo != 2
+        ${todosCajeros ? "" : `AND cajero.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND usuarios.empr_codigo = ${cSucursal}` : ""}
       GROUP BY eval_califica, usua_nombre 
       ORDER BY eval_califica DESC;
@@ -779,13 +821,20 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/evaluaciongrupos/:fechaDesde/:fechaHasta/:cCajero/:sucursal/:opcion",
+  "/evaluaciongrupos/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const cSucursal = req.params.sucursal;
     const opcion = req.params.opcion;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+
+    let todosCajeros = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    } 
 
     let query;
 
@@ -802,7 +851,8 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        AND a.usua_codigo != 2
+        ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
         AND eval_califica != 50
       GROUP BY f.eval_fecha, f.usua_codigo;
@@ -820,7 +870,8 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${cCajero == "-2" ? "" : `AND c.caje_codigo = ${cCajero}`}
+        AND a.usua_codigo != 2
+        ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
         ${cSucursal != "-1" ? `AND a.empr_codigo = ${cSucursal}` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
       `;

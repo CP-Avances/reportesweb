@@ -81,7 +81,7 @@ router.get("/getallcajeros/:empresa", (req, res) => {
     let query;
     if (cEmpresa == "-1") {
         query = `
-            SELECT c.caje_codigo, c.usua_codigo, c.caje_apellido, c.caje_nombre, c.caje_estado 
+            SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado 
             FROM cajero c, usuarios u 
             WHERE u.usua_codigo = c.usua_codigo
             AND u.usua_codigo != 2;
@@ -89,7 +89,7 @@ router.get("/getallcajeros/:empresa", (req, res) => {
     }
     else {
         query = `
-            SELECT c.caje_codigo, c.usua_codigo, c.caje_apellido, c.caje_nombre, c.caje_estado 
+            SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado 
             FROM cajero c, usuarios u 
             WHERE u.usua_codigo = c.usua_codigo AND u.empr_codigo = ${cEmpresa}
             AND u.usua_codigo != 2;
@@ -114,11 +114,17 @@ router.get("/getallcajeros/:empresa", (req, res) => {
 /** ************************************************************************************************************ **
  ** **                               TIEMPO PROMEDIO DE ATENCION                                              ** **
  ** ************************************************************************************************************ **/
-router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:cajero/:sucursal", (req, res) => {
+router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cajero;
     const cSucursal = req.params.sucursal;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    console.log(cSucursal);
+    let todosCajeros = false;
+    if (codigosArray.includes("-2")) {
+        todosCajeros = true;
+    }
     let query = `
     SELECT e.empr_nombre AS nombreEmpresa, serv_nombre AS Servicio, caje_nombre AS Nombre, 
     COUNT(turn_codigo) AS Turnos, 
@@ -131,13 +137,13 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:cajero/:sucursal", 
     AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
     AND u.usua_codigo != 2
     `;
-    if (cCajero == "-2") {
+    if (todosCajeros) {
         if (cSucursal != "-1") {
             query += `AND u.empr_codigo = '${cSucursal}' `;
         }
     }
     else {
-        query += `AND c.caje_codigo = ${cCajero} `;
+        query += `AND c.caje_codigo IN (${listaCodigos}) `;
     }
     query += `GROUP BY nombreEmpresa, Nombre, Servicio;`;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -263,11 +269,16 @@ router.get("/atencionusuario", (req, res) => {
         }
     });
 });
-router.get("/atencionusuario/:fechaDesde/:fechaHasta/:cajero/:sucursal", (req, res) => {
+router.get("/atencionusuario/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cajero;
     const cSucursal = req.params.sucursal;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    let todosCajeros = false;
+    if (codigosArray.includes("-2")) {
+        todosCajeros = true;
+    }
     let query = `
     SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio, 
         SUM(turn_estado = 1) AS Atendidos 
@@ -279,13 +290,13 @@ router.get("/atencionusuario/:fechaDesde/:fechaHasta/:cajero/:sucursal", (req, r
         AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND u.usua_codigo != 2 
   `;
-    if (cCajero == "-2") {
+    if (todosCajeros) {
         if (cSucursal != "-1") {
             query += `AND u.empr_codigo = '${cSucursal}' `;
         }
     }
     else {
-        query += `AND c.caje_codigo = ${cCajero} `;
+        query += `AND c.caje_codigo IN (${listaCodigos}) `;
     }
     query += `GROUP BY Nombre, Servicio;`;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

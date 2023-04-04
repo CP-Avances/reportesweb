@@ -25,6 +25,7 @@ const EXCEL_EXTENSION = '.xlsx';
 export class DistestadoturnosComponent implements OnInit {
   //Seteo de fechas primer dia del mes actual y dia actual
   fromDate;toDate;
+
   //captura de elementos de la interfaz visual para tratarlos y capturar datos
   @ViewChild('fromDateDist') fromDateDist: ElementRef;
   @ViewChild('toDateDist') toDateDist: ElementRef;
@@ -39,35 +40,47 @@ export class DistestadoturnosComponent implements OnInit {
   servicioDist: any = [];
   servicioRes: any = [];
   sucursales: any[];
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursalesD: boolean = false;
   todasSucursalesR: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   cajerosDist: any = [];
   malRequestDist: boolean = false;
   malRequestDistPag: boolean = false;
   malRequestDistRes: boolean = false;
   malRequestDistPagRes: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configDE: any;
   configDERes: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: 'Anterior',
     nextLabel: 'Siguiente'
   };
+
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year+"-"+this.month+"-"+this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  allSelected = false;
+  selectedItems: string[] = [];
 
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
@@ -111,14 +124,18 @@ export class DistestadoturnosComponent implements OnInit {
     this.imagenesService.cargarImagen().then((result: string) => {
       this.urlImagen = result;
     }).catch((error) => {
-      // SE INFORMA QUE NO SE PUDO CARGAR LA IMAGEN
-      this.toastr.info("Error al cargar el logo, se utilizará la imagen por defecto", "Upss !!!.", {
-        timeOut: 6000,
-      });
       Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
         (result) => (this.urlImagen = result)
       );
     });
+  }
+
+  selectAll() {
+    if (this.allSelected==false) {
+      this.allSelected = true;
+    } else {
+      this.allSelected = false;
+    }
   }
 
   //Se desloguea de la aplicacion
@@ -150,6 +167,8 @@ export class DistestadoturnosComponent implements OnInit {
   limpiar() {
     this.getCajeros("-1");
     this.getSucursales();
+    this.selectedItems = [];
+    this.allSelected = false;
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -168,88 +187,90 @@ export class DistestadoturnosComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateDist.nativeElement.value.toString().trim();
     var fH = this.toDateDist.nativeElement.value.toString().trim();
-    var cServ = this.codCajeroDist.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalDist.nativeElement.value.toString().trim();
 
-    this.serviceService.getdistribucionturnos(fD, fH, parseInt(cServ), parseInt(codSucursal)).subscribe((servicio: any) => {
-      //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-      this.servicioDist = servicio.turnos;
-      this.malRequestDist = false;
-      this.malRequestDistPag = false;
-      //Seteo de paginacion cuando se hace una nueva busqueda
-      if (this.configDE.currentPage > 1) {
-        this.configDE.currentPage = 1;
-      }
-      this.todasSucursalesD = this.comprobarBusquedaSucursales(codSucursal);
-    },
-      error => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioDist = null;
-          this.malRequestDist = true;
-          this.malRequestDistPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioDist == null) {
-            this.configDE.totalItems = 0;
-          } else {
-            this.configDE.totalItems = this.servicioDist.length;
-          }
-          //Por error 400 se setea elementos de paginacion
-          this.configDE = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+    if (this.selectedItems.length!==0) { 
+      this.serviceService.getdistribucionturnos(fD, fH, this.selectedItems, parseInt(codSucursal)).subscribe((servicio: any) => {
+        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        this.servicioDist = servicio.turnos;
+        this.malRequestDist = false;
+        this.malRequestDistPag = false;
+        //Seteo de paginacion cuando se hace una nueva busqueda
+        if (this.configDE.currentPage > 1) {
+          this.configDE.currentPage = 1;
         }
-      });
+        this.todasSucursalesD = this.comprobarBusquedaSucursales(codSucursal);
+      },
+        error => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioDist = null;
+            this.malRequestDist = true;
+            this.malRequestDistPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioDist == null) {
+              this.configDE.totalItems = 0;
+            } else {
+              this.configDE.totalItems = this.servicioDist.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configDE = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        });
+    }
   }
 
   leerDistribucionTurnosResumen() {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateDistRes.nativeElement.value.toString().trim();
     var fH = this.toDateDistRes.nativeElement.value.toString().trim();
-    var cServ = this.codCajeroDistRes.nativeElement.value.toString().trim();
     let codSucursal = this.codSucursalDistRes.nativeElement.value.toString().trim();
     
-    this.serviceService.getdistribucionturnosresumen(fD, fH, parseInt(cServ), parseInt(codSucursal)).subscribe((servicioRes: any) => {
-      //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-      this.servicioRes = servicioRes.turnos;
-      this.malRequestDistPagRes = false;
-      this.malRequestDistRes = false;
-      //Seteo de paginacion cuando se hace una nueva busqueda
-      if (this.configDERes.currentPage > 1) {
-        this.configDERes.currentPage = 1;
-      }
-      this.todasSucursalesR = this.comprobarBusquedaSucursales(codSucursal);
-    },
-      error => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioRes = null;
-          this.malRequestDistRes = true;
-          this.malRequestDistPagRes = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioRes == null) {
-            this.configDERes.totalItems = 0;
-          } else {
-            this.configDERes.totalItems = this.servicioRes.length;
-          }
-          //Por error 400 se setea elementos de paginacion
-          this.configDERes = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+    if (this.selectedItems.length!==0) { 
+      this.serviceService.getdistribucionturnosresumen(fD, fH, this.selectedItems, parseInt(codSucursal)).subscribe((servicioRes: any) => {
+        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        this.servicioRes = servicioRes.turnos;
+        this.malRequestDistPagRes = false;
+        this.malRequestDistRes = false;
+        //Seteo de paginacion cuando se hace una nueva busqueda
+        if (this.configDERes.currentPage > 1) {
+          this.configDERes.currentPage = 1;
         }
-      });
+        this.todasSucursalesR = this.comprobarBusquedaSucursales(codSucursal);
+      },
+        error => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioRes = null;
+            this.malRequestDistRes = true;
+            this.malRequestDistPagRes = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioRes == null) {
+              this.configDERes.totalItems = 0;
+            } else {
+              this.configDERes.totalItems = this.servicioRes.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configDERes = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        });
+    }
   }
 
   obtenerNombreSucursal(cod: string){
