@@ -112,7 +112,7 @@
                                 <br><br>
                                 <!-- <mat-form-field> -->
                                     <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
-                                        <mat-option [value]="-2"  (click)="selectAll()" >
+                                        <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
                                             Todos los cajeros
                                         </mat-option>
                                         <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo" [disabled]="allSelected">
@@ -246,7 +246,7 @@
                                 </select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
-                                    <mat-option [value]="-2"  (click)="selectAll()" >
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
                                         Todos los cajeros
                                     </mat-option>
                                     <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo" [disabled]="allSelected">

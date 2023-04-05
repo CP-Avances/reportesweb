@@ -1,5 +1,5 @@
 <div class="card">
-    <h5 class="card-header">DISTRIBUCIÓN Y ESTADO DE TURNOS</h5>
+    <h2 class="card-header">DISTRIBUCIÓN Y ESTADO DE TURNOS</h2>
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -33,9 +33,9 @@
                                     <option value="-2" >Todos los usuarios</option>
                                     <option *ngFor="let cajerosDist of cajerosDist" value="{{cajerosDist.caje_codigo}}" [ngValue]="cajerosDist.caje_codigo">{{cajerosDist.caje_nombre}}</option>
                                 </select> -->
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
-                                    <mat-option [value]="-2"  (click)="selectAll()" >
-                                        Todos los usuarios
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Cajeros">
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
+                                        Todos los cajeros
                                     </mat-option>
                                     <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo" [disabled]="allSelected">
                                         {{option.caje_nombre}}
@@ -49,14 +49,14 @@
                         </div>
                     </div>   
                     <br>
-                    <h2>DISTRIBUCIÓN Y ESTADO DE TURNOS</h2>
+                    <h3>DISTRIBUCIÓN Y ESTADO DE TURNOS</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentDist" #contentDist #TABLEDist #table>
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesD" style="width: 300px;">Sucursal</th>
-                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Cajero</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Total Turnos</th>
@@ -110,9 +110,9 @@
                                     <option value="-2">Todos los usuarios</option>
                                     <option *ngFor="let cajerosDist of cajerosDist" value="{{cajerosDist.caje_codigo}}" [ngValue]="cajerosDist.caje_codigo">{{cajerosDist.caje_nombre}}</option>
                                 </select> -->
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
-                                    <mat-option [value]="-2"  (click)="selectAll()" >
-                                        Todos los usuarios
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Cajeros">
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
+                                        Todos los cajeros
                                     </mat-option>
                                     <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo" [disabled]="allSelected">
                                         {{option.caje_nombre}}
@@ -126,14 +126,14 @@
                         </div>
                     </div>   
                     <br>
-                    <h2>RESUMEN DE DISTRIBUCIÓN Y TURNOS</h2>
+                    <h3>RESUMEN DE DISTRIBUCIÓN Y TURNOS</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentDistRes" #contentDist #TABLEDistRes #table>
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesR" style="width: 300px;">Sucursal</th>
-                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center">Cajero</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">T. Atendidos</th>
                                     <th scope="col" class="text-center">No Atendidos</th>

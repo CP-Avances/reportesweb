@@ -82,6 +82,9 @@ export class DistestadoturnosComponent implements OnInit {
   allSelected = false;
   selectedItems: string[] = [];
 
+  //MOSTRAR CAJEROS
+  mostrarCajeros: boolean = true;
+
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router, public datePipe: DatePipe,
@@ -156,10 +159,12 @@ export class DistestadoturnosComponent implements OnInit {
   getCajeros(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosDist: any) => {
       this.cajerosDist = cajerosDist.cajeros;
+      this.mostrarCajeros = true;
     },
     (error)=>{
       if (error.status == 400) {
         this.cajerosDist=[];
+        this.mostrarCajeros = false;
       }
     });
   }

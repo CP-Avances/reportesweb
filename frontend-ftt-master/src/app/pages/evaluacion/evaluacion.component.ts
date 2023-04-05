@@ -145,6 +145,9 @@ export class EvaluacionComponent implements OnInit {
   allSelected = false;
   selectedItems: string[] = [];
 
+  //MOSTRAR CAJEROS
+  mostrarCajeros: boolean = true;
+
   //Orientacion
   orientacion: string;
 
@@ -297,10 +300,12 @@ export class EvaluacionComponent implements OnInit {
   getCajeros(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
       this.cajerosEval = cajeros.cajeros;
+      this.mostrarCajeros = true;
     },
       (error) => {
         if (error.status == 400) {
           this.cajerosEval = [];
+          this.mostrarCajeros = false;
         }
       });
   }
@@ -315,10 +320,12 @@ export class EvaluacionComponent implements OnInit {
   getCajerosOmitidas(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosO: any) => {
       this.cajerosEvalOmitidas = cajerosO.cajeros;
+      this.mostrarCajeros = true;
     },
       (error) => {
         if (error.status == 400) {
           this.cajerosEvalOmitidas = [];
+          this.mostrarCajeros = false;
         }
       });
   }
@@ -326,10 +333,12 @@ export class EvaluacionComponent implements OnInit {
   getCajerosG(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosG: any) => {
       this.cajerosG = cajerosG.cajeros;
+      this.mostrarCajeros = true;
     },
       (error) => {
         if (error.status == 400) {
           this.cajerosG = [];
+          this.mostrarCajeros = false;
         }
       });
   }

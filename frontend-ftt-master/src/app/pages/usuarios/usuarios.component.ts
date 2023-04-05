@@ -110,6 +110,9 @@ export class UsuariosComponent implements OnInit {
   selectedItems: string[] = [];
   sucursalesSeleccionadas: string[] = [];
 
+  //MOSTRAR CAJEROS
+  mostrarCajeros: boolean = true;
+
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
   constructor(
@@ -219,10 +222,12 @@ export class UsuariosComponent implements OnInit {
     this.serviceService.getAllCajerosS(sucursal).subscribe(
       (cajeros: any) => {
         this.cajerosUsuarios = cajeros.cajeros;
+        this.mostrarCajeros = true;
       },
       (error) => {
         if (error.status == 400) {
           this.cajerosUsuarios = [];
+          this.mostrarCajeros = false;
         }
       }
     );

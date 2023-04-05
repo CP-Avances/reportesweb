@@ -121,6 +121,9 @@ export class AtencionComponent implements OnInit {
   allSelected = false;
   selectedItems: string[] = [];
 
+  //MOSTRAR CAJEROS
+  mostrarCajeros: boolean = true;
+
   // ORIENTACION
   orientacion: string;
 
@@ -242,10 +245,12 @@ export class AtencionComponent implements OnInit {
   getCajeros(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
       this.cajerosAtencion = cajeros.cajeros;
+      this.mostrarCajeros = true;
     },
       (error) => {
         if (error.status == 400) {
           this.cajerosAtencion = [];
+          this.mostrarCajeros = false;
         }
       });
   }
