@@ -35,43 +35,58 @@ export class OcupacionComponent implements OnInit {
   @ViewChild("toDateOcupG") toDateOcupG: ElementRef;
   @ViewChild("codSucursalOCs") codSucursalOCs: ElementRef;
   @ViewChild("codSucursalOCsG") codSucursalOCsG: ElementRef;
+
   //Variables de la grafica
   chartPie: any;
   chartBar: any;
   tipo: string;
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicio: any;
   serviciooc: any = [];
   servicioocg: any = [];
   sucursales: any = [];
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursalesO: boolean = false;
   todasSucursalesOG: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestOcupOS: boolean = false;
   malRequestOcupOSPag: boolean = false;
   malRequestOcupG: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configOS: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
+
   //Control de labels por ancho de pantalla
   legend: any;
+
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   //Orientacion
   orientacion: string;
@@ -119,6 +134,24 @@ export class OcupacionComponent implements OnInit {
     });
   }
 
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'todasSucursalesO':
+            this.todasSucursalesO = !this.todasSucursalesO;
+            break;
+        case 'todasSucursalesOG':
+            this.todasSucursalesOG = !this.todasSucursalesOG;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
+    }
+  }
+
   //Se desloguea de la aplicacion
   salir() {
     this.auth.logout();
@@ -147,6 +180,10 @@ export class OcupacionComponent implements OnInit {
 
   limpiar() {
     this.getSucursales();
+    this.todasSucursalesO = false;
+    this.todasSucursalesOG = false;
+    this.seleccionMultiple = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -158,9 +195,9 @@ export class OcupacionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupOS.nativeElement.value.toString().trim();
     var fH = this.toDateOcupOS.nativeElement.value.toString().trim();
-    var cod =  this.codSucursalOCs.nativeElement.value.toString().trim();
+    // var cod =  this.codSucursalOCs.nativeElement.value.toString().trim();
 
-    this.serviceService.getocupacionservicios(fD, fH, cod).subscribe(
+    this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
       (serviciooc: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.serviciooc = serviciooc.turnos;
@@ -170,7 +207,7 @@ export class OcupacionComponent implements OnInit {
         if (this.configOS.currentPage > 1) {
           this.configOS.currentPage = 1;
         }
-        this.todasSucursalesO = this.comprobarBusquedaSucursales(cod);
+        // this.todasSucursalesO = this.comprobarBusquedaSucursales(cod);
       },
       (error) => {
         if (error.status == 400) {
@@ -203,19 +240,20 @@ export class OcupacionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
-    var cod =  this.codSucursalOCsG.nativeElement.value.toString().trim();
+    // var cod =  this.codSucursalOCsG.nativeElement.value.toString().trim();
+    this.malRequestOcupOS = false;
 
-    this.serviceService.getocupacionservicios(fD, fH, cod).subscribe(
+    this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
       (servicioocg: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioocg = servicioocg.turnos;
-        this.malRequestOcupOS = false;
+        // this.malRequestOcupOS = false;
         this.malRequestOcupOSPag = false;
         //Seteo de paginacion cuando se hace una nueva busqueda
         if (this.configOS.currentPage > 1) {
           this.configOS.currentPage = 1;
         }
-        this.todasSucursalesOG = this.comprobarBusquedaSucursales(cod);
+        // this.todasSucursalesOG = this.comprobarBusquedaSucursales(cod);
       },
       (error) => {
         if (error.status == 400) {
@@ -243,7 +281,7 @@ export class OcupacionComponent implements OnInit {
       }
     );
 
-    this.serviceService.getgraficoocupacion(fD, fH, cod).subscribe(
+    this.serviceService.getgraficoocupacion(fD, fH, this.sucursalesSeleccionadas).subscribe(
       (servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         //Se verifica el ancho de pantalla para colocar o no labels

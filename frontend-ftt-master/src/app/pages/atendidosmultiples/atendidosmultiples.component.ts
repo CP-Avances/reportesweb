@@ -28,21 +28,28 @@ export class AtendidosmultiplesComponent implements OnInit {
   @ViewChild('fromDateAtM') fromDateAtM: ElementRef;
   @ViewChild('toDateAtM') toDateAtM: ElementRef;
   @ViewChild('codSucursalAtM') codSucursalAtM: ElementRef;
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioAtMul: any=[];
   sucursales: any[];
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursales: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestAtM: boolean = false;
   malRequestAtMPag: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configAtM: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: 'Anterior',
@@ -54,8 +61,13 @@ export class AtendidosmultiplesComponent implements OnInit {
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year+"-"+this.month+"-"+this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
@@ -94,6 +106,21 @@ export class AtendidosmultiplesComponent implements OnInit {
     });
   }
 
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'todasSucursales':
+            this.todasSucursales = !this.todasSucursales;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
+    }
+  }
+
   //Se obtiene dia actual
   getlastday() {
     this.toDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
@@ -123,9 +150,9 @@ export class AtendidosmultiplesComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
 
-    this.serviceService.getatendidosmultiples(fD, fH, cod).subscribe((servicio: any) => {
+    this.serviceService.getatendidosmultiples(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
       //Si se consulta correctamente se guarda en variable y setea banderas de tablas
       this.servicioAtMul = servicio.turnos;
       this.malRequestAtM = false;
@@ -134,7 +161,7 @@ export class AtendidosmultiplesComponent implements OnInit {
       if (this.configAtM.currentPage > 1) {
         this.configAtM.currentPage = 1;
       }
-      this.todasSucursales = this.comprobarBusquedaSucursales(cod);
+      // this.todasSucursales = this.comprobarBusquedaSucursales(cod);
     },
       error => {
         if (error.status == 400) {

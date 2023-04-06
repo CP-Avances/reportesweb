@@ -26,9 +26,9 @@ File: scss
     display: none;
     color: rgba(255, 255, 255, 0.8); }
   .topbar .navbar-light .navbar-nav .nav-item > a.nav-link {
-    color: #ffffff !important; }
+    color: #a6b7bf !important; }
     .topbar .navbar-light .navbar-nav .nav-item > a.nav-link:hover, .topbar .navbar-light .navbar-nav .nav-item > a.nav-link:focus {
-      color: rgba(255, 255, 255, 0.8) !important; }
+      color: #1976d2 !important; }
 
 /*******************
 /*General Elements

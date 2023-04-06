@@ -699,105 +699,66 @@ router.get("/graficopastel", (req: Request, res: Response) => {
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/establecimiento/:fechaDesde/:fechaHasta/:empresa/:opcion",
+  "/establecimiento/:fechaDesde/:fechaHasta/:sucursales/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cEmpresa = req.params.empresa;
     const opcion = req.params.opcion;
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
 
+    let todasSucursales = false;
     let query;
 
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
     if (opcion == "true") {
-      if (cEmpresa == "-1") {
-        query = `
-          SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
-            SUM(eval_califica = 40) AS Excelente,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-          IF(avg(eval_califica) >= 40, 'Excelente',
-          IF(avg(eval_califica) >= 30, 'Bueno',
-          IF(avg(eval_califica) >= 20, 'Regular',
-          IF(avg(eval_califica) >= 10, 'Malo', 'No existe')))) AS Promedio
-          FROM evaluacion e, turno t, servicio s, empresa em 
-          WHERE t.turn_codigo = e.turn_codigo 
-            AND t.serv_codigo = s.serv_codigo
-            AND S.empr_codigo = em.empr_codigo
-            AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-            AND eval_califica != 50
-            AND t.caje_codigo != 0
-          GROUP BY e.eval_fecha, nombreEmpresa;
-          `;
-      } else {
-        query = `
-          SELECT date_format(eval_fecha, '%Y-%m-%d') AS fecha,
-            SUM(eval_califica = 40) AS Excelente,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-          IF(avg(eval_califica) >= 40, 'Excelente',
-          IF(avg(eval_califica) >= 30, 'Bueno',
-          IF(avg(eval_califica) >= 20, 'Regular',
-          IF(avg(eval_califica) >= 10, 'Malo', 'No existe')))) AS Promedio
-          FROM evaluacion e, turno t, servicio s 
-          WHERE t.turn_codigo = e.turn_codigo 
-            AND t.serv_codigo = s.serv_codigo
-            AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-            AND S.empr_codigo = ${cEmpresa}
-            AND eval_califica != 50
-            AND t.caje_codigo != 0
-          GROUP BY e.eval_fecha; 
+      query = `
+        SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
+          SUM(eval_califica = 40) AS Excelente,
+          SUM(eval_califica = 30) AS Bueno,
+          SUM(eval_califica = 20) AS Regular,
+          SUM(eval_califica = 10) AS Malo,
+          COUNT(eval_califica) AS Total,
+        IF(avg(eval_califica) >= 40, 'Excelente',
+        IF(avg(eval_califica) >= 30, 'Bueno',
+        IF(avg(eval_califica) >= 20, 'Regular',
+        IF(avg(eval_califica) >= 10, 'Malo', 'No existe')))) AS Promedio
+        FROM evaluacion e, turno t, servicio s, empresa em
+        WHERE t.turn_codigo = e.turn_codigo 
+          AND t.serv_codigo = s.serv_codigo
+          AND S.empr_codigo = em.empr_codigo
+          AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+          AND eval_califica != 50
+          AND t.caje_codigo != 0
+          ${!todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ''}
+        GROUP BY e.eval_fecha , nombreEmpresa;
         `;
-      }
     } else {
-      if (cEmpresa == "-1") {
-        query = `
-          SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
-            SUM(eval_califica = 50) AS Excelente,
-            SUM(eval_califica = 40) AS Muy_Bueno,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-          IF(avg(eval_califica) = 50, 'Excelente',
-          IF(avg(eval_califica) >= 40, 'Muy Bueno',
-          IF(avg(eval_califica) >= 30, 'Bueno',
-          IF(avg(eval_califica) >= 20, 'Regular',
-          IF(avg(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
-          FROM evaluacion e, turno t, servicio s, empresa em 
-          WHERE t.turn_codigo = e.turn_codigo 
-            AND t.serv_codigo = s.serv_codigo
-            AND S.empr_codigo = em.empr_codigo
-            AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-            AND t.caje_codigo !=0
-          GROUP BY e.eval_fecha, nombreEmpresa;
-          `;
-      } else {
-        query = `
-          SELECT date_format(eval_fecha, '%Y-%m-%d') AS fecha,
-            SUM(eval_califica = 50) AS Excelente,
-            SUM(eval_califica = 40) AS Muy_Bueno,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-          IF(avg(eval_califica) = 50, 'Excelente',
-          IF(avg(eval_califica) >= 40, 'Muy Bueno',
-          IF(avg(eval_califica) >= 30, 'Bueno',
-          IF(avg(eval_califica) >= 20, 'Regular',
-          IF(avg(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
-          FROM evaluacion e, turno t, servicio s 
-          WHERE t.turn_codigo = e.turn_codigo 
-            AND t.serv_codigo = s.serv_codigo
-            AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-            AND S.empr_codigo = ${cEmpresa}
-            AND t.caje_codigo !=0
-          GROUP BY e.eval_fecha; 
+      query = `
+        SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
+          SUM(eval_califica = 50) AS Excelente,
+          SUM(eval_califica = 40) AS Muy_Bueno,
+          SUM(eval_califica = 30) AS Bueno,
+          SUM(eval_califica = 20) AS Regular,
+          SUM(eval_califica = 10) AS Malo,
+          COUNT(eval_califica) AS Total,
+        IF(avg(eval_califica) = 50, 'Excelente',
+        IF(avg(eval_califica) >= 40, 'Muy Bueno',
+        IF(avg(eval_califica) >= 30, 'Bueno',
+        IF(avg(eval_califica) >= 20, 'Regular',
+        IF(avg(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
+        FROM evaluacion e, turno t, servicio s, empresa em
+        WHERE t.turn_codigo = e.turn_codigo 
+          AND t.serv_codigo = s.serv_codigo
+          AND S.empr_codigo = em.empr_codigo
+          AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+          AND t.caje_codigo !=0
+          ${!todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ''}
+        GROUP BY e.eval_fecha , nombreEmpresa;
         `;
-      }
     }
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {

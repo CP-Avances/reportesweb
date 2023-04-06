@@ -21,10 +21,19 @@
                                 <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalAtM>
+                                <!-- <select class="form-control"  name="select" #codSucursalAtM>
                                     <option value="-1" selected>Sucursales</option>
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursales')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursales">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerAtendidosMultiples()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -40,14 +49,14 @@
                         <table class="table table-striped" id="contentAtMul" #contentAtMul #tableAtMul>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursales" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursales || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Usuario</th>
                                     <th scope="col" class="text-center">Atendidos</th>
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestAtM">
                                 <tr *ngFor="let servicioAtMul of servicioAtMul | paginate:configAtM">
-                                    <td *ngIf="todasSucursales">{{servicioAtMul.nombreEmpresa}}</td>
+                                    <td *ngIf="todasSucursales || seleccionMultiple">{{servicioAtMul.nombreEmpresa}}</td>
                                     <td>{{servicioAtMul.Usuario}}</td>
                                     <td>{{servicioAtMul.Atendidos}}</td>
                                 </tr>

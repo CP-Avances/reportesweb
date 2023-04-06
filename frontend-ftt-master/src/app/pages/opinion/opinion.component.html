@@ -24,10 +24,19 @@
                                 <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalAtM>
+                                <!-- <select class="form-control"  name="select" #codSucursalAtM>
                                     <option value="-1" selected>Sucursales</option>
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesI')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesI">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerOpiniones()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -42,7 +51,7 @@
                         <table class="table table-striped" id="contentAtMul" #contentAtMul #tableAtMul>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
@@ -52,7 +61,7 @@
                             </thead>
                             <tbody *ngIf="!malRequestAtM">
                                 <tr *ngFor="let servicioOpinion of servicioOpinion | paginate:configAtM">
-                                    <td *ngIf="todasSucursalesI">{{servicioOpinion.empresa_empr_nombre}}</td>
+                                    <td *ngIf="todasSucursalesI || seleccionMultiple">{{servicioOpinion.empresa_empr_nombre}}</td>
                                     <td>{{servicioOpinion.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinion.quejas_emi_categoria}}</td>
                                     <td>{{servicioOpinion.quejas_emi_fecha}}</td>
@@ -85,10 +94,19 @@
                                 <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate" name="toDateOcupG" #toDateOcupG>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalOcupG>
+                                <!-- <select class="form-control"  name="select" #codSucursalOcupG>
                                     <option value="-1" selected>Sucursales</option>
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesG')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesG">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerGrafOpinion()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar

@@ -36,11 +36,20 @@
                                     name="toDateTurnosFecha" #toDateTurnosFecha>
                             </div>
                             <div class="col-6">
-                                <select class="form-control" name="selectmake" #codSucursal>
+                                <!-- <select class="form-control" name="selectmake" #codSucursal>
                                     <option value="-1" selected>Sucursales</option>
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
                                         [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesTF')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesTF">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosFecha()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -56,7 +65,7 @@
                             #tableTurnosFecha>
                             <thead>
                                 <tr>
-                                    <th class="text-center" *ngIf="todasSucursalesTF" style="width: 200px;">Sucursal
+                                    <th class="text-center" *ngIf="todasSucursalesTF || seleccionMultiple" >Sucursal
                                     </th>
                                     <th class="text-center">Cajero</th>
                                     <th class="text-center">Servicio</th>
@@ -69,7 +78,7 @@
                             <tbody *ngIf="!malRequestTF">
                                 <tr id="tr-id-1" class="tr-class-1"
                                     *ngFor="let servicioTurnosFecha of servicioTurnosFecha | paginate:configTF">
-                                    <td *ngIf="todasSucursalesTF"> {{servicioTurnosFecha.nombreEmpresa}}</td>
+                                    <td *ngIf="todasSucursalesTF || seleccionMultiple"> {{servicioTurnosFecha.nombreEmpresa}}</td>
                                     <td> {{servicioTurnosFecha.Usuario}}</td>
                                     <td> {{servicioTurnosFecha.Servicio}}</td>
                                     <td> {{servicioTurnosFecha.Fecha}}</td>
@@ -112,7 +121,7 @@
                                 <br><br>
                                 <!-- <mat-form-field> -->
                                     <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
-                                        <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
+                                        <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll('allSelected')" >
                                             Todos los cajeros
                                         </mat-option>
                                         <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo" [disabled]="allSelected">
@@ -177,12 +186,21 @@
                                     #toDateUES>
                             </div>
                             <div class="col-6">
-                                <select class="form-control" name="selectmake" #codSucursalEntradas
+                                <!-- <select class="form-control" name="selectmake" #codSucursalEntradas
                                     (change)="getCajeros($event.target.value)">
                                     <option value="-1" selected>Sucursales</option>
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
                                         [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesES')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesES">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerEntradasSalidasSistema()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -198,7 +216,7 @@
                             #tableEntradaSalida>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesES" style="width: 300px;">
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesES || seleccionMultiple">
                                         Sucursal</th>
                                     <th scope="col" class="text-center">Cajero</th>
                                     <th scope="col" class="text-center">Fecha y hora</th>
@@ -207,7 +225,7 @@
                             </thead>
                             <tbody *ngIf="!malRequestES">
                                 <tr *ngFor="let servicioEntradaSalida of servicioEntradaSalida | paginate:configES">
-                                    <td *ngIf="todasSucursalesES">{{servicioEntradaSalida.nombreEmpresa}}</td>
+                                    <td *ngIf="todasSucursalesES || seleccionMultiple">{{servicioEntradaSalida.nombreEmpresa}}</td>
                                     <td>{{servicioEntradaSalida.Usuario}}</td>
                                     <td>{{servicioEntradaSalida.fecha}}</td>
                                     <td>{{servicioEntradaSalida.Razon}}</td>
@@ -246,7 +264,7 @@
                                 </select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Usuarios">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll('allSelected')" >
                                         Todos los cajeros
                                     </mat-option>
                                     <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo" [disabled]="allSelected">

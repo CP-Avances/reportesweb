@@ -333,10 +333,19 @@
                                     #toDateAtG>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalAtGs>
+                                <!-- <select class="form-control"  name="select" #codSucursalAtGs>
                                     <option value="-1" selected>Sucursales</option>
                                     <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                </select> -->
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesGS')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesGS">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerGrafico()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -352,7 +361,7 @@
                             <table class="table table-striped">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th scope="col" class="text-center" *ngIf="todasSucursalesGS" style="width: 300px;">Sucursal</th>
+                                        <th scope="col" class="text-center" *ngIf="todasSucursalesGS || seleccionMultiple">Sucursal</th>
                                         <th scope="col" class="text-center">Servicio</th>
                                         <th scope="col" class="text-center">Atendidos</th>
                                         <th scope="col" class="text-center">No Atendidos</th>
@@ -361,7 +370,7 @@
                                 </thead>
                                 <tbody *ngIf="!malRequestAtG">
                                     <tr *ngFor="let serviciograf of serviciograf | paginate:configGS">
-                                        <td *ngIf="todasSucursalesGS">{{serviciograf.nombreEmpresa}}</td>
+                                        <td *ngIf="todasSucursalesGS || seleccionMultiple">{{serviciograf.nombreEmpresa}}</td>
                                         <td>{{serviciograf.Servicio}}</td>
                                         <td>{{serviciograf.Atendidos}}</td>
                                         <td>{{serviciograf.No_Atendidos}}</td>

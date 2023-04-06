@@ -120,6 +120,8 @@ export class AtencionComponent implements OnInit {
   //OPCIONES MULTIPLES
   allSelected = false;
   selectedItems: string[] = [];
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   //MOSTRAR CAJEROS
   mostrarCajeros: boolean = true;
@@ -219,11 +221,21 @@ export class AtencionComponent implements OnInit {
     });
   }
 
-  selectAll() {
-    if (this.allSelected==false) {
-      this.allSelected = true;
-    } else {
-      this.allSelected = false;
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'allSelected':
+            this.allSelected = !this.allSelected;
+            break;
+        case 'todasSucursalesGS':
+            this.todasSucursalesGS = !this.todasSucursalesGS;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
     }
   }
 
@@ -268,6 +280,12 @@ export class AtencionComponent implements OnInit {
     this.getServicios("-1");
     this.selectedItems = [];
     this.allSelected = false;
+    this.todasSucursalesTC = false;
+    this.todasSucursalesPA = false;
+    this.todasSucursalesMA = false;
+    this.todasSucursalesAS = false;
+    this.todasSucursalesGS = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
@@ -496,21 +514,22 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
+    this.malRequestAtG = false;
 
-    this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, cod).subscribe(
+    this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, this.sucursalesSeleccionadas).subscribe(
       (serviciograf: any) => {
         // VERIFICACION DE ANCHO DE PANTALLA PARA MOSTRAR O NO LABELS
         this.legend = screen.width < 575 ? false : true;
         // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
         this.serviciograf = serviciograf.turnos;
-        this.malRequestAtG = false;
+        // this.malRequestAtG = false;
         this.malRequestAtGPag = false;
         // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
         if (this.configGS.currentPage > 1) {
           this.configGS.currentPage = 1;
         }
-        this.todasSucursalesGS = this.comprobarBusquedaSucursales(cod);
+        // this.todasSucursalesGS = this.comprobarBusquedaSucursales(cod);
         // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
         let Nombres = serviciograf.turnos.map((res) => res.Servicio);
         let totales = serviciograf.turnos.map((res) => res.Total);

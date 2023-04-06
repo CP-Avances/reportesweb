@@ -142,8 +142,10 @@ export class EvaluacionComponent implements OnInit {
   urlImagen: string;
 
   //OPCIONES MULTIPLES
-  allSelected = false;
+  allSelected: boolean = false;
   selectedItems: string[] = [];
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   //MOSTRAR CAJEROS
   mostrarCajeros: boolean = true;
@@ -274,11 +276,22 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
-  selectAll() {
-    if (this.allSelected==false) {
-      this.allSelected = true;
-    } else {
-      this.allSelected = false;
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'allSelected':
+            this.allSelected = !this.allSelected;
+            break;
+        case 'todasSucursalesEST':
+            this.todasSucursalesEST = !this.todasSucursalesEST;
+            this.sucursalesSeleccionadas.splice(1, this.sucursalesSeleccionadas.length - 1);
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
     }
   }
 
@@ -361,6 +374,7 @@ export class EvaluacionComponent implements OnInit {
     this.getServicios("-1");
     this.selectedItems = [];
     this.allSelected = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -700,9 +714,9 @@ export class EvaluacionComponent implements OnInit {
     var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
 
-    var cod = this.codSucursalEst.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalEst.nativeElement.value.toString().trim();
 
-    this.serviceService.getestablecimiento(fechaDesde, fechaHasta, cod,this.opcionCuatro.toString()).subscribe(
+    this.serviceService.getestablecimiento(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.opcionCuatro.toString()).subscribe(
       (servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioEstb = servicio.turnos;
@@ -712,7 +726,7 @@ export class EvaluacionComponent implements OnInit {
         if (this.configEstb.currentPage > 1) {
           this.configEstb.currentPage = 1;
         }
-        this.todasSucursalesEST = this.comprobarBusquedaSucursales(cod);
+        // this.todasSucursalesEST = this.comprobarBusquedaSucursales(cod);
       },
       (error) => {
         if (error.status == 400) {

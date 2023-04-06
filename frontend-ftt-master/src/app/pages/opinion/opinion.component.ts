@@ -39,39 +39,53 @@ export class OpinionComponent implements OnInit {
   chartPie: any;
   chartBar: any;
   tipo: string;
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioOpinion: any = [];
   servicioocg: any = [];
   sucursales: any[];
   servicio: any;
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursalesI: boolean = false;
   todasSucursalesG: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestAtM: boolean = false;
   malRequestAtMPag: boolean = false;
   malRequestOcupG: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configAtM: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
+
   //Control de labels por ancho de pantalla
   legend: any;
+
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
    //Orientacion
   orientacion: string;
@@ -120,6 +134,24 @@ export class OpinionComponent implements OnInit {
     });
   }
 
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'todasSucursalesI':
+            this.todasSucursalesI = !this.todasSucursalesI;
+            break;
+        case 'todasSucursalesES':
+            this.todasSucursalesG = !this.todasSucursalesG;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
+    }
+  }
+
   //Se obtiene dia actual
   getlastday() {
     this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
@@ -137,6 +169,10 @@ export class OpinionComponent implements OnInit {
 
   limpiar() {
     this.getSucursales();
+    this.todasSucursalesI = false;
+    this.todasSucursalesG = false;
+    this.seleccionMultiple = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -158,9 +194,9 @@ export class OpinionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtM.nativeElement.value.toString();
+    // var cod = this.codSucursalAtM.nativeElement.value.toString();
 
-    this.serviceService.getopiniones(fD, fH, cod).subscribe(
+    this.serviceService.getopiniones(fD, fH, this.sucursalesSeleccionadas).subscribe(
       (servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioOpinion = servicio.turnos;
@@ -170,7 +206,7 @@ export class OpinionComponent implements OnInit {
         if (this.configAtM.currentPage > 1) {
           this.configAtM.currentPage = 1;
         }
-        this.todasSucursalesI = this.comprobarBusquedaSucursales(cod);
+        // this.todasSucursalesI = this.comprobarBusquedaSucursales(cod);
       },
       (error) => {
         if (error.status == 400) {
@@ -204,19 +240,20 @@ export class OpinionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
-    var cod = this.codSucursalOcupG.nativeElement.value.toString();
+    // var cod = this.codSucursalOcupG.nativeElement.value.toString();
+    this.malRequestAtM = false;
 
-    this.serviceService.getgraficoopinion(fD, fH, cod).subscribe(
+    this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
       (servicioocg: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioocg = servicioocg.turnos;
-        this.malRequestAtM = false;
+        // this.malRequestAtM = false;
         this.malRequestAtMPag = false;
         //Seteo de paginacion cuando se hace una nueva busqueda
         if (this.configAtM.currentPage > 1) {
           this.configAtM.currentPage = 1;
         }
-        this.todasSucursalesG = this.comprobarBusquedaSucursales(cod);
+        // this.todasSucursalesG = this.comprobarBusquedaSucursales(cod);
       },
       (error) => {
         if (error.status == 400) {
@@ -245,7 +282,7 @@ export class OpinionComponent implements OnInit {
       }
     );
 
-    this.serviceService.getgraficoopinion(fD, fH, cod).subscribe(
+    this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
       (servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         //Se verifica el ancho de pantalla para colocar o no labels

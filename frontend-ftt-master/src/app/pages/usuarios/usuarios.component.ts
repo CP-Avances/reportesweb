@@ -106,9 +106,10 @@ export class UsuariosComponent implements OnInit {
   nombreImagen: any[];
 
   //OPCIONES MULTIPLES
-  allSelected = false;
+  allSelected: boolean = false;
   selectedItems: string[] = [];
   sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   //MOSTRAR CAJEROS
   mostrarCajeros: boolean = true;
@@ -200,13 +201,27 @@ export class UsuariosComponent implements OnInit {
       });
   }
 
-  selectAll() {
-    if (this.allSelected==false) {
-      this.allSelected = true;
-    } else {
-      this.allSelected = false;
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'allSelected':
+            this.allSelected = !this.allSelected;
+            break;
+        case 'todasSucursalesTF':
+            this.todasSucursalesTF = !this.todasSucursalesTF;
+            break;
+        case 'todasSucursalesES':
+            this.todasSucursalesES = !this.todasSucursalesES;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
     }
   }
+
 
   // SE OBTIENE LA FECHA ACTUAL
   getlastday() {
@@ -250,6 +265,8 @@ export class UsuariosComponent implements OnInit {
     this.todasSucursalesTF = false;
     this.todasSucursalesES = false;
     this.todasSucursalesAU = false;
+    this.seleccionMultiple = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
@@ -275,10 +292,10 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTurnosFecha.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codSucursal.nativeElement.value.toString().trim();
+    // var cod = this.codSucursal.nativeElement.value.toString().trim();
 
     this.serviceService
-      .getfiltroturnosfechas(fechaDesde, fechaHasta, parseInt(cod))
+      .getfiltroturnosfechas(fechaDesde, fechaHasta, this.sucursalesSeleccionadas)
       .subscribe(
         (servicio: any) => {
           // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -474,15 +491,12 @@ export class UsuariosComponent implements OnInit {
 
   leerEntradasSalidasSistema() {
     //captura de fechas para proceder con la busqueda
-    var fechaDesde = this.fromDateUES.nativeElement.value.toString().trim();
-    var fechaHasta = this.toDateUES.nativeElement.value.toString().trim();
-    var cod = this.codSucursalEntradas.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalEntradas.nativeElement.value
-      .toString()
-      .trim();
+    let fechaDesde = this.fromDateUES.nativeElement.value.toString().trim();
+    let fechaHasta = this.toDateUES.nativeElement.value.toString().trim();
+    // let cod = this.codSucursalEntradas.nativeElement.value.toString().trim();
 
     this.serviceService
-      .getentradassalidasistema(fechaDesde, fechaHasta, parseInt(cod))
+      .getentradassalidasistema(fechaDesde, fechaHasta, this.sucursalesSeleccionadas)
       .subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -493,8 +507,8 @@ export class UsuariosComponent implements OnInit {
           if (this.configES.currentPage > 1) {
             this.configES.currentPage = 1;
           }
-          this.todasSucursalesES =
-            this.comprobarBusquedaSucursales(codSucursal);
+          // this.todasSucursalesES =
+          //   this.comprobarBusquedaSucursales(codSucursal);
         },
         (error) => {
           if (error.status == 400) {

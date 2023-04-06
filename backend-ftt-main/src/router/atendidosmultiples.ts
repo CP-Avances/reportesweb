@@ -7,15 +7,19 @@ const router = Router();
  ** **                                        ATENDIDOS MULTIPLES                                              ** ** 
  ** ************************************************************************************************************* **/
 
-router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:empresa', (req: Request, res: Response) => {
+router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:sucursales', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cEmpresa = req.params.empresa;
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
 
-    let query;
+    let todasSucursales = false;
 
-    if (cEmpresa == "-1") {
-        query =
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
+    const query =
             `
             SELECT em.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario, count(eval_codigo) AS Atendidos
             FROM usuarios u, evaluacion e, turno t, empresa em
@@ -24,21 +28,10 @@ router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:empresa', (req: Request
                 AND u.empr_codigo = em.empr_codigo
                 AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
                 AND u.usua_codigo != 2
+                ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
             GROUP BY usua_nombre, nombreEmpresa;
-            `
-    } else {
-        query =
-            `
-            SELECT usua_nombre AS Usuario, count(eval_codigo) AS Atendidos
-            FROM usuarios u, evaluacion e, turno t
-            WHERE u.usua_codigo = e.usua_codigo
-                AND t.turn_codigo = e.turn_codigo
-                AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-                AND u.empr_codigo = ${cEmpresa}
-                AND u.usua_codigo != 2
-            GROUP BY usua_nombre;
-            `
-    }
+            `;
+    
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
         if (err) {
             res.status(400).json({

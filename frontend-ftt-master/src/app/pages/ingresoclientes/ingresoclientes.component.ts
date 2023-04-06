@@ -28,33 +28,46 @@ export class IngresoclientesComponent implements OnInit {
   @ViewChild('fromDateIng') fromDateIng: ElementRef;
   @ViewChild('toDateIng') toDateIng: ElementRef;
   @ViewChild('codSucursalIngreso') codSucursalIngreso: ElementRef;
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioIngrClientes: any = [];
   sucursales: any[];
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursales: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestIng: boolean = false;
   malRequestIngPag: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configTE: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: 'Anterior',
     nextLabel: 'Siguiente'
   };
+
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year+"-"+this.month+"-"+this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
@@ -93,6 +106,21 @@ export class IngresoclientesComponent implements OnInit {
     });
   }
 
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'todasSucursales':
+            this.todasSucursales = !this.todasSucursales;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
+    }
+  }
+
   //Obtiene la fecha actual
   getlastday() {
     this.toDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
@@ -123,9 +151,9 @@ export class IngresoclientesComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateIng.nativeElement.value.toString().trim();
     var fH = this.toDateIng.nativeElement.value.toString().trim();
-    var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
 
-    this.serviceService.getingresoclientes(fD, fH, cod).subscribe((servicio: any) => {
+    this.serviceService.getingresoclientes(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
       //Si se consulta correctamente se guarda en variable y setea banderas de tablas
       this.servicioIngrClientes = servicio.turnos;
       this.malRequestIng = false;
@@ -134,7 +162,7 @@ export class IngresoclientesComponent implements OnInit {
       if (this.configTE.currentPage > 1) {
         this.configTE.currentPage = 1;
       }
-      this.todasSucursales = this.comprobarBusquedaSucursales(cod);
+      // this.todasSucursales = this.comprobarBusquedaSucursales(cod);
     },
       error => {
         if (error.status == 400) {
