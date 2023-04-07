@@ -197,43 +197,45 @@ export class OcupacionComponent implements OnInit {
     var fH = this.toDateOcupOS.nativeElement.value.toString().trim();
     // var cod =  this.codSucursalOCs.nativeElement.value.toString().trim();
 
-    this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
-      (serviciooc: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        this.serviciooc = serviciooc.turnos;
-        this.malRequestOcupOS = false;
-        this.malRequestOcupOSPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
-        if (this.configOS.currentPage > 1) {
-          this.configOS.currentPage = 1;
-        }
-        // this.todasSucursalesO = this.comprobarBusquedaSucursales(cod);
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.serviciooc = null;
-          this.malRequestOcupOS = true;
-          this.malRequestOcupOSPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.serviciooc == null) {
-            this.configOS.totalItems = 0;
-          } else {
-            this.configOS.totalItems = this.serviciooc.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
+        (serviciooc: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.serviciooc = serviciooc.turnos;
+          this.malRequestOcupOS = false;
+          this.malRequestOcupOSPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configOS.currentPage > 1) {
+            this.configOS.currentPage = 1;
           }
-          //Por error 400 se setea elementos de paginacion
-          this.configOS = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+          // this.todasSucursalesO = this.comprobarBusquedaSucursales(cod);
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.serviciooc = null;
+            this.malRequestOcupOS = true;
+            this.malRequestOcupOSPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.serviciooc == null) {
+              this.configOS.totalItems = 0;
+            } else {
+              this.configOS.totalItems = this.serviciooc.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configOS = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
         }
-      }
-    );
+      );
+    }
   }
 
   leerGrafOcupacion() {
@@ -243,43 +245,45 @@ export class OcupacionComponent implements OnInit {
     // var cod =  this.codSucursalOCsG.nativeElement.value.toString().trim();
     this.malRequestOcupOS = false;
 
-    this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
-      (servicioocg: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        this.servicioocg = servicioocg.turnos;
-        // this.malRequestOcupOS = false;
-        this.malRequestOcupOSPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
-        if (this.configOS.currentPage > 1) {
-          this.configOS.currentPage = 1;
-        }
-        // this.todasSucursalesOG = this.comprobarBusquedaSucursales(cod);
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioocg = null;
-          this.malRequestOcupOS = true;
-          this.malRequestOcupOSPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioocg == null) {
-            this.configOS.totalItems = 0;
-          } else {
-            this.configOS.totalItems = this.servicioocg.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
+        (servicioocg: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.servicioocg = servicioocg.turnos;
+          // this.malRequestOcupOS = false;
+          this.malRequestOcupOSPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configOS.currentPage > 1) {
+            this.configOS.currentPage = 1;
           }
-          //Por error 400 se setea elementos de paginacion
-          this.configOS = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+          // this.todasSucursalesOG = this.comprobarBusquedaSucursales(cod);
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioocg = null;
+            this.malRequestOcupOS = true;
+            this.malRequestOcupOSPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioocg == null) {
+              this.configOS.totalItems = 0;
+            } else {
+              this.configOS.totalItems = this.servicioocg.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configOS = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
         }
-      }
-    );
+      );
+    }
 
     this.serviceService.getgraficoocupacion(fD, fH, this.sucursalesSeleccionadas).subscribe(
       (servicio: any) => {

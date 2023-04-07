@@ -148,7 +148,10 @@ export class EvaluacionComponent implements OnInit {
   seleccionMultiple: boolean = false;
 
   //MOSTRAR CAJEROS
-  mostrarCajeros: boolean = true;
+  mostrarCajeros: boolean = false;
+
+  //MOSTRAR SERVICIOS
+  mostrarServicios: boolean = false;
 
   //Orientacion
   orientacion: string;
@@ -246,10 +249,10 @@ export class EvaluacionComponent implements OnInit {
      this.getOpcionesEvaluacion();
     //Cargamos componentes selects HTML
     this.getlastday();
-    this.getServicios("-1");
-    this.getCajeros("-1");
-    this.getCajerosG("-1");
-    this.getCajerosOmitidas("-1");
+    // this.getServicios("-1");
+    // this.getCajeros("-1");
+    // this.getCajerosG("-1");
+    // this.getCajerosOmitidas("-1");
     this.getSucursales();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem("loggedUser");
@@ -283,12 +286,42 @@ export class EvaluacionComponent implements OnInit {
             break;
         case 'todasSucursalesEST':
             this.todasSucursalesEST = !this.todasSucursalesEST;
-            this.sucursalesSeleccionadas.splice(1, this.sucursalesSeleccionadas.length - 1);
+            break;
+        case 'todasSucursalesE':
+            this.todasSucursalesE = !this.todasSucursalesE;
+            this.todasSucursalesE ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesEG':
+            this.todasSucursalesEG = !this.todasSucursalesEG;
+            this.todasSucursalesEG ? this.getCajerosG(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesG':
+            this.todasSucursalesG = !this.todasSucursalesG;
+            this.todasSucursalesG ? this.getCajerosG(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesEO':
+            this.todasSucursalesEO = !this.todasSucursalesEO;
+            this.todasSucursalesEO ? this.getCajerosOmitidas(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesS':
+            this.todasSucursalesS = !this.todasSucursalesS;
+            this.todasSucursalesS ? this.getServicios(this.sucursalesSeleccionadas) : null;
             break;
         case 'sucursalesSeleccionadas':
-            this.sucursalesSeleccionadas.length > 1 
-            ? this.seleccionMultiple = true 
-            : this.seleccionMultiple = false;
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadasG':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajerosG(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadasEO':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajerosOmitidas(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadasS':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getServicios(this.sucursalesSeleccionadas) : null;
             break;
         default:
             break;
@@ -367,13 +400,25 @@ export class EvaluacionComponent implements OnInit {
   }
 
   limpiar() {
-    this.getCajeros("-1");
-    this.getCajerosG("-1");
-    this.getCajerosOmitidas("-1");
-    this.getSucursales();
-    this.getServicios("-1");
+    // this.getCajeros("-1");
+    // this.getCajerosG("-1");
+    // this.getCajerosOmitidas("-1");
+    // this.getSucursales();
+    // this.getServicios("-1");
+    this.cajerosEval=[];
     this.selectedItems = [];
+    this.serviciosServs = [];
+    this.cajerosEvalOmitidas=[];
     this.allSelected = false;
+    this.mostrarCajeros = false;
+    this.mostrarServicios = false;
+    this.todasSucursalesS = false;
+    this.todasSucursalesE = false;
+    this.todasSucursalesEG = false;
+    this.todasSucursalesG = false;
+    this.todasSucursalesEST = false;
+    this.todasSucursalesEO = false;
+    this.seleccionMultiple = false;
     this.sucursalesSeleccionadas = [];
   }
 
@@ -391,10 +436,12 @@ export class EvaluacionComponent implements OnInit {
   getServicios(sucursal: any) {
     this.serviceService.getAllServiciosS(sucursal).subscribe((servicios: any) => {
       this.serviciosServs = servicios.servicios;
+      this.mostrarServicios = true;
     },
       (error) => {
         if (error.status == 400) {
           this.serviciosServs = [];
+          this.mostrarServicios = false;
         }
       });
   }
@@ -405,13 +452,13 @@ export class EvaluacionComponent implements OnInit {
       .toString()
       .trim();
     var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
-    var serv = this.codServicioServs.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalServicio.nativeElement.value.toString().trim();
+    // var serv = this.codServicioServs.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalServicio.nativeElement.value.toString().trim();
 
-    if (serv != "-1") {
+    if (this.selectedItems.length!==0) {
       //Servicios
       this.serviceService
-        .getprmediosservicios(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
+        .getprmediosservicios(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -422,7 +469,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.configS.currentPage > 1) {
               this.configS.currentPage = 1;
             }
-            this.todasSucursalesS = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesS = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -452,7 +499,7 @@ export class EvaluacionComponent implements OnInit {
 
       //Max Mins
       this.serviceService
-        .getmaxminservicios(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
+        .getmaxminservicios(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -505,11 +552,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalEmpl.nativeElement.value
       .toString()
       .trim();
-    let codSucursal = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getprmediosempleado(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal) ,this.opcionCuatro.toString())
+        .getprmediosempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas ,this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -520,7 +567,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.configE.currentPage > 1) {
               this.configE.currentPage = 1;
             }
-            this.todasSucursalesE = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesE = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -549,7 +596,7 @@ export class EvaluacionComponent implements OnInit {
         );
 
       this.serviceService
-        .getmaxminempleado(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal), this.opcionCuatro.toString())
+        .getmaxminempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalMMEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -599,11 +646,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
       .toString()
       .trim();
-    let codSucursal = this.codSucursalEvalOmitidas.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalEvalOmitidas.nativeElement.value.toString().trim();
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getevalomitidasempleado(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal))
+        .getevalomitidasempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicioEvalOmitidas: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -614,7 +661,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.configEOmitidas.currentPage > 1) {
               this.configEOmitidas.currentPage = 1;
             }
-            this.todasSucursalesEO = this.comprobarBusquedaSucursales(codSucursal)
+            // this.todasSucursalesEO = this.comprobarBusquedaSucursales(codSucursal)
           },
           (error) => {
             if (error.status == 400) {
@@ -659,11 +706,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
       .toString()
       .trim();
-    let codSucursal = this.codSucursalEvalGr.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalEvalGr.nativeElement.value.toString().trim();
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getevalgrupo(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal), this.opcionCuatro.toString())
+        .getevalgrupo(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicioG: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -674,7 +721,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.configEG.currentPage > 1) {
               this.configEG.currentPage = 1;
             }
-            this.todasSucursalesEG = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesEG = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -715,44 +762,45 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
 
     // var cod = this.codSucursalEst.nativeElement.value.toString().trim();
-
-    this.serviceService.getestablecimiento(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.opcionCuatro.toString()).subscribe(
-      (servicio: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        this.servicioEstb = servicio.turnos;
-        this.malRequestEstb = false;
-        this.malRequestEstbPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
-        if (this.configEstb.currentPage > 1) {
-          this.configEstb.currentPage = 1;
-        }
-        // this.todasSucursalesEST = this.comprobarBusquedaSucursales(cod);
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioEstb = null;
-          this.malRequestEstb = true;
-          this.malRequestEstbPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioEstb == null) {
-            this.configEstb.totalItems = 0;
-          } else {
-            this.configEstb.totalItems = this.servicioEstb.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getestablecimiento(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.opcionCuatro.toString()).subscribe(
+        (servicio: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.servicioEstb = servicio.turnos;
+          this.malRequestEstb = false;
+          this.malRequestEstbPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configEstb.currentPage > 1) {
+            this.configEstb.currentPage = 1;
           }
-          //Por error 400 se setea elementos de paginacion
-          this.configEstb = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+          // this.todasSucursalesEST = this.comprobarBusquedaSucursales(cod);
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioEstb = null;
+            this.malRequestEstb = true;
+            this.malRequestEstbPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioEstb == null) {
+              this.configEstb.totalItems = 0;
+            } else {
+              this.configEstb.totalItems = this.servicioEstb.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configEstb = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
         }
-      }
-    );
+      );
+    } 
   }
 
   leerGraficosevabar() {
@@ -763,22 +811,24 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
       .toString()
       .trim();
-    let codSucursal = this.codSucursal.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursal.nativeElement.value.toString().trim();
+    this.malRequestGra = false;
+
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getgraficobarrasfiltro(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal), this.opcionCuatro.toString())
+        .getgraficobarrasfiltro(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicioGra: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
             this.servicioGra = servicioGra.turnos;
-            this.malRequestGra = false;
+            // this.malRequestGra = false;
             this.malRequestGraPag = false;
             //Seteo de paginacion cuando se hace una nueva busqueda
             if (this.configG.currentPage > 1) {
               this.configG.currentPage = 1;
             }
-            this.todasSucursalesG = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesG = this.comprobarBusquedaSucursales(codSucursal);
             //Formateo y mapeo de datos para imprimir valores en grafico
             let evOrig = this.servicioGra;
             let evaluaciones = (this.selectedItems[0]=="-2" ? ["Todos los usuarios"] : servicioGra.turnos.map((res) => res.usuario));  

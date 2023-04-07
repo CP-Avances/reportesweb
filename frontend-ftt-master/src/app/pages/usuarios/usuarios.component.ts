@@ -112,7 +112,7 @@ export class UsuariosComponent implements OnInit {
   seleccionMultiple: boolean = false;
 
   //MOSTRAR CAJEROS
-  mostrarCajeros: boolean = true;
+  mostrarCajeros: boolean = false;
 
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
@@ -178,7 +178,7 @@ export class UsuariosComponent implements OnInit {
     this.date = f.format("YYYY-MM-DD");
 
     // CARGAMOS COMPONENTES SELECTS HTML
-    this.getCajeros("-1");
+    // this.getCajeros("-1");
     this.getlastday();
     this.getSucursales();
 
@@ -212,10 +212,17 @@ export class UsuariosComponent implements OnInit {
         case 'todasSucursalesES':
             this.todasSucursalesES = !this.todasSucursalesES;
             break;
+        case 'todasSucursalesTPA':
+            this.todasSucursalesTPA = !this.todasSucursalesTPA;
+            this.todasSucursalesTPA ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesAU':
+            this.todasSucursalesAU = !this.todasSucursalesAU;
+            this.todasSucursalesAU ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
         case 'sucursalesSeleccionadas':
-            this.sucursalesSeleccionadas.length > 1 
-            ? this.seleccionMultiple = true 
-            : this.seleccionMultiple = false;
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
             break;
         default:
             break;
@@ -257,8 +264,10 @@ export class UsuariosComponent implements OnInit {
 
   // METODO PARA LLAMAR CONSULTA DE DATOS
   limpiar() {
-    this.getCajeros("-1");
-    this.getSucursales();
+    // this.getCajeros("-1");
+    // this.getSucursales();
+    this.cajerosUsuarios=[];
+    this.mostrarCajeros = false;
     this.selectedItems = [];
     this.allSelected = false;
     this.todasSucursalesTPA = false;
@@ -294,51 +303,53 @@ export class UsuariosComponent implements OnInit {
       .trim();
     // var cod = this.codSucursal.nativeElement.value.toString().trim();
 
-    this.serviceService
-      .getfiltroturnosfechas(fechaDesde, fechaHasta, this.sucursalesSeleccionadas)
-      .subscribe(
-        (servicio: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.servicioTurnosFecha = servicio.turnos;
-          this.malRequestTF = false;
-          this.malRequestTFPag = false;
-
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configTF.currentPage > 1) {
-            this.configTF.currentPage = 1;
-          }
-
-          // COMPROBACION DE LA SUCURSAL COONSULTADA
-          // this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y BANDERAS CAMBIAN PARA QUITAR TABLA DE INTERFAZ
-            this.servicioTurnosFecha = null;
-            this.malRequestTF = true;
-            this.malRequestTFPag = true;
-
-            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.servicioTurnosFecha == null) {
-              this.configTF.totalItems = 0;
-            } else {
-              this.configTF.totalItems = this.servicioTurnosFecha.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService
+        .getfiltroturnosfechas(fechaDesde, fechaHasta, this.sucursalesSeleccionadas)
+        .subscribe(
+          (servicio: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.servicioTurnosFecha = servicio.turnos;
+            this.malRequestTF = false;
+            this.malRequestTFPag = false;
+  
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configTF.currentPage > 1) {
+              this.configTF.currentPage = 1;
             }
-
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configTF = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+  
+            // COMPROBACION DE LA SUCURSAL COONSULTADA
+            // this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y BANDERAS CAMBIAN PARA QUITAR TABLA DE INTERFAZ
+              this.servicioTurnosFecha = null;
+              this.malRequestTF = true;
+              this.malRequestTFPag = true;
+  
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.servicioTurnosFecha == null) {
+                this.configTF.totalItems = 0;
+              } else {
+                this.configTF.totalItems = this.servicioTurnosFecha.length;
+              }
+  
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configTF = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+  
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
 
@@ -424,13 +435,13 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateAtencionUsua.nativeElement.value
       .toString()
       .trim();
-    let codSucursal = this.codSucursalAtencionUsua.nativeElement.value
-      .toString()
-      .trim();
+    // let codSucursal = this.codSucursalAtencionUsua.nativeElement.value
+    //   .toString()
+    //   .trim();
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getatencionusuarios(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal))
+        .getatencionusuarios(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -442,8 +453,7 @@ export class UsuariosComponent implements OnInit {
               this.configAU.currentPage = 1;
             }
 
-            this.todasSucursalesAU =
-              this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesAU = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -495,45 +505,47 @@ export class UsuariosComponent implements OnInit {
     let fechaHasta = this.toDateUES.nativeElement.value.toString().trim();
     // let cod = this.codSucursalEntradas.nativeElement.value.toString().trim();
 
-    this.serviceService
-      .getentradassalidasistema(fechaDesde, fechaHasta, this.sucursalesSeleccionadas)
-      .subscribe(
-        (servicio: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-          this.servicioEntradaSalida = servicio.turnos;
-          this.malRequestES = false;
-          this.malRequestESPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
-          if (this.configES.currentPage > 1) {
-            this.configES.currentPage = 1;
-          }
-          // this.todasSucursalesES =
-          //   this.comprobarBusquedaSucursales(codSucursal);
-        },
-        (error) => {
-          if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-            this.servicioEntradaSalida = null;
-            this.malRequestES = true;
-            this.malRequestESPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
-            if (this.servicioEntradaSalida == null) {
-              this.configES.totalItems = 0;
-            } else {
-              this.configES.totalItems = this.servicioEntradaSalida.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService
+        .getentradassalidasistema(fechaDesde, fechaHasta, this.sucursalesSeleccionadas)
+        .subscribe(
+          (servicio: any) => {
+            //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+            this.servicioEntradaSalida = servicio.turnos;
+            this.malRequestES = false;
+            this.malRequestESPag = false;
+            //Seteo de paginacion cuando se hace una nueva busqueda
+            if (this.configES.currentPage > 1) {
+              this.configES.currentPage = 1;
             }
-            this.configES = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            //Se informa que no se encontraron registros
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+            // this.todasSucursalesES =
+            //   this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+              this.servicioEntradaSalida = null;
+              this.malRequestES = true;
+              this.malRequestESPag = true;
+              //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+              //caso contrario se setea la cantidad de elementos
+              if (this.servicioEntradaSalida == null) {
+                this.configES.totalItems = 0;
+              } else {
+                this.configES.totalItems = this.servicioEntradaSalida.length;
+              }
+              this.configES = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
   obtenerNombreSucursal(cod: string) {

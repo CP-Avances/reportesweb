@@ -9,15 +9,20 @@ const router = (0, express_1.Router)();
 /** ********************************************************************************************************** **
  ** **                                    TIEMPOS COMPLETOS                                                 ** **
  ** ********************************************************************************************************** **/
-router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', (req, res) => {
+router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cSucursal = req.params.sucursal;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
     let todosCajeros = false;
+    let todasSucursales = false;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
+    }
+    if (sucursalesArray.includes("-1")) {
+        todasSucursales = true;
     }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario,
@@ -33,8 +38,8 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', 
             AND u.empr_codigo = e.empr_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             AND u.usua_codigo != 2
-            ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
-            ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
+            ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+            ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         GROUP BY Servicio, Usuario, Fecha
         ORDER BY Servicio, Usuario, Fecha;
         `;
@@ -56,10 +61,21 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', 
 /** ****************************************************************************************************** **
  ** **                                      PROMEDIOS DE ATENCION                                       ** **
  ** ****************************************************************************************************** **/
-router.get('/promediosatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
+router.get('/promediosatencion/:fechaDesde/:fechaHasta/:servicios/:sucursales', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cServ = req.params.cServ;
+    const listaServicios = req.params.servicios;
+    const serviciosArray = listaServicios.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    let todosServicios = false;
+    let todasSucursales = false;
+    if (sucursalesArray.includes("-1")) {
+        todasSucursales = true;
+    }
+    if (serviciosArray.includes("-1")) {
+        todosServicios = true;
+    }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, t.SERV_CODIGO, s.SERV_NOMBRE,
             sec_to_time(avg(time_to_sec(turn_tiempoespera))) AS PromedioEspera,
@@ -74,7 +90,8 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
             AND t.turn_estado = 1
             AND s.empr_codigo = e.empr_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
-            AND s.serv_codigo = ${cServ}
+            ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
+            ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
             AND t.caje_codigo !=0
         GROUP BY t.serv_codigo, t.turn_fecha;
     `;
@@ -96,10 +113,21 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
 /** ************************************************************************************************************* **
  ** **                                        MAXIMOS DE ATENCION                                              ** **
  ** ************************************************************************************************************* **/
-router.get('/maxatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
+router.get('/maxatencion/:fechaDesde/:fechaHasta/:servicios/:sucursales', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cServ = req.params.cServ;
+    const listaServicios = req.params.servicios;
+    const serviciosArray = listaServicios.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    let todosServicios = false;
+    let todasSucursales = false;
+    if (sucursalesArray.includes("-1")) {
+        todasSucursales = true;
+    }
+    if (serviciosArray.includes("-1")) {
+        todosServicios = true;
+    }
     const query = `
         SELECT empresa.empr_nombre AS nombreEmpresa, turno.SERV_CODIGO, servicio.SERV_NOMBRE,
             MAX(IFNULL(TURN_DURACIONATENCION,0)) AS duracion,
@@ -113,7 +141,8 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
         INNER JOIN empresa
             ON servicio.empr_codigo = empresa.empr_codigo
             AND turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
-            AND servicio.serv_codigo = ${cServ}
+            ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
+            ${!todosServicios ? `AND servicio.serv_codigo IN (${listaServicios})` : ''}
             AND turno.caje_codigo !=0
         GROUP BY turno.serv_codigo, turno.turn_fecha;
         `;
@@ -135,15 +164,20 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:cServ', (req, res) => {
 /** ******************************************************************************************************* **
  ** **                                     ATENCION SERVICIO                                             ** **
  ** ******************************************************************************************************* **/
-router.get('/atencionservicio/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', (req, res) => {
+router.get('/atencionservicio/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cSucursal = req.params.sucursal;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
     let todosCajeros = false;
+    let todasSucursales = false;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
+    }
+    if (sucursalesArray.includes("-1")) {
+        todasSucursales = true;
     }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio,
@@ -157,8 +191,8 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal', 
             AND u.empr_codigo = e.empr_codigo
             AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
             AND u.usua_codigo != 2
-            ${todosCajeros ? "" : `AND c.caje_codigo IN (${listaCodigos})`}
-            ${cSucursal != "-1" ? `AND u.empr_codigo = ${cSucursal}` : ""}
+            ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+            ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         GROUP BY Servicio, Nombre;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

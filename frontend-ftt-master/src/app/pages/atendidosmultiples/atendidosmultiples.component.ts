@@ -152,43 +152,45 @@ export class AtendidosmultiplesComponent implements OnInit {
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
     // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
 
-    this.serviceService.getatendidosmultiples(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
-      //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-      this.servicioAtMul = servicio.turnos;
-      this.malRequestAtM = false;
-      this.malRequestAtMPag = false;
-      //Seteo de paginacion cuando se hace una nueva busqueda
-      if (this.configAtM.currentPage > 1) {
-        this.configAtM.currentPage = 1;
-      }
-      // this.todasSucursales = this.comprobarBusquedaSucursales(cod);
-    },
-      error => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioAtMul = null;
-          this.malRequestAtM = true;
-          this.malRequestAtMPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioAtMul == null) {
-            this.configAtM.totalItems = 0;
-          } else {
-            this.configAtM.totalItems = this.servicioAtMul.length;
-          }
-
-          //Por error 400 se setea elementos de paginacion
-          this.configAtM = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getatendidosmultiples(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
+        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        this.servicioAtMul = servicio.turnos;
+        this.malRequestAtM = false;
+        this.malRequestAtMPag = false;
+        //Seteo de paginacion cuando se hace una nueva busqueda
+        if (this.configAtM.currentPage > 1) {
+          this.configAtM.currentPage = 1;
         }
-      }
-    );
+        // this.todasSucursales = this.comprobarBusquedaSucursales(cod);
+      },
+        error => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioAtMul = null;
+            this.malRequestAtM = true;
+            this.malRequestAtMPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioAtMul == null) {
+              this.configAtM.totalItems = 0;
+            } else {
+              this.configAtM.totalItems = this.servicioAtMul.length;
+            }
+  
+            //Por error 400 se setea elementos de paginacion
+            this.configAtM = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        }
+      );
+    }
   }
 
   obtenerNombreSucursal(cod: string){

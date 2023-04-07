@@ -41,8 +41,8 @@ export class ServiceService {
     return this.http.get<cajero[]>(this.URL + "/getallcajeros");
   }
 
-  getAllCajerosS(cod: string): Observable<cajero[]> {
-    return this.http.get<cajero[]>(this.URL + "/getallcajeros/" + cod);
+  getAllCajerosS(sucursales: any): Observable<cajero[]> {
+    return this.http.get<cajero[]>(this.URL + "/getallcajeros/" + sucursales);
   }
 
 
@@ -50,8 +50,8 @@ export class ServiceService {
     return this.http.get<servicio[]>(this.URL + "/getallservicios");
   }
 
-  getAllServiciosS(cod: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/getallservicios" + "/" + cod);
+  getAllServiciosS(sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/getallservicios" + "/" + sucursales);
   }
 
 
@@ -60,8 +60,8 @@ export class ServiceService {
    ** **                                    TIEMPO PROMEDIO DE ATENCION                                         ** ** 
    ** ************************************************************************************************************ **/
 
-  getturnosF(fechaDesde: any, fechaHasta: any, listaCodigos: any, codSucursal: string | string[]): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal);
+  getturnosF(fechaDesde: any, fechaHasta: any, listaCodigos: any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales);
   }
 
   getentradassalidasistema(fechaDesde: string, fechaHasta: string, sucursales: any): Observable<servicio[]> {
@@ -72,41 +72,41 @@ export class ServiceService {
     return this.http.get<servicio[]>(this.URL + "/atencionusuario");
   }
 
-  getatencionusuarios(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/atencionusuario/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal);
+  getatencionusuarios(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/atencionusuario/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales);
   }
   getfiltroturnosfecha(fecha: string): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/turnosfecha/" + fecha);
   }
 
   /* EVALUACION */
-  getprmediosservicios(fechaDesde: string, fechaHasta: string, serv: string | number, opcion: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/promedios/" + fechaDesde + "/" + fechaHasta + "/" + serv + "/" + opcion);
+  getprmediosservicios(fechaDesde: string, fechaHasta: string, servicios: any, sucursales: any , opcion: string): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/promedios/" + fechaDesde + "/" + fechaHasta + "/" + servicios + "/" + sucursales + "/" + opcion);
   }
 
-  getmaxminservicios(fechaDesde: string, fechaHasta: string, serv: string | number, opcion: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/maximosminimos/" + fechaDesde + "/" + fechaHasta + "/" + serv + "/" + opcion);
+  getmaxminservicios(fechaDesde: string, fechaHasta: string, servicios: any, sucursales: any, opcion: string): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/maximosminimos/" + fechaDesde + "/" + fechaHasta + "/" + servicios + "/" + sucursales + "/" + opcion);
   }
 
-  getprmediosempleado(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number,opcion: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/promediose/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/"+ codSucursal+ "/" + opcion);
+  getprmediosempleado(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any, opcion: string): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/promediose/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/"+ sucursales+ "/" + opcion);
   }
 
-  getevalomitidasempleado(fechaDesde: string, fechaHasta: string, listaCodigos:any, codSucursal: string | number): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/omitidas/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal);
+  getevalomitidasempleado(fechaDesde: string, fechaHasta: string, listaCodigos:any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/omitidas/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales);
   }
 
 
-  getmaxminempleado(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number,opcion: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/maximosminimose/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal + "/" + opcion);
+  getmaxminempleado(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any, opcion: string): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/maximosminimose/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales + "/" + opcion);
   }
 
   getgraficobarras(opcion: string): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/graficobarras" + "/" + opcion);
   }
 
-  getgraficobarrasfiltro(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number, opcion: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/graficobarrasfiltro/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal + "/" + opcion);
+  getgraficobarrasfiltro(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any, opcion: string): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/graficobarrasfiltro/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales + "/" + opcion);
   }
 
   getgraficopastel(): Observable<servicio[]> {
@@ -117,27 +117,27 @@ export class ServiceService {
     return this.http.get<servicio[]>(this.URL + "/establecimiento/" + fechaDesde + "/" + fechaHasta + "/" + sucursales + "/" + opcion);
   }
 
-  getevalgrupo(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number, opcion: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/evaluaciongrupos/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal + "/" + opcion);
+  getevalgrupo(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any, opcion: string): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/evaluaciongrupos/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales + "/" + opcion);
   }
 
   /*  */
 
   /* ATENCION */
-  gettiemposcompletos(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/tiemposcompletos/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal);
+  gettiemposcompletos(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/tiemposcompletos/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales);
   }
 
-  getpromatencion(fechaDesde: string, fechaHasta: string, cod: string | number): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/promediosatencion/" + fechaDesde + "/" + fechaHasta + "/" + cod);
+  getpromatencion(fechaDesde: string, fechaHasta: string, servicios: any, sucursales: any ): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/promediosatencion/" + fechaDesde + "/" + fechaHasta + "/" + servicios + "/" + sucursales);
   }
 
-  getmaxatencion(fechaDesde: string, fechaHasta: string, cod: string | number): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/maxatencion/" + fechaDesde + "/" + fechaHasta + "/" + cod);
+  getmaxatencion(fechaDesde: string, fechaHasta: string, servicios: any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/maxatencion/" + fechaDesde + "/" + fechaHasta + "/" + servicios + "/" + sucursales);
   }
 
-  getatencionservicio(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/atencionservicio/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal);
+  getatencionservicio(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/atencionservicio/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales);
   }
 
   getatenciongrafico(fechaDesde: string, fechaHasta: string, sucursales: any): Observable<servicio[]> {
@@ -154,12 +154,12 @@ export class ServiceService {
   }
 
   /* DISTRIBUCION Y ESTADO DE TURNOS */
-  getdistribucionturnos(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/distestadoturno/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal);
+  getdistribucionturnos(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/distestadoturno/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales);
   }
 
-  getdistribucionturnosresumen(fechaDesde: string, fechaHasta: string, listaCodigos: any, codSucursal: string | number): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/distestadoturnoresumen/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + codSucursal);
+  getdistribucionturnosresumen(fechaDesde: string, fechaHasta: string, listaCodigos: any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/distestadoturnoresumen/" + fechaDesde + "/" + fechaHasta + "/" + listaCodigos + "/" + sucursales);
   }
 
   /*INGRESO DE CLIENTES  */

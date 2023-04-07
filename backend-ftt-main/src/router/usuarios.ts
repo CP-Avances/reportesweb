@@ -74,24 +74,24 @@ router.get("/getallcajeros", (req: Request, res: Response) => {
   });
 });
 
-router.get("/getallcajeros/:empresa", (req: Request, res: Response) => {
-  const cEmpresa = req.params.empresa;
-  let query;
-  if (cEmpresa == "-1") {
-    query = `
+router.get("/getallcajeros/:sucursales", (req: Request, res: Response) => {
+  const listaSucursales = req.params.sucursales;
+  const sucursalesArray = listaSucursales.split(",");
+
+  let todasSucursales = false;
+
+  if (sucursalesArray.includes("-1")) {
+    todasSucursales = true
+  }
+
+  const query = `
             SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado 
             FROM cajero c, usuarios u 
             WHERE u.usua_codigo = c.usua_codigo
+            ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
             AND u.usua_codigo != 2;
             `;
-  } else {
-    query = `
-            SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado 
-            FROM cajero c, usuarios u 
-            WHERE u.usua_codigo = c.usua_codigo AND u.empr_codigo = ${cEmpresa}
-            AND u.usua_codigo != 2;
-            `;
-  }
+
   MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
     if (err) {
       res.status(400).json({
@@ -113,20 +113,28 @@ router.get("/getallcajeros/:empresa", (req: Request, res: Response) => {
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/tiempopromedioatencion/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal",
+  "/tiempopromedioatencion/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const cSucursal = req.params.sucursal;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
-    console.log(cSucursal);
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
 
     let todosCajeros = false;
-
+    let todasSucursales = false;
+    
     if (codigosArray.includes("-2")) {
       todosCajeros = true
     } 
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
+
 
     let query = `
     SELECT e.empr_nombre AS nombreEmpresa, serv_nombre AS Servicio, caje_nombre AS Nombre, 
@@ -139,16 +147,12 @@ router.get(
     AND c.usua_codigo = u.usua_codigo
     AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
     AND u.usua_codigo != 2
+    ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+    ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+    GROUP BY nombreEmpresa, Nombre, Servicio;
     `;
-    if (todosCajeros) {
-      if (cSucursal != "-1") {
-        query += `AND u.empr_codigo = '${cSucursal}' `
-      }
-    } else {
-      query += `AND c.caje_codigo IN (${listaCodigos}) `
-    }
-    query += `GROUP BY nombreEmpresa, Nombre, Servicio;`
     
+    console.log(query);
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
@@ -275,21 +279,27 @@ router.get("/atencionusuario", (req: Request, res: Response) => {
 });
 
 router.get(
-  "/atencionusuario/:fechaDesde/:fechaHasta/:listaCodigos/:sucursal",
+  "/atencionusuario/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cSucursal = req.params.sucursal;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
 
     let todosCajeros = false;
-
+    let todasSucursales = false;
+    
     if (codigosArray.includes("-2")) {
       todosCajeros = true
     } 
 
-    let query = `
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    } 
+
+    const query = `
     SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio, 
         SUM(turn_estado = 1) AS Atendidos 
     FROM usuarios u, turno t, cajero c, servicio s, empresa e 
@@ -299,15 +309,10 @@ router.get(
         AND u.empr_codigo = e.empr_codigo 
         AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND u.usua_codigo != 2 
-  `;
-    if (todosCajeros) {
-      if (cSucursal != "-1") {
-        query += `AND u.empr_codigo = '${cSucursal}' `;
-      }
-    } else {
-      query += `AND c.caje_codigo IN (${listaCodigos}) `;
-    }
-    query += `GROUP BY Nombre, Servicio;`;
+        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+        GROUP BY Nombre, Servicio;
+    `;
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {

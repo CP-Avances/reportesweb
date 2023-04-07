@@ -81,9 +81,11 @@ export class DistestadoturnosComponent implements OnInit {
   //OPCIONES MULTIPLES
   allSelected = false;
   selectedItems: string[] = [];
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   //MOSTRAR CAJEROS
-  mostrarCajeros: boolean = true;
+  mostrarCajeros: boolean = false;
 
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
@@ -116,7 +118,7 @@ export class DistestadoturnosComponent implements OnInit {
   ngOnInit(): void {
     //Cargamos componentes selects HTML
     this.getlastday();
-    this.getCajeros("-1");
+    // this.getCajeros("-1");
     this.getSucursales();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem('loggedUser');
@@ -133,11 +135,25 @@ export class DistestadoturnosComponent implements OnInit {
     });
   }
 
-  selectAll() {
-    if (this.allSelected==false) {
-      this.allSelected = true;
-    } else {
-      this.allSelected = false;
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'allSelected':
+            this.allSelected = !this.allSelected;
+            break;
+        case 'todasSucursalesD':
+            this.todasSucursalesD = !this.todasSucursalesD;
+            this.todasSucursalesD ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesR':
+            this.todasSucursalesR = !this.todasSucursalesR;
+            this.todasSucursalesR ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        default:
+            break;
     }
   }
 
@@ -170,10 +186,16 @@ export class DistestadoturnosComponent implements OnInit {
   }
 
   limpiar() {
-    this.getCajeros("-1");
-    this.getSucursales();
+    // this.getCajeros("-1");
+    // this.getSucursales();
+    this.cajerosDist=[];
+    this.mostrarCajeros = false;
     this.selectedItems = [];
     this.allSelected = false;
+    this.todasSucursalesD = false;
+    this.todasSucursalesR = false;
+    this.seleccionMultiple = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -192,10 +214,10 @@ export class DistestadoturnosComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateDist.nativeElement.value.toString().trim();
     var fH = this.toDateDist.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalDist.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalDist.nativeElement.value.toString().trim();
 
     if (this.selectedItems.length!==0) { 
-      this.serviceService.getdistribucionturnos(fD, fH, this.selectedItems, parseInt(codSucursal)).subscribe((servicio: any) => {
+      this.serviceService.getdistribucionturnos(fD, fH, this.selectedItems, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioDist = servicio.turnos;
         this.malRequestDist = false;
@@ -204,7 +226,7 @@ export class DistestadoturnosComponent implements OnInit {
         if (this.configDE.currentPage > 1) {
           this.configDE.currentPage = 1;
         }
-        this.todasSucursalesD = this.comprobarBusquedaSucursales(codSucursal);
+        // this.todasSucursalesD = this.comprobarBusquedaSucursales(codSucursal);
       },
         error => {
           if (error.status == 400) {
@@ -237,10 +259,10 @@ export class DistestadoturnosComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateDistRes.nativeElement.value.toString().trim();
     var fH = this.toDateDistRes.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalDistRes.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalDistRes.nativeElement.value.toString().trim();
     
     if (this.selectedItems.length!==0) { 
-      this.serviceService.getdistribucionturnosresumen(fD, fH, this.selectedItems, parseInt(codSucursal)).subscribe((servicioRes: any) => {
+      this.serviceService.getdistribucionturnosresumen(fD, fH, this.selectedItems, this.sucursalesSeleccionadas).subscribe((servicioRes: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioRes = servicioRes.turnos;
         this.malRequestDistPagRes = false;
@@ -249,7 +271,7 @@ export class DistestadoturnosComponent implements OnInit {
         if (this.configDERes.currentPage > 1) {
           this.configDERes.currentPage = 1;
         }
-        this.todasSucursalesR = this.comprobarBusquedaSucursales(codSucursal);
+        // this.todasSucursalesR = this.comprobarBusquedaSucursales(codSucursal);
       },
         error => {
           if (error.status == 400) {

@@ -196,44 +196,46 @@ export class OpinionComponent implements OnInit {
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
     // var cod = this.codSucursalAtM.nativeElement.value.toString();
 
-    this.serviceService.getopiniones(fD, fH, this.sucursalesSeleccionadas).subscribe(
-      (servicio: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        this.servicioOpinion = servicio.turnos;
-        this.malRequestAtM = false;
-        this.malRequestAtMPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
-        if (this.configAtM.currentPage > 1) {
-          this.configAtM.currentPage = 1;
-        }
-        // this.todasSucursalesI = this.comprobarBusquedaSucursales(cod);
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioOpinion = null;
-          this.malRequestAtM = true;
-          this.malRequestAtMPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioOpinion == null) {
-            this.configAtM.totalItems = 0;
-          } else {
-            this.configAtM.totalItems = this.servicioOpinion.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getopiniones(fD, fH, this.sucursalesSeleccionadas).subscribe(
+        (servicio: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.servicioOpinion = servicio.turnos;
+          this.malRequestAtM = false;
+          this.malRequestAtMPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configAtM.currentPage > 1) {
+            this.configAtM.currentPage = 1;
           }
-
-          //Por error 400 se setea elementos de paginacion
-          this.configAtM = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+          // this.todasSucursalesI = this.comprobarBusquedaSucursales(cod);
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioOpinion = null;
+            this.malRequestAtM = true;
+            this.malRequestAtMPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioOpinion == null) {
+              this.configAtM.totalItems = 0;
+            } else {
+              this.configAtM.totalItems = this.servicioOpinion.length;
+            }
+  
+            //Por error 400 se setea elementos de paginacion
+            this.configAtM = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
         }
-      }
-    );
+      );
+    }
   }
 
   leerGrafOpinion() {
@@ -243,166 +245,168 @@ export class OpinionComponent implements OnInit {
     // var cod = this.codSucursalOcupG.nativeElement.value.toString();
     this.malRequestAtM = false;
 
-    this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
-      (servicioocg: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        this.servicioocg = servicioocg.turnos;
-        // this.malRequestAtM = false;
-        this.malRequestAtMPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
-        if (this.configAtM.currentPage > 1) {
-          this.configAtM.currentPage = 1;
-        }
-        // this.todasSucursalesG = this.comprobarBusquedaSucursales(cod);
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioocg = null;
-          this.malRequestAtM = true;
-          this.malRequestAtMPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioocg == null) {
-            this.configAtM.totalItems = 0;
-          } else {
-            this.configAtM.totalItems = this.servicioocg.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
+        (servicioocg: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.servicioocg = servicioocg.turnos;
+          // this.malRequestAtM = false;
+          this.malRequestAtMPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configAtM.currentPage > 1) {
+            this.configAtM.currentPage = 1;
           }
-
-          //Por error 400 se setea elementos de paginacion
-          this.configAtM = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+          // this.todasSucursalesG = this.comprobarBusquedaSucursales(cod);
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioocg = null;
+            this.malRequestAtM = true;
+            this.malRequestAtMPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioocg == null) {
+              this.configAtM.totalItems = 0;
+            } else {
+              this.configAtM.totalItems = this.servicioocg.length;
+            }
+  
+            //Por error 400 se setea elementos de paginacion
+            this.configAtM = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
         }
-      }
-    );
-
-    this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
-      (servicio: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        //Se verifica el ancho de pantalla para colocar o no labels
-        this.legend = screen.width < 575 ? false : true;
-        //Mapeo de porcentajes para mostrar en pantalla
-        this.servicio = servicio.turnos;
-        let total = servicio.turnos.map((res) => res.queja_cantidad);
-        let tipo = servicio.turnos.map((res) => res.quejas_emi_tipo);
-        let Nombres = [];
-        let totalPorc = 0;
-        for (var i = 0; i < tipo.length; i++) {
-          totalPorc = totalPorc + total[i];
-        }
-        for (var i = 0; i < tipo.length; i++) {
-          Nombres.push(
-            tipo[i] +
-              "\n" +
-              Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
-              "%"
-          );
-        }
-
-        //Se crea el grafico
-        this.chartPie = new Chart("canvas", {
-          //El tipo de grafico
-          type: (this.tipo = "pie"),
-          data: {
-            labels: Nombres, //eje x
-            datasets: [
-              {
-                label: "Total",
-                data: total, //eje y
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.6)",
-                  "rgba(54, 162, 235, 0.6)",
-                  "rgba(255, 206, 86, 0.6)",
-                  "rgba(75, 192, 192, 0.6)",
-                  "rgba(153, 102, 255, 0.6)",
-                  "rgba(255, 159, 64, 0.6)",
-                  ///////////////////////////F
-                  "rgba(104, 210, 34, 0.6)",
-                ],
-              },
-            ],
-          },
-          //Se setea titulo asi como valores en grafico
-          options: {
-          
-            plugins: {
-              title: {
-                display: true,
-              },
-              datalabels: {
-                color: "black",
-                labels: {
-                  title: {
-                    color: "blue",
-                    font: {
-                      weight: "bold",
+      );
+  
+      this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
+        (servicio: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          //Se verifica el ancho de pantalla para colocar o no labels
+          this.legend = screen.width < 575 ? false : true;
+          //Mapeo de porcentajes para mostrar en pantalla
+          this.servicio = servicio.turnos;
+          let total = servicio.turnos.map((res) => res.queja_cantidad);
+          let tipo = servicio.turnos.map((res) => res.quejas_emi_tipo);
+          let Nombres = [];
+          let totalPorc = 0;
+          for (var i = 0; i < tipo.length; i++) {
+            totalPorc = totalPorc + total[i];
+          }
+          for (var i = 0; i < tipo.length; i++) {
+            Nombres.push(
+              tipo[i] +
+                "\n" +
+                Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
+                "%"
+            );
+          }
+  
+          //Se crea el grafico
+          this.chartPie = new Chart("canvas", {
+            //El tipo de grafico
+            type: (this.tipo = "pie"),
+            data: {
+              labels: Nombres, //eje x
+              datasets: [
+                {
+                  label: "Total",
+                  data: total, //eje y
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.6)",
+                    "rgba(54, 162, 235, 0.6)",
+                    "rgba(255, 206, 86, 0.6)",
+                    "rgba(75, 192, 192, 0.6)",
+                    "rgba(153, 102, 255, 0.6)",
+                    "rgba(255, 159, 64, 0.6)",
+                    ///////////////////////////F
+                    "rgba(104, 210, 34, 0.6)",
+                  ],
+                },
+              ],
+            },
+            //Se setea titulo asi como valores en grafico
+            options: {
+            
+              plugins: {
+                title: {
+                  display: true,
+                },
+                datalabels: {
+                  color: "black",
+                  labels: {
+                    title: {
+                      color: "blue",
+                      font: {
+                        weight: "bold",
+                      },
                     },
                   },
                 },
               },
+              responsive: true,
             },
-            responsive: true,
-          },
-        });
-        //Se crea segundo grafico
-        this.chartBar = new Chart("canvas2", {
-          //Tipo de gráfico bar
-          type: (this.tipo = "bar"),
-          data: {
-            labels: Nombres, //eje x
-            datasets: [
-              {
-                label: "Total",
-                data: total, //eje y
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.6)",
-                  "rgba(54, 162, 235, 0.6)",
-                  "rgba(255, 206, 86, 0.6)",
-                  "rgba(75, 192, 192, 0.6)",
-                  "rgba(153, 102, 255, 0.6)",
-                  "rgba(255, 159, 64, 0.6)",
-                  ///////////////////////////F
-                  "rgba(104, 210, 34, 0.6)",
-                ],
-              },
-            ],
-          },
-          options: {
-            scales: {
-             /* xAxes: [
+          });
+          //Se crea segundo grafico
+          this.chartBar = new Chart("canvas2", {
+            //Tipo de gráfico bar
+            type: (this.tipo = "bar"),
+            data: {
+              labels: Nombres, //eje x
+              datasets: [
                 {
-                  ticks: {
-                    display: this.legend,
-                  },
+                  label: "Total",
+                  data: total, //eje y
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.6)",
+                    "rgba(54, 162, 235, 0.6)",
+                    "rgba(255, 206, 86, 0.6)",
+                    "rgba(75, 192, 192, 0.6)",
+                    "rgba(153, 102, 255, 0.6)",
+                    "rgba(255, 159, 64, 0.6)",
+                    ///////////////////////////F
+                    "rgba(104, 210, 34, 0.6)",
+                  ],
                 },
-              ],*/
+              ],
             },
-            plugins:{
-              title: {
-                display: true,
+            options: {
+              scales: {
+               /* xAxes: [
+                  {
+                    ticks: {
+                      display: this.legend,
+                    },
+                  },
+                ],*/
               },
-              legend: {
-                display: false,
+              plugins:{
+                title: {
+                  display: true,
+                },
+                legend: {
+                  display: false,
+                },
               },
+            
+              responsive: true,
             },
-          
-            responsive: true,
-          },
-        });
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Por error 400 se vacia variable de consulta
-          this.servicio = null;
+          });
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Por error 400 se vacia variable de consulta
+            this.servicio = null;
+          }
         }
-      }
-    );
+      );
+    }
     //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
     if (this.chartPie != undefined || this.chartPie != null) {
       this.chartPie.destroy();

@@ -153,42 +153,44 @@ export class IngresoclientesComponent implements OnInit {
     var fH = this.toDateIng.nativeElement.value.toString().trim();
     // var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
 
-    this.serviceService.getingresoclientes(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
-      //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-      this.servicioIngrClientes = servicio.turnos;
-      this.malRequestIng = false;
-      this.malRequestIngPag = false;
-      //Seteo de paginacion cuando se hace una nueva busqueda
-      if (this.configTE.currentPage > 1) {
-        this.configTE.currentPage = 1;
-      }
-      // this.todasSucursales = this.comprobarBusquedaSucursales(cod);
-    },
-      error => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioIngrClientes = null;
-          this.malRequestIng = true;
-          this.malRequestIngPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioIngrClientes == null) {
-            this.configTE.totalItems = 0;
-          } else {
-            this.configTE.totalItems = this.servicioIngrClientes.length;
-          }
-          //Por error 400 se setea elementos de paginacion
-          this.configTE = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getingresoclientes(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
+        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        this.servicioIngrClientes = servicio.turnos;
+        this.malRequestIng = false;
+        this.malRequestIngPag = false;
+        //Seteo de paginacion cuando se hace una nueva busqueda
+        if (this.configTE.currentPage > 1) {
+          this.configTE.currentPage = 1;
         }
-      }
-    );
+        // this.todasSucursales = this.comprobarBusquedaSucursales(cod);
+      },
+        error => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioIngrClientes = null;
+            this.malRequestIng = true;
+            this.malRequestIngPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioIngrClientes == null) {
+              this.configTE.totalItems = 0;
+            } else {
+              this.configTE.totalItems = this.servicioIngrClientes.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configTE = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        }
+      );
+    }
   }
 
   obtenerNombreSucursal(cod: string){

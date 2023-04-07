@@ -124,7 +124,10 @@ export class AtencionComponent implements OnInit {
   seleccionMultiple: boolean = false;
 
   //MOSTRAR CAJEROS
-  mostrarCajeros: boolean = true;
+  mostrarCajeros: boolean = false;
+
+  //MOSTRAR SERVICIOS
+  mostrarServicios: boolean = false;
 
   // ORIENTACION
   orientacion: string;
@@ -191,8 +194,8 @@ export class AtencionComponent implements OnInit {
   ngOnInit(): void {
     // CARGAMOS COMPONENTES SELECTS HTML
     this.getlastday();
-    this.getCajeros("-1");
-    this.getServicios("-1");
+    // this.getCajeros("-1");
+    // this.getServicios("-1");
     this.getSucursales();
 
     // CARGAMOS NOMBRE DE USUARIO LOGUEADO
@@ -229,11 +232,30 @@ export class AtencionComponent implements OnInit {
         case 'todasSucursalesGS':
             this.todasSucursalesGS = !this.todasSucursalesGS;
             break;
+        case 'todasSucursalesTC':
+          this.todasSucursalesTC = !this.todasSucursalesTC;
+          this.todasSucursalesTC ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'todasSucursalesAS':
+          this.todasSucursalesAS = !this.todasSucursalesAS;
+          this.todasSucursalesAS ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'todasSucursalesPA':
+          this.todasSucursalesPA = !this.todasSucursalesPA;
+          this.todasSucursalesPA ? this.getServicios(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'todasSucursalesMA':
+          this.todasSucursalesMA = !this.todasSucursalesMA;
+          this.todasSucursalesMA ? this.getServicios(this.sucursalesSeleccionadas) : null;
+          break;
         case 'sucursalesSeleccionadas':
-            this.sucursalesSeleccionadas.length > 1 
-            ? this.seleccionMultiple = true 
-            : this.seleccionMultiple = false;
-            break;
+          this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+          this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'sucursalesSeleccionadasS':
+          this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+          this.sucursalesSeleccionadas.length > 0 ? this.getServicios(this.sucursalesSeleccionadas) : null;
+          break;
         default:
             break;
     }
@@ -275,16 +297,21 @@ export class AtencionComponent implements OnInit {
   }
 
   limpiar() {
-    this.getCajeros("-1");
-    this.getSucursales();
-    this.getServicios("-1");
+    // this.getCajeros("-1");
+    // this.getSucursales();
+    // this.getServicios("-1");
+    this.serviciosAtPA=[]
     this.selectedItems = [];
+    this.cajerosAtencion=[];
+    this.mostrarCajeros = false;
+    this.mostrarServicios = false;
     this.allSelected = false;
     this.todasSucursalesTC = false;
     this.todasSucursalesPA = false;
     this.todasSucursalesMA = false;
     this.todasSucursalesAS = false;
     this.todasSucursalesGS = false;
+    this.seleccionMultiple = false;
     this.sucursalesSeleccionadas = [];
   }
 
@@ -311,10 +338,12 @@ export class AtencionComponent implements OnInit {
   getServicios(sucursal: any) {
     this.serviceService.getAllServiciosS(sucursal).subscribe((serviciosAtPA: any) => {
       this.serviciosAtPA = serviciosAtPA.servicios;
+      this.mostrarServicios = true;
     },
       (error) => {
         if (error.status == 400) {
           this.serviciosAtPA = [];
+          this.mostrarServicios = false;
         }
       });
   }
@@ -323,10 +352,10 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTC.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtTC.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalAtTC.nativeElement.value.toString().trim();
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .gettiemposcompletos(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal))
+        .gettiemposcompletos(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -337,7 +366,7 @@ export class AtencionComponent implements OnInit {
             if (this.configTC.currentPage > 1) {
               this.configTC.currentPage = 1;
             }
-            this.todasSucursalesTC = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesTC = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -371,105 +400,111 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtPA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtPA.nativeElement.value.toString().trim();
-    var cod = this.codServicioAtPA.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtPA.nativeElement.value.toString().trim();
-    this.serviceService
-      .getpromatencion(fechaDesde, fechaHasta, parseInt(cod))
-      .subscribe(
-        (serviciopa: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.serviciopa = serviciopa.turnos;
-          this.malRequestAtPA = false;
-          this.malRequestAtPAPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configPA.currentPage > 1) {
-            this.configPA.currentPage = 1;
-          }
-          this.todasSucursalesPA = this.comprobarBusquedaSucursales(codSucursal);
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.serviciopa = null;
-            this.malRequestAtPA = true;
-            this.malRequestAtPAPag = true;
-            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.serviciopa == null) {
-              this.configPA.totalItems = 0;
-            } else {
-              this.configPA.totalItems = this.serviciopa.length;
+    // var cod = this.codServicioAtPA.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalAtPA.nativeElement.value.toString().trim();
+
+    if (this.selectedItems.length!==0) {  
+      this.serviceService
+        .getpromatencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .subscribe(
+          (serviciopa: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.serviciopa = serviciopa.turnos;
+            this.malRequestAtPA = false;
+            this.malRequestAtPAPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configPA.currentPage > 1) {
+              this.configPA.currentPage = 1;
             }
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configPA = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+            // this.todasSucursalesPA = this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.serviciopa = null;
+              this.malRequestAtPA = true;
+              this.malRequestAtPAPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.serviciopa == null) {
+                this.configPA.totalItems = 0;
+              } else {
+                this.configPA.totalItems = this.serviciopa.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configPA = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
   leerMaxAtencion() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
-    var cod = this.codServicioAtMA.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtMA.nativeElement.value.toString().trim();
-    this.serviceService
-      .getmaxatencion(fechaDesde, fechaHasta, parseInt(cod))
-      .subscribe(
-        (serviciomax: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.serviciomax = serviciomax.turnos;
-          this.malRequestAtMA = false;
-          this.malRequestAtMAPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configMA.currentPage > 1) {
-            this.configMA.currentPage = 1;
-          }
-          this.todasSucursalesMA = this.comprobarBusquedaSucursales(codSucursal);
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.serviciomax = null;
-            this.malRequestAtMA = true;
-            this.malRequestAtMAPag = true;
-            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.serviciomax == null) {
-              this.configMA.totalItems = 0;
-            } else {
-              this.configMA.totalItems = this.serviciomax.length;
+    // var cod = this.codServicioAtMA.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalAtMA.nativeElement.value.toString().trim();
+
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .getmaxatencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .subscribe(
+          (serviciomax: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.serviciomax = serviciomax.turnos;
+            this.malRequestAtMA = false;
+            this.malRequestAtMAPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configMA.currentPage > 1) {
+              this.configMA.currentPage = 1;
             }
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configMA = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+            // this.todasSucursalesMA = this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.serviciomax = null;
+              this.malRequestAtMA = true;
+              this.malRequestAtMAPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.serviciomax == null) {
+                this.configMA.totalItems = 0;
+              } else {
+                this.configMA.totalItems = this.serviciomax.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configMA = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
   leerAtencionServicio() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtAS.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalAtAS.nativeElement.value.toString().trim();
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getatencionservicio(fechaDesde, fechaHasta, this.selectedItems, parseInt(codSucursal))
+        .getatencionservicio(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicioatser: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -480,7 +515,7 @@ export class AtencionComponent implements OnInit {
             if (this.configAS.currentPage > 1) {
               this.configAS.currentPage = 1;
             }
-            this.todasSucursalesAS = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesAS = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -517,102 +552,104 @@ export class AtencionComponent implements OnInit {
     // var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
     this.malRequestAtG = false;
 
-    this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, this.sucursalesSeleccionadas).subscribe(
-      (serviciograf: any) => {
-        // VERIFICACION DE ANCHO DE PANTALLA PARA MOSTRAR O NO LABELS
-        this.legend = screen.width < 575 ? false : true;
-        // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-        this.serviciograf = serviciograf.turnos;
-        // this.malRequestAtG = false;
-        this.malRequestAtGPag = false;
-        // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-        if (this.configGS.currentPage > 1) {
-          this.configGS.currentPage = 1;
-        }
-        // this.todasSucursalesGS = this.comprobarBusquedaSucursales(cod);
-        // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
-        let Nombres = serviciograf.turnos.map((res) => res.Servicio);
-        let totales = serviciograf.turnos.map((res) => res.Total);
-        let atendidos = serviciograf.turnos.map((res) => res.Atendidos);
-        let noAtendidos = serviciograf.turnos.map((res) => res.No_Atendidos);
-
-        // SETEO DE CADA GRUPO DE DATOS
-        var atendidosData = {
-          label: "Atendidos",
-          data: atendidos,
-          backgroundColor: "rgba(0, 99, 132, 0.6)",
-        };
-        var noAtendidosData = {
-          label: "No Atendidos",
-          data: noAtendidos,
-          backgroundColor: "rgba(99, 132, 0, 0.6)",
-        };
-        var totalesData = {
-          type: "scatter",
-          label: "Totales",
-          data: totales,
-          backgroundColor: "rgba(220, 46, 86, 0.6)",
-        };
-        var graficoData = {
-          labels: Nombres,
-          datasets: [atendidosData, noAtendidosData, totalesData],
-        };
-
-        // CREACION DEL GRAFICO
-        this.chart = new Chart("canvas", {
-          type: "bar",
-          data: graficoData,
-          options: {
-            plugins: {
-              datalabels: {
-                color: "black",
-                labels: {
-                  title: {
-                    font: {
-                      weight: "bold",
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, this.sucursalesSeleccionadas).subscribe(
+        (serviciograf: any) => {
+          // VERIFICACION DE ANCHO DE PANTALLA PARA MOSTRAR O NO LABELS
+          this.legend = screen.width < 575 ? false : true;
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+          this.serviciograf = serviciograf.turnos;
+          // this.malRequestAtG = false;
+          this.malRequestAtGPag = false;
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+          if (this.configGS.currentPage > 1) {
+            this.configGS.currentPage = 1;
+          }
+          // this.todasSucursalesGS = this.comprobarBusquedaSucursales(cod);
+          // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
+          let Nombres = serviciograf.turnos.map((res) => res.Servicio);
+          let totales = serviciograf.turnos.map((res) => res.Total);
+          let atendidos = serviciograf.turnos.map((res) => res.Atendidos);
+          let noAtendidos = serviciograf.turnos.map((res) => res.No_Atendidos);
+  
+          // SETEO DE CADA GRUPO DE DATOS
+          var atendidosData = {
+            label: "Atendidos",
+            data: atendidos,
+            backgroundColor: "rgba(0, 99, 132, 0.6)",
+          };
+          var noAtendidosData = {
+            label: "No Atendidos",
+            data: noAtendidos,
+            backgroundColor: "rgba(99, 132, 0, 0.6)",
+          };
+          var totalesData = {
+            type: "scatter",
+            label: "Totales",
+            data: totales,
+            backgroundColor: "rgba(220, 46, 86, 0.6)",
+          };
+          var graficoData = {
+            labels: Nombres,
+            datasets: [atendidosData, noAtendidosData, totalesData],
+          };
+  
+          // CREACION DEL GRAFICO
+          this.chart = new Chart("canvas", {
+            type: "bar",
+            data: graficoData,
+            options: {
+              plugins: {
+                datalabels: {
+                  color: "black",
+                  labels: {
+                    title: {
+                      font: {
+                        weight: "bold",
+                      },
                     },
                   },
                 },
               },
-            },
-            scales: {
-              /* xAxis: [
-                 {
-                   ticks: {
-                     display: this.legend,
+              scales: {
+                /* xAxis: [
+                   {
+                     ticks: {
+                       display: this.legend,
+                     },
                    },
-                 },
-               ],*/
+                 ],*/
+              },
+              responsive: true,
             },
-            responsive: true,
-          },
-        });
-      },
-      (error) => {
-        if (error.status == 400) {
-          // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-          this.serviciograf = null;
-          this.malRequestAtG = true;
-          this.malRequestAtGPag = true;
-          // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-          // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-          if (this.serviciograf == null) {
-            this.configGS.totalItems = 0;
-          } else {
-            this.configGS.totalItems = this.serviciograf.length;
-          }
-          // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-          this.configGS = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
           });
+        },
+        (error) => {
+          if (error.status == 400) {
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+            this.serviciograf = null;
+            this.malRequestAtG = true;
+            this.malRequestAtGPag = true;
+            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+            if (this.serviciograf == null) {
+              this.configGS.totalItems = 0;
+            } else {
+              this.configGS.totalItems = this.serviciograf.length;
+            }
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+            this.configGS = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
         }
-      }
-    );
+      );
+    }
     // SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
     // EVITANDO SUPERPOSISION DEL NUEVO CHART
     if (this.chart != undefined || this.chart != null) {
