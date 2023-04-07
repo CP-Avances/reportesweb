@@ -415,22 +415,32 @@ export class OcupacionComponent implements OnInit {
     }
   }
 
-  obtenerNombreSucursal(cod: string){
-    if (cod=="-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    console.log(`lista de sucursales: ${listaSucursales}`);
+    
+    let nombreSucursal = "";
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   //---Excel
   exportarAExcelOcupServs() {
-    let cod = this.codSucursalOCs.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalOCs.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesO) {
+    if (this.todasSucursalesO || this.seleccionMultiple) {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciooc[step].nombreEmpresa,
@@ -473,11 +483,11 @@ export class OcupacionComponent implements OnInit {
   }
 
   exportarAExcelOcupServsGrafico() {
-    let cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesOG) {
+    if (this.todasSucursalesOG || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioocg.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioocg[step].nombreEmpresa,
@@ -519,7 +529,7 @@ export class OcupacionComponent implements OnInit {
     );
   }
 
-  getDocumentAtencionServicioGraficos(fD, fH, cod) {
+  getDocumentAtencionServicioGraficos(fD, fH) {
     //Selecciona de la interfaz el elemento que contiene la grafica
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
     var canvas2 = document.querySelector("#canvas2") as HTMLCanvasElement;
@@ -530,7 +540,7 @@ export class OcupacionComponent implements OnInit {
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -665,11 +675,11 @@ export class OcupacionComponent implements OnInit {
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      var cod = this.codSucursalOCs.nativeElement.value.toString().trim();
-      documentDefinition = this.getDocumentAtencionServicioGraf(fD, fH, cod);
+      // var cod = this.codSucursalOCs.nativeElement.value.toString().trim();
+      documentDefinition = this.getDocumentAtencionServicioGraf(fD, fH);
     } else if (pdf === 2) {
-      var cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
-      documentDefinition = this.getDocumentAtencionServicioGraficos(fD, fH, cod);
+      // var cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
+      documentDefinition = this.getDocumentAtencionServicioGraficos(fD, fH);
     }
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
@@ -691,12 +701,12 @@ export class OcupacionComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentAtencionServicioGraf(fD, fH, cod) {
+  getDocumentAtencionServicioGraf(fD, fH) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -804,7 +814,7 @@ export class OcupacionComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   ocupacion(servicio: any[]) {
-    if (this.todasSucursalesO) {
+    if (this.todasSucursalesO || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -873,7 +883,7 @@ export class OcupacionComponent implements OnInit {
 
     //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
     ocupacionGrafica(servicio: any[]) {
-      if (this.todasSucursalesOG) {
+      if (this.todasSucursalesOG || this.seleccionMultiple) {
         return {
           style: "tableMargin",
           table: {

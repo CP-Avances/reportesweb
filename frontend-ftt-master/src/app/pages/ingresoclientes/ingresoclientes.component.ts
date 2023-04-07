@@ -193,22 +193,32 @@ export class IngresoclientesComponent implements OnInit {
     }
   }
 
-  obtenerNombreSucursal(cod: string){
-    if (cod=="-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    console.log(`lista de sucursales: ${listaSucursales}`);
+    
+    let nombreSucursal = "";
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   //---Excel
   exportTOExcelIngrClientes() {
-    let cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursales) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioIngrClientes.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioIngrClientes[step].nombreEmpresa,
@@ -242,12 +252,12 @@ export class IngresoclientesComponent implements OnInit {
     //Seteo de rango de fechas de la consulta para impresión en PDF
     var fD = this.fromDateIng.nativeElement.value.toString().trim();
     var fH = this.toDateIng.nativeElement.value.toString().trim();
-    var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentIngtesoClientes(fD, fH, cod);
+      documentDefinition = this.getDocumentIngtesoClientes(fD, fH);
     }
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
     switch (action) {
@@ -260,12 +270,12 @@ export class IngresoclientesComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentIngtesoClientes(fD, fH, cod) {
+  getDocumentIngtesoClientes(fD, fH) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours())
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -337,7 +347,7 @@ export class IngresoclientesComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   ingresoclientes(servicio: any[]) {
-    if (this.todasSucursales) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       return {
         style: 'tableMargin',
         table: {

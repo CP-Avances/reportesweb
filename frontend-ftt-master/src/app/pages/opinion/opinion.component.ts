@@ -416,22 +416,32 @@ export class OpinionComponent implements OnInit {
     }
   }
 
-  obtenerNombreSucursal(cod: string){
-    if (cod=="-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    console.log(`lista de sucursales: ${listaSucursales}`);
+    
+    let nombreSucursal = "";
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   //---Excel
   exportTOExcelOpiniones() {
-    let cod = this.codSucursalAtM.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-      if (this.todasSucursalesI) {
+      if (this.todasSucursalesI || this.seleccionMultiple) {
         for (let step = 0; step < this.servicioOpinion.length; step++) {
           jsonServicio.push({
             Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
@@ -476,12 +486,12 @@ export class OpinionComponent implements OnInit {
   }
 
   exportTOExcelOpinionesGrafico() {
-    let cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-      if (this.todasSucursalesG) {
+      if (this.todasSucursalesG || this.seleccionMultiple) {
         for (let step = 0; step < this.servicioOpinion.length; step++) {
           jsonServicio.push({
             Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
@@ -532,11 +542,11 @@ export class OpinionComponent implements OnInit {
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
-      documentDefinition = this.getDocumentOpiniones(fD, fH, cod);
+      // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+      documentDefinition = this.getDocumentOpiniones(fD, fH);
     } else if (pdf === 2) {
-      var cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
-      documentDefinition = this.getDocumentOpinionesGraficos(fD, fH, cod);
+      // var cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
+      documentDefinition = this.getDocumentOpinionesGraficos(fD, fH);
     }
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
@@ -558,12 +568,12 @@ export class OpinionComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentOpiniones(fD, fH, cod) {
+  getDocumentOpiniones(fD, fH) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -671,7 +681,7 @@ export class OpinionComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentOpinionesGraficos(fD, fH, cod) {
+  getDocumentOpinionesGraficos(fD, fH) {
     //Selecciona de la interfaz el elemento que contiene la grafica
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
     var canvas2 = document.querySelector("#canvas2") as HTMLCanvasElement;
@@ -682,7 +692,7 @@ export class OpinionComponent implements OnInit {
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -812,7 +822,7 @@ export class OpinionComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   opiniones(servicio: any[]) {
-    if (this.todasSucursalesI) {
+    if (this.todasSucursalesI || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -885,7 +895,7 @@ export class OpinionComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   opinionesGraficos(servicio: any[]) {
-    if (this.todasSucursalesG) {
+    if (this.todasSucursalesG || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {

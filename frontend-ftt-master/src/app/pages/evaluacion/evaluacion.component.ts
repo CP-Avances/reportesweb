@@ -991,24 +991,34 @@ export class EvaluacionComponent implements OnInit {
     this.leerGraficosevabar();
   }
 
-  obtenerNombreSucursal(cod: string) {
-    if (cod == "-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    console.log(`lista de sucursales: ${listaSucursales}`);
+    
+    let nombreSucursal = "";
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   exportarAExcelServicios() {
-    let cod = this.codSucursalServicio.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalServicio.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Servicios
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
     for (let i = 0; i < this.servicioServs.length; i++) {
       const item = {
-        ...(this.todasSucursalesS
+        ...(this.todasSucursalesS || this.seleccionMultiple
           ? { Sucursal: this.servicioServs[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioServs[i].Usuario,
@@ -1086,13 +1096,13 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEvalEmpl() {
-    let cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
     for (let i = 0; i < this.servicioEvalEmpl.length; i++) {
       const item = {
-        ...(this.todasSucursalesE
+        ...(this.todasSucursalesE || this.seleccionMultiple
           ? { Sucursal: this.servicioEvalEmpl[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioEvalEmpl[i].usua_nombre,
@@ -1167,16 +1177,16 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEvalOmitidas() {
-    let cod = this.codSucursalEvalOmitidas.nativeElement.value
-      .toString()
-      .trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalEvalOmitidas.nativeElement.value
+    //   .toString()
+    //   .trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
     for (let i = 0; i < this.servicioEvalOmitidas.length; i++) {
       const item = {
-        ...(this.todasSucursalesEO
+        ...(this.todasSucursalesEO || this.seleccionMultiple
           ? { Sucursal: this.servicioEvalOmitidas[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioEvalOmitidas[i].usua_nombre,
@@ -1210,14 +1220,14 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEstb() {
-    let cod = this.codSucursalEst.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalEst.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
     for (let i = 0; i < this.servicioEstb.length; i++) {
       const item = {
-        ...(this.todasSucursalesEST
+        ...(this.todasSucursalesEST || this.seleccionMultiple
           ? { Sucursal: this.servicioEstb[i].nombreEmpresa }
           : {}),
         Fecha: this.servicioEstb[i].fecha,
@@ -1254,14 +1264,14 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEvalGr() {
-    let cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
     for (let i = 0; i < this.servicioG.length; i++) {
       const item = {
-        ...(this.todasSucursalesEG
+        ...(this.todasSucursalesEG || this.seleccionMultiple
           ? { Sucursal: this.servicioG[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioG[i].usua_nombre,
@@ -1327,15 +1337,15 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelGra() {
-    var cod = this.codSucursal.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
     for (let i = 0; i < this.servicioGra.length; i++) {
       const item = {
-        ...(this.todasSucursalesG
+        ...(this.todasSucursalesG || this.seleccionMultiple
           ? { Sucursal: this.servicioGra[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioGra[i].usuario,
@@ -1375,14 +1385,13 @@ generarPdfServicios(action = "open", pdf: number) {
     .toString()
     .trim();
   var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
-  var cod = this.codSucursalServicio.nativeElement.value.toString().trim();
+  // var cod = this.codSucursalServicio.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentServicios(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -1405,12 +1414,12 @@ generarPdfServicios(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información en estructura
-getDocumentServicios(fechaDesde, fechaHasta, cod) {
+getDocumentServicios(fechaDesde, fechaHasta) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -1524,7 +1533,7 @@ getDocumentServicios(fechaDesde, fechaHasta, cod) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend Servicios
 servicios(servicio: any[]) {
-  if (this.todasSucursalesS) {
+  if (this.todasSucursalesS || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -1630,7 +1639,7 @@ servicios(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend Max Mins
 maxmin(servicio: any[]) {
-  if (this.todasSucursalesS) {
+  if (this.todasSucursalesS || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -1744,7 +1753,7 @@ maxmin(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend Servicios
 serviciosC(servicio: any[]) {
-  if (this.todasSucursalesS) {
+  if (this.todasSucursalesS || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -1835,7 +1844,7 @@ serviciosC(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend Max Mins
 maxminC(servicio: any[]) {
-  if (this.todasSucursalesS) {
+  if (this.todasSucursalesS || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -1949,14 +1958,13 @@ generarPdfEvalEmpl(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalEmpl.nativeElement.value
     .toString()
     .trim();
-  var cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
+  // var cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentEmpleado(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -1979,12 +1987,12 @@ generarPdfEvalEmpl(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información de estructura
-getDocumentEmpleado(fechaDesde, fechaHasta, cod) {
+getDocumentEmpleado(fechaDesde, fechaHasta) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -2099,7 +2107,7 @@ getDocumentEmpleado(fechaDesde, fechaHasta, cod) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 empleado(servicio: any[]) {
-  if (this.todasSucursalesE) {
+  if (this.todasSucursalesE || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2205,7 +2213,7 @@ empleado(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 maxmine(servicio: any[]) {
-  if (this.todasSucursalesE) {
+  if (this.todasSucursalesE || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2319,7 +2327,7 @@ maxmine(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 empleadoC(servicio: any[]) {
-  if (this.todasSucursalesE) {
+  if (this.todasSucursalesE || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2410,7 +2418,7 @@ empleadoC(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 maxmineC(servicio: any[]) {
-  if (this.todasSucursalesE) {
+  if (this.todasSucursalesE || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2524,16 +2532,15 @@ generarPdfEvalOmitidas(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
     .toString()
     .trim();
-  var cod = this.codSucursalEvalOmitidas.nativeElement.value
-    .toString()
-    .trim();
+  // var cod = this.codSucursalEvalOmitidas.nativeElement.value
+  //   .toString()
+  //   .trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentEvaluacionesOmitidas(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -2556,12 +2563,12 @@ generarPdfEvalOmitidas(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información de estructura
-getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta, cod) {
+getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -2670,7 +2677,7 @@ getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta, cod) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 omitidas(servicio: any[]) {
-  if (this.todasSucursalesEO) {
+  if (this.todasSucursalesEO || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2733,14 +2740,13 @@ generarPdfEstb(action = "open", pdf: number) {
   //Seteo de rango de fechas de la consulta para impresión en PDF
   var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
   var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
-  var cod = this.codSucursalEst.nativeElement.value.toString().trim();
+  // var cod = this.codSucursalEst.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentEstablecimiento(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -2763,12 +2769,12 @@ generarPdfEstb(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información
-getDocumentEstablecimiento(fD, fH, cod) {
+getDocumentEstablecimiento(fD, fH) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -2878,7 +2884,7 @@ getDocumentEstablecimiento(fD, fH, cod) {
 
 //Definicion de funcion delegada para setear informacion de tabla del PDF en estructura
 establecimientos(servicio: any[]) {
-  if (this.todasSucursalesEST) {
+  if (this.todasSucursalesEST || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2955,12 +2961,12 @@ establecimientos(servicio: any[]) {
 
 //Definicion de funcion delegada para setear informacion de tabla del PDF en estructura
 establecimientosC(servicio: any[]) {
-  if (this.todasSucursalesEST) {
+  if (this.todasSucursalesEST || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
         headerRows: 1,
-        widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
+        widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
@@ -3034,14 +3040,13 @@ generarPdfEvalGr(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
     .toString()
     .trim();
-  var cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
+  // var cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentEvaGrupo(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -3064,12 +3069,12 @@ generarPdfEvalGr(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información
-getDocumentEvaGrupo(fechaDesde, fechaHasta, cod) {
+getDocumentEvaGrupo(fechaDesde, fechaHasta) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -3177,7 +3182,7 @@ getDocumentEvaGrupo(fechaDesde, fechaHasta, cod) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 evagrupo(servicio: any[]) {
-  if (this.todasSucursalesEG) {
+  if (this.todasSucursalesEG || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -3257,11 +3262,11 @@ generarPdfGra(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
     .toString()
     .trim();
-  var cod = this.codSucursal.nativeElement.value.toString().trim();
+  // var cod = this.codSucursal.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
-    documentDefinition = this.getDocumentGr(fechaDesde, fechaHasta, cod);
+    documentDefinition = this.getDocumentGr(fechaDesde, fechaHasta);
     // this.genGraficoPDF();
   }
 
@@ -3283,7 +3288,7 @@ generarPdfGra(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información
-getDocumentGr(fechaDesde, fechaHasta, cod) {
+getDocumentGr(fechaDesde, fechaHasta) {
   var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
   //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
   var canvasImg = canvas1.toDataURL("image/png");
@@ -3291,7 +3296,7 @@ getDocumentGr(fechaDesde, fechaHasta, cod) {
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   //Formateo de datos para obtener, los valores de cada parámetro
   let Nombres = [];
@@ -3442,7 +3447,7 @@ graficoImagen(imagen: any) {
 
 //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
 grafico(servicio: any[]) {
-  if (this.todasSucursalesG) {
+  if (this.todasSucursalesG || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
