@@ -23,10 +23,6 @@
                                 <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDist" #toDateDist>
                             </div>
                             <div class="col-6">
-                                <!-- <select class="form-control"  name="select" #codSucursalDist (change)="getCajeros($event.target.value)">
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
                                     <mat-option [value]="-1"  (click)="selectAll('todasSucursalesD')" >
                                         Todas las sucursales
@@ -37,11 +33,6 @@
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <!-- <select class="form-control"  name="selectmake" #codCajeroDist>
-                                    <option value="-1" selected>Seleccione usuario...</option>
-                                    <option value="-2" >Todos los usuarios</option>
-                                    <option *ngFor="let cajerosDist of cajerosDist" value="{{cajerosDist.caje_codigo}}" [ngValue]="cajerosDist.caje_codigo">{{cajerosDist.caje_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Cajeros">
                                     <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
                                         Todos los cajeros
@@ -109,10 +100,6 @@
                                 <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDistRes" #toDateDistRes>
                             </div>
                             <div class="col-6">
-                                <!-- <select class="form-control"  name="select" #codSucursalDistRes (change)="getCajeros($event.target.value)">
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
                                     <mat-option [value]="-1"  (click)="selectAll('todasSucursalesR')" >
                                         Todas las sucursales
@@ -123,11 +110,6 @@
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <!-- <select class="form-control"  name="selectmake" #codCajeroDistRes>
-                                    <option value="-1" selected>Seleccione usuario...</option>
-                                    <option value="-2">Todos los usuarios</option>
-                                    <option *ngFor="let cajerosDist of cajerosDist" value="{{cajerosDist.caje_codigo}}" [ngValue]="cajerosDist.caje_codigo">{{cajerosDist.caje_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Cajeros">
                                     <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
                                         Todos los cajeros

@@ -194,10 +194,9 @@ export class AtendidosmultiplesComponent implements OnInit {
   }
 
   obtenerNombreSucursal(sucursales: any) {
-    const listaSucursales = sucursales;
-    console.log(`lista de sucursales: ${listaSucursales}`);
-    
+    const listaSucursales = sucursales;    
     let nombreSucursal = "";
+    
     listaSucursales.forEach(elemento => {
       const cod = elemento;
       if (cod=="-1") {

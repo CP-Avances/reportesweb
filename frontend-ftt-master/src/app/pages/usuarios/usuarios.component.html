@@ -36,11 +36,6 @@
                                     name="toDateTurnosFecha" #toDateTurnosFecha>
                             </div>
                             <div class="col-6">
-                                <!-- <select class="form-control" name="selectmake" #codSucursal>
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
-                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
                                     <mat-option [value]="-1"  (click)="selectAll('todasSucursalesTF')" >
                                         Todas las sucursales
@@ -112,12 +107,6 @@
                                     name="toDatePromAtencion" #toDatePromAtencion>
                             </div>
                             <div class="col-6">
-                                <!-- <select class="form-control" name="selectmake" #codSucursalPromAtencion
-                                    (change)="getCajeros($event.target.value)">
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
-                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
                                     <mat-option [value]="-1"  (click)="selectAll('todasSucursalesTPA')" >
                                         Todas las sucursales
@@ -130,7 +119,7 @@
                                 <br><br>
                                 <!-- <mat-form-field> -->
                                     <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems" placeholder="Usuarios">
-                                        <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll('allSelected')" >
+                                        <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll('allSelected')">
                                             Todos los cajeros
                                         </mat-option>
                                         <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo" [disabled]="allSelected">
@@ -196,12 +185,6 @@
                                     #toDateUES>
                             </div>
                             <div class="col-6">
-                                <!-- <select class="form-control" name="selectmake" #codSucursalEntradas
-                                    (change)="getCajeros($event.target.value)">
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
-                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
                                     <mat-option [value]="-1"  (click)="selectAll('todasSucursalesES')" >
                                         Todas las sucursales
@@ -268,12 +251,6 @@
                                     name="toDateAtencionUsua" #toDateAtencionUsua>
                             </div>
                             <div class="col-6">
-                                <!-- <select class="form-control" name="selectmake" #codSucursalAtencionUsua
-                                    (change)="getCajeros($event.target.value)">
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}"
-                                        [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
                                     <mat-option [value]="-1"  (click)="selectAll('todasSucursalesAU')" >
                                         Todas las sucursales

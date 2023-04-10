@@ -418,9 +418,8 @@ export class OpinionComponent implements OnInit {
 
   obtenerNombreSucursal(sucursales: any) {
     const listaSucursales = sucursales;
-    console.log(`lista de sucursales: ${listaSucursales}`);
-    
     let nombreSucursal = "";
+    
     listaSucursales.forEach(elemento => {
       const cod = elemento;
       if (cod=="-1") {

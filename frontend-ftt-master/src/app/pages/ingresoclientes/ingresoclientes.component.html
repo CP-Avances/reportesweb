@@ -21,10 +21,6 @@
                                 <input type="date" id="toDateIng" value="{{toDate}}" [max]="toDate" name="toDateIng" #toDateIng>
                             </div>
                             <div class="col-6">
-                                <!-- <select class="form-control"  name="select" #codSucursalIngreso >
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select> -->
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
                                     <mat-option [value]="-1"  (click)="selectAll('todasSucursales')" >
                                         Todas las sucursales

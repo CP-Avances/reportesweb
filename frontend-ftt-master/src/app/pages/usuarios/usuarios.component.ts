@@ -240,7 +240,6 @@ export class UsuariosComponent implements OnInit {
 
   // CONSULTA DE LISTA DE CAJEROS
   getCajeros(sucursal: any) {
-    console.log(sucursal);
     this.serviceService.getAllCajerosS(sucursal).subscribe(
       (cajeros: any) => {
         this.cajerosUsuarios = cajeros.cajeros;
@@ -550,9 +549,8 @@ export class UsuariosComponent implements OnInit {
 
   obtenerNombreSucursal(sucursales: any) {
     const listaSucursales = sucursales;
-    console.log(`lista de sucursales: ${listaSucursales}`);
-    
     let nombreSucursal = "";
+    
     listaSucursales.forEach(elemento => {
       const cod = elemento;
       if (cod=="-1") {

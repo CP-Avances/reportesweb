@@ -151,8 +151,7 @@ router.get(
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
     GROUP BY nombreEmpresa, Nombre, Servicio;
     `;
-    
-    console.log(query);
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
