@@ -19,7 +19,7 @@ export class AuthenticationService {
   password: '';
   us: '';
 
-  private URL = "http://192.168.0.145:3004";
+  private URL = "http://192.168.0.110:3004";
 
   constructor(private http: HttpClient,
     private router: Router) {
