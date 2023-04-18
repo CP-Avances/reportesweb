@@ -41,4 +41,19 @@ export class Utils {
             img.src = localPath;
         })
     }
+
+    static loadImageFromBase64(base64Image) {
+        return new Promise((resolve, reject) => {
+          let img = new Image();
+          img.onload = () => {
+            let canvas = document.createElement('canvas');
+            canvas.height = img.height;
+            canvas.width = img.width;
+            canvas.getContext("2d").drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          };
+          img.onerror = () => reject('Imagen no disponible');
+          img.src = base64Image;
+        });
+      }
 }

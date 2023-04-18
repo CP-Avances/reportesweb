@@ -1,5 +1,5 @@
 <div class="card">
-    <h5 class="card-header">DISTRIBUCIÓN Y ESTADO DE TURNOS</h5>
+    <h2 class="card-header">DISTRIBUCIÓN Y ESTADO DE TURNOS</h2>
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -23,15 +23,24 @@
                                 <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDist" #toDateDist>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalDist (change)="getCajeros($event.target.value)">
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesD')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesD">
+                                        {{sucursal.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
-                                <select class="form-control"  name="selectmake" #codCajeroDist>
-                                    <option value="-1" selected>Seleccione usuario...</option>
-                                    <option *ngFor="let cajerosDist of cajerosDist" value="{{cajerosDist.caje_codigo}}" [ngValue]="cajerosDist.caje_codigo">{{cajerosDist.caje_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Cajeros">
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
+                                        Todos los cajeros
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo" [disabled]="allSelected">
+                                        {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerDistribucionTurnos()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar 
@@ -40,14 +49,14 @@
                         </div>
                     </div>   
                     <br>
-                    <h2>DISTRIBUCIÓN Y ESTADO DE TURNOS</h2>
+                    <h3>DISTRIBUCIÓN Y ESTADO DE TURNOS</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentDist" #contentDist #TABLEDist #table>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesD" style="width: 300px;">Sucursal</th>
-                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesD || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center">Cajero</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Total Turnos</th>
@@ -57,7 +66,7 @@
                             </thead>
                             <tbody *ngIf="!malRequestDist">
                                 <tr *ngFor="let servicioDist of servicioDist | paginate:configDE">
-                                    <td *ngIf="todasSucursalesD">{{servicioDist.nombreEmpresa}}</td>
+                                    <td *ngIf="todasSucursalesD || seleccionMultiple">{{servicioDist.nombreEmpresa}}</td>
                                     <td>{{servicioDist.Usuario}}</td>
                                     <td>{{servicioDist.SERV_NOMBRE}}</td>
                                     <td>{{servicioDist.fecha}}</td>
@@ -91,15 +100,24 @@
                                 <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDistRes" #toDateDistRes>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalDistRes (change)="getCajeros($event.target.value)">
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesR')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesR">
+                                        {{sucursal.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
-                                <select class="form-control"  name="selectmake" #codCajeroDistRes>
-                                    <option value="-1" selected>Seleccione usuario...</option>
-                                    <option *ngFor="let cajerosDist of cajerosDist" value="{{cajerosDist.caje_codigo}}" [ngValue]="cajerosDist.caje_codigo">{{cajerosDist.caje_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Cajeros">
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
+                                        Todos los cajeros
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo" [disabled]="allSelected">
+                                        {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerDistribucionTurnosResumen()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar 
@@ -108,14 +126,14 @@
                         </div>
                     </div>   
                     <br>
-                    <h2>RESUMEN DE DISTRIBUCIÓN Y TURNOS</h2>
+                    <h3>RESUMEN DE DISTRIBUCIÓN Y TURNOS</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentDistRes" #contentDist #TABLEDistRes #table>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesR" style="width: 300px;">Sucursal</th>
-                                    <th scope="col" class="text-center">Usuario</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesR || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center">Cajero</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">T. Atendidos</th>
                                     <th scope="col" class="text-center">No Atendidos</th>
@@ -124,7 +142,7 @@
                             </thead>
                             <tbody *ngIf="!malRequestDistRes">
                                 <tr *ngFor="let servicioRes of servicioRes | paginate:configDERes">
-                                    <td *ngIf="todasSucursalesR">{{servicioRes.nombreEmpresa}}</td>
+                                    <td *ngIf="todasSucursalesR || seleccionMultiple">{{servicioRes.nombreEmpresa}}</td>
                                     <td>{{servicioRes.Usuario}}</td>
                                     <td>{{servicioRes.SERV_NOMBRE}}</td>
                                     <td>{{servicioRes.ATENDIDOS}}</td>

@@ -7,14 +7,19 @@ const router = Router();
  ** **                                      INGRESO DE CLIENTES                                               ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:empresa', (req: Request, res: Response) => {
+router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:sucursales', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cEmpresa = req.params.empresa;
-    let query;
-    if (cEmpresa == "-1") {
-        query =
-            `
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todasSucursales = false;
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
+    const query = `
             SELECT e.empr_nombre AS nombreEmpresa, date_format(turn_fecha, '%Y-%m-%d') AS Fecha, 
             COUNT(turn_codigo) AS clientes,
             (SELECT MAX(turn_fecha) FROM turno
@@ -26,24 +31,10 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:empresa', (req: Request, r
                 AND s.empr_codigo = e.empr_codigo 
                 AND turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
                 AND turno.caje_codigo != 0
+                ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
             GROUP BY turn_fecha, nombreEmpresa;
-            `
-    } else {
-        query =
-            `
-            SELECT date_format(turn_fecha, '%Y-%m-%d') as Fecha, count(turn_codigo) AS clientes,
-            (SELECT MAX(turn_fecha) FROM turno
-                WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}') AS fechamaxima,
-            (SELECT MIN(turn_fecha) FROM turno
-                WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}') AS fechaminima
-            FROM turno turno, servicio s
-            WHERE turno.serv_codigo = s.serv_codigo 
-            AND turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
-            AND s.empr_codigo = ${cEmpresa}
-            AND turno.caje_codigo != 0
-            GROUP BY turn_fecha;
-            `
-    }
+            `;
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
 
         if (err) {

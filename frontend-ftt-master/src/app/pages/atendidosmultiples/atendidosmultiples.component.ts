@@ -1,5 +1,6 @@
 import { Component, OnInit,ViewChild,ElementRef } from '@angular/core';
 import { ServiceService } from '../../services/service.service';
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from '../../services/authentication.service';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common'
@@ -27,21 +28,28 @@ export class AtendidosmultiplesComponent implements OnInit {
   @ViewChild('fromDateAtM') fromDateAtM: ElementRef;
   @ViewChild('toDateAtM') toDateAtM: ElementRef;
   @ViewChild('codSucursalAtM') codSucursalAtM: ElementRef;
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioAtMul: any=[];
   sucursales: any[];
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursales: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestAtM: boolean = false;
   malRequestAtMPag: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configAtM: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: 'Anterior',
@@ -53,13 +61,19 @@ export class AtendidosmultiplesComponent implements OnInit {
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year+"-"+this.month+"-"+this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router, public datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configAtM = {
@@ -82,10 +96,29 @@ export class AtendidosmultiplesComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem('loggedUser');
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
     this.malRequestAtMPag = true;
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1('assets/logotickets.png').then(
-      result => this.urlImagen = result
-    )
+     // CARGAR LOGO PARA LOS REPORTES
+     this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
+  }
+
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'todasSucursales':
+            this.todasSucursales = !this.todasSucursales;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
+    }
   }
 
   //Se obtiene dia actual
@@ -117,63 +150,74 @@ export class AtendidosmultiplesComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
 
-    this.serviceService.getatendidosmultiples(fD, fH, cod).subscribe((servicio: any) => {
-      //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-      this.servicioAtMul = servicio.turnos;
-      this.malRequestAtM = false;
-      this.malRequestAtMPag = false;
-      //Seteo de paginacion cuando se hace una nueva busqueda
-      if (this.configAtM.currentPage > 1) {
-        this.configAtM.currentPage = 1;
-      }
-      this.todasSucursales = this.comprobarBusquedaSucursales(cod);
-    },
-      error => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioAtMul = null;
-          this.malRequestAtM = true;
-          this.malRequestAtMPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioAtMul == null) {
-            this.configAtM.totalItems = 0;
-          } else {
-            this.configAtM.totalItems = this.servicioAtMul.length;
-          }
-
-          //Por error 400 se setea elementos de paginacion
-          this.configAtM = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getatendidosmultiples(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
+        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        this.servicioAtMul = servicio.turnos;
+        this.malRequestAtM = false;
+        this.malRequestAtMPag = false;
+        //Seteo de paginacion cuando se hace una nueva busqueda
+        if (this.configAtM.currentPage > 1) {
+          this.configAtM.currentPage = 1;
         }
-      }
-    );
+        // this.todasSucursales = this.comprobarBusquedaSucursales(cod);
+      },
+        error => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioAtMul = null;
+            this.malRequestAtM = true;
+            this.malRequestAtMPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioAtMul == null) {
+              this.configAtM.totalItems = 0;
+            } else {
+              this.configAtM.totalItems = this.servicioAtMul.length;
+            }
+  
+            //Por error 400 se setea elementos de paginacion
+            this.configAtM = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        }
+      );
+    }
   }
 
-  obtenerNombreSucursal(cod: string){
-    if (cod=="-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;    
+    let nombreSucursal = "";
+    
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   //---Excel
   exportTOExcelAtenMult() {
-    let cod = this.codSucursalAtM.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursales) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioAtMul.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioAtMul[step].nombreEmpresa,
@@ -208,11 +252,11 @@ export class AtendidosmultiplesComponent implements OnInit {
     //Seteo de rango de fechas de la consulta para impresión en PDF
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentatendidosmultiples(fD, fH, cod);
+      documentDefinition = this.getDocumentatendidosmultiples(fD, fH);
     }
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
@@ -226,12 +270,12 @@ export class AtendidosmultiplesComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentatendidosmultiples(fD, fH, cod) {
+  getDocumentatendidosmultiples(fD, fH) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours())
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -265,7 +309,7 @@ export class AtendidosmultiplesComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: '*',
@@ -303,7 +347,7 @@ export class AtendidosmultiplesComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   atendidosmult(servicio: any[]) {
-    if (this.todasSucursales) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       return {
         style: 'tableMargin',
         table: {

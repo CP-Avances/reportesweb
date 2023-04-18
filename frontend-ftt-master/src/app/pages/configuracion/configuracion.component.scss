@@ -1,0 +1,29 @@
+.imagen {
+    width: 400px;
+    height: auto;
+  }
+
+  #selectImagen::-webkit-file-upload-button {
+    background-color: rgb(2, 142, 225); /* Para cambiar el color de fondo del botón */
+    color: white; /* Para cambiar el color del texto del botón */
+    border: 1px solid rgb(2, 142, 225); /* Para dar un borde al botón */
+    border-radius: 5px; /* Para dar un borde redondeado al botón */
+    padding: 10px; /* Para dar un espaciado interno al botón */
+    cursor: pointer; /* Para cambiar el cursor al pasar sobre el botón */
+  }
+
+  .my-button {
+    background-color: white;
+    color: rgb(113, 114, 115);
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    box-shadow: none;
+    transition: box-shadow 0.3s ease-in-out;
+  }
+  
+  .my-button:hover {
+    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  

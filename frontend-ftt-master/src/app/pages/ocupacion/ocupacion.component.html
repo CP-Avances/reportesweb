@@ -1,5 +1,5 @@
 <div class="card">
-    <h5 class="card-header">OCUPACIÓN</h5>
+    <h2 class="card-header">OCUPACIÓN</h2>
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -24,10 +24,15 @@
                                 <input type="date" id="toDateOcupOS" value="{{toDate}}" [max]="toDate" name="toDateOcupOS" #toDateOcupOS>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalOCs>
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesO')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesO">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerOcupacion()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -36,13 +41,13 @@
                         </div>
                     </div>
                     <br>
-                    <h2>OCUPACIÓN SERVICIOS</h2>
+                    <h3>OCUPACIÓN SERVICIOS</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentOcup" #contentOcup #tableOcup>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesO" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesO || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Desde</th>
                                     <th scope="col" class="text-center">Hasta</th>
                                     <th scope="col" class="text-center">Servicio</th>
@@ -52,7 +57,7 @@
                             </thead>
                             <tbody *ngIf="!malRequestOcupOS">
                                 <tr *ngFor="let serviciooc of serviciooc | paginate:configOS">
-                                    <td *ngIf="todasSucursalesO">{{serviciooc.nombreEmpresa}}</td>
+                                    <td *ngIf="todasSucursalesO || seleccionMultiple">{{serviciooc.nombreEmpresa}}</td>
                                     <td>{{serviciooc.fechaminima}}</td>
                                     <td>{{serviciooc.fechamaxima}}</td>
                                     <td>{{serviciooc.SERV_NOMBRE}}</td>
@@ -86,10 +91,15 @@
                                 <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate" name="toDateOcupG" #toDateOcupG>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalOCsG>
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesOG')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesOG">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerGrafOcupacion()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -100,7 +110,7 @@
                     </div>
                     <br><br>
                     <div *ngIf="!malRequestOcupG" id="contentChart" #contentChart>
-                        <h2>OCUPACIÓN SERVICIOS GRÁFICO</h2><br>
+                        <h3>OCUPACIÓN SERVICIOS GRÁFICO</h3><br>
                         <canvas id="canvas">{{chart}}</canvas><br>
                         <canvas id="canvas2">{{chart}}</canvas>
                     </div>
@@ -118,6 +128,7 @@
                             <label for="horizontal">Horizontal </label>
                         </div>
                     </fieldset>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelOcupServsGrafico()">EXCEL</button>
                     <button type="button" class="btn btn-info" (click)="generarPdfOcupServs('hola',2)">PDF</button>
                     <br>
                 </div>

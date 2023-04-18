@@ -220,7 +220,6 @@ router.get('/turnosfechas/:fechaDesde/:fechaHasta/:empresa', (req, res) => {
         query = "select usua_nombre as Usuario, serv_nombre as Servicio, date_format(turn_fecha,  '%Y-%m-%d') as Fecha, sum( turn_estado = 1 ) as Atendidos, sum( turn_estado = 2 or turn_estado = -1 ) as No_Atendidos, sum( turn_estado!=0 ) as Total from turno t, servicio s, usuarios u, cajero c where t.serv_codigo = s.serv_codigo and t.caje_codigo = c.caje_codigo and u.usua_codigo = c.usua_codigo, and u.empr_codigo = '" + cEmpresa + "' and turn_fecha >= '" + fDesde + "' and turn_fecha <= '" + fHasta + "' and u.usua_codigo group by Fecha, Usuario, Servicio order by Fecha DESC, Usuario, Servicio; ";
     }
     const fecha = anio1 + '-' + mes1 + '-' + dia1;
-    console.log(query);
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({

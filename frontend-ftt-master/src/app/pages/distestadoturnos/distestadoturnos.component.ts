@@ -1,5 +1,6 @@
 import { Component, OnInit,ViewChild,ElementRef } from '@angular/core';
 import { ServiceService } from '../../services/service.service';
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from '../../services/authentication.service';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common'
@@ -24,6 +25,7 @@ const EXCEL_EXTENSION = '.xlsx';
 export class DistestadoturnosComponent implements OnInit {
   //Seteo de fechas primer dia del mes actual y dia actual
   fromDate;toDate;
+
   //captura de elementos de la interfaz visual para tratarlos y capturar datos
   @ViewChild('fromDateDist') fromDateDist: ElementRef;
   @ViewChild('toDateDist') toDateDist: ElementRef;
@@ -38,40 +40,58 @@ export class DistestadoturnosComponent implements OnInit {
   servicioDist: any = [];
   servicioRes: any = [];
   sucursales: any[];
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursalesD: boolean = false;
   todasSucursalesR: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   cajerosDist: any = [];
   malRequestDist: boolean = false;
   malRequestDistPag: boolean = false;
   malRequestDistRes: boolean = false;
   malRequestDistPagRes: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configDE: any;
   configDERes: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: 'Anterior',
     nextLabel: 'Siguiente'
   };
+
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year+"-"+this.month+"-"+this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  allSelected = false;
+  selectedItems: string[] = [];
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
+
+  //MOSTRAR CAJEROS
+  mostrarCajeros: boolean = false;
 
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router, public datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configDE = {
@@ -98,17 +118,43 @@ export class DistestadoturnosComponent implements OnInit {
   ngOnInit(): void {
     //Cargamos componentes selects HTML
     this.getlastday();
-    this.getCajeros("-1");
+    // this.getCajeros("-1");
     this.getSucursales();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem('loggedUser');
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
     this.malRequestDistPag = true;
     this.malRequestDistPagRes = true;
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1('assets/logotickets.png').then(
-      result => this.urlImagen = result
-    )
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
+  }
+
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'allSelected':
+            this.allSelected = !this.allSelected;
+            break;
+        case 'todasSucursalesD':
+            this.todasSucursalesD = !this.todasSucursalesD;
+            this.todasSucursalesD ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesR':
+            this.todasSucursalesR = !this.todasSucursalesR;
+            this.todasSucursalesR ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        default:
+            break;
+    }
   }
 
   //Se desloguea de la aplicacion
@@ -129,17 +175,27 @@ export class DistestadoturnosComponent implements OnInit {
   getCajeros(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosDist: any) => {
       this.cajerosDist = cajerosDist.cajeros;
+      this.mostrarCajeros = true;
     },
     (error)=>{
       if (error.status == 400) {
         this.cajerosDist=[];
+        this.mostrarCajeros = false;
       }
     });
   }
 
   limpiar() {
-    this.getCajeros("-1");
-    this.getSucursales();
+    // this.getCajeros("-1");
+    // this.getSucursales();
+    this.cajerosDist=[];
+    this.mostrarCajeros = false;
+    this.selectedItems = [];
+    this.allSelected = false;
+    this.todasSucursalesD = false;
+    this.todasSucursalesR = false;
+    this.seleccionMultiple = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -158,106 +214,117 @@ export class DistestadoturnosComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateDist.nativeElement.value.toString().trim();
     var fH = this.toDateDist.nativeElement.value.toString().trim();
-    var cServ = this.codCajeroDist.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalDist.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalDist.nativeElement.value.toString().trim();
 
-    this.serviceService.getdistribucionturnos(fD, fH, parseInt(cServ)).subscribe((servicio: any) => {
-      //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-      this.servicioDist = servicio.turnos;
-      this.malRequestDist = false;
-      this.malRequestDistPag = false;
-      //Seteo de paginacion cuando se hace una nueva busqueda
-      if (this.configDE.currentPage > 1) {
-        this.configDE.currentPage = 1;
-      }
-      this.todasSucursalesD = this.comprobarBusquedaSucursales(codSucursal);
-    },
-      error => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioDist = null;
-          this.malRequestDist = true;
-          this.malRequestDistPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioDist == null) {
-            this.configDE.totalItems = 0;
-          } else {
-            this.configDE.totalItems = this.servicioDist.length;
-          }
-          //Por error 400 se setea elementos de paginacion
-          this.configDE = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+    if (this.selectedItems.length!==0) { 
+      this.serviceService.getdistribucionturnos(fD, fH, this.selectedItems, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
+        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        this.servicioDist = servicio.turnos;
+        this.malRequestDist = false;
+        this.malRequestDistPag = false;
+        //Seteo de paginacion cuando se hace una nueva busqueda
+        if (this.configDE.currentPage > 1) {
+          this.configDE.currentPage = 1;
         }
-      });
+        // this.todasSucursalesD = this.comprobarBusquedaSucursales(codSucursal);
+      },
+        error => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioDist = null;
+            this.malRequestDist = true;
+            this.malRequestDistPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioDist == null) {
+              this.configDE.totalItems = 0;
+            } else {
+              this.configDE.totalItems = this.servicioDist.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configDE = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        });
+    }
   }
 
   leerDistribucionTurnosResumen() {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateDistRes.nativeElement.value.toString().trim();
     var fH = this.toDateDistRes.nativeElement.value.toString().trim();
-    var cServ = this.codCajeroDistRes.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalDistRes.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalDistRes.nativeElement.value.toString().trim();
     
-    this.serviceService.getdistribucionturnosresumen(fD, fH, parseInt(cServ)).subscribe((servicioRes: any) => {
-      //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-      this.servicioRes = servicioRes.turnos;
-      this.malRequestDistPagRes = false;
-      this.malRequestDistRes = false;
-      //Seteo de paginacion cuando se hace una nueva busqueda
-      if (this.configDERes.currentPage > 1) {
-        this.configDERes.currentPage = 1;
-      }
-      this.todasSucursalesR = this.comprobarBusquedaSucursales(codSucursal);
-    },
-      error => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioRes = null;
-          this.malRequestDistRes = true;
-          this.malRequestDistPagRes = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioRes == null) {
-            this.configDERes.totalItems = 0;
-          } else {
-            this.configDERes.totalItems = this.servicioRes.length;
-          }
-          //Por error 400 se setea elementos de paginacion
-          this.configDERes = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+    if (this.selectedItems.length!==0) { 
+      this.serviceService.getdistribucionturnosresumen(fD, fH, this.selectedItems, this.sucursalesSeleccionadas).subscribe((servicioRes: any) => {
+        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        this.servicioRes = servicioRes.turnos;
+        this.malRequestDistPagRes = false;
+        this.malRequestDistRes = false;
+        //Seteo de paginacion cuando se hace una nueva busqueda
+        if (this.configDERes.currentPage > 1) {
+          this.configDERes.currentPage = 1;
         }
-      });
+        // this.todasSucursalesR = this.comprobarBusquedaSucursales(codSucursal);
+      },
+        error => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioRes = null;
+            this.malRequestDistRes = true;
+            this.malRequestDistPagRes = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioRes == null) {
+              this.configDERes.totalItems = 0;
+            } else {
+              this.configDERes.totalItems = this.servicioRes.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configDERes = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        });
+    }
   }
 
-  obtenerNombreSucursal(cod: string){
-    if (cod=="-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    let nombreSucursal = "";
+    
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   //---Excel
   exportTOExcelDist() {
-    let cod = this.codSucursalDist.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalDist.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesD) {
+    if (this.todasSucursalesD || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioDist.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioDist[step].nombreEmpresa,
@@ -296,11 +363,11 @@ export class DistestadoturnosComponent implements OnInit {
   }
 
   exportTOExcelRes() {
-    let cod = this.codSucursalDistRes.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalDistRes.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesR) {
+    if (this.todasSucursalesR || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioRes.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioRes[step].nombreEmpresa,
@@ -340,11 +407,11 @@ export class DistestadoturnosComponent implements OnInit {
     //Seteo de rango de fechas de la consulta para impresión en PDF
     var fD = this.fromDateDist.nativeElement.value.toString().trim();
     var fH = this.toDateDist.nativeElement.value.toString().trim();
-    var cod = this.codSucursalDist.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalDist.nativeElement.value.toString().trim();
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentdistribucion(fD, fH, cod);
+      documentDefinition = this.getDocumentdistribucion(fD, fH);
     }
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
@@ -358,12 +425,12 @@ export class DistestadoturnosComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentdistribucion(fD, fH, cod) {
+  getDocumentdistribucion(fD, fH) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours())
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -397,7 +464,7 @@ export class DistestadoturnosComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: '*',
@@ -435,7 +502,7 @@ export class DistestadoturnosComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   distribucion(servicio: any[]) {
-    if (this.todasSucursalesD) {
+    if (this.todasSucursalesD || this.seleccionMultiple) {
       return {
         style: 'tableMargin',
         table: {
@@ -510,11 +577,11 @@ export class DistestadoturnosComponent implements OnInit {
     //Seteo de rango de fechas de la consulta para impresión en PDF
     var fD = this.fromDateDistRes.nativeElement.value.toString().trim();
     var fH = this.toDateDistRes.nativeElement.value.toString().trim();
-    var cod = this.codSucursalDistRes.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalDistRes.nativeElement.value.toString().trim();
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentDistribucionRes(fD, fH, cod);
+      documentDefinition = this.getDocumentDistribucionRes(fD, fH);
     }
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
@@ -528,12 +595,12 @@ export class DistestadoturnosComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentDistribucionRes(fD, fH, cod) {
+  getDocumentDistribucionRes(fD, fH) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours())
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -567,7 +634,7 @@ export class DistestadoturnosComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: '*',
@@ -607,7 +674,7 @@ export class DistestadoturnosComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   distribucionRes(servicio: any[]) {
-    if (this.todasSucursalesR) {
+    if (this.todasSucursalesR || this.seleccionMultiple) {
       return {
         style: 'tableMargin',
         table: {

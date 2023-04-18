@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { Chart } from "chart.js";
 import { ServiceService } from "../../services/service.service";
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
 import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
@@ -34,43 +35,58 @@ export class OcupacionComponent implements OnInit {
   @ViewChild("toDateOcupG") toDateOcupG: ElementRef;
   @ViewChild("codSucursalOCs") codSucursalOCs: ElementRef;
   @ViewChild("codSucursalOCsG") codSucursalOCsG: ElementRef;
+
   //Variables de la grafica
   chartPie: any;
   chartBar: any;
   tipo: string;
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicio: any;
   serviciooc: any = [];
   servicioocg: any = [];
   sucursales: any = [];
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursalesO: boolean = false;
   todasSucursalesOG: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestOcupOS: boolean = false;
   malRequestOcupOSPag: boolean = false;
   malRequestOcupG: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configOS: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
+
   //Control de labels por ancho de pantalla
   legend: any;
+
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   //Orientacion
   orientacion: string;
@@ -80,7 +96,8 @@ export class OcupacionComponent implements OnInit {
     private auth: AuthenticationService,
     private router: Router,
     public datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configOS = {
@@ -107,10 +124,32 @@ export class OcupacionComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
     this.malRequestOcupOSPag = true;
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-      (result) => (this.urlImagen = result)
-    );
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
+  }
+
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'todasSucursalesO':
+            this.todasSucursalesO = !this.todasSucursalesO;
+            break;
+        case 'todasSucursalesOG':
+            this.todasSucursalesOG = !this.todasSucursalesOG;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
+    }
   }
 
   //Se desloguea de la aplicacion
@@ -141,6 +180,10 @@ export class OcupacionComponent implements OnInit {
 
   limpiar() {
     this.getSucursales();
+    this.todasSucursalesO = false;
+    this.todasSucursalesOG = false;
+    this.seleccionMultiple = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -152,92 +195,97 @@ export class OcupacionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupOS.nativeElement.value.toString().trim();
     var fH = this.toDateOcupOS.nativeElement.value.toString().trim();
-    var cod =  this.codSucursalOCs.nativeElement.value.toString().trim();
+    // var cod =  this.codSucursalOCs.nativeElement.value.toString().trim();
 
-    this.serviceService.getocupacionservicios(fD, fH, cod).subscribe(
-      (serviciooc: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        this.serviciooc = serviciooc.turnos;
-        this.malRequestOcupOS = false;
-        this.malRequestOcupOSPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
-        if (this.configOS.currentPage > 1) {
-          this.configOS.currentPage = 1;
-        }
-        this.todasSucursalesO = this.comprobarBusquedaSucursales(cod);
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.serviciooc = null;
-          this.malRequestOcupOS = true;
-          this.malRequestOcupOSPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.serviciooc == null) {
-            this.configOS.totalItems = 0;
-          } else {
-            this.configOS.totalItems = this.serviciooc.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
+        (serviciooc: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.serviciooc = serviciooc.turnos;
+          this.malRequestOcupOS = false;
+          this.malRequestOcupOSPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configOS.currentPage > 1) {
+            this.configOS.currentPage = 1;
           }
-          //Por error 400 se setea elementos de paginacion
-          this.configOS = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+          // this.todasSucursalesO = this.comprobarBusquedaSucursales(cod);
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.serviciooc = null;
+            this.malRequestOcupOS = true;
+            this.malRequestOcupOSPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.serviciooc == null) {
+              this.configOS.totalItems = 0;
+            } else {
+              this.configOS.totalItems = this.serviciooc.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configOS = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
         }
-      }
-    );
+      );
+    }
   }
 
   leerGrafOcupacion() {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
-    var cod =  this.codSucursalOCsG.nativeElement.value.toString().trim();
+    // var cod =  this.codSucursalOCsG.nativeElement.value.toString().trim();
+    this.malRequestOcupOS = false;
 
-    this.serviceService.getocupacionservicios(fD, fH, cod).subscribe(
-      (servicioocg: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        this.servicioocg = servicioocg.turnos;
-        this.malRequestOcupOS = false;
-        this.malRequestOcupOSPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
-        if (this.configOS.currentPage > 1) {
-          this.configOS.currentPage = 1;
-        }
-        this.todasSucursalesOG = this.comprobarBusquedaSucursales(cod);
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioocg = null;
-          this.malRequestOcupOS = true;
-          this.malRequestOcupOSPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioocg == null) {
-            this.configOS.totalItems = 0;
-          } else {
-            this.configOS.totalItems = this.servicioocg.length;
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
+        (servicioocg: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.servicioocg = servicioocg.turnos;
+          // this.malRequestOcupOS = false;
+          this.malRequestOcupOSPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configOS.currentPage > 1) {
+            this.configOS.currentPage = 1;
           }
-          //Por error 400 se setea elementos de paginacion
-          this.configOS = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+          // this.todasSucursalesOG = this.comprobarBusquedaSucursales(cod);
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioocg = null;
+            this.malRequestOcupOS = true;
+            this.malRequestOcupOSPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioocg == null) {
+              this.configOS.totalItems = 0;
+            } else {
+              this.configOS.totalItems = this.servicioocg.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configOS = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
         }
-      }
-    );
+      );
+    }
 
-    this.serviceService.getgraficoocupacion(fD, fH, cod).subscribe(
+    this.serviceService.getgraficoocupacion(fD, fH, this.sucursalesSeleccionadas).subscribe(
       (servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         //Se verifica el ancho de pantalla para colocar o no labels
@@ -367,22 +415,31 @@ export class OcupacionComponent implements OnInit {
     }
   }
 
-  obtenerNombreSucursal(cod: string){
-    if (cod=="-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    let nombreSucursal = "";
+    
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   //---Excel
   exportarAExcelOcupServs() {
-    let cod = this.codSucursalOCs.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalOCs.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesO) {
+    if (this.todasSucursalesO || this.seleccionMultiple) {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciooc[step].nombreEmpresa,
@@ -424,7 +481,54 @@ export class OcupacionComponent implements OnInit {
     );
   }
 
-  getDocumentAtencionServicioGraficos(fD, fH, cod) {
+  exportarAExcelOcupServsGrafico() {
+    // let cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    let jsonServicio = [];
+    if (this.todasSucursalesOG || this.seleccionMultiple) {
+      for (let step = 0; step < this.servicioocg.length; step++) {
+        jsonServicio.push({
+          Sucursal: this.servicioocg[step].nombreEmpresa,
+          Desde: this.servicioocg[step].fechaminima,
+          Hasta: this.servicioocg[step].fechamaxima,
+          Servicio: this.servicioocg[step].SERV_NOMBRE,
+          "T. Turno": this.servicioocg[step].total,
+          "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE,
+        });
+      }
+    } else {
+      for (let step = 0; step < this.servicioocg.length; step++) {
+        jsonServicio.push({
+          Desde: this.servicioocg[step].fechaminima,
+          Hasta: this.servicioocg[step].fechamaxima,
+          Servicio: this.servicioocg[step].SERV_NOMBRE,
+          "T. Turno": this.servicioocg[step].total,
+          "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE,
+        });
+      }
+    }
+    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioocg[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols = [];
+    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 })
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Servicios");
+    XLSX.writeFile(
+      wb,
+      "ocupacionserviciosGrafico - "+ nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+
+  getDocumentAtencionServicioGraficos(fD, fH) {
     //Selecciona de la interfaz el elemento que contiene la grafica
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
     var canvas2 = document.querySelector("#canvas2") as HTMLCanvasElement;
@@ -435,7 +539,7 @@ export class OcupacionComponent implements OnInit {
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -487,7 +591,7 @@ export class OcupacionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -570,11 +674,11 @@ export class OcupacionComponent implements OnInit {
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      var cod = this.codSucursalOCs.nativeElement.value.toString().trim();
-      documentDefinition = this.getDocumentAtencionServicioGraf(fD, fH, cod);
+      // var cod = this.codSucursalOCs.nativeElement.value.toString().trim();
+      documentDefinition = this.getDocumentAtencionServicioGraf(fD, fH);
     } else if (pdf === 2) {
-      var cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
-      documentDefinition = this.getDocumentAtencionServicioGraficos(fD, fH, cod);
+      // var cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
+      documentDefinition = this.getDocumentAtencionServicioGraficos(fD, fH);
     }
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
@@ -596,12 +700,12 @@ export class OcupacionComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentAtencionServicioGraf(fD, fH, cod) {
+  getDocumentAtencionServicioGraf(fD, fH) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -652,7 +756,7 @@ export class OcupacionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -709,7 +813,7 @@ export class OcupacionComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   ocupacion(servicio: any[]) {
-    if (this.todasSucursalesO) {
+    if (this.todasSucursalesO || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -778,7 +882,7 @@ export class OcupacionComponent implements OnInit {
 
     //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
     ocupacionGrafica(servicio: any[]) {
-      if (this.todasSucursalesOG) {
+      if (this.todasSucursalesOG || this.seleccionMultiple) {
         return {
           style: "tableMargin",
           table: {

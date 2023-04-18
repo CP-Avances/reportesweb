@@ -1,5 +1,5 @@
 <div class="card">
-    <h5 class="card-header">OPINIONES</h5>
+    <h2 class="card-header">OPINIONES</h2>
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -24,10 +24,15 @@
                                 <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalAtM>
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesI')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesI">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerOpiniones()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -36,30 +41,26 @@
                         </div>
                     </div>
                     <br>
-                    <h2>OPINIONES</h2>
+                    <h3>OPINIONES</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentAtMul" #contentAtMul #tableAtMul>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
-                                    <th scope="col" class="text-center">Hora</th>
-                                    <th scope="col" class="text-center">Minuto</th>
                                     <th scope="col" class="text-center">Caja</th>
                                     <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestAtM">
                                 <tr *ngFor="let servicioOpinion of servicioOpinion | paginate:configAtM">
-                                    <td *ngIf="todasSucursalesI">{{servicioOpinion.empresa_empr_nombre}}</td>
+                                    <td *ngIf="todasSucursalesI || seleccionMultiple">{{servicioOpinion.empresa_empr_nombre}}</td>
                                     <td>{{servicioOpinion.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinion.quejas_emi_categoria}}</td>
                                     <td>{{servicioOpinion.quejas_emi_fecha}}</td>
-                                    <td>{{servicioOpinion.quejas_emi_hora}}</td>
-                                    <td>{{servicioOpinion.quejas_emi_minuto}}</td>
                                     <td>{{servicioOpinion.caja_caja_nombre}}</td>
                                     <td class="text-left">{{servicioOpinion.quejas_emi_queja}}</td>
                                 </tr>
@@ -89,10 +90,15 @@
                                 <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate" name="toDateOcupG" #toDateOcupG>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalOcupG>
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesG')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesG">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerGrafOpinion()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -102,7 +108,7 @@
                     </div>
                     <br><br>
                     <div *ngIf="!malRequestAtM" id="contentChart" #contentChart>
-                        <h2>GRÁFICO - OPINIONES</h2><br>
+                        <h3>GRÁFICO - OPINIONES</h3><br>
                         <canvas id="canvas">{{chart}}</canvas><br>
                         <canvas id="canvas2">{{chart}}</canvas>
                     </div>
@@ -120,6 +126,7 @@
                             <label for="horizontal">Horizontal </label>
                         </div>
                     </fieldset>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGrafico()">EXCEL</button>
                     <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',2)">PDF</button>
                     <br>
                 </div>

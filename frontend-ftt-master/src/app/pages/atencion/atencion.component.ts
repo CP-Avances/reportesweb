@@ -7,6 +7,7 @@ import { Utils } from "../../utils/util";
 
 import { AuthenticationService } from "../../services/authentication.service";
 import { ServiceService } from "../../services/service.service";
+import { ImagenesService } from "../../shared/imagenes.service";
 
 // COMPLEMENTOS PARA PDF Y EXCEL
 import * as pdfMake from "pdfmake/build/pdfmake";
@@ -116,6 +117,18 @@ export class AtencionComponent implements OnInit {
   // IMAGEN LOGO
   urlImagen: string;
 
+  //OPCIONES MULTIPLES
+  allSelected = false;
+  selectedItems: string[] = [];
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
+
+  //MOSTRAR CAJEROS
+  mostrarCajeros: boolean = false;
+
+  //MOSTRAR SERVICIOS
+  mostrarServicios: boolean = false;
+
   // ORIENTACION
   orientacion: string;
 
@@ -125,6 +138,7 @@ export class AtencionComponent implements OnInit {
     private toastr: ToastrService,
     private auth: AuthenticationService,
     public datePipe: DatePipe,
+    private imagenesService: ImagenesService
   ) {
 
     // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
@@ -180,8 +194,8 @@ export class AtencionComponent implements OnInit {
   ngOnInit(): void {
     // CARGAMOS COMPONENTES SELECTS HTML
     this.getlastday();
-    this.getCajeros("-1");
-    this.getServicios("-1");
+    // this.getCajeros("-1");
+    // this.getServicios("-1");
     this.getSucursales();
 
     // CARGAMOS NOMBRE DE USUARIO LOGUEADO
@@ -200,10 +214,51 @@ export class AtencionComponent implements OnInit {
     this.malRequestAtASPag = true;
     this.malRequestAtGPag = true;
 
-    // SETEO DE IMAGEN EN INTERFAZ
-    Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-      (result) => (this.urlImagen = result)
-    );
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
+  }
+
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'allSelected':
+            this.allSelected = !this.allSelected;
+            break;
+        case 'todasSucursalesGS':
+            this.todasSucursalesGS = !this.todasSucursalesGS;
+            break;
+        case 'todasSucursalesTC':
+          this.todasSucursalesTC = !this.todasSucursalesTC;
+          this.todasSucursalesTC ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'todasSucursalesAS':
+          this.todasSucursalesAS = !this.todasSucursalesAS;
+          this.todasSucursalesAS ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'todasSucursalesPA':
+          this.todasSucursalesPA = !this.todasSucursalesPA;
+          this.todasSucursalesPA ? this.getServicios(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'todasSucursalesMA':
+          this.todasSucursalesMA = !this.todasSucursalesMA;
+          this.todasSucursalesMA ? this.getServicios(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'sucursalesSeleccionadas':
+          this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+          this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'sucursalesSeleccionadasS':
+          this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+          this.sucursalesSeleccionadas.length > 0 ? this.getServicios(this.sucursalesSeleccionadas) : null;
+          break;
+        default:
+            break;
+    }
   }
 
   // SE DESLOGUEA DE LA APLICACION
@@ -224,10 +279,12 @@ export class AtencionComponent implements OnInit {
   getCajeros(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
       this.cajerosAtencion = cajeros.cajeros;
+      this.mostrarCajeros = true;
     },
       (error) => {
         if (error.status == 400) {
           this.cajerosAtencion = [];
+          this.mostrarCajeros = false;
         }
       });
   }
@@ -240,9 +297,22 @@ export class AtencionComponent implements OnInit {
   }
 
   limpiar() {
-    this.getCajeros("-1");
-    this.getSucursales();
-    this.getServicios("-1");
+    // this.getCajeros("-1");
+    // this.getSucursales();
+    // this.getServicios("-1");
+    this.serviciosAtPA=[]
+    this.selectedItems = [];
+    this.cajerosAtencion=[];
+    this.mostrarCajeros = false;
+    this.mostrarServicios = false;
+    this.allSelected = false;
+    this.todasSucursalesTC = false;
+    this.todasSucursalesPA = false;
+    this.todasSucursalesMA = false;
+    this.todasSucursalesAS = false;
+    this.todasSucursalesGS = false;
+    this.seleccionMultiple = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
@@ -268,10 +338,12 @@ export class AtencionComponent implements OnInit {
   getServicios(sucursal: any) {
     this.serviceService.getAllServiciosS(sucursal).subscribe((serviciosAtPA: any) => {
       this.serviciosAtPA = serviciosAtPA.servicios;
+      this.mostrarServicios = true;
     },
       (error) => {
         if (error.status == 400) {
           this.serviciosAtPA = [];
+          this.mostrarServicios = false;
         }
       });
   }
@@ -280,179 +352,293 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTC.nativeElement.value.toString().trim();
-    var cod = this.codCajeroAtTC.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtTC.nativeElement.value.toString().trim();
-    this.serviceService
-      .gettiemposcompletos(fechaDesde, fechaHasta, parseInt(cod))
-      .subscribe(
-        (servicio: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.servicioTiempoComp = servicio.turnos;
-          this.malRequestAtTC = false;
-          this.malRequestAtTCPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configTC.currentPage > 1) {
-            this.configTC.currentPage = 1;
-          }
-          this.todasSucursalesTC = this.comprobarBusquedaSucursales(codSucursal);
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.servicioTiempoComp = null;
-            this.malRequestAtTC = true;
-            this.malRequestAtTCPag = true;
-            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.servicioTiempoComp == null) {
-              this.configTC.totalItems = 0;
-            } else {
-              this.configTC.totalItems = this.servicioTiempoComp.length;
+    // let codSucursal = this.codSucursalAtTC.nativeElement.value.toString().trim();
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .gettiemposcompletos(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .subscribe(
+          (servicio: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.servicioTiempoComp = servicio.turnos;
+            this.malRequestAtTC = false;
+            this.malRequestAtTCPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configTC.currentPage > 1) {
+              this.configTC.currentPage = 1;
             }
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configTC = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+            // this.todasSucursalesTC = this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.servicioTiempoComp = null;
+              this.malRequestAtTC = true;
+              this.malRequestAtTCPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.servicioTiempoComp == null) {
+                this.configTC.totalItems = 0;
+              } else {
+                this.configTC.totalItems = this.servicioTiempoComp.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configTC = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
   leerPromAtencion() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtPA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtPA.nativeElement.value.toString().trim();
-    var cod = this.codServicioAtPA.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtPA.nativeElement.value.toString().trim();
-    this.serviceService
-      .getpromatencion(fechaDesde, fechaHasta, parseInt(cod))
-      .subscribe(
-        (serviciopa: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.serviciopa = serviciopa.turnos;
-          this.malRequestAtPA = false;
-          this.malRequestAtPAPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configPA.currentPage > 1) {
-            this.configPA.currentPage = 1;
-          }
-          this.todasSucursalesPA = this.comprobarBusquedaSucursales(codSucursal);
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.serviciopa = null;
-            this.malRequestAtPA = true;
-            this.malRequestAtPAPag = true;
-            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.serviciopa == null) {
-              this.configPA.totalItems = 0;
-            } else {
-              this.configPA.totalItems = this.serviciopa.length;
+    // var cod = this.codServicioAtPA.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalAtPA.nativeElement.value.toString().trim();
+
+    if (this.selectedItems.length!==0) {  
+      this.serviceService
+        .getpromatencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .subscribe(
+          (serviciopa: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.serviciopa = serviciopa.turnos;
+            this.malRequestAtPA = false;
+            this.malRequestAtPAPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configPA.currentPage > 1) {
+              this.configPA.currentPage = 1;
             }
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configPA = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+            // this.todasSucursalesPA = this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.serviciopa = null;
+              this.malRequestAtPA = true;
+              this.malRequestAtPAPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.serviciopa == null) {
+                this.configPA.totalItems = 0;
+              } else {
+                this.configPA.totalItems = this.serviciopa.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configPA = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
   leerMaxAtencion() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
-    var cod = this.codServicioAtMA.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtMA.nativeElement.value.toString().trim();
-    this.serviceService
-      .getmaxatencion(fechaDesde, fechaHasta, parseInt(cod))
-      .subscribe(
-        (serviciomax: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.serviciomax = serviciomax.turnos;
-          this.malRequestAtMA = false;
-          this.malRequestAtMAPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configMA.currentPage > 1) {
-            this.configMA.currentPage = 1;
-          }
-          this.todasSucursalesMA = this.comprobarBusquedaSucursales(codSucursal);
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.serviciomax = null;
-            this.malRequestAtMA = true;
-            this.malRequestAtMAPag = true;
-            // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-            // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.serviciomax == null) {
-              this.configMA.totalItems = 0;
-            } else {
-              this.configMA.totalItems = this.serviciomax.length;
+    // var cod = this.codServicioAtMA.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalAtMA.nativeElement.value.toString().trim();
+
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .getmaxatencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .subscribe(
+          (serviciomax: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.serviciomax = serviciomax.turnos;
+            this.malRequestAtMA = false;
+            this.malRequestAtMAPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configMA.currentPage > 1) {
+              this.configMA.currentPage = 1;
             }
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configMA = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
+            // this.todasSucursalesMA = this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.serviciomax = null;
+              this.malRequestAtMA = true;
+              this.malRequestAtMAPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.serviciomax == null) {
+                this.configMA.totalItems = 0;
+              } else {
+                this.configMA.totalItems = this.serviciomax.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configMA = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-        }
-      );
+        );
+    }
   }
 
   leerAtencionServicio() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
-    var cod = this.codCajeroAtAS.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalAtAS.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalAtAS.nativeElement.value.toString().trim();
 
-    this.serviceService
-      .getatencionservicio(fechaDesde, fechaHasta, parseInt(cod))
-      .subscribe(
-        (servicioatser: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.servicioatser = servicioatser.turnos;
-          this.malRequestAtAS = false;
-          this.malRequestAtASPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configAS.currentPage > 1) {
-            this.configAS.currentPage = 1;
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .getatencionservicio(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .subscribe(
+          (servicioatser: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.servicioatser = servicioatser.turnos;
+            this.malRequestAtAS = false;
+            this.malRequestAtASPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configAS.currentPage > 1) {
+              this.configAS.currentPage = 1;
+            }
+            // this.todasSucursalesAS = this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.servicioatser = null;
+              this.malRequestAtAS = true;
+              this.malRequestAtASPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.servicioatser == null) {
+                this.configAS.totalItems = 0;
+              } else {
+                this.configAS.totalItems = this.servicioatser.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configAS = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
           }
-          this.todasSucursalesAS = this.comprobarBusquedaSucursales(codSucursal);
+        );
+    }
+  }
+
+  leerGrafico() {
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
+    var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
+    var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
+    this.malRequestAtG = false;
+
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, this.sucursalesSeleccionadas).subscribe(
+        (serviciograf: any) => {
+          // VERIFICACION DE ANCHO DE PANTALLA PARA MOSTRAR O NO LABELS
+          this.legend = screen.width < 575 ? false : true;
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+          this.serviciograf = serviciograf.turnos;
+          // this.malRequestAtG = false;
+          this.malRequestAtGPag = false;
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+          if (this.configGS.currentPage > 1) {
+            this.configGS.currentPage = 1;
+          }
+          // this.todasSucursalesGS = this.comprobarBusquedaSucursales(cod);
+          // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
+          let Nombres = serviciograf.turnos.map((res) => res.Servicio);
+          let totales = serviciograf.turnos.map((res) => res.Total);
+          let atendidos = serviciograf.turnos.map((res) => res.Atendidos);
+          let noAtendidos = serviciograf.turnos.map((res) => res.No_Atendidos);
+  
+          // SETEO DE CADA GRUPO DE DATOS
+          var atendidosData = {
+            label: "Atendidos",
+            data: atendidos,
+            backgroundColor: "rgba(0, 99, 132, 0.6)",
+          };
+          var noAtendidosData = {
+            label: "No Atendidos",
+            data: noAtendidos,
+            backgroundColor: "rgba(99, 132, 0, 0.6)",
+          };
+          var totalesData = {
+            type: "scatter",
+            label: "Totales",
+            data: totales,
+            backgroundColor: "rgba(220, 46, 86, 0.6)",
+          };
+          var graficoData = {
+            labels: Nombres,
+            datasets: [atendidosData, noAtendidosData, totalesData],
+          };
+  
+          // CREACION DEL GRAFICO
+          this.chart = new Chart("canvas", {
+            type: "bar",
+            data: graficoData,
+            options: {
+              plugins: {
+                datalabels: {
+                  color: "black",
+                  labels: {
+                    title: {
+                      font: {
+                        weight: "bold",
+                      },
+                    },
+                  },
+                },
+              },
+              scales: {
+                /* xAxis: [
+                   {
+                     ticks: {
+                       display: this.legend,
+                     },
+                   },
+                 ],*/
+              },
+              responsive: true,
+            },
+          });
         },
         (error) => {
           if (error.status == 400) {
             // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.servicioatser = null;
-            this.malRequestAtAS = true;
-            this.malRequestAtASPag = true;
+            this.serviciograf = null;
+            this.malRequestAtG = true;
+            this.malRequestAtGPag = true;
             // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
             // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            if (this.servicioatser == null) {
-              this.configAS.totalItems = 0;
+            if (this.serviciograf == null) {
+              this.configGS.totalItems = 0;
             } else {
-              this.configAS.totalItems = this.servicioatser.length;
+              this.configGS.totalItems = this.serviciograf.length;
             }
             // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configAS = {
+            this.configGS = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
@@ -463,110 +649,7 @@ export class AtencionComponent implements OnInit {
           }
         }
       );
-  }
-
-  leerGrafico() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
-    var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
-
-    this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, cod).subscribe(
-      (serviciograf: any) => {
-        // VERIFICACION DE ANCHO DE PANTALLA PARA MOSTRAR O NO LABELS
-        this.legend = screen.width < 575 ? false : true;
-        // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-        this.serviciograf = serviciograf.turnos;
-        this.malRequestAtG = false;
-        this.malRequestAtGPag = false;
-        // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-        if (this.configGS.currentPage > 1) {
-          this.configGS.currentPage = 1;
-        }
-        this.todasSucursalesGS = this.comprobarBusquedaSucursales(cod);
-        // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
-        let Nombres = serviciograf.turnos.map((res) => res.Servicio);
-        let totales = serviciograf.turnos.map((res) => res.Total);
-        let atendidos = serviciograf.turnos.map((res) => res.Atendidos);
-        let noAtendidos = serviciograf.turnos.map((res) => res.No_Atendidos);
-
-        // SETEO DE CADA GRUPO DE DATOS
-        var atendidosData = {
-          label: "Atendidos",
-          data: atendidos,
-          backgroundColor: "rgba(0, 99, 132, 0.6)",
-        };
-        var noAtendidosData = {
-          label: "No Atendidos",
-          data: noAtendidos,
-          backgroundColor: "rgba(99, 132, 0, 0.6)",
-        };
-        var totalesData = {
-          type: "scatter",
-          label: "Totales",
-          data: totales,
-          backgroundColor: "rgba(220, 46, 86, 0.6)",
-        };
-        var graficoData = {
-          labels: Nombres,
-          datasets: [atendidosData, noAtendidosData, totalesData],
-        };
-
-        // CREACION DEL GRAFICO
-        this.chart = new Chart("canvas", {
-          type: "bar",
-          data: graficoData,
-          options: {
-            plugins: {
-              datalabels: {
-                color: "black",
-                labels: {
-                  title: {
-                    font: {
-                      weight: "bold",
-                    },
-                  },
-                },
-              },
-            },
-            scales: {
-              /* xAxis: [
-                 {
-                   ticks: {
-                     display: this.legend,
-                   },
-                 },
-               ],*/
-            },
-            responsive: true,
-          },
-        });
-      },
-      (error) => {
-        if (error.status == 400) {
-          // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-          this.serviciograf = null;
-          this.malRequestAtG = true;
-          this.malRequestAtGPag = true;
-          // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-          // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-          if (this.serviciograf == null) {
-            this.configGS.totalItems = 0;
-          } else {
-            this.configGS.totalItems = this.serviciograf.length;
-          }
-          // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-          this.configGS = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
-        }
-      }
-    );
+    }
     // SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
     // EVITANDO SUPERPOSISION DEL NUEVO CHART
     if (this.chart != undefined || this.chart != null) {
@@ -574,22 +657,31 @@ export class AtencionComponent implements OnInit {
     }
   }
 
-  obtenerNombreSucursal(cod: string) {
-    if (cod == "-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    let nombreSucursal = "";
+    
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   //---EXCEL
   exportarAExcelTiempoComp() {
-    let cod = this.codSucursalAtTC.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalAtTC.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
-    if (this.todasSucursalesTC) {
+    if (this.todasSucursalesTC || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioTiempoComp.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioTiempoComp[step].nombreEmpresa,
@@ -634,11 +726,11 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelPromAtencion() {
-    let cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
-    if (this.todasSucursalesPA) {
+    if (this.todasSucursalesPA || this.seleccionMultiple) {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciopa[step].nombreEmpresa,
@@ -680,11 +772,11 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelMaxAtencion() {
-    let cod = this.codSucursalAtMA.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalAtMA.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
-    if (this.todasSucursalesMA) {
+    if (this.todasSucursalesMA || this.seleccionMultiple) {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciomax[step].nombreEmpresa,
@@ -726,11 +818,11 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelAtServ() {
-    let cod = this.codSucursalAtAS.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalAtAS.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
-    if (this.todasSucursalesAS) {
+    if (this.todasSucursalesAS || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioatser.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioatser[step].nombreEmpresa,
@@ -774,16 +866,25 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelGraServ() {
+
+    // let cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    
     // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
     for (let step = 0; step < this.serviciograf.length; step++) {
-      jsonServicio.push({
-        Servicio: this.serviciograf[step].Servicio,
-        Atendidos: this.serviciograf[step].Atendidos,
-        "No Atendidos": this.serviciograf[step].No_Atendidos,
-        Total: this.serviciograf[step].Total,
-      });
+      const item = {
+        ...(this.todasSucursalesGS || this.seleccionMultiple
+          ? {Sucursal: this.serviciograf[step].nombreEmpresa}
+          : {}),
+          Servicio: this.serviciograf[step].Servicio,
+          Atendidos: this.serviciograf[step].Atendidos,
+          "No Atendidos": this.serviciograf[step].No_Atendidos,
+          Total: this.serviciograf[step].Total,
+      };
+      jsonServicio.push(item);
     }
+    
     // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -797,8 +898,9 @@ export class AtencionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(
       wb,
-      "at-graficoservicio" +
-      "_export_" +
+      "GraficoAtencion - " +
+      nombreSucursal +
+      " - " +
       new Date().toLocaleString() +
       EXCEL_EXTENSION
     );
@@ -809,14 +911,13 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTC.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtTC.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtTC.nativeElement.value.toString().trim();
     let documentDefinition;
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     if (pdf === 1) {
       documentDefinition = this.getDocumentTiempoCompleto(
         fechaDesde,
         fechaHasta,
-        cod
       );
     }
 
@@ -839,12 +940,12 @@ export class AtencionComponent implements OnInit {
   }
 
   // FUNCION DELEGADA PARA SETEO DE INFORMACION
-  getDocumentTiempoCompleto(fechaDesde: any, fechaHasta: any, cod: any) {
+  getDocumentTiempoCompleto(fechaDesde: any, fechaHasta: any) {
     // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
@@ -895,7 +996,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -953,7 +1054,7 @@ export class AtencionComponent implements OnInit {
 
   // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   tiempocompleto(servicio: any[]) {
-    if (this.todasSucursalesTC) {
+    if (this.todasSucursalesTC || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -1025,14 +1126,13 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtPA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtPA.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
     if (pdf === 1) {
       documentDefinition = this.getDocumentPromedioAtencion(
         fechaDesde,
         fechaHasta,
-        cod
       );
     }
 
@@ -1055,12 +1155,12 @@ export class AtencionComponent implements OnInit {
   }
 
   // FUNCION DELEGADA PARA SETEO DE INFORMACION
-  getDocumentPromedioAtencion(fechaDesde: any, fechaHasta: any, cod: any) {
+  getDocumentPromedioAtencion(fechaDesde: any, fechaHasta: any) {
     // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
@@ -1111,7 +1211,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1169,7 +1269,7 @@ export class AtencionComponent implements OnInit {
 
   // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   promediosatencion(servicio: any[]) {
-    if (this.todasSucursalesPA) {
+    if (this.todasSucursalesPA || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -1236,11 +1336,11 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtMA.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtMA.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentMaxAtencion(fechaDesde, fechaHasta, cod);
+      documentDefinition = this.getDocumentMaxAtencion(fechaDesde, fechaHasta);
     }
 
     // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
@@ -1261,12 +1361,12 @@ export class AtencionComponent implements OnInit {
     }
   }
 
-  getDocumentMaxAtencion(fechaDesde: any, fechaHasta: any, cod: any) {
+  getDocumentMaxAtencion(fechaDesde: any, fechaHasta: any) {
     // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -1317,7 +1417,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1374,7 +1474,7 @@ export class AtencionComponent implements OnInit {
 
   // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   maxatencion(servicio: any[]) {
-    if (this.todasSucursalesMA) {
+    if (this.todasSucursalesMA || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -1442,14 +1542,13 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtAS.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtAS.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition: any;
     if (pdf === 1) {
       documentDefinition = this.getDocumentAtencionServicio(
         fechaDesde,
         fechaHasta,
-        cod
       );
     }
 
@@ -1472,12 +1571,12 @@ export class AtencionComponent implements OnInit {
   }
 
   // FUNCION DELEGADA PARA SETEO DE INFORMACIÓN
-  getDocumentAtencionServicio(fechaDesde: any, fechaHasta: any, cod: any) {
+  getDocumentAtencionServicio(fechaDesde: any, fechaHasta: any) {
     // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -1528,7 +1627,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1585,7 +1684,7 @@ export class AtencionComponent implements OnInit {
 
   // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   atencionservicio(servicio: any[]) {
-    if (this.todasSucursalesAS) {
+    if (this.todasSucursalesAS || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -1657,7 +1756,7 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
-    var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
 
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
@@ -1665,7 +1764,6 @@ export class AtencionComponent implements OnInit {
       documentDefinition = this.getDocumentAtencionServicioGraf(
         fechaDesde,
         fechaHasta,
-        cod
       );
       //Generacion pdf del grafico
       // this.generarPDFGrafico();
@@ -1690,7 +1788,7 @@ export class AtencionComponent implements OnInit {
   }
 
   // FUNCION DELEGADA PARA SETEO DE INFORMACION
-  getDocumentAtencionServicioGraf(fechaDesde: any, fechaHasta: any, cod: any) {
+  getDocumentAtencionServicioGraf(fechaDesde: any, fechaHasta: any) {
     // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
     // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
@@ -1700,7 +1798,7 @@ export class AtencionComponent implements OnInit {
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -1752,7 +1850,7 @@ export class AtencionComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: "*",
@@ -1829,7 +1927,7 @@ export class AtencionComponent implements OnInit {
 
   // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
   atenciongrafservicio(servicio: any[]) {
-    if (this.todasSucursalesGS) {
+    if (this.todasSucursalesGS || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {

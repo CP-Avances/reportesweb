@@ -60,3 +60,7 @@ form.example::after {
 table {
     font-size: 14px;
 }
+
+::ng-deep .card.mat-option.mat-selected .mat-pseudo-checkbox {
+    background-color: #398bf7 !important;
+  }

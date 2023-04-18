@@ -1,5 +1,5 @@
 <div class="card">
-    <h5 class="card-header">INGRESO DE CLIENTES</h5>
+    <h2 class="card-header">INGRESO DE CLIENTES</h2>
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -21,10 +21,15 @@
                                 <input type="date" id="toDateIng" value="{{toDate}}" [max]="toDate" name="toDateIng" #toDateIng>
                             </div>
                             <div class="col-6">
-                                <select class="form-control"  name="select" #codSucursalIngreso >
-                                    <option value="-1" selected>Sucursales</option>
-                                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.empr_codigo}}" [ngValue]="sucursal.empr_codigo">{{sucursal.empr_nombre}}</option>
-                                </select>
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursales')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursales">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerIngresoClientes()">
                                     <span class="glyphicon glyphicon-filter"></span> Buscar
@@ -33,20 +38,20 @@
                         </div>
                     </div>
                     <br>
-                    <h2>INGRESO CLIENTES</h2>
+                    <h3>INGRESO CLIENTES</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" #content #TABLE #table>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursales" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursales || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Total Clientes</th>
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestIng">
                                 <tr *ngFor="let servicioIngrClientes of servicioIngrClientes | paginate:configTE">
-                                    <td *ngIf="todasSucursales">{{servicioIngrClientes.nombreEmpresa}}</td>
+                                    <td *ngIf="todasSucursales || seleccionMultiple">{{servicioIngrClientes.nombreEmpresa}}</td>
                                     <td>{{servicioIngrClientes.Fecha}}</td>
                                     <td>{{servicioIngrClientes.clientes}}</td>
                                 </tr>

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild,ElementRef } from '@angular/core';
 import { ServiceService } from '../../services/service.service';
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from '../../services/authentication.service';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common'
@@ -27,38 +28,52 @@ export class IngresoclientesComponent implements OnInit {
   @ViewChild('fromDateIng') fromDateIng: ElementRef;
   @ViewChild('toDateIng') toDateIng: ElementRef;
   @ViewChild('codSucursalIngreso') codSucursalIngreso: ElementRef;
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioIngrClientes: any = [];
   sucursales: any[];
+
   //Variable usada en exportacion a excel
   p_color: any;
+
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursales: boolean = false;
+
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestIng: boolean = false;
   malRequestIngPag: boolean = false;
+
   //Usuario que ingreso al sistema
   userDisplayName: any;
+
   //Control paginacion
   configTE: any;
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: 'Anterior',
     nextLabel: 'Siguiente'
   };
+
   //Obtiene fecha actual para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year+"-"+this.month+"-"+this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
 
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router, public datePipe: DatePipe,
-    private toastr: ToastrService    
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService 
     ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configTE = {
@@ -81,10 +96,29 @@ export class IngresoclientesComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem('loggedUser');
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
     this.malRequestIngPag = true;
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1('assets/logotickets.png').then(
-      result => this.urlImagen = result
-    )
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
+  }
+
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'todasSucursales':
+            this.todasSucursales = !this.todasSucursales;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.sucursalesSeleccionadas.length > 1 
+            ? this.seleccionMultiple = true 
+            : this.seleccionMultiple = false;
+            break;
+        default:
+            break;
+    }
   }
 
   //Obtiene la fecha actual
@@ -117,62 +151,73 @@ export class IngresoclientesComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateIng.nativeElement.value.toString().trim();
     var fH = this.toDateIng.nativeElement.value.toString().trim();
-    var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
 
-    this.serviceService.getingresoclientes(fD, fH, cod).subscribe((servicio: any) => {
-      //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-      this.servicioIngrClientes = servicio.turnos;
-      this.malRequestIng = false;
-      this.malRequestIngPag = false;
-      //Seteo de paginacion cuando se hace una nueva busqueda
-      if (this.configTE.currentPage > 1) {
-        this.configTE.currentPage = 1;
-      }
-      this.todasSucursales = this.comprobarBusquedaSucursales(cod);
-    },
-      error => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioIngrClientes = null;
-          this.malRequestIng = true;
-          this.malRequestIngPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioIngrClientes == null) {
-            this.configTE.totalItems = 0;
-          } else {
-            this.configTE.totalItems = this.servicioIngrClientes.length;
-          }
-          //Por error 400 se setea elementos de paginacion
-          this.configTE = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getingresoclientes(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
+        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+        this.servicioIngrClientes = servicio.turnos;
+        this.malRequestIng = false;
+        this.malRequestIngPag = false;
+        //Seteo de paginacion cuando se hace una nueva busqueda
+        if (this.configTE.currentPage > 1) {
+          this.configTE.currentPage = 1;
         }
-      }
-    );
+        // this.todasSucursales = this.comprobarBusquedaSucursales(cod);
+      },
+        error => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioIngrClientes = null;
+            this.malRequestIng = true;
+            this.malRequestIngPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioIngrClientes == null) {
+              this.configTE.totalItems = 0;
+            } else {
+              this.configTE.totalItems = this.servicioIngrClientes.length;
+            }
+            //Por error 400 se setea elementos de paginacion
+            this.configTE = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        }
+      );
+    }
   }
 
-  obtenerNombreSucursal(cod: string){
-    if (cod=="-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    let nombreSucursal = "";
+    
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   //---Excel
   exportTOExcelIngrClientes() {
-    let cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursales) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioIngrClientes.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioIngrClientes[step].nombreEmpresa,
@@ -206,12 +251,12 @@ export class IngresoclientesComponent implements OnInit {
     //Seteo de rango de fechas de la consulta para impresión en PDF
     var fD = this.fromDateIng.nativeElement.value.toString().trim();
     var fH = this.toDateIng.nativeElement.value.toString().trim();
-    var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
+    // var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentIngtesoClientes(fD, fH, cod);
+      documentDefinition = this.getDocumentIngtesoClientes(fD, fH);
     }
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
     switch (action) {
@@ -224,12 +269,12 @@ export class IngresoclientesComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentIngtesoClientes(fD, fH, cod) {
+  getDocumentIngtesoClientes(fD, fH) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours())
     this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -263,7 +308,7 @@ export class IngresoclientesComponent implements OnInit {
             {
               image: this.urlImagen,
               width: 90,
-              height: 40,
+              height: 45,
             },
             {
               width: '*',
@@ -301,7 +346,7 @@ export class IngresoclientesComponent implements OnInit {
 
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   ingresoclientes(servicio: any[]) {
-    if (this.todasSucursales) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       return {
         style: 'tableMargin',
         table: {

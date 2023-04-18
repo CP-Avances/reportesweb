@@ -11,6 +11,7 @@ import { IngresoclientesComponent } from './ingresoclientes/ingresoclientes.comp
 import { AtendidosmultiplesComponent } from './atendidosmultiples/atendidosmultiples.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { OpinionComponent } from './opinion/opinion.component';
+import { ConfiguracionComponent } from './configuracion/configuracion.component';
 
 
 const routes: Routes = [
@@ -30,7 +31,8 @@ const routes: Routes = [
     {path:'distestadoturnos', component:DistestadoturnosComponent},
     {path:'ingresoclientes', component:IngresoclientesComponent},
     {path:'atendidosmultiples', component:AtendidosmultiplesComponent},
-    {path:'opinion', component:OpinionComponent}
+    {path:'opinion', component:OpinionComponent},
+    {path: 'configuracion', component: ConfiguracionComponent}
   ]
 },
 ];

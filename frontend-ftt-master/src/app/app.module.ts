@@ -1,10 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgChartsModule } from 'ng2-charts';
+import { NgxPaginationModule } from 'ngx-pagination';
 import { DpDatePickerModule } from 'ng2-date-picker';//usando esta libreria
 
 ///////////Paginacion//////////
@@ -37,6 +39,8 @@ import { BrowserAnimationsModule } from '@Angular/platform-browser/animations';
     PagesModule,
     AuthModule,
     ToastrModule.forRoot(),
+    NgSelectModule,
+    NgxPaginationModule,
   ],
   providers: [
     DatePipe,

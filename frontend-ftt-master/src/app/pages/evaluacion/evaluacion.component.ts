@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { ServiceService } from "../../services/service.service";
+import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
 import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
 import { ToastrService } from "ngx-toastr";
+import { saveAs } from 'file-saver';
 
 //Complemento para graficos
 import { Chart } from "chart.js";
@@ -120,8 +122,10 @@ export class EvaluacionComponent implements OnInit {
   configEG: any;
   configG: any;
   configEstb: any;
+
   //Maximo de items mostrado de tabla en pantalla
   private MAX_PAGS = 10;
+
   //Palabras de componente de paginacion
   public labels: any = {
     previousLabel: "Anterior",
@@ -133,8 +137,21 @@ export class EvaluacionComponent implements OnInit {
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
+
   //Imagen Logo
   urlImagen: string;
+
+  //OPCIONES MULTIPLES
+  allSelected: boolean = false;
+  selectedItems: string[] = [];
+  sucursalesSeleccionadas: string[] = [];
+  seleccionMultiple: boolean = false;
+
+  //MOSTRAR CAJEROS
+  mostrarCajeros: boolean = false;
+
+  //MOSTRAR SERVICIOS
+  mostrarServicios: boolean = false;
 
   //Orientacion
   orientacion: string;
@@ -144,7 +161,8 @@ export class EvaluacionComponent implements OnInit {
     private auth: AuthenticationService,
     private router: Router,
     public datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imagenesService: ImagenesService,
   ) {
     //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
     this.configS = {
@@ -231,10 +249,10 @@ export class EvaluacionComponent implements OnInit {
      this.getOpcionesEvaluacion();
     //Cargamos componentes selects HTML
     this.getlastday();
-    this.getServicios("-1");
-    this.getCajeros("-1");
-    this.getCajerosG("-1");
-    this.getCajerosOmitidas("-1");
+    // this.getServicios("-1");
+    // this.getCajeros("-1");
+    // this.getCajerosG("-1");
+    // this.getCajerosOmitidas("-1");
     this.getSucursales();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem("loggedUser");
@@ -251,10 +269,63 @@ export class EvaluacionComponent implements OnInit {
     this.tipo = "bar";
     //seteo orientacion
     this.orientacion = "portrait";
-    //Seteo de imagen en interfaz
-    Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-      (result) => (this.urlImagen = result)
-    );
+    // CARGAR LOGO PARA LOS REPORTES
+    this.imagenesService.cargarImagen().then((result: string) => {
+      this.urlImagen = result;
+    }).catch((error) => {
+      Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
+        (result) => (this.urlImagen = result)
+      );
+    });
+  }
+
+  selectAll(opcion: string) {
+    switch (opcion) {
+        case 'allSelected':
+            this.allSelected = !this.allSelected;
+            break;
+        case 'todasSucursalesEST':
+            this.todasSucursalesEST = !this.todasSucursalesEST;
+            break;
+        case 'todasSucursalesE':
+            this.todasSucursalesE = !this.todasSucursalesE;
+            this.todasSucursalesE ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesEG':
+            this.todasSucursalesEG = !this.todasSucursalesEG;
+            this.todasSucursalesEG ? this.getCajerosG(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesG':
+            this.todasSucursalesG = !this.todasSucursalesG;
+            this.todasSucursalesG ? this.getCajerosG(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesEO':
+            this.todasSucursalesEO = !this.todasSucursalesEO;
+            this.todasSucursalesEO ? this.getCajerosOmitidas(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesS':
+            this.todasSucursalesS = !this.todasSucursalesS;
+            this.todasSucursalesS ? this.getServicios(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadas':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadasG':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajerosG(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadasEO':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getCajerosOmitidas(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'sucursalesSeleccionadasS':
+            this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+            this.sucursalesSeleccionadas.length > 0 ? this.getServicios(this.sucursalesSeleccionadas) : null;
+            break;
+        default:
+            break;
+    }
   }
 
   //Se obtiene fecha actual
@@ -275,10 +346,12 @@ export class EvaluacionComponent implements OnInit {
   getCajeros(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
       this.cajerosEval = cajeros.cajeros;
+      this.mostrarCajeros = true;
     },
       (error) => {
         if (error.status == 400) {
           this.cajerosEval = [];
+          this.mostrarCajeros = false;
         }
       });
   }
@@ -293,10 +366,12 @@ export class EvaluacionComponent implements OnInit {
   getCajerosOmitidas(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosO: any) => {
       this.cajerosEvalOmitidas = cajerosO.cajeros;
+      this.mostrarCajeros = true;
     },
       (error) => {
         if (error.status == 400) {
           this.cajerosEvalOmitidas = [];
+          this.mostrarCajeros = false;
         }
       });
   }
@@ -304,10 +379,12 @@ export class EvaluacionComponent implements OnInit {
   getCajerosG(sucursal: any) {
     this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosG: any) => {
       this.cajerosG = cajerosG.cajeros;
+      this.mostrarCajeros = true;
     },
       (error) => {
         if (error.status == 400) {
           this.cajerosG = [];
+          this.mostrarCajeros = false;
         }
       });
   }
@@ -323,11 +400,26 @@ export class EvaluacionComponent implements OnInit {
   }
 
   limpiar() {
-    this.getCajeros("-1");
-    this.getCajerosG("-1");
-    this.getCajerosOmitidas("-1");
-    this.getSucursales();
-    this.getServicios("-1");
+    // this.getCajeros("-1");
+    // this.getCajerosG("-1");
+    // this.getCajerosOmitidas("-1");
+    // this.getSucursales();
+    // this.getServicios("-1");
+    this.cajerosEval=[];
+    this.selectedItems = [];
+    this.serviciosServs = [];
+    this.cajerosEvalOmitidas=[];
+    this.allSelected = false;
+    this.mostrarCajeros = false;
+    this.mostrarServicios = false;
+    this.todasSucursalesS = false;
+    this.todasSucursalesE = false;
+    this.todasSucursalesEG = false;
+    this.todasSucursalesG = false;
+    this.todasSucursalesEST = false;
+    this.todasSucursalesEO = false;
+    this.seleccionMultiple = false;
+    this.sucursalesSeleccionadas = [];
   }
 
   //Comprueba si se realizo una busqueda por sucursales
@@ -344,10 +436,12 @@ export class EvaluacionComponent implements OnInit {
   getServicios(sucursal: any) {
     this.serviceService.getAllServiciosS(sucursal).subscribe((servicios: any) => {
       this.serviciosServs = servicios.servicios;
+      this.mostrarServicios = true;
     },
       (error) => {
         if (error.status == 400) {
           this.serviciosServs = [];
+          this.mostrarServicios = false;
         }
       });
   }
@@ -358,13 +452,13 @@ export class EvaluacionComponent implements OnInit {
       .toString()
       .trim();
     var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
-    var serv = this.codServicioServs.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalServicio.nativeElement.value.toString().trim();
+    // var serv = this.codServicioServs.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalServicio.nativeElement.value.toString().trim();
 
-    if (serv != "-1") {
+    if (this.selectedItems.length!==0) {
       //Servicios
       this.serviceService
-        .getprmediosservicios(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
+        .getprmediosservicios(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -375,7 +469,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.configS.currentPage > 1) {
               this.configS.currentPage = 1;
             }
-            this.todasSucursalesS = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesS = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -405,7 +499,7 @@ export class EvaluacionComponent implements OnInit {
 
       //Max Mins
       this.serviceService
-        .getmaxminservicios(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
+        .getmaxminservicios(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -458,12 +552,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalEmpl.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codCajeroEvalEmpl.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
 
-    if (cod != "-1") {
+    if (this.selectedItems.length!==0) {
       this.serviceService
-        .getprmediosempleado(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
+        .getprmediosempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas ,this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -474,7 +567,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.configE.currentPage > 1) {
               this.configE.currentPage = 1;
             }
-            this.todasSucursalesE = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesE = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -503,7 +596,7 @@ export class EvaluacionComponent implements OnInit {
         );
 
       this.serviceService
-        .getmaxminempleado(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
+        .getmaxminempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalMMEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -553,12 +646,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
       .toString()
       .trim();
-    var cod = this.codCajeroEvalOmitidas.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalEvalOmitidas.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalEvalOmitidas.nativeElement.value.toString().trim();
 
-    if (cod != "-1") {
+    if (this.selectedItems.length!==0) {
       this.serviceService
-        .getevalomitidasempleado(fechaDesde, fechaHasta, parseInt(cod))
+        .getevalomitidasempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicioEvalOmitidas: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -569,7 +661,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.configEOmitidas.currentPage > 1) {
               this.configEOmitidas.currentPage = 1;
             }
-            this.todasSucursalesEO = this.comprobarBusquedaSucursales(codSucursal)
+            // this.todasSucursalesEO = this.comprobarBusquedaSucursales(codSucursal)
           },
           (error) => {
             if (error.status == 400) {
@@ -614,12 +706,11 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
       .toString()
       .trim();
-    var serv = this.codCajeroEvalGr.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursalEvalGr.nativeElement.value.toString().trim();
+    // let codSucursal = this.codSucursalEvalGr.nativeElement.value.toString().trim();
 
-    if (serv != "-1") {
+    if (this.selectedItems.length!==0) {
       this.serviceService
-        .getevalgrupo(fechaDesde, fechaHasta, parseInt(serv),this.opcionCuatro.toString())
+        .getevalgrupo(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicioG: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -630,7 +721,7 @@ export class EvaluacionComponent implements OnInit {
             if (this.configEG.currentPage > 1) {
               this.configEG.currentPage = 1;
             }
-            this.todasSucursalesEG = this.comprobarBusquedaSucursales(codSucursal);
+            // this.todasSucursalesEG = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -670,199 +761,35 @@ export class EvaluacionComponent implements OnInit {
     var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
 
-    var cod = this.codSucursalEst.nativeElement.value.toString().trim();
-
-    this.serviceService.getestablecimiento(fechaDesde, fechaHasta, cod,this.opcionCuatro.toString()).subscribe(
-      (servicio: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        this.servicioEstb = servicio.turnos;
-        this.malRequestEstb = false;
-        this.malRequestEstbPag = false;
-        //Seteo de paginacion cuando se hace una nueva busqueda
-        if (this.configEstb.currentPage > 1) {
-          this.configEstb.currentPage = 1;
-        }
-        this.todasSucursalesEST = this.comprobarBusquedaSucursales(cod);
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-          this.servicioEstb = null;
-          this.malRequestEstb = true;
-          this.malRequestEstbPag = true;
-          //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-          //caso contrario se setea la cantidad de elementos
-          if (this.servicioEstb == null) {
-            this.configEstb.totalItems = 0;
-          } else {
-            this.configEstb.totalItems = this.servicioEstb.length;
-          }
-          //Por error 400 se setea elementos de paginacion
-          this.configEstb = {
-            itemsPerPage: this.MAX_PAGS,
-            currentPage: 1,
-          };
-          //Se informa que no se encontraron registros
-          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-            timeOut: 6000,
-          });
-        }
-      }
-    );
-  }
-
-  leerGraficosevabar() {
-    //captura de fechas para proceder con la busqueda
-    var fechaDesde = this.fromDateDesdeEvalGra.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
-      .toString()
-      .trim();
-    var cod = this.codCajeroEvalGra.nativeElement.value.toString().trim();
-    let codSucursal = this.codSucursal.nativeElement.value.toString().trim();
-
-    this.serviceService
-      .getgraficobarrasfiltro(fechaDesde, fechaHasta, parseInt(cod),this.opcionCuatro.toString())
-      .subscribe(
-        (servicioGra: any) => {
+    // var cod = this.codSucursalEst.nativeElement.value.toString().trim();
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getestablecimiento(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.opcionCuatro.toString()).subscribe(
+        (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-          this.servicioGra = servicioGra.turnos;
-          this.malRequestGra = false;
-          this.malRequestGraPag = false;
+          this.servicioEstb = servicio.turnos;
+          this.malRequestEstb = false;
+          this.malRequestEstbPag = false;
           //Seteo de paginacion cuando se hace una nueva busqueda
-          if (this.configG.currentPage > 1) {
-            this.configG.currentPage = 1;
+          if (this.configEstb.currentPage > 1) {
+            this.configEstb.currentPage = 1;
           }
-          this.todasSucursalesG = this.comprobarBusquedaSucursales(codSucursal);
-          //Formateo y mapeo de datos para imprimir valores en grafico
-          let evOrig = this.servicioGra;
-          let total = servicioGra.turnos.map((res) => res.total);
-          let evaluaciones = servicioGra.turnos.map((res) => res.usuario);
-          let evaluacionesNombre = servicioGra.turnos.map(
-            (res) => res.evaluacion
-          );
-
-          let Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
-          let valNombres = [0, 0, 0, 0, 0];
-          let totalPorc = 0;
-          let porcts = [0, 0, 0, 0, 0];
-          //Empate para obtener porcentajes de Nombres que no posea la consulta (Si una consulta no tiene Malos, aqui se completa para mostrar mejor los datos al usuario)
-          for (var i = 0; i < Nombres.length; i++) {
-            if (evOrig.find((val) => val.evaluacion === Nombres[i]) != null) {
-              valNombres[i] = evOrig.find(
-                (val) => val.evaluacion === Nombres[i]
-              ).total;
-            }
-            totalPorc = totalPorc + valNombres[i];
-          }
-          for (var i = 0; i < Nombres.length; i++) {
-            porcts[i] =
-              Math.round(((valNombres[i] * 100) / totalPorc) * 1000) / 1000;
-            Nombres[i] = Nombres[i] + "\n" + porcts[i] + "%";
-          }
-          //Seteo de titulo de grafico
-          var titulo = true;
-          if (this.tipo == "bar") {
-            titulo = false;
-          } else {
-            titulo = true;
-          }
-
-          //Creacion de chart [imagen] de tipo canvas si es bar
-          if (this.tipo == "bar") {
-            //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
-            this.chart = new Chart("canvas", {
-              type: this.tipo,
-              data: {
-                labels: Nombres, //eje x
-                datasets: [
-                  {
-                    label: "",
-                    data: valNombres,
-                    backgroundColor: [
-                      "rgba(51, 172, 32, 0.4)",
-                      "rgba(55, 171, 228, 1)",
-                      "rgba(213, 220, 102, 0.77)",
-                      "rgba(251, 182, 55, 0.77)",
-                      "rgba(149, 148, 204, 0.86)",
-                    ],
-                  },
-                ],
-              },
-              options: {
-                plugins: {
-                  title: {
-                    display: true,
-                    text: evaluaciones[0],
-                  },
-                  legend: {
-                    display: false,
-                  },
-                },
-                responsive: true,
-                maintainAspectRatio: true,
-              },
-            });
-          } else {
-            //Creacion de chart [imagen] de tipo canvas de tipo pie
-            //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
-            this.chart = new Chart("canvas", {
-              //type: this.tipo,
-              type: 'pie',
-              data: {
-                labels: Nombres, //eje x
-                datasets: [
-                  {
-                    label: evaluaciones[0],
-                    data: valNombres, //eje y
-                    backgroundColor: [
-                      "rgba(51, 172, 32, 0.4)",
-                      "rgba(55, 171, 228, 1)",
-                      "rgba(213, 220, 102, 0.77)",
-                      "rgba(251, 182, 55, 0.77)",
-                      "rgba(149, 148, 204, 0.86)",
-                    ],
-                  },
-                ],
-              },
-              options: {
-                plugins: {
-                  title: {
-                    display: titulo,
-                    text: evaluaciones[0],
-                  },
-                  datalabels: {
-                    color: "black",
-                    labels: {
-                      title: {
-                        font: {
-                          weight: "bold",
-                        },
-                      },
-                    },
-                  },
-                },
-                responsive: true,
-              },
-            });
-          }
+          // this.todasSucursalesEST = this.comprobarBusquedaSucursales(cod);
         },
         (error) => {
           if (error.status == 400) {
             //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
-            this.servicioGra = null;
-            this.malRequestGra = true;
-            this.malRequestGraPag = true;
+            this.servicioEstb = null;
+            this.malRequestEstb = true;
+            this.malRequestEstbPag = true;
             //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
             //caso contrario se setea la cantidad de elementos
-            if (this.servicioGra == null) {
-              this.configG.totalItems = 0;
+            if (this.servicioEstb == null) {
+              this.configEstb.totalItems = 0;
             } else {
-              this.configG.totalItems = this.servicioGra.length;
+              this.configEstb.totalItems = this.servicioEstb.length;
             }
             //Por error 400 se setea elementos de paginacion
-            this.configG = {
+            this.configEstb = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
@@ -873,9 +800,185 @@ export class EvaluacionComponent implements OnInit {
           }
         }
       );
-    //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
-    if (this.chart != undefined || this.chart != null) {
-      this.chart.destroy();
+    } 
+  }
+
+  leerGraficosevabar() {
+    //captura de fechas para proceder con la busqueda
+    var fechaDesde = this.fromDateDesdeEvalGra.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
+      .toString()
+      .trim();
+    // let codSucursal = this.codSucursal.nativeElement.value.toString().trim();
+    this.malRequestGra = false;
+
+
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .getgraficobarrasfiltro(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
+        .subscribe(
+          (servicioGra: any) => {
+            //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+            this.servicioGra = servicioGra.turnos;
+            // this.malRequestGra = false;
+            this.malRequestGraPag = false;
+            //Seteo de paginacion cuando se hace una nueva busqueda
+            if (this.configG.currentPage > 1) {
+              this.configG.currentPage = 1;
+            }
+            // this.todasSucursalesG = this.comprobarBusquedaSucursales(codSucursal);
+            //Formateo y mapeo de datos para imprimir valores en grafico
+            let evOrig = this.servicioGra;
+            let evaluaciones = (this.selectedItems[0]=="-2" ? ["Todos los usuarios"] : servicioGra.turnos.map((res) => res.usuario));  
+            let Nombres: string | any[] ;
+            let valNombres: number[] ;
+            let totalPorc: number ;
+            let porcts: string[] | number[] ;
+  
+            if (this.opcionCuatro) {
+              Nombres = ["Excelente", "Bueno", "Regular", "Malo"];
+              valNombres = [0, 0, 0, 0];
+              totalPorc = 0;
+              porcts = [0, 0, 0, 0];
+            } else {
+              Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
+              valNombres = [0, 0, 0, 0, 0];
+              totalPorc = 0;
+              porcts = [0, 0, 0, 0, 0];
+            }
+            
+            //Empate para obtener porcentajes de Nombres que no posea la consulta (Si una consulta no tiene Malos, aqui se completa para mostrar mejor los datos al usuario)
+            for (var i = 0; i < Nombres.length; i++) {
+              if (evOrig.find((val) => val.evaluacion === Nombres[i]) != null) {
+                valNombres[i] = evOrig.find(
+                  (val) => val.evaluacion === Nombres[i]
+                ).total;
+              }
+              totalPorc = totalPorc + valNombres[i];
+            }
+            for (var i = 0; i < Nombres.length; i++) {
+              porcts[i] =
+                Math.round(((valNombres[i] * 100) / totalPorc) * 1000) / 1000;
+              Nombres[i] = Nombres[i] + "\n" + porcts[i] + "%";
+            }
+            //Seteo de titulo de grafico
+            var titulo = true;
+            if (this.tipo == "bar") {
+              titulo = false;
+            } else {
+              titulo = true;
+            }
+  
+            //Creacion de chart [imagen] de tipo canvas si es bar
+            if (this.tipo == "bar") {
+              //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
+              this.chart = new Chart("canvas", {
+                type: this.tipo,
+                data: {
+                  labels: Nombres, //eje x
+                  datasets: [
+                    {
+                      label: "",
+                      data: valNombres,
+                      backgroundColor: [
+                        "rgba(51, 172, 32, 0.4)",
+                        "rgba(55, 171, 228, 1)",
+                        "rgba(213, 220, 102, 0.77)",
+                        "rgba(251, 182, 55, 0.77)",
+                        "rgba(149, 148, 204, 0.86)",
+                      ],
+                    },
+                  ],
+                },
+                options: {
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: evaluaciones[0],
+                    },
+                    legend: {
+                      display: false,
+                    },
+                  },
+                  responsive: true,
+                  maintainAspectRatio: true,
+                },
+              });
+            } else {
+              //Creacion de chart [imagen] de tipo canvas de tipo pie
+              //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
+              this.chart = new Chart("canvas", {
+                //type: this.tipo,
+                type: 'pie',
+                data: {
+                  labels: Nombres, //eje x
+                  datasets: [
+                    {
+                      label: evaluaciones[0],
+                      data: valNombres, //eje y
+                      backgroundColor: [
+                        "rgba(51, 172, 32, 0.4)",
+                        "rgba(55, 171, 228, 1)",
+                        "rgba(213, 220, 102, 0.77)",
+                        "rgba(251, 182, 55, 0.77)",
+                        "rgba(149, 148, 204, 0.86)",
+                      ],
+                    },
+                  ],
+                },
+                options: {
+                  plugins: {
+                    title: {
+                      display: titulo,
+                      text: evaluaciones[0],
+                    },
+                    datalabels: {
+                      color: "black",
+                      labels: {
+                        title: {
+                          font: {
+                            weight: "bold",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  responsive: true,
+                },
+              });
+            }
+          },
+          (error) => {
+            if (error.status == 400) {
+              //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+              this.servicioGra = null;
+              this.malRequestGra = true;
+              this.malRequestGraPag = true;
+              //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+              //caso contrario se setea la cantidad de elementos
+              if (this.servicioGra == null) {
+                this.configG.totalItems = 0;
+              } else {
+                this.configG.totalItems = this.servicioGra.length;
+              }
+              //Por error 400 se setea elementos de paginacion
+              this.configG = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              //Se informa que no se encontraron registros
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
+          }
+        );
+      //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
+      if (this.chart != undefined || this.chart != null) {
+        this.chart.destroy();
+      }
     }
   }
 
@@ -888,24 +991,33 @@ export class EvaluacionComponent implements OnInit {
     this.leerGraficosevabar();
   }
 
-  obtenerNombreSucursal(cod: string) {
-    if (cod == "-1") {
-      return "Todas las sucursales"
-    } else {
-      let nombreSucursal = (this.sucursales.find(sucursal => sucursal.empr_codigo == cod)).empr_nombre;
-      return nombreSucursal;
-    }
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    let nombreSucursal = "";
+    
+    listaSucursales.forEach(elemento => {
+      const cod = elemento;
+      if (cod=="-1") {
+        nombreSucursal = "Todas las sucursales";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
   exportarAExcelServicios() {
-    let cod = this.codSucursalServicio.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalServicio.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Servicios
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
     for (let i = 0; i < this.servicioServs.length; i++) {
       const item = {
-        ...(this.todasSucursalesS
+        ...(this.todasSucursalesS || this.seleccionMultiple
           ? { Sucursal: this.servicioServs[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioServs[i].Usuario,
@@ -983,13 +1095,13 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEvalEmpl() {
-    let cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
     for (let i = 0; i < this.servicioEvalEmpl.length; i++) {
       const item = {
-        ...(this.todasSucursalesE
+        ...(this.todasSucursalesE || this.seleccionMultiple
           ? { Sucursal: this.servicioEvalEmpl[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioEvalEmpl[i].usua_nombre,
@@ -1064,16 +1176,16 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEvalOmitidas() {
-    let cod = this.codSucursalEvalOmitidas.nativeElement.value
-      .toString()
-      .trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalEvalOmitidas.nativeElement.value
+    //   .toString()
+    //   .trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
     for (let i = 0; i < this.servicioEvalOmitidas.length; i++) {
       const item = {
-        ...(this.todasSucursalesEO
+        ...(this.todasSucursalesEO || this.seleccionMultiple
           ? { Sucursal: this.servicioEvalOmitidas[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioEvalOmitidas[i].usua_nombre,
@@ -1107,14 +1219,14 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEstb() {
-    let cod = this.codSucursalEst.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalEst.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
     for (let i = 0; i < this.servicioEstb.length; i++) {
       const item = {
-        ...(this.todasSucursalesEST
+        ...(this.todasSucursalesEST || this.seleccionMultiple
           ? { Sucursal: this.servicioEstb[i].nombreEmpresa }
           : {}),
         Fecha: this.servicioEstb[i].fecha,
@@ -1151,14 +1263,14 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEvalGr() {
-    let cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
-    let nombreSucursal = this.obtenerNombreSucursal(cod);
+    // let cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
     for (let i = 0; i < this.servicioG.length; i++) {
       const item = {
-        ...(this.todasSucursalesEG
+        ...(this.todasSucursalesEG || this.seleccionMultiple
           ? { Sucursal: this.servicioG[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioG[i].usua_nombre,
@@ -1193,15 +1305,46 @@ export class EvaluacionComponent implements OnInit {
     );
   }
 
+  generarImagen() {
+    // Selecciona de la interfaz el elemento que contiene la grafica
+    const canvas = document.querySelector('#canvas') as HTMLCanvasElement;
+
+    // De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+    const canvasImg = canvas.toDataURL('image/png');
+
+    // Crea un blob con la imagen
+    const blob = this.dataURLtoBlob(canvasImg);
+
+    // Guarda el blob en un archivo
+    saveAs(blob, 'grafico.png');
+
+    // Llamamos a la función que genera el archivo de Excel y le pasamos la ruta del archivo como parámetro
+    this.exportarAExcelGra();
+
+  }
+
+  dataURLtoBlob(dataUrl: string): Blob {
+    const arr = dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  }
+
   exportarAExcelGra() {
-    //Generacion de archivo excel, al generar PDF
-    this.genGraficoPDF();
+    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
 
     for (let i = 0; i < this.servicioGra.length; i++) {
       const item = {
-        ...(this.todasSucursalesG
+        ...(this.todasSucursalesG || this.seleccionMultiple
           ? { Sucursal: this.servicioGra[i].nombreEmpresa }
           : {}),
         Usuario: this.servicioGra[i].usuario,
@@ -1226,12 +1369,14 @@ export class EvaluacionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(
       wb,
-      "graficoservicio" +
-        "_export_" +
+      "GraficoEvaluaciones - " +
+        nombreSucursal +
+        " - " +
         new Date().toLocaleString() +
         EXCEL_EXTENSION
     );
   }
+
 /////---Generacion de PDF's
 generarPdfServicios(action = "open", pdf: number) {
   //Seteo de rango de fechas de la consulta para impresión en PDF
@@ -1239,14 +1384,13 @@ generarPdfServicios(action = "open", pdf: number) {
     .toString()
     .trim();
   var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
-  var cod = this.codSucursalServicio.nativeElement.value.toString().trim();
+  // var cod = this.codSucursalServicio.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentServicios(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -1269,12 +1413,12 @@ generarPdfServicios(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información en estructura
-getDocumentServicios(fechaDesde, fechaHasta, cod) {
+getDocumentServicios(fechaDesde, fechaHasta) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -1325,7 +1469,7 @@ getDocumentServicios(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 75,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -1388,7 +1532,7 @@ getDocumentServicios(fechaDesde, fechaHasta, cod) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend Servicios
 servicios(servicio: any[]) {
-  if (this.todasSucursalesS) {
+  if (this.todasSucursalesS || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -1494,7 +1638,7 @@ servicios(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend Max Mins
 maxmin(servicio: any[]) {
-  if (this.todasSucursalesS) {
+  if (this.todasSucursalesS || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -1608,7 +1752,7 @@ maxmin(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend Servicios
 serviciosC(servicio: any[]) {
-  if (this.todasSucursalesS) {
+  if (this.todasSucursalesS || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -1699,7 +1843,7 @@ serviciosC(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend Max Mins
 maxminC(servicio: any[]) {
-  if (this.todasSucursalesS) {
+  if (this.todasSucursalesS || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -1813,14 +1957,13 @@ generarPdfEvalEmpl(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalEmpl.nativeElement.value
     .toString()
     .trim();
-  var cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
+  // var cod = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentEmpleado(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -1843,12 +1986,12 @@ generarPdfEvalEmpl(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información de estructura
-getDocumentEmpleado(fechaDesde, fechaHasta, cod) {
+getDocumentEmpleado(fechaDesde, fechaHasta) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -1899,7 +2042,7 @@ getDocumentEmpleado(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -1963,7 +2106,7 @@ getDocumentEmpleado(fechaDesde, fechaHasta, cod) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 empleado(servicio: any[]) {
-  if (this.todasSucursalesE) {
+  if (this.todasSucursalesE || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2069,7 +2212,7 @@ empleado(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 maxmine(servicio: any[]) {
-  if (this.todasSucursalesE) {
+  if (this.todasSucursalesE || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2183,7 +2326,7 @@ maxmine(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 empleadoC(servicio: any[]) {
-  if (this.todasSucursalesE) {
+  if (this.todasSucursalesE || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2274,7 +2417,7 @@ empleadoC(servicio: any[]) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 maxmineC(servicio: any[]) {
-  if (this.todasSucursalesE) {
+  if (this.todasSucursalesE || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2388,16 +2531,15 @@ generarPdfEvalOmitidas(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
     .toString()
     .trim();
-  var cod = this.codSucursalEvalOmitidas.nativeElement.value
-    .toString()
-    .trim();
+  // var cod = this.codSucursalEvalOmitidas.nativeElement.value
+  //   .toString()
+  //   .trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentEvaluacionesOmitidas(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -2420,12 +2562,12 @@ generarPdfEvalOmitidas(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información de estructura
-getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta, cod) {
+getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -2476,7 +2618,7 @@ getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -2534,7 +2676,7 @@ getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta, cod) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 omitidas(servicio: any[]) {
-  if (this.todasSucursalesEO) {
+  if (this.todasSucursalesEO || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2597,14 +2739,13 @@ generarPdfEstb(action = "open", pdf: number) {
   //Seteo de rango de fechas de la consulta para impresión en PDF
   var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
   var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
-  var cod = this.codSucursalEst.nativeElement.value.toString().trim();
+  // var cod = this.codSucursalEst.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentEstablecimiento(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -2627,12 +2768,12 @@ generarPdfEstb(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información
-getDocumentEstablecimiento(fD, fH, cod) {
+getDocumentEstablecimiento(fD, fH) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -2683,7 +2824,7 @@ getDocumentEstablecimiento(fD, fH, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -2742,7 +2883,7 @@ getDocumentEstablecimiento(fD, fH, cod) {
 
 //Definicion de funcion delegada para setear informacion de tabla del PDF en estructura
 establecimientos(servicio: any[]) {
-  if (this.todasSucursalesEST) {
+  if (this.todasSucursalesEST || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -2819,12 +2960,12 @@ establecimientos(servicio: any[]) {
 
 //Definicion de funcion delegada para setear informacion de tabla del PDF en estructura
 establecimientosC(servicio: any[]) {
-  if (this.todasSucursalesEST) {
+  if (this.todasSucursalesEST || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
         headerRows: 1,
-        widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
+        widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
@@ -2898,14 +3039,13 @@ generarPdfEvalGr(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
     .toString()
     .trim();
-  var cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
+  // var cod = this.codSucursalEvalGr.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
     documentDefinition = this.getDocumentEvaGrupo(
       fechaDesde,
       fechaHasta,
-      cod
     );
   }
 
@@ -2928,12 +3068,12 @@ generarPdfEvalGr(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información
-getDocumentEvaGrupo(fechaDesde, fechaHasta, cod) {
+getDocumentEvaGrupo(fechaDesde, fechaHasta) {
   //Se obtiene la fecha actual
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
@@ -2984,7 +3124,7 @@ getDocumentEvaGrupo(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -3041,7 +3181,7 @@ getDocumentEvaGrupo(fechaDesde, fechaHasta, cod) {
 
 //Funcion para llenar la tabla con la consulta realizada al backend
 evagrupo(servicio: any[]) {
-  if (this.todasSucursalesEG) {
+  if (this.todasSucursalesEG || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {
@@ -3121,11 +3261,11 @@ generarPdfGra(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
     .toString()
     .trim();
-  var cod = this.codSucursal.nativeElement.value.toString().trim();
+  // var cod = this.codSucursal.nativeElement.value.toString().trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
-    documentDefinition = this.getDocumentGr(fechaDesde, fechaHasta, cod);
+    documentDefinition = this.getDocumentGr(fechaDesde, fechaHasta);
     // this.genGraficoPDF();
   }
 
@@ -3147,7 +3287,7 @@ generarPdfGra(action = "open", pdf: number) {
 }
 
 //Funcion delegada para seteo de información
-getDocumentGr(fechaDesde, fechaHasta, cod) {
+getDocumentGr(fechaDesde, fechaHasta) {
   var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
   //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
   var canvasImg = canvas1.toDataURL("image/png");
@@ -3155,7 +3295,7 @@ getDocumentGr(fechaDesde, fechaHasta, cod) {
   let f = new Date();
   f.setUTCHours(f.getHours());
   this.date = f.toJSON();
-  let nombreSucursal = this.obtenerNombreSucursal(cod);
+  let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
   //Formateo de datos para obtener, los valores de cada parámetro
   let Nombres = [];
@@ -3229,7 +3369,7 @@ getDocumentGr(fechaDesde, fechaHasta, cod) {
           {
             image: this.urlImagen,
             width: 90,
-            height: 40,
+            height: 45,
           },
           {
             width: "*",
@@ -3306,7 +3446,7 @@ graficoImagen(imagen: any) {
 
 //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
 grafico(servicio: any[]) {
-  if (this.todasSucursalesG) {
+  if (this.todasSucursalesG || this.seleccionMultiple) {
     return {
       style: "tableMargin",
       table: {

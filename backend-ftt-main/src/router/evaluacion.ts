@@ -4,22 +4,35 @@ import MySQL from "../mysql/mysql";
 const router = Router();
 
 /** ************************************************************************************************************ **
- ** **                                      SERVICIO                                                          ** ** 
+ ** **                                      SERVICIO                                                          ** **
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/promedios/:fechaDesde/:fechaHasta/:cCajero/:opcion",
+  "/promedios/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const opcion = req.params.opcion;
+    const listaServicios = req.params.servicios;
+    const serviciosArray = listaServicios.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todosServicios = false;
+    let todasSucursales = false;
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    } 
     
+    if (serviciosArray.includes("-1")) {
+      todosServicios = true
+    } 
+
     let query;
-    
-    if (opcion=="true") {
-      query =
-      `
+
+    if (opcion == "true") {
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
         SUM(eval_califica = 40) AS Excelente, 
         SUM(eval_califica = 30) AS Bueno,
@@ -35,14 +48,14 @@ router.get(
         AND S.serv_codigo = t.serv_codigo 
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND f.turn_codigo = t.turn_codigo 
-        AND S.serv_codigo = ${cCajero}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
         AND eval_califica != 50
         AND a.usua_codigo != 2
         GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     } else {
-      query =
-      `
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
         SUM(eval_califica = 50) AS Excelente, 
         SUM(eval_califica = 40) AS Muy_Bueno,
@@ -60,13 +73,13 @@ router.get(
         AND S.serv_codigo = t.serv_codigo 
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND f.turn_codigo = t.turn_codigo 
-        AND S.serv_codigo = ${cCajero}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
         AND a.usua_codigo != 2
         GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     }
 
-      
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
@@ -84,10 +97,9 @@ router.get(
 );
 
 router.get("/getallservicios", (req: Request, res: Response) => {
-  const query =
-    `
+  const query = `
     SELECT * FROM servicio ORDER BY serv_nombre;
-    `
+    `;
   MySQL.ejecutarQuery(query, (err: any, servicios: Object[]) => {
     if (err) {
       res.status(400).json({
@@ -103,20 +115,23 @@ router.get("/getallservicios", (req: Request, res: Response) => {
   });
 });
 
-router.get("/getallservicios/:empresa", (req: Request, res: Response) => {
-  const cEmpresa = req.params.empresa;
-  let query;
-  if (cEmpresa == '-1') {
-    query =
-      `
-      SELECT * FROM servicio WHERE serv_codigo != 1 ORDER BY serv_nombre;
-      `
-  } else {
-    query =
-      `
-      SELECT * FROM servicio WHERE empr_codigo = ${cEmpresa} AND Serv_codigo != 1 ORDER BY serv_nombre;
-      `
+router.get("/getallservicios/:sucursales", (req: Request, res: Response) => {
+  const listaSucursales = req.params.sucursales;
+  const sucursalesArray = listaSucursales.split(",");
+
+  let todasSucursales = false;
+
+  if (sucursalesArray.includes("-1")) {
+    todasSucursales = true;
   }
+
+  const query = `
+  SELECT * FROM servicio
+  WHERE Serv_codigo != 1 
+    ${!todasSucursales ? `AND empr_codigo IN (${listaSucursales})` : ''}  
+    ORDER BY serv_nombre;
+              `;
+  
   MySQL.ejecutarQuery(query, (err: any, servicios: Object[]) => {
     if (err) {
       res.status(400).json({
@@ -131,25 +146,37 @@ router.get("/getallservicios/:empresa", (req: Request, res: Response) => {
     }
   });
 });
-
 
 /** ************************************************************************************************************ **
- ** **                                      MAXIMOS Y MINIMOS                                                 ** ** 
+ ** **                                      MAXIMOS Y MINIMOS                                                 ** **
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/maximosminimos/:fechaDesde/:fechaHasta/:cCajero/:opcion",
+  "/maximosminimos/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const opcion = req.params.opcion;
+    const listaServicios = req.params.servicios;
+    const serviciosArray = listaServicios.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todosServicios = false;
+    let todasSucursales = false;
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    } 
+    
+    if (serviciosArray.includes("-1")) {
+      todosServicios = true
+    } 
 
     let query;
 
-    if (opcion=="true") {
-      query =
-      `
+    if (opcion == "true") {
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha,
         SUM(eval_califica = 40) AS Excelente,
         SUM(eval_califica = 30) AS Bueno,
@@ -182,14 +209,14 @@ router.get(
         AND S.serv_codigo = t.serv_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND f.turn_codigo = t.turn_codigo
-        AND S.serv_codigo = ${cCajero}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
         AND eval_califica != 50
         AND a.usua_codigo != 2
       GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     } else {
-      query =
-      `
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha,
         SUM(eval_califica = 50) AS Excelente,
         SUM(eval_califica = 40) AS Muy_Bueno,
@@ -233,12 +260,13 @@ router.get(
         AND S.serv_codigo = t.serv_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND f.turn_codigo = t.turn_codigo
-        AND S.serv_codigo = ${cCajero}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
         AND a.usua_codigo != 2
       GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     }
-      
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
@@ -255,31 +283,43 @@ router.get(
   }
 );
 
-
 /** ************************************************************************************************************ **
- ** **                                           EMPLEADO                                                     ** ** 
+ ** **                                           EMPLEADO                                                     ** **
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/promediose/:fechaDesde/:fechaHasta/:cCajero/:opcion",
+  "/promediose/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const opcion = req.params.opcion;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todosCajeros = false;
+    let todasSucursales = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true;
+    }
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true;
+    }
 
     let query;
 
-    if (opcion=="true") {
-      query =
-      `
+    if (opcion == "true") {
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
       SUM(eval_califica = 40) AS Excelente,
       SUM(eval_califica = 30) AS Bueno,
       SUM(eval_califica = 20) AS Regular,
       SUM(eval_califica = 10) AS Malo,
       count(eval_califica) AS Total,
-      IF(AVG(eval_califica) >= 34, 'ExcelenteMuy Bueno',
+      IF(AVG(eval_califica) >= 34, 'Excelente',
       IF(AVG(eval_califica) >= 26, 'Bueno',
       IF(AVG(eval_califica) >= 18, 'Regular',
       IF(AVG(eval_califica) >= 10, 'Malo', 'No existe')))) AS Promedio
@@ -288,36 +328,38 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
         AND eval_califica != 50
+        AND a.usua_codigo != 2
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     } else {
-      query =
-      `
-      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
-      SUM(eval_califica = 50) AS Excelente,
-      SUM(eval_califica = 40) AS Muy_Bueno,
-      SUM(eval_califica = 30) AS Bueno,
-      SUM(eval_califica = 20) AS Regular,
-      SUM(eval_califica = 10) AS Malo,
-      count(eval_califica) AS Total,
-      IF(AVG(eval_califica) >= 42, 'Excelente',
-      IF(AVG(eval_califica) >= 34, 'Muy Bueno',
-      IF(AVG(eval_califica) >= 26, 'Bueno',
-      IF(AVG(eval_califica) >= 18, 'Regular',
-      IF(AVG(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
-      FROM usuarios a, evaluacion f ,empresa e, cajero c
-      WHERE a.usua_codigo = f.usua_codigo 
-        AND e.empr_codigo = a.empr_codigo
-        AND a.usua_codigo = c.usua_codigo
-        AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
-      GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      query = `
+        SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
+        SUM(eval_califica = 50) AS Excelente,
+        SUM(eval_califica = 40) AS Muy_Bueno,
+        SUM(eval_califica = 30) AS Bueno,
+        SUM(eval_califica = 20) AS Regular,
+        SUM(eval_califica = 10) AS Malo,
+        count(eval_califica) AS Total,
+        IF(AVG(eval_califica) >= 42, 'Excelente',
+        IF(AVG(eval_califica) >= 34, 'Muy Bueno',
+        IF(AVG(eval_califica) >= 26, 'Bueno',
+        IF(AVG(eval_califica) >= 18, 'Regular',
+        IF(AVG(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
+        FROM usuarios a, evaluacion f ,empresa e, cajero c
+        WHERE a.usua_codigo = f.usua_codigo 
+          AND e.empr_codigo = a.empr_codigo
+          AND a.usua_codigo = c.usua_codigo
+          AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          AND a.usua_codigo != 2
+          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
+          ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
+        GROUP BY f.eval_fecha, f.usua_codigo;
+        `;
     }
 
-      
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
@@ -334,24 +376,36 @@ router.get(
   }
 );
 
-
 /** ************************************************************************************************************ **
- ** **                                    MAXIMOS Y MINIMOS EMPLEADO                                          ** ** 
+ ** **                                    MAXIMOS Y MINIMOS EMPLEADO                                          ** **
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/maximosminimose/:fechaDesde/:fechaHasta/:cCajero/:opcion",
+  "/maximosminimose/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const opcion = req.params.opcion;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todosCajeros = false;
+    let todasSucursales = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true;
+    }
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true;
+    }
 
     let query;
 
-    if (opcion=="true") {
-      query =
-      `
+    if (opcion == "true") {
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         SUM(eval_califica = 40) AS Excelente,
         SUM(eval_califica = 30) AS Bueno,
@@ -383,13 +437,14 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        AND a.usua_codigo != 2
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
         AND eval_califica != 50
       GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     } else {
-      query =
-      `
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         SUM(eval_califica = 50) AS Excelente,
         SUM(eval_califica = 40) AS Muy_Bueno,
@@ -432,9 +487,11 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        AND a.usua_codigo != 2
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     }
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
@@ -453,19 +510,32 @@ router.get(
   }
 );
 
-
 /** ************************************************************************************************************ **
- ** **                                     EVALUACIONES OMITIDAS                                              ** ** 
+ ** **                                     EVALUACIONES OMITIDAS                                              ** **
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/omitidas/:fechaDesde/:fechaHasta/:cCajero",
+  "/omitidas/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
-    const query =
-      `
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todosCajeros = false;
+    let todasSucursales = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true;
+    }
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true;
+    }
+
+    const query = `
       SELECT e.empr_nombre as nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         COUNT(eval_califica) AS Total
       FROM  usuarios a, noevaluacion f ,empresa e, cajero c
@@ -473,9 +543,11 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        AND a.usua_codigo != 2
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
       GROUP BY  f.eval_fecha, f.usua_codigo;
-      `
+      `;
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
@@ -492,18 +564,16 @@ router.get(
   }
 );
 
-
 /** ************************************************************************************************************ **
- ** **                                              GRAFICOS                                                  ** ** 
+ ** **                                              GRAFICOS                                                  ** **
  ** ************************************************************************************************************ **/
 
 router.get("/graficobarras/:opcion", (req: Request, res: Response) => {
   const opcion = req.params.opcion;
   let query;
 
-  if (opcion=="true") {
-    query =
-    `
+  if (opcion == "true") {
+    query = `
     SELECT eval_califica, COUNT(eval_califica) AS total,
       IF((eval_califica) = 40, 'Excelente',
       IF((eval_califica) >= 30, 'Bueno',
@@ -513,15 +583,16 @@ router.get("/graficobarras/:opcion", (req: Request, res: Response) => {
         FROM evaluacion, usuarios 
         WHERE evaluacion.usua_codigo = usuarios.usua_codigo 
         AND eval_califica != 50
+        AND usuarios.usua_codigo != 2
     GROUP BY eval_califica)as tl),2) AS porcentaje
     FROM evaluacion, usuarios 
     WHERE evaluacion.usua_codigo = usuarios.usua_codigo
     AND eval_califica != 50
+    AND usuarios.usua_codigo != 2
     GROUP BY eval_califica ORDER BY eval_califica DESC;
-    `
+    `;
   } else {
-    query =
-    `
+    query = `
     SELECT eval_califica, COUNT(eval_califica) AS total,
       IF((eval_califica) = 50, 'Excelente',
       IF((eval_califica) >= 40, 'Muy Bueno',
@@ -530,12 +601,14 @@ router.get("/graficobarras/:opcion", (req: Request, res: Response) => {
       IF((eval_califica) >= 10, 'Malo', 'No existe'))))) AS evaluacion,
 		ROUND((COUNT(eval_califica)*100)/(SELECT SUM(c) FROM (SELECT COUNT(eval_califica) AS c 
         FROM evaluacion, usuarios 
-        WHERE evaluacion.usua_codigo = usuarios.usua_codigo 
+        WHERE evaluacion.usua_codigo = usuarios.usua_codigo
+        AND usuarios.usua_codigo != 2 
     GROUP BY eval_califica)as tl),2) AS porcentaje
     FROM evaluacion, usuarios 
     WHERE evaluacion.usua_codigo = usuarios.usua_codigo
+    AND usuarios.usua_codigo != 2
     GROUP BY eval_califica ORDER BY eval_califica DESC;
-    `
+    `;
   }
 
   MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
@@ -554,18 +627,31 @@ router.get("/graficobarras/:opcion", (req: Request, res: Response) => {
 });
 
 router.get(
-  "/graficobarrasfiltro/:fechaDesde/:fechaHasta/:cCajero/:opcion",
+  "/graficobarrasfiltro/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const opcion = req.params.opcion;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todosCajeros = false;
+    let todasSucursales = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true;
+    }
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true;
+    }
 
     let query;
-    
-    if (opcion=="true") {
-      query =
-      `
+
+    if (opcion == "true") {
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, eval_califica, COUNT(eval_califica) AS total, usua_nombre AS usuario,
         IF((eval_califica) = 40, 'Excelente',
         IF((eval_califica) >= 30, 'Bueno',
@@ -576,7 +662,13 @@ router.get(
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND cajero.caje_codigo = ${cCajero}
+        AND usuarios.usua_codigo != 2
+        ${!todosCajeros ? `AND cajero.caje_codigo IN (${listaCodigos})` : ""}
+        ${
+          !todasSucursales
+            ? `AND usuarios.empr_codigo IN (${listaSucursales})`
+            : ""
+        }
         AND eval_califica != 50
       GROUP BY eval_califica)as tl),3) AS porcentaje
       FROM evaluacion, usuarios, cajero, empresa e 
@@ -584,14 +676,19 @@ router.get(
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND usuarios.empr_codigo = e.empr_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND cajero.caje_codigo = ${cCajero}
+        AND usuarios.usua_codigo != 2
+        ${!todosCajeros ? `AND cajero.caje_codigo IN (${listaCodigos})` : ""}
+        ${
+          !todasSucursales
+            ? `AND usuarios.empr_codigo IN (${listaSucursales})`
+            : ""
+        }
         AND eval_califica != 50
       GROUP BY eval_califica, usua_nombre 
       ORDER BY eval_califica DESC;
-      `
+      `;
     } else {
-      query =
-      `
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, eval_califica, COUNT(eval_califica) AS total, usua_nombre AS usuario,
         IF((eval_califica) = 50, 'Excelente',
         IF((eval_califica) >= 40, 'Muy Bueno',
@@ -603,17 +700,29 @@ router.get(
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND cajero.caje_codigo = ${cCajero}
+        AND usuarios.usua_codigo != 2
+        ${!todosCajeros ? `AND cajero.caje_codigo IN (${listaCodigos})` : ""}
+        ${
+          !todasSucursales
+            ? `AND usuarios.empr_codigo IN (${listaSucursales})`
+            : ""
+        }
       GROUP BY eval_califica)as tl),3) AS porcentaje
       FROM evaluacion, usuarios, cajero, empresa e 
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
         AND usuarios.usua_codigo = cajero.usua_codigo
         AND usuarios.empr_codigo = e.empr_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND cajero.caje_codigo = ${cCajero}
+        AND usuarios.usua_codigo != 2
+        ${!todosCajeros ? `AND cajero.caje_codigo IN (${listaCodigos})` : ""}
+        ${
+          !todasSucursales
+            ? `AND usuarios.empr_codigo IN (${listaSucursales})`
+            : ""
+        }
       GROUP BY eval_califica, usua_nombre 
       ORDER BY eval_califica DESC;
-      `
+      `;
     }
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
@@ -633,8 +742,7 @@ router.get(
 );
 
 router.get("/graficopastel", (req: Request, res: Response) => {
-  const query =
-    `
+  const query = `
     SELECT u.usua_nombre, e.eval_califica, COUNT(e.eval_califica) AS cuenta, 
       IF((eval_califica) = 50, 'Excelente',
       IF((eval_califica) = 40, 'Muy Bueno',
@@ -647,7 +755,7 @@ router.get("/graficopastel", (req: Request, res: Response) => {
     FROM usuarios u, evaluacion e
     WHERE e.usua_codigo = u.usua_codigo
     GROUP BY e.eval_califica ORDER BY e.eval_califica DESC;
-    `
+    `;
   MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
     if (err) {
       res.status(400).json({
@@ -663,118 +771,77 @@ router.get("/graficopastel", (req: Request, res: Response) => {
   });
 });
 
-
 /** ************************************************************************************************************ **
- ** **                                       ESTABLECIMIENTO                                                  ** ** 
+ ** **                                       ESTABLECIMIENTO                                                  ** **
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/establecimiento/:fechaDesde/:fechaHasta/:empresa/:opcion",
+  "/establecimiento/:fechaDesde/:fechaHasta/:sucursales/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cEmpresa = req.params.empresa;
-    const opcion =  req.params.opcion;
-    
+    const opcion = req.params.opcion;
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todasSucursales = false;
     let query;
 
-    if (opcion=="true") {
-      if (cEmpresa == '-1') {
-        query =
-          `
-          SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
-            SUM(eval_califica = 40) AS Excelente,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-          IF(avg(eval_califica) >= 40, 'Excelente',
-          IF(avg(eval_califica) >= 30, 'Bueno',
-          IF(avg(eval_califica) >= 20, 'Regular',
-          IF(avg(eval_califica) >= 10, 'Malo', 'No existe')))) AS Promedio
-          FROM evaluacion e, turno t, servicio s, empresa em 
-          WHERE t.turn_codigo = e.turn_codigo 
-            AND t.serv_codigo = s.serv_codigo
-            AND S.empr_codigo = em.empr_codigo
-            AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-            AND eval_califica != 50
-            AND t.caje_codigo != 0
-          GROUP BY e.eval_fecha, nombreEmpresa;
-          `
-      } else {
-        query =
-          `
-          SELECT date_format(eval_fecha, '%Y-%m-%d') AS fecha,
-            SUM(eval_califica = 40) AS Excelente,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-          IF(avg(eval_califica) >= 40, 'Excelente',
-          IF(avg(eval_califica) >= 30, 'Bueno',
-          IF(avg(eval_califica) >= 20, 'Regular',
-          IF(avg(eval_califica) >= 10, 'Malo', 'No existe')))) AS Promedio
-          FROM evaluacion e, turno t, servicio s 
-          WHERE t.turn_codigo = e.turn_codigo 
-            AND t.serv_codigo = s.serv_codigo
-            AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-            AND S.empr_codigo = ${cEmpresa}
-            AND eval_califica != 50
-            AND t.caje_codigo != 0
-          GROUP BY e.eval_fecha; 
-        `
-      }
-    } else {
-      if (cEmpresa == '-1') {
-        query =
-          `
-          SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
-            SUM(eval_califica = 50) AS Excelente,
-            SUM(eval_califica = 40) AS Muy_Bueno,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-          IF(avg(eval_califica) = 50, 'Excelente',
-          IF(avg(eval_califica) >= 40, 'Muy Bueno',
-          IF(avg(eval_califica) >= 30, 'Bueno',
-          IF(avg(eval_califica) >= 20, 'Regular',
-          IF(avg(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
-          FROM evaluacion e, turno t, servicio s, empresa em 
-          WHERE t.turn_codigo = e.turn_codigo 
-            AND t.serv_codigo = s.serv_codigo
-            AND S.empr_codigo = em.empr_codigo
-            AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-            AND t.caje_codigo !=0
-          GROUP BY e.eval_fecha, nombreEmpresa;
-          `
-      } else {
-        query =
-          `
-          SELECT date_format(eval_fecha, '%Y-%m-%d') AS fecha,
-            SUM(eval_califica = 50) AS Excelente,
-            SUM(eval_califica = 40) AS Muy_Bueno,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-          IF(avg(eval_califica) = 50, 'Excelente',
-          IF(avg(eval_califica) >= 40, 'Muy Bueno',
-          IF(avg(eval_califica) >= 30, 'Bueno',
-          IF(avg(eval_califica) >= 20, 'Regular',
-          IF(avg(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
-          FROM evaluacion e, turno t, servicio s 
-          WHERE t.turn_codigo = e.turn_codigo 
-            AND t.serv_codigo = s.serv_codigo
-            AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-            AND S.empr_codigo = ${cEmpresa}
-            AND t.caje_codigo !=0
-          GROUP BY e.eval_fecha; 
-        `
-      }
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true;
     }
 
-    
+    if (opcion == "true") {
+      query = `
+        SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
+          SUM(eval_califica = 40) AS Excelente,
+          SUM(eval_califica = 30) AS Bueno,
+          SUM(eval_califica = 20) AS Regular,
+          SUM(eval_califica = 10) AS Malo,
+          COUNT(eval_califica) AS Total,
+        IF(avg(eval_califica) >= 40, 'Excelente',
+        IF(avg(eval_califica) >= 30, 'Bueno',
+        IF(avg(eval_califica) >= 20, 'Regular',
+        IF(avg(eval_califica) >= 10, 'Malo', 'No existe')))) AS Promedio
+        FROM evaluacion e, turno t, servicio s, empresa em
+        WHERE t.turn_codigo = e.turn_codigo 
+          AND t.serv_codigo = s.serv_codigo
+          AND S.empr_codigo = em.empr_codigo
+          AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+          AND eval_califica != 50
+          AND t.caje_codigo != 0
+          ${
+            !todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ""
+          }
+        GROUP BY e.eval_fecha , nombreEmpresa;
+        `;
+    } else {
+      query = `
+        SELECT em.empr_nombre AS nombreEmpresa, date_format(eval_fecha, '%Y-%m-%d') AS fecha,
+          SUM(eval_califica = 50) AS Excelente,
+          SUM(eval_califica = 40) AS Muy_Bueno,
+          SUM(eval_califica = 30) AS Bueno,
+          SUM(eval_califica = 20) AS Regular,
+          SUM(eval_califica = 10) AS Malo,
+          COUNT(eval_califica) AS Total,
+        IF(avg(eval_califica) = 50, 'Excelente',
+        IF(avg(eval_califica) >= 40, 'Muy Bueno',
+        IF(avg(eval_califica) >= 30, 'Bueno',
+        IF(avg(eval_califica) >= 20, 'Regular',
+        IF(avg(eval_califica) >= 10, 'Malo', 'No existe'))))) AS Promedio
+        FROM evaluacion e, turno t, servicio s, empresa em
+        WHERE t.turn_codigo = e.turn_codigo 
+          AND t.serv_codigo = s.serv_codigo
+          AND S.empr_codigo = em.empr_codigo
+          AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+          AND t.caje_codigo !=0
+          ${
+            !todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ""
+          }
+        GROUP BY e.eval_fecha , nombreEmpresa;
+        `;
+    }
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
@@ -791,24 +858,36 @@ router.get(
   }
 );
 
-
 /** ************************************************************************************************************ **
- ** **                                       EVALUACION POR GRUPOS                                            ** ** 
+ ** **                                       EVALUACION POR GRUPOS                                            ** **
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/evaluaciongrupos/:fechaDesde/:fechaHasta/:cCajero/:opcion",
+  "/evaluaciongrupos/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales/:opcion",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cCajero = req.params.cCajero;
     const opcion = req.params.opcion;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todosCajeros = false;
+    let todasSucursales = false;
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true;
+    }
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true;
+    }
 
     let query;
 
-    if (opcion=="true") {
-      query =
-      `
+    if (opcion == "true") {
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         SUM(eval_califica = 40) + SUM(eval_califica = 30) AS Bueno,
         SUM(eval_califica = 20) + SUM(eval_califica = 10) AS Malo,
@@ -820,13 +899,14 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        AND a.usua_codigo != 2
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
         AND eval_califica != 50
       GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     } else {
-      query =
-      `
+      query = `
       SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
         SUM(eval_califica = 50) + SUM(eval_califica = 40) + SUM(eval_califica = 30) AS Bueno,
         SUM(eval_califica = 20) + SUM(eval_califica = 10) AS Malo,
@@ -838,12 +918,13 @@ router.get(
         AND e.empr_codigo = a.empr_codigo
         AND a.usua_codigo = c.usua_codigo
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        AND c.caje_codigo = ${cCajero}
+        AND a.usua_codigo != 2
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
+        ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
       GROUP BY f.eval_fecha, f.usua_codigo;
-      `
+      `;
     }
 
-      
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
