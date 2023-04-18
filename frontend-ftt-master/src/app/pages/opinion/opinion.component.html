@@ -24,13 +24,22 @@
                                 <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
                                     <mat-option [value]="-1"  (click)="selectAll('todasSucursalesI')" >
                                         Todas las sucursales
                                     </mat-option>
                                     <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
                                     (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesI">
                                         {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="tiposSeleccionados" placeholder="Tipos">
+                                    <mat-option [value]="-1"  (click)="selectAll('todosTipos')" >
+                                        Todos los tipos
+                                    </mat-option>
+                                    <mat-option *ngFor="let tipo of tipos" [value]="tipo.valor" [disabled]="todosTipos"> 
+                                        {{tipo.nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>

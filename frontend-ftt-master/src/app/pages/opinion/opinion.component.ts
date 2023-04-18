@@ -52,6 +52,7 @@ export class OpinionComponent implements OnInit {
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursalesI: boolean = false;
   todasSucursalesG: boolean = false;
+  todosTipos: boolean = false;
 
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestAtM: boolean = false;
@@ -85,7 +86,15 @@ export class OpinionComponent implements OnInit {
 
   //OPCIONES MULTIPLES
   sucursalesSeleccionadas: string[] = [];
+  tiposSeleccionados: string[] = [];
+  categoriasSeleccionados: string[] = [];
   seleccionMultiple: boolean = false;
+  tipos = [
+    {nombre: 'Quejas', valor: '1'},
+    {nombre: 'Reclamos', valor: '2'},
+    {nombre: 'Sugerencias', valor: '3'},
+    {nombre: 'Felicitaciones', valor: '4'},
+  ] 
 
    //Orientacion
   orientacion: string;
@@ -142,6 +151,9 @@ export class OpinionComponent implements OnInit {
         case 'todasSucursalesES':
             this.todasSucursalesG = !this.todasSucursalesG;
             break;
+        case 'todosTipos':
+            this.todosTipos = !this.todosTipos;
+            break;
         case 'sucursalesSeleccionadas':
             this.sucursalesSeleccionadas.length > 1 
             ? this.seleccionMultiple = true 
@@ -197,7 +209,7 @@ export class OpinionComponent implements OnInit {
     // var cod = this.codSucursalAtM.nativeElement.value.toString();
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getopiniones(fD, fH, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getopiniones(fD, fH, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioOpinion = servicio.turnos;
@@ -447,7 +459,6 @@ export class OpinionComponent implements OnInit {
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Hora: this.servicioOpinion[step].quejas_emi_hora + ':' + this.servicioOpinion[step].quejas_emi_minuto,
             Caja: this.servicioOpinion[step].caja_caja_nombre,
             Opinión: this.servicioOpinion[step].quejas_emi_queja,
           });
@@ -458,7 +469,6 @@ export class OpinionComponent implements OnInit {
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Hora: this.servicioOpinion[step].quejas_emi_hora + ':' + this.servicioOpinion[step].quejas_emi_minuto,
             Caja: this.servicioOpinion[step].caja_caja_nombre,
             Opinión: this.servicioOpinion[step].quejas_emi_queja,
           });
@@ -491,24 +501,18 @@ export class OpinionComponent implements OnInit {
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
       if (this.todasSucursalesG || this.seleccionMultiple) {
-        for (let step = 0; step < this.servicioOpinion.length; step++) {
+        for (let step = 0; step < this.servicioocg.length; step++) {
           jsonServicio.push({
-            Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
-            Tipo: this.servicioOpinion[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-            Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Caja: this.servicioOpinion[step].caja_caja_nombre,
-            Opinión: this.servicioOpinion[step].quejas_emi_queja,
+            Sucursal: this.servicioocg[step].empresa_empr_nombre,
+            Tipo: this.servicioocg[step].quejas_emi_tipo,
+            Cantidad: this.servicioocg[step].queja_cantidad,
           });
         }
       } else {
-        for (let step = 0; step < this.servicioOpinion.length; step++) {
+        for (let step = 0; step < this.servicioocg.length; step++) {
           jsonServicio.push({
-            Tipo: this.servicioOpinion[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-            Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Caja: this.servicioOpinion[step].caja_caja_nombre,
-            Opinión: this.servicioOpinion[step].quejas_emi_queja,
+            Tipo: this.servicioocg[step].quejas_emi_tipo,
+            Cantidad: this.servicioocg[step].queja_cantidad,
           });
         }
       }
@@ -516,7 +520,7 @@ export class OpinionComponent implements OnInit {
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioOpinion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    const header = Object.keys(this.servicioocg[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })

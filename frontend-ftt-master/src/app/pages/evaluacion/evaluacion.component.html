@@ -5,27 +5,27 @@
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link active" id="servicio-tab" data-toggle="tab" href="#servicio" role="tab"
-                        aria-controls="servicio" aria-selected="true">SERVICIO</a>
+                        aria-controls="servicio" aria-selected="true">EVALUACIÓN POR SERVICIO</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="tiempromat-tab" data-toggle="tab" href="#tiempromat" role="tab"
-                        aria-controls="tiempromat" aria-selected="false">EMPLEADO</a>
+                        aria-controls="tiempromat" aria-selected="false">EVALUACIÓN POR CAJERO</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="atencionusuario-tab" data-toggle="tab" href="#atencionusuario" role="tab"
-                        aria-controls="atencionusuario" aria-selected="false">EVALUACIÓN POR GRUPOS</a>
-                </li>
-                <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="graficoeva-tab" data-toggle="tab" href="#graficoeva" role="tab"
-                        aria-controls="graficoeva" aria-selected="false">GRÁFICOS</a>
+                        aria-controls="atencionusuario" aria-selected="false">EVALUACIÓN AGRUPADA POR CALIFICACIÓN</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="inoutsistema-tab" data-toggle="tab" href="#inoutsistema" role="tab"
-                        aria-controls="inoutsistema" aria-selected="false">ESTABLECIMIENTO</a>
+                    aria-controls="inoutsistema" aria-selected="false">EVALUACIÓN POR AGENCIA</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="omitidas-tab" data-toggle="tab" href="#omitidas" role="tab"
-                        aria-controls="omitidas" aria-selected="false">EVALUACIONES OMITIDAS</a>
+                    aria-controls="omitidas" aria-selected="false">EVALUACIONES OMITIDAS</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="graficoeva-tab" data-toggle="tab" href="#graficoeva" role="tab"
+                        aria-controls="graficoeva" aria-selected="false">GRÁFICOS EVALUACIÓN</a>
                 </li>
             </ul>
 
@@ -69,7 +69,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>SERVICIOS</h3>
+                    <h3>EVALUACIÓN POR SERVICIOS</h3>
                     <hr>
                     <div class="table-responsive" id="contentServicios" #contentServicios #tableServicios>
                         <table class="table table-striped">
@@ -77,6 +77,7 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesS || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Cajero</th>
+                                    <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
                                     <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
@@ -91,6 +92,7 @@
                                 <tr *ngFor="let servicioServs of servicioServs | paginate:configS">
                                     <td *ngIf="todasSucursalesS || seleccionMultiple">{{servicioServs.nombreEmpresa}}</td>
                                     <td>{{servicioServs.Usuario}}</td>
+                                    <td>{{servicioServs.Servicio}}</td>
                                     <td>{{servicioServs.Fecha}}</td>
                                     <td>{{servicioServs.Excelente}}</td>
                                     <td *ngIf="!opcionCuatro">{{servicioServs.Muy_Bueno}}</td>
@@ -107,7 +109,7 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <h3>MÁXIMOS Y MíNIMOS</h3>
+                    <h3>EVALUACIONES MÁXIMAS Y MíNIMAS POR SERVICIOS</h3>
                     <hr>
                     <div class="table-responsive" id="contentServsMaxMin" #contentServsMaxMin #tableServsMaxMin>
                         <table class="table table-striped">
@@ -115,6 +117,7 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesS" style="width: 300px;">Sucursal</th>
                                     <th scope="col" class="text-center">Cajero</th>
+                                    <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
                                     <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
@@ -130,6 +133,7 @@
                                 <tr *ngFor="let servicioServsMaxMin of servicioServsMaxMin | paginate:configSMM">
                                     <td *ngIf="todasSucursalesS">{{servicioServsMaxMin.nombreEmpresa}}</td>
                                     <td>{{servicioServsMaxMin.Usuario}}</td>
+                                    <td>{{servicioServsMaxMin.Servicio}}</td>
                                     <td>{{servicioServsMaxMin.Fecha}}</td>
                                     <td>{{servicioServsMaxMin.Excelente}}</td>
                                     <td *ngIf="!opcionCuatro">{{servicioServsMaxMin.Muy_Bueno}}</td>
@@ -191,7 +195,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>EMPLEADO</h3>
+                    <h3>EVALUACIÓN POR CAJERO</h3>
                     <hr>
                     <div class="table-responsive" id="contentEvalEmpl" #contentEvalEmpl #tableEvalEmpl>
                         <table class="table table-striped">
@@ -229,7 +233,7 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <h3>MÁXIMOS Y MÍNIMOS EMPLEADO</h3>
+                    <h3>EVALUACIONES MÁXIMAS Y MÍNIMAS POR CAJERO</h3>
                     <hr>
                     <div class="table-responsive" id="contentEvalMMEmpl" #contentEvalMMEmpl #TABLEEvalMMEmpl #table>
                         <table class="table table-striped">
@@ -377,7 +381,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>ESTABLECIMIENTO</h3>
+                    <h3>EVALUACIÓN POR AGENCIA</h3>
                     <hr>
                     <div class="table-responsive" id="contentEstb" #contentEstb #tableEstb>
                         <table class="table table-striped">
@@ -455,7 +459,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>EVALUACIÓN POR GRUPOS</h3>
+                    <h3>EVALUACIÓN AGRUPADA POR CALIFICACIÓN</h3>
                     <hr>
                     <div class="table-responsive" id="contentEvalGr" #contentEvalGr #tableEvalGr>
                         <table class="table table-striped">
@@ -532,7 +536,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>EVALUACIONES</h3>
+                    <h3>EVALUACIÓN</h3>
                     <hr>
                     <div class="container" id="contentGra" #contentGra #tableGra>
                         <div class="table-responsive">
@@ -568,7 +572,7 @@
                         </div>
                         <br>
                         <div id="canvasCont" *ngIf="!malRequestGra">
-                            <h3>GRÁFICO EVALUACIONES</h3><br>
+                            <h3>GRÁFICO EVALUACIÓN</h3><br>
                             <canvas id="canvas">{{chart}}</canvas>
                         </div>
                     </div>

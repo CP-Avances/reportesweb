@@ -36,20 +36,18 @@ export class UsuariosComponent implements OnInit {
   @ViewChild("content") element: ElementRef;
   @ViewChild("fromDateTurnosFecha") fromDateTurnosFecha: ElementRef;
   @ViewChild("toDateTurnosFecha") toDateTurnosFecha: ElementRef;
+  @ViewChild("fromDateTurnosTotalFecha") fromDateTurnosTotalFecha: ElementRef;
+  @ViewChild("toDateTurnosTotalFecha") toDateTurnosTotalFecha: ElementRef;
+  @ViewChild("fromDateTurnosMeta") fromDateTurnosMeta: ElementRef;
+  @ViewChild("toDateTurnosMeta") toDateTurnosMeta: ElementRef;
   @ViewChild("fromDatePromAtencion") fromDatePromAtencion: ElementRef;
   @ViewChild("toDatePromAtencion") toDatePromAtencion: ElementRef;
+  @ViewChild("fromDateTiempoAtencion") fromDateTiempoAtencion: ElementRef;
+  @ViewChild("toDateTiempoAtencion") toDateTiempoAtencion: ElementRef;
   @ViewChild("fromDateAtencionUsua") fromDateAtencionUsua: ElementRef;
   @ViewChild("toDateAtencionUsua") toDateAtencionUsua: ElementRef;
   @ViewChild("fromDateUES") fromDateUES: ElementRef;
   @ViewChild("toDateUES") toDateUES: ElementRef;
-
-  @ViewChild("codSucursal") codSucursal: ElementRef;
-  @ViewChild("codSucursalEntradas") codSucursalEntradas: ElementRef;
-  @ViewChild("codSucursalPromAtencion") codSucursalPromAtencion: ElementRef;
-  @ViewChild("codSucursalAtencionUsua") codSucursalAtencionUsua: ElementRef;
-
-  @ViewChild("codCajeroPromAtencion") codCajeroPromAtencion: ElementRef;
-  @ViewChild("codCajeroAtencionUsua") codCajeroAtencionUsua: ElementRef;
 
   // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   turno: turno[];
@@ -57,21 +55,33 @@ export class UsuariosComponent implements OnInit {
   sucursales: any[];
   cajerosUsuarios: any = [];
   servicioTurnosFecha: any = [];
+  servicioTurnosTotalFecha: any = [];
+  servicioTurnosMeta: any = [];
   servicioAtencionUsua: any = [];
   servicioPromAtencion: any = [];
+  servicioTiempoAtencion: any = [];
   servicioEntradaSalida: any = [];
 
   // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
   todasSucursalesTPA: boolean = false;
+  todasSucursalesTA: boolean = false;
   todasSucursalesTF: boolean = false;
+  todasSucursalesTTF: boolean = false;
+  todasSucursalesTM: boolean = false;
   todasSucursalesES: boolean = false;
   todasSucursalesAU: boolean = false;
 
   // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestTF: boolean = false;
+  malRequestTTF: boolean = false;
+  malRequestTM: boolean = false;
   malRequestTFPag: boolean = false;
+  malRequestTTFPag: boolean = false;
+  malRequestTMPag: boolean = false;
   malRequestTPA: boolean = false;
   malRequestTPPag: boolean = false;
+  malRequestTA: boolean = false;
+  malRequestTAPag: boolean = false;
   malRequestAU: boolean = false;
   malRequestAUPag: boolean = false;
   malRequestES: boolean = false;
@@ -82,7 +92,10 @@ export class UsuariosComponent implements OnInit {
 
   // CONTROL PAGINACION
   configTF: any;
+  configTTF: any;
+  configTM: any;
   configTP: any;
+  configTA: any;
   configES: any;
   configAU: any;
 
@@ -114,6 +127,8 @@ export class UsuariosComponent implements OnInit {
   //MOSTRAR CAJEROS
   mostrarCajeros: boolean = false;
 
+  valor: number;
+
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
   constructor(
@@ -132,12 +147,33 @@ export class UsuariosComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioTurnosFecha.length,
     };
+    // TURNOS TOTALES POR FECHA
+    this.configTTF = {
+      id: "usuariosTTF",
+      itemsPerPage: this.MAX_PAGS,
+      currentPage: 1,
+      totalItems: this.servicioTurnosTotalFecha.length,
+    };
+    // TURNOS META
+    this.configTM = {
+      id: "usuariosTM",
+      itemsPerPage: this.MAX_PAGS,
+      currentPage: 1,
+      totalItems: this.servicioTurnosMeta.length,
+    };
     // TIEMPO PROMEDIO DE ATENCION
     this.configTP = {
       id: "usuariosTP",
       itemsPerPage: this.MAX_PAGS,
       currentPage: 1,
       totalItems: this.servicioPromAtencion.length,
+    };
+    // TIEMPO DE ATENCION POR TURNOS
+    this.configTA = {
+      id: "usuariosTA",
+      itemsPerPage: this.MAX_PAGS,
+      currentPage: 1,
+      totalItems: this.servicioTiempoAtencion.length,
     };
     // ENTRADAS Y SALIDAS DEL SISTEMA
     this.configES = {
@@ -160,9 +196,21 @@ export class UsuariosComponent implements OnInit {
   pageChangedTF(event: any) {
     this.configTF.currentPage = event;
   }
+  // TURNOS TOTAL POR FECHA
+  pageChangedTTF(event: any) {
+    this.configTTF.currentPage = event;
+  }
+  // TURNOS META
+  pageChangedTM(event: any) {
+    this.configTM.currentPage = event;
+  }
   // TIEMPO PROMEDIO DE ATENCION
   pageChangedTP(event: any) {
     this.configTP.currentPage = event;
+  }
+  // TIEMPO DE ATENCION POR TURNOS
+  pageChangedTA(event: any) {
+    this.configTA.currentPage = event;
   }
   // ENTRADAS Y SALIDAS AL SISTEMA
   pageChangedES(event: any) {
@@ -181,13 +229,17 @@ export class UsuariosComponent implements OnInit {
     // this.getCajeros("-1");
     this.getlastday();
     this.getSucursales();
+    this.getMeta();
 
     // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
 
     // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestTFPag = true;
+    this.malRequestTTFPag = true;
+    this.malRequestTMPag = true;
     this.malRequestTPPag = true;
+    this.malRequestTAPag = true;
     this.malRequestESPag = true;
     this.malRequestAUPag = true;
 
@@ -208,6 +260,15 @@ export class UsuariosComponent implements OnInit {
             break;
         case 'todasSucursalesTF':
             this.todasSucursalesTF = !this.todasSucursalesTF;
+            this.todasSucursalesTF ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesTTF':
+            this.todasSucursalesTTF = !this.todasSucursalesTTF;
+            this.todasSucursalesTTF ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesTM':
+            this.todasSucursalesTM = !this.todasSucursalesTM;
+            this.todasSucursalesTM ? this.getCajeros(this.sucursalesSeleccionadas) : null;
             break;
         case 'todasSucursalesES':
             this.todasSucursalesES = !this.todasSucursalesES;
@@ -215,6 +276,10 @@ export class UsuariosComponent implements OnInit {
         case 'todasSucursalesTPA':
             this.todasSucursalesTPA = !this.todasSucursalesTPA;
             this.todasSucursalesTPA ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+            break;
+        case 'todasSucursalesTA':
+            this.todasSucursalesTA = !this.todasSucursalesTA;
+            this.todasSucursalesTA ? this.getCajeros(this.sucursalesSeleccionadas) : null;
             break;
         case 'todasSucursalesAU':
             this.todasSucursalesAU = !this.todasSucursalesAU;
@@ -229,6 +294,12 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+  getMeta() {
+    this.serviceService.getMeta().subscribe((valor: any) => {
+      this.valor = valor.valor;
+      console.log(valor);
+    });
+  }
 
   // SE OBTIENE LA FECHA ACTUAL
   getlastday() {
@@ -270,7 +341,10 @@ export class UsuariosComponent implements OnInit {
     this.selectedItems = [];
     this.allSelected = false;
     this.todasSucursalesTPA = false;
+    this.todasSucursalesTA = false;
     this.todasSucursalesTF = false;
+    this.todasSucursalesTTF = false;
+    this.todasSucursalesTM = false;
     this.todasSucursalesES = false;
     this.todasSucursalesAU = false;
     this.seleccionMultiple = false;
@@ -289,7 +363,7 @@ export class UsuariosComponent implements OnInit {
   }
 
   /** ********************************************************************************************************** **
-   ** **                                     TIEMPO PROMEDIO DE ATENCION                                      ** **
+   ** **                                     TURNOS POR FECHA                                                 ** **
    ** ********************************************************************************************************** **/
 
   buscarTurnosFecha() {
@@ -304,7 +378,7 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length!==0) {
       this.serviceService
-        .getfiltroturnosfechas(fechaDesde, fechaHasta, this.sucursalesSeleccionadas)
+        .getfiltroturnosfechas(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.selectedItems)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -351,6 +425,131 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+  /** ********************************************************************************************************** **
+   ** **                                     TURNOS TOTALES POR FECHA                                         ** **
+   ** ********************************************************************************************************** **/
+
+  buscarTurnosTotalFecha() {
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
+    var fechaDesde = this.fromDateTurnosTotalFecha.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTurnosTotalFecha.nativeElement.value
+      .toString()
+      .trim();
+    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService
+        .getturnostotalfechas(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.selectedItems)
+        .subscribe(
+          (servicio: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.servicioTurnosTotalFecha = servicio.turnos;
+            this.malRequestTTF = false;
+            this.malRequestTTFPag = false;
+  
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configTTF.currentPage > 1) {
+              this.configTTF.currentPage = 1;
+            }
+  
+            // COMPROBACION DE LA SUCURSAL COONSULTADA
+            // this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y BANDERAS CAMBIAN PARA QUITAR TABLA DE INTERFAZ
+              this.servicioTurnosTotalFecha = null;
+              this.malRequestTTF = true;
+              this.malRequestTTFPag = true;
+  
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.servicioTurnosTotalFecha == null) {
+                this.configTTF.totalItems = 0;
+              } else {
+                this.configTTF.totalItems = this.servicioTurnosTotalFecha.length;
+              }
+  
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configTTF = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+  
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
+          }
+        );
+    }
+  }
+  
+  /** ********************************************************************************************************** **
+   ** **                                           TURNOS META                                                ** **
+   ** ********************************************************************************************************** **/
+
+  buscarTurnosMeta() {
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
+    var fechaDesde = this.fromDateTurnosMeta.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTurnosMeta.nativeElement.value
+      .toString()
+      .trim();
+    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService
+        .getturnosMeta(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.selectedItems)
+        .subscribe(
+          (servicio: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.servicioTurnosMeta = servicio.turnos;
+            this.malRequestTM = false;
+            this.malRequestTMPag = false;
+  
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configTM.currentPage > 1) {
+              this.configTM.currentPage = 1;
+            }
+  
+            // COMPROBACION DE LA SUCURSAL COONSULTADA
+            // this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y BANDERAS CAMBIAN PARA QUITAR TABLA DE INTERFAZ
+              this.servicioTurnosMeta = null;
+              this.malRequestTM = true;
+              this.malRequestTMPag = true;
+  
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.servicioTurnosMeta == null) {
+                this.configTM.totalItems = 0;
+              } else {
+                this.configTM.totalItems = this.servicioTurnosMeta.length;
+              }
+  
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configTM = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+  
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
+          }
+        );
+    }
+  }
 
   /** ********************************************************************************************************** **
    ** **                                     TIEMPO PROMEDIO DE ATENCION                                      ** **
@@ -420,6 +619,80 @@ export class UsuariosComponent implements OnInit {
         this.configTP.totalItems = this.servicioPromAtencion.length;
       }
       this.configTP = {
+        itemsPerPage: this.MAX_PAGS,
+        currentPage: 1,
+      };
+    }
+  }
+
+  /** ********************************************************************************************************** **
+   ** **                                     TIEMPO DE ATENCION POR TURNOS                                    ** **
+   ** ********************************************************************************************************** **/
+
+  buscarTiempoAtencion() {
+    // CAPTURA DE FECHA Y SELECT DE INTERFAZ
+    var fechaDesde = this.fromDateTiempoAtencion.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTiempoAtencion.nativeElement.value
+      .toString()
+      .trim();
+  
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .getturnosAtencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .subscribe(
+          (servicio: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.servicioTiempoAtencion = servicio.turnos;
+            this.malRequestTA = false;
+            this.malRequestTAPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configTA.currentPage > 1) {
+              this.configTA.currentPage = 1;
+            }
+            // // COMPROBACION DE LA SUCURSAL COONSULTADA
+            // this.todasSucursalesTPA =
+            //   this.comprobarBusquedaSucursales(codSucursal);
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.servicioTiempoAtencion = null;
+              this.malRequestTA = true;
+              this.malRequestTAPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.servicioTiempoAtencion == null) {
+                this.configTA.totalItems = 0;
+              } else {
+                this.configTA.totalItems = this.servicioTiempoAtencion.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configTA = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
+          }
+        );
+    } else {
+      // SI SE SELECCIONA EL ELEMENTO POR DEFECTO DE SELECT SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE INTERFAZ
+      // SE VACIA VARIABLE DE CONSULTA
+      this.servicioTiempoAtencion = null;
+      this.malRequestTA = true;
+      this.malRequestTAPag = true;
+      // SI VARIABLA DE CONSULTA ES NULA O VACIA, SE SETEA ELEMENTOS DE PAGINACION
+      if (this.servicioTiempoAtencion == null) {
+        this.configTA.totalItems = 0;
+      } else {
+        this.configTA.totalItems = this.servicioTiempoAtencion.length;
+      }
+      this.configTA = {
         itemsPerPage: this.MAX_PAGS,
         currentPage: 1,
       };
@@ -565,6 +838,12 @@ export class UsuariosComponent implements OnInit {
     return nombreSucursal;
   }
 
+  // en el controlador de Angular
+  convertirObjetoACadena (objeto) {
+  return objeto.toString();
+  };
+
+
   exportarAExcelEntradaSalida() {
     // let cod = this.codSucursal.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
@@ -574,7 +853,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioEntradaSalida.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioEntradaSalida[i].nombreEmpresa,
-          Usuario: this.servicioEntradaSalida[i].Usuario,
+          Cajero: this.servicioEntradaSalida[i].Usuario,
           "Fecha y hora": this.servicioEntradaSalida[i].fecha,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
@@ -582,7 +861,7 @@ export class UsuariosComponent implements OnInit {
     } else {
       for (let i = 0; i < this.servicioEntradaSalida.length; i++) {
         jsonServicio.push({
-          Usuario: this.servicioEntradaSalida[i].Usuario,
+          Cajero: this.servicioEntradaSalida[i].Usuario,
           "Hora Registrada": this.servicioEntradaSalida[i].fecha,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
@@ -619,7 +898,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTurnosFecha.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioTurnosFecha[i].nombreEmpresa,
-          Usuario: this.servicioTurnosFecha[i].Usuario,
+          Cajero: this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
           Fecha: this.servicioTurnosFecha[i].Fecha,
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
@@ -630,7 +909,7 @@ export class UsuariosComponent implements OnInit {
     } else {
       for (let i = 0; i < this.servicioTurnosFecha.length; i++) {
         jsonServicio.push({
-          Usuario: this.servicioTurnosFecha[i].Usuario,
+          Cajero: this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
           Fecha: this.servicioTurnosFecha[i].Fecha,
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
@@ -661,6 +940,102 @@ export class UsuariosComponent implements OnInit {
     );
   }
 
+  ExportTOExcelTurnosTotalFecha() {
+    // let cod = this.codSucursal.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    let jsonServicio = [];
+    if (this.todasSucursalesTTF || this.seleccionMultiple) {
+      for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+        jsonServicio.push({
+          Sucursal: this.servicioTurnosTotalFecha[i].nombreEmpresa,
+          Cajero: this.servicioTurnosTotalFecha[i].Usuario,
+          Fecha: this.servicioTurnosTotalFecha[i].Fecha,
+          Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
+          "No Atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
+          Total: this.servicioTurnosTotalFecha[i].Total,
+        });
+      }
+    } else {
+      for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+        jsonServicio.push({
+          Cajero: this.servicioTurnosTotalFecha[i].Usuario,
+          Fecha: this.servicioTurnosTotalFecha[i].Fecha,
+          Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
+          "No Atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
+          Total: this.servicioTurnosTotalFecha[i].Total,
+        });
+      }
+    }
+    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioTurnosTotalFecha[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols = [];
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Turnos Fecha");
+    XLSX.writeFile(
+      wb,
+      "Turnos por fecha - " +
+        nombreSucursal +
+        " "+
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+
+  ExportTOExcelTurnosMeta() {
+    // let cod = this.codSucursal.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    let jsonServicio = [];
+    if (this.todasSucursalesTM || this.seleccionMultiple) {
+      for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
+        jsonServicio.push({
+          Sucursal: this.servicioTurnosMeta[i].nombreEmpresa,
+          Cajero: this.servicioTurnosMeta[i].Usuario,
+          Fecha: this.servicioTurnosMeta[i].Fecha,
+          Atendidos: this.servicioTurnosMeta[i].Atendidos,
+          "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos+"%",
+        });
+      }
+    } else {
+      for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
+        jsonServicio.push({
+          Cajero: this.servicioTurnosMeta[i].Usuario,
+          Fecha: this.servicioTurnosMeta[i].Fecha,
+          Atendidos: this.servicioTurnosMeta[i].Atendidos,
+          "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos+"%",
+        });
+      }
+    }
+    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioTurnosMeta[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols = [];
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Turnos Meta");
+    XLSX.writeFile(
+      wb,
+      "Turnos meta - " +
+        nombreSucursal +
+        " "+
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+
   exportarAExcelPromAtencion() {
     // let cod = this.codSucursalPromAtencion.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
@@ -671,7 +1046,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioPromAtencion.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioPromAtencion[i].nombreEmpresa,
-          Usuario: this.servicioPromAtencion[i].Nombre,
+          Cajero: this.servicioPromAtencion[i].Nombre,
           Servicio: this.servicioPromAtencion[i].Servicio,
           Tiempo: this.servicioPromAtencion[i].Promedio,
           Turnos: this.servicioPromAtencion[i].Turnos,
@@ -710,6 +1085,57 @@ export class UsuariosComponent implements OnInit {
     );
   }
 
+  exportarAExcelTiempoAtencion() {
+    // let cod = this.codSucursalPromAtencion.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    let jsonServicio = [];
+    let tamanos = [];
+    if (this.todasSucursalesTA || this.seleccionMultiple) {
+      for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
+        jsonServicio.push({
+          Sucursal: this.servicioTiempoAtencion[i].nombreEmpresa,
+          Turno: this.servicioTiempoAtencion[i].turno,
+          Cajero: this.servicioTiempoAtencion[i].Nombre,
+          Servicio: this.servicioTiempoAtencion[i].Servicio,
+          Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
+          Tiempo: this.servicioTiempoAtencion[i].atencion,
+        });
+      }
+      tamanos = [this.servicioTiempoAtencion[0].nombreEmpresa];
+    } else {
+      for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+        jsonServicio.push({
+          Turno: this.servicioTiempoAtencion[i].turno,
+          Cajero: this.servicioTiempoAtencion[i].Nombre,
+          Servicio: this.servicioTiempoAtencion[i].Servicio,
+          Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
+          Tiempo: this.servicioTiempoAtencion[i].atencion,
+        });
+      }
+    }
+    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioTiempoAtencion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols = [];
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Turnos");
+    XLSX.writeFile(
+      wb,
+      "Tiempo de atencion - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+
   exportarAExcelAtencionUsuario() {
     // let cod = this.codSucursal.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
@@ -719,17 +1145,21 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioAtencionUsua.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioAtencionUsua[i].nombreEmpresa,
-          Usuario: this.servicioAtencionUsua[i].Nombre,
+          Cajero: this.servicioAtencionUsua[i].Nombre,
           Servicio: this.servicioAtencionUsua[i].Servicio,
           Atendidos: this.servicioAtencionUsua[i].Atendidos,
+          "No atendidos": this.servicioAtencionUsua[i].No_Atendidos,
+          Total: this.servicioAtencionUsua[i].Total,
         });
       }
     } else {
       for (let i = 0; i < this.servicioAtencionUsua.length; i++) {
         jsonServicio.push({
-          Usuario: this.servicioAtencionUsua[i].Nombre,
+          Cajero: this.servicioAtencionUsua[i].Nombre,
           Servicio: this.servicioAtencionUsua[i].Servicio,
           Atendidos: this.servicioAtencionUsua[i].Atendidos,
+          "No atendidos": this.servicioAtencionUsua[i].No_Atendidos,
+          Total: this.servicioAtencionUsua[i].Total,
         });
       }
     }
@@ -917,7 +1347,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
@@ -952,7 +1382,7 @@ export class UsuariosComponent implements OnInit {
 
           body: [
             [
-              { text: "Usuario", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
@@ -967,6 +1397,443 @@ export class UsuariosComponent implements OnInit {
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.No_Atendidos },
                 { style: "itemsTable", text: res.Total },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+  }
+
+  generarPdfTurnosTotalFecha(action = "open", pdf: number) {
+    //Seteo de rango de fechas de la consulta para impresión en PDF
+    var fechaDesde = this.fromDateTurnosTotalFecha.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTurnosTotalFecha.nativeElement.value
+      .toString()
+      .trim();
+
+    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+
+    //Definicion de funcion delegada para setear estructura del PDF
+    let documentDefinition;
+    if (pdf === 1) {
+      documentDefinition = this.getDocumentturnosTotalfecha(
+        fechaDesde,
+        fechaHasta,
+      );
+    }
+    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    switch (action) {
+      case "open":
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+      case "print":
+        pdfMake.createPdf(documentDefinition).print();
+        break;
+      case "download":
+        pdfMake.createPdf(documentDefinition).download();
+        break;
+
+      default:
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+    }
+  }
+
+  //Funcion delegada para seteo de información
+  getDocumentturnosTotalfecha(fechaDesde, fechaHasta) {
+    //Se obtiene la fecha actual
+    let f = new Date();
+    f.setUTCHours(f.getHours());
+    this.date = f.toJSON();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+
+    return {
+      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      watermark: {
+        text: "FullTime Tickets",
+        color: "blue",
+        opacity: 0.1,
+        bold: true,
+        italics: false,
+        fontSize: 52,
+      },
+      header: {
+        text: "Impreso por:  " + this.userDisplayName,
+        margin: 10,
+        fontSize: 9,
+        opacity: 0.3,
+      },
+      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+      footer: function (currentPage, pageCount, fecha) {
+        fecha = f.toJSON().split("T")[0];
+        var timer = f.toJSON().split("T")[1].slice(0, 5);
+        return [
+          {
+            margin: [10, 20, 10, 0],
+            columns: [
+              "Fecha: " + fecha + " Hora: " + timer,
+              {
+                text: [
+                  {
+                    text:
+                      "© Pag " + currentPage.toString() + " of " + pageCount,
+                    alignment: "right",
+                    color: "blue",
+                    opacity: 0.5,
+                  },
+                ],
+              },
+            ],
+            fontSize: 9,
+            color: "#A4B8FF",
+          },
+        ];
+      },
+      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      content: [
+        {
+          columns: [
+            {
+              image: this.urlImagen,
+              width: 90,
+              height: 45,
+            },
+            {
+              width: "*",
+              alignment: "center",
+              text: "Reporte - Turno por Fecha ",
+              bold: true,
+              fontSize: 15,
+              margin: [-90, 20, 0, 0],
+            },
+          ],
+        },
+        {
+          style: "subtitulos",
+          text: nombreSucursal,
+        },
+        {
+          style: "subtitulos",
+          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+        },
+        this.CampoDetalleTotal(this.servicioTurnosTotalFecha), //Definicion de funcion delegada para setear informacion de tabla del PDF
+      ],
+      styles: {
+        tableTotal: {
+          fontSize: 30,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        tableHeader: {
+          fontSize: 9,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+        subtitulos: {
+          fontSize: 16,
+          alignment: "center",
+          margin: [0, 5, 0, 10],
+        },
+        tableMargin: { margin: [0, 10, 0, 20], alignment: "center" },
+        CabeceraTabla: {
+          fontSize: 12,
+          alignment: "center",
+          margin: [0, 8, 0, 8],
+          fillColor: this.p_color,
+        },
+        quote: { margin: [5, -2, 0, -2], italics: true },
+        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+      },
+    };
+  }
+
+  //Funcion para llenar la tabla con la consulta realizada al backend
+  CampoDetalleTotal(servicio: any[]) {
+    if (this.todasSucursalesTTF) {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "*", "auto", "auto", "auto", "auto"],
+
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Atendidos", style: "tableHeader" },
+              { text: "No Atendidos", style: "tableHeader" },
+              { text: "Total", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Fecha },
+                { style: "itemsTable", text: res.Atendidos },
+                { style: "itemsTable", text: res.No_Atendidos },
+                { style: "itemsTable", text: res.Total },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    } else {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto", "auto", "auto"],
+
+          body: [
+            [
+              { text: "Cajero", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Atendidos", style: "tableHeader" },
+              { text: "No Atendidos", style: "tableHeader" },
+              { text: "Total", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Fecha },
+                { style: "itemsTable", text: res.Atendidos },
+                { style: "itemsTable", text: res.No_Atendidos },
+                { style: "itemsTable", text: res.Total },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+  }
+  
+  generarPdfTurnosMeta(action = "open", pdf: number) {
+    //Seteo de rango de fechas de la consulta para impresión en PDF
+    var fechaDesde = this.fromDateTurnosMeta.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTurnosMeta.nativeElement.value
+      .toString()
+      .trim();
+
+    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+
+    //Definicion de funcion delegada para setear estructura del PDF
+    let documentDefinition;
+    if (pdf === 1) {
+      documentDefinition = this.getDocumentturnosMeta(
+        fechaDesde,
+        fechaHasta,
+      );
+    }
+    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    switch (action) {
+      case "open":
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+      case "print":
+        pdfMake.createPdf(documentDefinition).print();
+        break;
+      case "download":
+        pdfMake.createPdf(documentDefinition).download();
+        break;
+
+      default:
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+    }
+  }
+
+  //Funcion delegada para seteo de información
+  getDocumentturnosMeta(fechaDesde, fechaHasta) {
+    //Se obtiene la fecha actual
+    let f = new Date();
+    f.setUTCHours(f.getHours());
+    this.date = f.toJSON();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+
+    return {
+      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      watermark: {
+        text: "FullTime Tickets",
+        color: "blue",
+        opacity: 0.1,
+        bold: true,
+        italics: false,
+        fontSize: 52,
+      },
+      header: {
+        text: "Impreso por:  " + this.userDisplayName,
+        margin: 10,
+        fontSize: 9,
+        opacity: 0.3,
+      },
+      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+      footer: function (currentPage, pageCount, fecha) {
+        fecha = f.toJSON().split("T")[0];
+        var timer = f.toJSON().split("T")[1].slice(0, 5);
+        return [
+          {
+            margin: [10, 20, 10, 0],
+            columns: [
+              "Fecha: " + fecha + " Hora: " + timer,
+              {
+                text: [
+                  {
+                    text:
+                      "© Pag " + currentPage.toString() + " of " + pageCount,
+                    alignment: "right",
+                    color: "blue",
+                    opacity: 0.5,
+                  },
+                ],
+              },
+            ],
+            fontSize: 9,
+            color: "#A4B8FF",
+          },
+        ];
+      },
+      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      content: [
+        {
+          columns: [
+            {
+              image: this.urlImagen,
+              width: 90,
+              height: 45,
+            },
+            {
+              width: "*",
+              alignment: "center",
+              text: "Reporte - Porcentaje de cumplimiento ",
+              bold: true,
+              fontSize: 15,
+              margin: [-90, 20, 0, 0],
+            },
+          ],
+        },
+        {
+          style: "subtitulos",
+          text: nombreSucursal,
+        },
+        {
+          style: "subtitulos",
+          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+        },
+        this.CampoDetalleMeta(this.servicioTurnosMeta), //Definicion de funcion delegada para setear informacion de tabla del PDF
+      ],
+      styles: {
+        tableTotal: {
+          fontSize: 30,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        tableHeader: {
+          fontSize: 9,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+        subtitulos: {
+          fontSize: 16,
+          alignment: "center",
+          margin: [0, 5, 0, 10],
+        },
+        tableMargin: { margin: [0, 10, 0, 20], alignment: "center" },
+        CabeceraTabla: {
+          fontSize: 12,
+          alignment: "center",
+          margin: [0, 8, 0, 8],
+          fillColor: this.p_color,
+        },
+        quote: { margin: [5, -2, 0, -2], italics: true },
+        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+      },
+    };
+  }
+
+  //Funcion para llenar la tabla con la consulta realizada al backend
+  CampoDetalleMeta(servicio: any[]) {
+    if (this.todasSucursalesTM) {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "*", "auto", "auto", "auto"],
+
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Atendidos", style: "tableHeader" },
+              { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Fecha },
+                { style: "itemsTable", text: res.Atendidos },
+                { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    } else {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto", "auto"],
+
+          body: [
+            [
+              { text: "Cajero", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Atendidos", style: "tableHeader" },
+              { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Fecha },
+                { style: "itemsTable", text: res.Atendidos },
+                { style: "itemsTable", text: res.No_Atendidos },
+                { style: "itemsTable", text: res.Porcentaje_Atendidos },
               ];
             }),
           ],
@@ -1144,7 +2011,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Tiempo", style: "tableHeader" },
               { text: "Turnos", style: "tableHeader" },
@@ -1175,7 +2042,7 @@ export class UsuariosComponent implements OnInit {
           widths: ["*", "auto", "auto", "auto"],
           body: [
             [
-              { text: "Usuario", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Tiempo", style: "tableHeader" },
               { text: "Turnos", style: "tableHeader" },
@@ -1186,6 +2053,229 @@ export class UsuariosComponent implements OnInit {
                 { style: "itemsTable", text: res.Servicio },
                 { style: "itemsTable", text: res.Promedio },
                 { style: "itemsTable", text: res.Turnos },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+  }
+
+  generarPdfTiempoAtencion(action = "open", pdf: number) {
+    //Seteo de rango de fechas de la consulta para impresión en PDF
+    var fechaDesde = this.fromDateTiempoAtencion.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTiempoAtencion.nativeElement.value
+      .toString()
+      .trim();
+
+    // var cod = this.codSucursalPromAtencion.nativeElement.value
+    //   .toString()
+    //   .trim();
+
+    //Definicion de funcion delegada para setear estructura del PDF
+    let documentDefinition;
+    if (pdf === 1) {
+      documentDefinition = this.getDocumentTiempoatencion(
+        fechaDesde,
+        fechaHasta,
+      );
+    }
+
+    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    switch (action) {
+      case "open":
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+      case "print":
+        pdfMake.createPdf(documentDefinition).print();
+        break;
+      case "download":
+        pdfMake.createPdf(documentDefinition).download();
+        break;
+
+      default:
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+    }
+  }
+
+  //Funcion delegada para seteo de información
+  getDocumentTiempoatencion(fechaDesde, fechaHasta) {
+    //Obtiene fecha actual
+    let f = new Date();
+    f.setUTCHours(f.getHours());
+    this.date = f.toJSON();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+
+    return {
+      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      watermark: {
+        text: "FullTime Tickets",
+        color: "blue",
+        opacity: 0.1,
+        bold: true,
+        italics: false,
+        fontSize: 52,
+      },
+      header: {
+        text: "Impreso por:  " + this.userDisplayName,
+        margin: 10,
+        fontSize: 9,
+        opacity: 0.3,
+      },
+      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+      footer: function (currentPage, pageCount, fecha) {
+        fecha = f.toJSON().split("T")[0];
+        var timer = f.toJSON().split("T")[1].slice(0, 5);
+        return [
+          {
+            margin: [10, 20, 10, 0],
+            columns: [
+              "Fecha: " + fecha + " Hora: " + timer,
+              {
+                text: [
+                  {
+                    text:
+                      "© Pag " + currentPage.toString() + " of " + pageCount,
+                    alignment: "right",
+                    color: "blue",
+                    opacity: 0.5,
+                  },
+                ],
+              },
+            ],
+            fontSize: 9,
+            color: "#A4B8FF",
+          },
+        ];
+      },
+      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      content: [
+        {
+          columns: [
+            {
+              image: this.urlImagen,
+              width: 90,
+              height: 45,
+            },
+            {
+              width: "*",
+              alignment: "center",
+              text: "Reporte - Tiempo de atención",
+              bold: true,
+              fontSize: 15,
+              margin: [-90, 20, 0, 0],
+            },
+          ],
+        },
+        {
+          style: "subtitulos",
+          text: nombreSucursal,
+        },
+        {
+          style: "subtitulos",
+          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+        },
+        this.Campotiempoatencion(this.servicioTiempoAtencion), //Definicion de funcion delegada para setear informacion de tabla del PDF
+      ],
+      styles: {
+        tableTotal: {
+          fontSize: 30,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        tableHeader: {
+          fontSize: 9,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+        subtitulos: {
+          fontSize: 16,
+          alignment: "center",
+          margin: [0, 5, 0, 10],
+        },
+        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+        CabeceraTabla: {
+          fontSize: 12,
+          alignment: "center",
+          margin: [0, 8, 0, 8],
+          fillColor: this.p_color,
+        },
+        quote: { margin: [5, -2, 0, -2], italics: true },
+        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+      },
+    };
+  }
+
+  //Definicion de funcion delegada para setear informacion de tabla del PDF
+  Campotiempoatencion(servicio: any[]) {
+    if (this.todasSucursalesTA || this.seleccionMultiple) {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          alignment: "center",
+          widths: ["*", "auto", "*", "auto", "auto", "auto"],
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Turno", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Tiempo de atención", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.turno },
+                { style: "itemsTable", text: res.Nombre },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.atencion },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    } else {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          alignment: "center",
+          widths: ["auto", "*", "auto", "auto", "auto"],
+          body: [
+            [
+              { text: "Turno", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Tiempo de atención", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.turno },
+                { style: "itemsTable", text: res.Nombre },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.atencion },
               ];
             }),
           ],
@@ -1355,7 +2445,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
               { text: "Fecha y hora", style: "tableHeader" },
               { text: "Razón", style: "tableHeader" },
             ],
@@ -1384,7 +2474,7 @@ export class UsuariosComponent implements OnInit {
           widths: ["*", "auto", "auto"],
           body: [
             [
-              { text: "Usuario", style: "tableHeader" },
+              { text: "Cajero", style: "tableHeader" },
               { text: "Fecha y hora", style: "tableHeader" },
               { text: "Razón", style: "tableHeader" },
             ],
@@ -1570,6 +2660,8 @@ export class UsuariosComponent implements OnInit {
               { text: "Nombre", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
+              { text: "No tendidos", style: "tableHeader" },
+              { text: "Total", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
@@ -1577,6 +2669,8 @@ export class UsuariosComponent implements OnInit {
                 { style: "itemsTable", text: res.Nombre },
                 { style: "itemsTable", text: res.Servicio },
                 { style: "itemsTable", text: res.Atendidos },
+                { style: "itemsTable", text: res.No_Atendidos },
+                { style: "itemsTable", text: res.Total },
               ];
             }),
           ],
@@ -1599,12 +2693,16 @@ export class UsuariosComponent implements OnInit {
               { text: "Nombre", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
+              { text: "No tendidos", style: "tableHeader" },
+              { text: "Total", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.Nombre },
                 { style: "itemsTable", text: res.Servicio },
                 { style: "itemsTable", text: res.Atendidos },
+                { style: "itemsTable", text: res.No_Atendidos },
+                { style: "itemsTable", text: res.Total },
               ];
             }),
           ],

@@ -28,7 +28,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opcion", 
     let query;
     if (opcion == "true") {
         query = `
-      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
+      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, s.serv_nombre AS Servicio, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
         SUM(eval_califica = 40) AS Excelente, 
         SUM(eval_califica = 30) AS Bueno,
         SUM(eval_califica = 20) AS Regular,
@@ -40,7 +40,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opcion", 
       FROM usuarios a, evaluacion f, empresa e, turno t, servicio s 
       WHERE a.usua_codigo = f.usua_codigo 
         AND e.empr_codigo = a.empr_codigo 
-        AND S.serv_codigo = t.serv_codigo 
+        AND s.serv_codigo = t.serv_codigo 
         AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND f.turn_codigo = t.turn_codigo 
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
@@ -52,7 +52,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opcion", 
     }
     else {
         query = `
-      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
+      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, s.serv_nombre AS Servicio, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
         SUM(eval_califica = 50) AS Excelente, 
         SUM(eval_califica = 40) AS Muy_Bueno,
         SUM(eval_califica = 30) AS Bueno,
@@ -92,7 +92,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opcion", 
 });
 router.get("/getallservicios", (req, res) => {
     const query = `
-    SELECT * FROM servicio ORDER BY serv_nombre;
+    SELECT * FROM servicio ORDER BY serv_nombre ASC;
     `;
     mysql_1.default.ejecutarQuery(query, (err, servicios) => {
         if (err) {
@@ -120,7 +120,7 @@ router.get("/getallservicios/:sucursales", (req, res) => {
   SELECT * FROM servicio
   WHERE Serv_codigo != 1 
     ${!todasSucursales ? `AND empr_codigo IN (${listaSucursales})` : ''}  
-    ORDER BY serv_nombre;
+    ORDER BY serv_nombre ASC;
               `;
     mysql_1.default.ejecutarQuery(query, (err, servicios) => {
         if (err) {
@@ -159,7 +159,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opci
     let query;
     if (opcion == "true") {
         query = `
-      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha,
+      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, s.serv_nombre AS Servicio, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha,
         SUM(eval_califica = 40) AS Excelente,
         SUM(eval_califica = 30) AS Bueno,
         SUM(eval_califica = 20) AS Regular,
@@ -188,7 +188,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opci
       FROM  usuarios a, evaluacion f ,empresa e, turno t, servicio s
       WHERE a.usua_codigo = f.usua_codigo 
         AND e.empr_codigo = a.empr_codigo 
-        AND S.serv_codigo = t.serv_codigo
+        AND s.serv_codigo = t.serv_codigo
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND f.turn_codigo = t.turn_codigo
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
@@ -200,7 +200,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:servicios/:sucursales/:opci
     }
     else {
         query = `
-      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha,
+      SELECT e.empr_nombre AS nombreEmpresa, a.usua_nombre AS Usuario, s.serv_nombre AS Servicio, date_format(f.eval_fecha, '%Y-%m-%d') AS Fecha,
         SUM(eval_califica = 50) AS Excelente,
         SUM(eval_califica = 40) AS Muy_Bueno,
         SUM(eval_califica = 30) AS Bueno,

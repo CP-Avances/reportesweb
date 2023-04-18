@@ -91,6 +91,11 @@ export class OcupacionComponent implements OnInit {
   //Orientacion
   orientacion: string;
 
+  //Totales
+  porcentajeTotal: number;
+  turnosTotal: number;
+  mostrarTotal: boolean = false;
+
   constructor(
     private serviceService: ServiceService,
     private auth: AuthenticationService,
@@ -209,6 +214,17 @@ export class OcupacionComponent implements OnInit {
             this.configOS.currentPage = 1;
           }
           // this.todasSucursalesO = this.comprobarBusquedaSucursales(cod);
+          let totalT = serviciooc.turnos.map((res) => res.total);
+          let totalP = serviciooc.turnos.map((res) => res.PORCENTAJE);
+          let totalTurnos = 0;
+          let totalPorc = 0;
+          for (var i = 0; i < totalT.length; i++) {
+            totalTurnos = totalTurnos + totalT[i];
+            totalPorc = totalPorc + totalP[i];
+          }
+          this.turnosTotal = totalTurnos;
+          this.porcentajeTotal = Math.round(totalPorc);
+          this.mostrarTotal = true;
         },
         (error) => {
           if (error.status == 400) {
@@ -216,6 +232,7 @@ export class OcupacionComponent implements OnInit {
             this.serviciooc = null;
             this.malRequestOcupOS = true;
             this.malRequestOcupOSPag = true;
+            this.mostrarTotal = false;
             //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
             //caso contrario se setea la cantidad de elementos
             if (this.serviciooc == null) {

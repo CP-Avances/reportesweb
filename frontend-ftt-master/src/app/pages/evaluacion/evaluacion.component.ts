@@ -1167,7 +1167,7 @@ export class EvaluacionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws1, "Máximos y Mínimos Empleado");
     XLSX.writeFile(
       wb,
-      "servicio-eval-empl - " +
+      "Evaluacion-cajero - " +
         nombreSucursal +
         " - " +
         new Date().toLocaleString() +
@@ -1251,10 +1251,10 @@ export class EvaluacionComponent implements OnInit {
       wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Establecimiento");
+    XLSX.utils.book_append_sheet(wb, ws, "Agencia");
     XLSX.writeFile(
       wb,
-      "Establecimiento - " +
+      "Evaluacion-Agencia - " +
         nombreSucursal +
         " - " +
         new Date().toLocaleString() +
@@ -1297,7 +1297,7 @@ export class EvaluacionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Grupos");
     XLSX.writeFile(
       wb,
-      "Evalgrupo - " +
+      "Evaluacion-Agrupada - " +
         nombreSucursal +
         " - " +
         new Date().toLocaleString() +
@@ -1474,7 +1474,7 @@ getDocumentServicios(fechaDesde, fechaHasta) {
           {
             width: "*",
             alignment: "center",
-            text: "Reporte - Evaluación Servicio y Máximos y Mínimos",
+            text: "Reporte - Evaluación por servicio",
             bold: true,
             fontSize: 15,
             margin: [-75, 20, 0, 0],
@@ -2048,7 +2048,7 @@ getDocumentEmpleado(fechaDesde, fechaHasta) {
             width: "*",
             alignment: "center",
             text:
-              "Reporte" + "\n" + " Evaluación Empleado y Máximos y Mínimos",
+              "Reporte" + "\n" + " Evaluación por cajero",
             bold: true,
             fontSize: 15,
             margin: [-90, 20, 0, 0],
@@ -2829,7 +2829,7 @@ getDocumentEstablecimiento(fD, fH) {
           {
             width: "*",
             alignment: "center",
-            text: "Reporte - Evaluación Establecimiento",
+            text: "Reporte - Evaluación por agencia",
             bold: true,
             fontSize: 15,
             margin: [-90, 20, 0, 0],
@@ -3129,7 +3129,7 @@ getDocumentEvaGrupo(fechaDesde, fechaHasta) {
           {
             width: "*",
             alignment: "center",
-            text: "Reporte - Evaluación por Grupo",
+            text: "Reporte - Evaluación agrupada por calificación",
             bold: true,
             fontSize: 15,
             margin: [-90, 20, 0, 0],
