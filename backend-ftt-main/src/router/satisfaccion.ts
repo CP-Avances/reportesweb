@@ -109,7 +109,7 @@ router.get('/totalsinatender/:fecha', (req: Request, res: Response) => {
         `
         SELECT turn_fecha, count(turn_codigo) AS noatendidos 
         FROM turno 
-        WHERE turn_estado = 2 and turn_fecha = '${fechas}'
+        WHERE turn_estado = 2 and turn_estado = 3 and turn_fecha = '${fechas}'
         AND caje_codigo !=0
         `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
@@ -266,8 +266,8 @@ router.get('/servsoli', (req: Request, res: Response) => {
         `
         SELECT  serv_nombre as Servicio,
             SUM( turn_estado = 1 ) as Atendidos,
-            SUM( turn_estado = 2 or turn_estado = -1 ) as No_Atendidos,
-            COUNT( turn_estado ) as Total
+            SUM( turn_estado != 1 AND turn_estado != 0 ) as No_Atendidos,
+            SUM(turn_estado != 0) AS Total 
         FROM turno t, servicio s, usuarios u, cajero c
         WHERE t.serv_codigo = s.serv_codigo 
             AND t.caje_codigo = c.caje_codigo 

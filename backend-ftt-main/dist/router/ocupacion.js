@@ -9,14 +9,20 @@ const router = (0, express_1.Router)();
 /** ************************************************************************************************************ **
  ** **                                      OCUPACION POR SERVICIOS                                           ** **
  ** ************************************************************************************************************ **/
-router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:sucursales", (req, res) => {
+router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
+    let diaCompleto = false;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
+    }
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
+        diaCompleto = true;
     }
     const query = `
             SELECT empresa.empr_nombre AS nombreEmpresa, COUNT(turno.TURN_ESTADO) AS total,
@@ -26,6 +32,7 @@ router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:sucursales", (req, res)
                     FROM (SELECT COUNT(turn_estado) AS c 
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
                         AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2) AS PORCENTAJE,
                                 DATE_FORMAT((SELECT MAX(turn_fecha) 
@@ -41,6 +48,7 @@ router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:sucursales", (req, res)
             WHERE turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
             AND turno.caje_codigo != 0
             ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
+            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
             GROUP BY servicio.SERV_CODIGO;
             `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -61,14 +69,20 @@ router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:sucursales", (req, res)
 /** ************************************************************************************************************ **
  ** **                                          GRAFICO OCUPACION                                             ** **
  ** ************************************************************************************************************ **/
-router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:sucursales", (req, res) => {
+router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
+    let diaCompleto = false;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
+    }
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
+        diaCompleto = true;
     }
     const query = `
             SELECT empresa.empr_nombre AS nombreEmpresa, COUNT(turno.TURN_ESTADO) AS total,
@@ -77,6 +91,7 @@ router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:sucursales", (req, res) =
                     FROM (SELECT COUNT(turn_estado) as c
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
                         AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2)AS PORCENTAJE, 
                             (SELECT MAX(turn_fecha) 
@@ -92,6 +107,7 @@ router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:sucursales", (req, res) =
             WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             AND turno.caje_codigo != 0
             ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
+            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
             GROUP BY servicio.SERV_CODIGO;
             `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

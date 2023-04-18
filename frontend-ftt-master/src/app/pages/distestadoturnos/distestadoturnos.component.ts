@@ -36,6 +36,11 @@ export class DistestadoturnosComponent implements OnInit {
   @ViewChild('codSucursalDist') codSucursalDist: ElementRef;
   @ViewChild('codSucursalDistRes') codSucursalDistRes: ElementRef;
 
+  @ViewChild("horaInicioD") horaInicioD: ElementRef;
+  @ViewChild("horaFinD") horaFinD: ElementRef;
+  @ViewChild("horaInicioR") horaInicioR: ElementRef;
+  @ViewChild("horaFinR") horaFinR: ElementRef;
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioDist: any = [];
   servicioRes: any = [];
@@ -87,6 +92,8 @@ export class DistestadoturnosComponent implements OnInit {
   //MOSTRAR CAJEROS
   mostrarCajeros: boolean = false;
 
+  horas: number[] = [];
+
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router, public datePipe: DatePipe,
@@ -106,6 +113,10 @@ export class DistestadoturnosComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioRes.length
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
   }
   //Eventos para avanzar o retroceder en la paginacion
   pageChangedDE(event) {
@@ -186,8 +197,6 @@ export class DistestadoturnosComponent implements OnInit {
   }
 
   limpiar() {
-    // this.getCajeros("-1");
-    // this.getSucursales();
     this.cajerosDist=[];
     this.mostrarCajeros = false;
     this.selectedItems = [];
@@ -214,10 +223,11 @@ export class DistestadoturnosComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateDist.nativeElement.value.toString().trim();
     var fH = this.toDateDist.nativeElement.value.toString().trim();
-    // let codSucursal = this.codSucursalDist.nativeElement.value.toString().trim();
+    let horaInicio = this.horaInicioD.nativeElement.value;
+    let horaFin = this.horaFinD.nativeElement.value;
 
     if (this.selectedItems.length!==0) { 
-      this.serviceService.getdistribucionturnos(fD, fH, this.selectedItems, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
+      this.serviceService.getdistribucionturnos(fD, fH, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioDist = servicio.turnos;
         this.malRequestDist = false;
@@ -226,7 +236,6 @@ export class DistestadoturnosComponent implements OnInit {
         if (this.configDE.currentPage > 1) {
           this.configDE.currentPage = 1;
         }
-        // this.todasSucursalesD = this.comprobarBusquedaSucursales(codSucursal);
       },
         error => {
           if (error.status == 400) {
@@ -259,10 +268,11 @@ export class DistestadoturnosComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateDistRes.nativeElement.value.toString().trim();
     var fH = this.toDateDistRes.nativeElement.value.toString().trim();
-    // let codSucursal = this.codSucursalDistRes.nativeElement.value.toString().trim();
+    let horaInicio = this.horaInicioR.nativeElement.value;
+    let horaFin = this.horaFinR.nativeElement.value;
     
     if (this.selectedItems.length!==0) { 
-      this.serviceService.getdistribucionturnosresumen(fD, fH, this.selectedItems, this.sucursalesSeleccionadas).subscribe((servicioRes: any) => {
+      this.serviceService.getdistribucionturnosresumen(fD, fH, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas).subscribe((servicioRes: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioRes = servicioRes.turnos;
         this.malRequestDistPagRes = false;
@@ -271,7 +281,6 @@ export class DistestadoturnosComponent implements OnInit {
         if (this.configDERes.currentPage > 1) {
           this.configDERes.currentPage = 1;
         }
-        // this.todasSucursalesR = this.comprobarBusquedaSucursales(codSucursal);
       },
         error => {
           if (error.status == 400) {

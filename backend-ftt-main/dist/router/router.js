@@ -176,4 +176,41 @@ router.get('/nombreImagen', (req, res) => {
         }
     });
 });
+//Guardar meta de turnos en la base de datos
+router.get('/setMeta/:valor', (req, res) => {
+    const valor = req.params.valor;
+    const query = `UPDATE general SET gene_valor = '${valor}' WHERE gene_codigo = 9;`;
+    mysql_1.default.ejecutarQuery(query, (err, usuario) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err
+            });
+        }
+        else {
+            res.json({
+                ok: true,
+            });
+        }
+    });
+});
+router.get('/getMeta', (req, res) => {
+    const query = `
+      SELECT gene_valor FROM general WHERE gene_codigo = 9;
+      `;
+    mysql_1.default.ejecutarQuery(query, (err, valor) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err,
+            });
+        }
+        else {
+            res.json({
+                ok: true,
+                valor: valor[0].gene_valor,
+            });
+        }
+    });
+});
 exports.default = router;

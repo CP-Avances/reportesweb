@@ -2,17 +2,54 @@
     <h5 class="card-header">CONFIGURACIÓN</h5>
     <div class="card-body">
         <form>
-            <p>Seleccione el logo de su empresa mediante el botón "Elegir archivo" y luego haga clic en "Guardar" para agregarlo.</p>
-            <div class="input-group">
-                <div class="custom-file">
-                    <input type="file" id="selectImagen" accept="image/*" class="my-button" (change)="onFileSelected($event)">
-                </div> 
-                <div class="input-group-append mt-3">
-                    <button class="btn btn-outline-secondary ml-2" type="button"(click)="guardarImagen()">Guardar</button>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="ocservicios-tab" data-toggle="tab" href="#logoEmpresa" role="tab"
+                        aria-controls="logoEmpresa" aria-selected="true">LOGO DE EMPRESA</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#turnos" role="tab"
+                        aria-controls="turnos" aria-selected="false">TURNOS</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="logoEmpresa" role="tabpanel"
+                    aria-labelledby="logoEmpresa-tab">
+                    <br><br>
+                    <p>Seleccione el logo de su empresa mediante el botón "Elegir archivo" y luego haga clic en
+                        "Guardar" para agregarlo.</p>
+                    <div class="input-group">
+                        <div class="custom-file">
+                            <input type="file" id="selectImagen" accept="image/*" class="my-button"
+                                (change)="onFileSelected($event)">
+                        </div>
+                        <div class="input-group-append mt-3">
+                            <button class="btn btn-outline-secondary ml-2" type="button"
+                                (click)="guardarImagen()">Guardar</button>
+                        </div>
+                    </div>
+                    <br><br>
+                    <img *ngIf="imageUrl" [src]="imageUrl" alt="Imagen seleccionada" class="imagen ml-2">
+                </div>
+                <div class="tab-pane fade " id="turnos" role="tabpanel" aria-labelledby="turnos-tab">
+                    <br><br>
+                    <p>Ingrese el número esperado de turnos que cada cajero atenderá diariamente.</p>
+                    <br>
+                    <div class="input-group">
+                        <p>
+                            <mat-form-field appearance="outline">
+                                <mat-label>Meta</mat-label>
+                                <input matInput type="number" [(ngModel)]="valor" min="0">
+                                <mat-hint>Número de turnos</mat-hint>
+                            </mat-form-field>  
+                        </p>
+                        <div class="input-group-append mt-3">
+                            <button class="btn btn-outline-secondary ml-4" type="button"
+                               (click)="guardarMeta()">Guardar</button>
+                        </div>                    
+                    </div>
                 </div>
             </div>
-            <br><br>
-            <img *ngIf="imageUrl" [src]="imageUrl" alt="Imagen seleccionada" class="imagen ml-2">
         </form>
     </div>
 </div>

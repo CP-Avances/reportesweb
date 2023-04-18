@@ -35,6 +35,12 @@ export class OpinionComponent implements OnInit {
   @ViewChild('codSucursalAtM') codSucursalAtM: ElementRef;
   @ViewChild('codSucursalOcupG') codSucursalOcupG: ElementRef;
 
+  @ViewChild("horaInicioI") horaInicioI: ElementRef;
+  @ViewChild("horaFinI") horaFinI: ElementRef;
+  @ViewChild("horaInicioG") horaInicioG: ElementRef;
+  @ViewChild("horaFinG") horaFinG: ElementRef;
+  
+
   //Variables de la grafica
   chartPie: any;
   chartBar: any;
@@ -52,6 +58,7 @@ export class OpinionComponent implements OnInit {
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursalesI: boolean = false;
   todasSucursalesG: boolean = false;
+  todosTipos: boolean = false;
 
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestAtM: boolean = false;
@@ -85,10 +92,20 @@ export class OpinionComponent implements OnInit {
 
   //OPCIONES MULTIPLES
   sucursalesSeleccionadas: string[] = [];
+  tiposSeleccionados: string[] = [];
+  categoriasSeleccionados: string[] = [];
   seleccionMultiple: boolean = false;
+  tipos = [
+    {nombre: 'Quejas', valor: '1'},
+    {nombre: 'Reclamos', valor: '2'},
+    {nombre: 'Sugerencias', valor: '3'},
+    {nombre: 'Felicitaciones', valor: '4'},
+  ] 
 
    //Orientacion
   orientacion: string;
+
+  horas: number[] = [];
 
   constructor(
     private serviceService: ServiceService,
@@ -105,6 +122,10 @@ export class OpinionComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioOpinion.length,
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
   }
 
   //Eventos para avanzar o retroceder en la paginacion
@@ -141,6 +162,9 @@ export class OpinionComponent implements OnInit {
             break;
         case 'todasSucursalesES':
             this.todasSucursalesG = !this.todasSucursalesG;
+            break;
+        case 'todosTipos':
+            this.todosTipos = !this.todosTipos;
             break;
         case 'sucursalesSeleccionadas':
             this.sucursalesSeleccionadas.length > 1 
@@ -194,10 +218,11 @@ export class OpinionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtM.nativeElement.value.toString();
+    let horaInicio = this.horaInicioI.nativeElement.value;
+    let horaFin = this.horaFinI.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getopiniones(fD, fH, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getopiniones(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioOpinion = servicio.turnos;
@@ -242,11 +267,14 @@ export class OpinionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalOcupG.nativeElement.value.toString();
+    
+    let horaInicio = this.horaInicioG.nativeElement.value;
+    let horaFin = this.horaFinG.nativeElement.value;
+
     this.malRequestAtM = false;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getgraficoopinion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicioocg: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioocg = servicioocg.turnos;
@@ -285,7 +313,7 @@ export class OpinionComponent implements OnInit {
         }
       );
   
-      this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getgraficoopinion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           //Se verifica el ancho de pantalla para colocar o no labels
@@ -447,7 +475,6 @@ export class OpinionComponent implements OnInit {
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Hora: this.servicioOpinion[step].quejas_emi_hora + ':' + this.servicioOpinion[step].quejas_emi_minuto,
             Caja: this.servicioOpinion[step].caja_caja_nombre,
             Opinión: this.servicioOpinion[step].quejas_emi_queja,
           });
@@ -458,7 +485,6 @@ export class OpinionComponent implements OnInit {
             Tipo: this.servicioOpinion[step].quejas_emi_tipo,
             Categoría: this.servicioOpinion[step].quejas_emi_categoria,
             Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Hora: this.servicioOpinion[step].quejas_emi_hora + ':' + this.servicioOpinion[step].quejas_emi_minuto,
             Caja: this.servicioOpinion[step].caja_caja_nombre,
             Opinión: this.servicioOpinion[step].quejas_emi_queja,
           });
@@ -491,24 +517,18 @@ export class OpinionComponent implements OnInit {
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
       if (this.todasSucursalesG || this.seleccionMultiple) {
-        for (let step = 0; step < this.servicioOpinion.length; step++) {
+        for (let step = 0; step < this.servicioocg.length; step++) {
           jsonServicio.push({
-            Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
-            Tipo: this.servicioOpinion[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-            Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Caja: this.servicioOpinion[step].caja_caja_nombre,
-            Opinión: this.servicioOpinion[step].quejas_emi_queja,
+            Sucursal: this.servicioocg[step].empresa_empr_nombre,
+            Tipo: this.servicioocg[step].quejas_emi_tipo,
+            Cantidad: this.servicioocg[step].queja_cantidad,
           });
         }
       } else {
-        for (let step = 0; step < this.servicioOpinion.length; step++) {
+        for (let step = 0; step < this.servicioocg.length; step++) {
           jsonServicio.push({
-            Tipo: this.servicioOpinion[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-            Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Caja: this.servicioOpinion[step].caja_caja_nombre,
-            Opinión: this.servicioOpinion[step].quejas_emi_queja,
+            Tipo: this.servicioocg[step].quejas_emi_tipo,
+            Cantidad: this.servicioocg[step].queja_cantidad,
           });
         }
       }
@@ -516,7 +536,7 @@ export class OpinionComponent implements OnInit {
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioOpinion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    const header = Object.keys(this.servicioocg[0]); // NOMBRE DE CABECERAS DE COLUMNAS
     var wscols = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })

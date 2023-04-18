@@ -11,8 +11,8 @@ router.get("/turnosfecha", (req: Request, res: Response) => {
   const query = `
         SELECT usua_nombre as Usuario, serv_nombre as Servicio,
             date_format(turn_fecha, "%Y-%m-%d") as Fecha, SUM(turn_estado = 1) AS Atendidos,
-            SUM( turn_estado = 2 OR turn_estado = -1 ) AS No_Atendidos,
-            COUNT( turn_estado ) AS Total
+            SUM( turn_estado != 1 AND turn_estado != 0) AS No_Atendidos,
+            SUM(turn_estado != 0) AS Total 
         FROM turno t, servicio s, usuarios u, cajero c
         WHERE t.serv_codigo = s.serv_codigo 
             AND t.caje_codigo = c.caje_codigo 
@@ -37,7 +37,7 @@ router.get("/turnosfecha", (req: Request, res: Response) => {
 
 router.get("/getallsucursales", (req: Request, res: Response) => {
   const query = `
-        SELECT * FROM empresa ORDER BY empr_nombre;
+        SELECT * FROM empresa ORDER BY empr_nombre ASC;
         `;
   MySQL.ejecutarQuery(query, (err: any, empresas: Object[]) => {
     if (err) {
@@ -57,7 +57,7 @@ router.get("/getallsucursales", (req: Request, res: Response) => {
 
 router.get("/getallcajeros", (req: Request, res: Response) => {
   const query = `
-        SELECT * FROM cajero usua_codigo != 2 ORDER BY caje_nombre;
+        SELECT * FROM cajero usua_codigo != 2 ORDER BY caje_nombre ASC;
         `;
   MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
     if (err) {
@@ -89,7 +89,8 @@ router.get("/getallcajeros/:sucursales", (req: Request, res: Response) => {
             FROM cajero c, usuarios u 
             WHERE u.usua_codigo = c.usua_codigo
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-            AND u.usua_codigo != 2;
+            AND u.usua_codigo != 2
+            ORDER BY c.caje_nombre ASC;
             `;
 
   MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
@@ -113,11 +114,12 @@ router.get("/getallcajeros/:sucursales", (req: Request, res: Response) => {
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/tiempopromedioatencion/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales",
+  "/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
-    const cSucursal = req.params.sucursal;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
     const listaSucursales = req.params.sucursales;
@@ -125,6 +127,7 @@ router.get(
 
     let todosCajeros = false;
     let todasSucursales = false;
+    let diaCompleto = false;
     
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -134,7 +137,9 @@ router.get(
       todasSucursales = true
     }
 
-
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
+    }
 
     let query = `
     SELECT e.empr_nombre AS nombreEmpresa, serv_nombre AS Servicio, caje_nombre AS Nombre, 
@@ -149,8 +154,75 @@ router.get(
     AND u.usua_codigo != 2
     ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
     GROUP BY nombreEmpresa, Nombre, Servicio;
     `;
+
+    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
+      if (err) {
+        res.status(400).json({
+          ok: false,
+          error: err,
+        });
+      } else {
+        res.json({
+          ok: true,
+          turnos,
+        });
+      }
+    });
+  }
+);
+
+/** ************************************************************************************************************ **
+ ** **                               TIEMPO DE ATENCION POR TURNOS                                            ** **
+ ** ************************************************************************************************************ **/
+
+router.get(
+  "/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales",
+  (req: Request, res: Response) => {
+    const fDesde = req.params.fechaDesde;
+    const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+
+    let todosCajeros = false;
+    let todasSucursales = false;
+    let diaCompleto = false;
+    
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    } 
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
+    }
+
+    let query = `
+    SELECT e.empr_nombre AS nombreEmpresa, CAST(CONCAT(s.serv_descripcion,t.turn_numero) AS CHAR) AS turno, serv_nombre AS Servicio, caje_nombre AS Nombre, 
+    sec_to_time(IFNUll(turn_duracionatencion, 0)) AS atencion,
+    date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA
+    FROM cajero c, turno t, servicio s, empresa e, usuarios u
+    WHERE t.caje_codigo = c.caje_codigo 
+    AND t.serv_codigo = s.serv_codigo 
+    AND s.empr_codigo = e.empr_codigo  
+    AND c.usua_codigo = u.usua_codigo
+    AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+    AND u.usua_codigo != 2
+    ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+    ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+    ORDER BY t.TURN_FECHA DESC;
+    `;
+
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
@@ -200,17 +272,24 @@ router.get("/tiempopromedioatencion", (req: Request, res: Response) => {
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/entradasalidasistema/:fechaDesde/:fechaHasta/:sucursales",
+  "/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
 
     let todasSucursales = false;
+    let diaCompleto = false;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
     }
 
     const query = `
@@ -228,6 +307,7 @@ router.get(
       WHERE r.usua_codigo = u.usua_codigo
       ${todasSucursales ? 'AND u.empr_codigo = e.empr_codigo' : `AND u.empr_codigo IN (${listaSucursales})`}
       AND reg_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+      ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
       AND u.usua_codigo != 2
       ORDER BY reg_fecha DESC, fecha;
   `;
@@ -278,10 +358,12 @@ router.get("/atencionusuario", (req: Request, res: Response) => {
 });
 
 router.get(
-  "/atencionusuario/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales",
+  "/atencionusuario/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
     const listaSucursales = req.params.sucursales;
@@ -289,6 +371,7 @@ router.get(
 
     let todosCajeros = false;
     let todasSucursales = false;
+    let diaCompleto = false;
     
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -298,9 +381,15 @@ router.get(
       todasSucursales = true
     } 
 
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
+    }
+
     const query = `
     SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio, 
-        SUM(turn_estado = 1) AS Atendidos 
+        SUM(turn_estado = 1) AS Atendidos,
+        SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
+        SUM(turn_estado != 0) AS Total 
     FROM usuarios u, turno t, cajero c, servicio s, empresa e 
     WHERE u.usua_codigo = c.usua_codigo 
         AND c.caje_codigo = t.caje_codigo 
@@ -310,6 +399,7 @@ router.get(
         AND u.usua_codigo != 2 
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+        ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         GROUP BY Nombre, Servicio;
     `;
 
@@ -338,15 +428,15 @@ router.get("/turnosfecha/:fecha", (req: Request, res: Response) => {
   const query = `
         SELECT usua_nombre AS Usuario, serv_nombre AS Servicio, turn_fecha AS Fecha, 
             SUM(turn_estado = 1) AS Atendidos, 
-            SUM(turn_estado = 2 OR turn_estado = -1) AS No_Atendidos, 
-            COUNT(turn_estado) AS Total 
+            SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
+            SUM(turn_estado != 0) AS Total  
         FROM turno t, servicio s, usuarios u, cajero c 
         WHERE t.serv_codigo = s.serv_codigo 
             AND t.caje_codigo = c.caje_codigo 
             AND u.usua_codigo = c.usua_codigo 
             AND turn_fecha = '${fechas}'  
         GROUP BY Fecha, Usuario, Servicio 
-        ORDER BY Usuario, Fecha, Servicio;`;
+        ORDER BY Usuario, Fecha DESC, Servicio;`;
   MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
     if (err) {
       res.status(400).json({
@@ -363,17 +453,31 @@ router.get("/turnosfecha/:fecha", (req: Request, res: Response) => {
 });
 
 router.get(
-  "/turnosfechas/:fechaDesde/:fechaHasta/:sucursales",
+  "/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
+    const listaCajeros = req.params.cajeros;
+    const cajerosArray = listaCajeros.split(",");
 
     let todasSucursales = false;
+    let todasCajeros = false;
+    let diaCompleto = false;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
+    }
+
+    if (cajerosArray.includes("-2")) {
+      todasCajeros = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
     }
 
     const query = `
@@ -382,7 +486,7 @@ router.get(
            s.serv_nombre AS Servicio, 
            DATE_FORMAT(turn_fecha, '%Y-%m-%d') AS Fecha, 
            SUM(turn_estado = 1) AS Atendidos, 
-           SUM(turn_estado = 2 OR turn_estado = -1) AS No_Atendidos, 
+           SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
            SUM(turn_estado != 0) AS Total 
     FROM turno t 
     JOIN servicio s ON t.serv_codigo = s.serv_codigo 
@@ -392,8 +496,137 @@ router.get(
     WHERE turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
       AND u.usua_codigo != 2
       ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+      ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario, Servicio 
     ORDER BY Fecha DESC, Usuario, Servicio;
+    `;   
+
+    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
+      if (err) {
+        res.status(400).json({
+          ok: false,
+          error: err,
+        });
+      } else {
+        res.json({
+          ok: true,
+          turnos,
+        });
+      }
+    });
+  }
+);
+
+router.get(
+  "/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros",
+  (req: Request, res: Response) => {
+    const fDesde = req.params.fechaDesde;
+    const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    const listaCajeros = req.params.cajeros;
+    const cajerosArray = listaCajeros.split(",");
+
+    let todasSucursales = false;
+    let todasCajeros = false;
+    let diaCompleto = false;
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
+    if (cajerosArray.includes("-2")) {
+      todasCajeros = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
+    }
+
+    const query = `
+    SELECT e.empr_nombre AS nombreEmpresa,
+           u.usua_nombre AS Usuario, 
+           DATE_FORMAT(turn_fecha, '%Y-%m-%d') AS Fecha, 
+           SUM(turn_estado = 1) AS Atendidos, 
+           SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
+           SUM(turn_estado != 0) AS Total 
+    FROM turno t 
+    JOIN cajero c ON t.caje_codigo = c.caje_codigo 
+    JOIN usuarios u ON u.usua_codigo = c.usua_codigo 
+    JOIN empresa e ON u.empr_codigo = e.empr_codigo
+    WHERE turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+      AND u.usua_codigo != 2
+      ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+      ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+    GROUP BY nombreEmpresa, Fecha, Usuario
+    ORDER BY Fecha DESC, Usuario;
+    `;   
+
+    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
+      if (err) {
+        res.status(400).json({
+          ok: false,
+          error: err,
+        });
+      } else {
+        res.json({
+          ok: true,
+          turnos,
+        });
+      }
+    });
+  }
+);
+
+router.get(
+  "/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros",
+  (req: Request, res: Response) => {
+    const fDesde = req.params.fechaDesde;
+    const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    const listaCajeros = req.params.cajeros;
+    const cajerosArray = listaCajeros.split(",");
+
+    let todasSucursales = false;
+    let todasCajeros = false;
+    let diaCompleto = false;
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
+    if (cajerosArray.includes("-2")) {
+      todasCajeros = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
+    }
+
+    const query = `
+    SELECT e.empr_nombre AS nombreEmpresa,
+           u.usua_nombre AS Usuario, 
+           DATE_FORMAT(turn_fecha, '%Y-%m-%d') AS Fecha, 
+           SUM(turn_estado = 1) AS Atendidos, 
+           ROUND((SUM(turn_estado = 1) / (SELECT gene_valor FROM general WHERE gene_codigo = 9)) * 100,2) AS Porcentaje_Atendidos
+    FROM turno t 
+    JOIN cajero c ON t.caje_codigo = c.caje_codigo 
+    JOIN usuarios u ON u.usua_codigo = c.usua_codigo 
+    JOIN empresa e ON u.empr_codigo = e.empr_codigo
+    WHERE turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+      AND u.usua_codigo != 2
+      ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+      ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+    GROUP BY nombreEmpresa, Fecha, Usuario
+    ORDER BY Fecha DESC, Usuario;
     `;   
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {

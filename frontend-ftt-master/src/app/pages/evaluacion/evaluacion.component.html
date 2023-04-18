@@ -5,27 +5,27 @@
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link active" id="servicio-tab" data-toggle="tab" href="#servicio" role="tab"
-                        aria-controls="servicio" aria-selected="true">SERVICIO</a>
+                        aria-controls="servicio" aria-selected="true">EVALUACIÓN POR SERVICIO</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="tiempromat-tab" data-toggle="tab" href="#tiempromat" role="tab"
-                        aria-controls="tiempromat" aria-selected="false">EMPLEADO</a>
+                        aria-controls="tiempromat" aria-selected="false">EVALUACIÓN POR CAJERO</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="atencionusuario-tab" data-toggle="tab" href="#atencionusuario" role="tab"
-                        aria-controls="atencionusuario" aria-selected="false">EVALUACIÓN POR GRUPOS</a>
-                </li>
-                <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="graficoeva-tab" data-toggle="tab" href="#graficoeva" role="tab"
-                        aria-controls="graficoeva" aria-selected="false">GRÁFICOS</a>
+                        aria-controls="atencionusuario" aria-selected="false">EVALUACIÓN AGRUPADA POR CALIFICACIÓN</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="inoutsistema-tab" data-toggle="tab" href="#inoutsistema" role="tab"
-                        aria-controls="inoutsistema" aria-selected="false">ESTABLECIMIENTO</a>
+                    aria-controls="inoutsistema" aria-selected="false">EVALUACIÓN POR AGENCIA</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="omitidas-tab" data-toggle="tab" href="#omitidas" role="tab"
-                        aria-controls="omitidas" aria-selected="false">EVALUACIONES OMITIDAS</a>
+                    aria-controls="omitidas" aria-selected="false">EVALUACIONES OMITIDAS</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="graficoeva-tab" data-toggle="tab" href="#graficoeva" role="tab"
+                        aria-controls="graficoeva" aria-selected="false">GRÁFICOS EVALUACIÓN</a>
                 </li>
             </ul>
 
@@ -35,12 +35,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateServicios">Fecha desde:</label>
-                                <input type="date" id="fromDateServicios" value="{{fromDate}}" [max]="toDate"
-                                    name="fromDateServicios" #fromDateServicios><br><br>
-                                <label for="toDateServicios">Fecha hasta: </label>
-                                <input type="date" id="toDateServicios" value="{{toDate}}" [max]="toDate"
-                                    name="toDateServicios" #toDateServicios>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateServicios">Fecha desde:</label>
+                                        <input type="date" id="fromDateServicios" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateServicios" #fromDateServicios><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateServicios">Fecha hasta: </label>
+                                        <input type="date" id="toDateServicios" value="{{toDate}}" [max]="toDate"
+                                            name="toDateServicios" #toDateServicios>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioS>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinS>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -69,7 +87,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>SERVICIOS</h3>
+                    <h3>EVALUACIÓN POR SERVICIOS</h3>
                     <hr>
                     <div class="table-responsive" id="contentServicios" #contentServicios #tableServicios>
                         <table class="table table-striped">
@@ -77,6 +95,7 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesS || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Cajero</th>
+                                    <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
                                     <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
@@ -91,6 +110,7 @@
                                 <tr *ngFor="let servicioServs of servicioServs | paginate:configS">
                                     <td *ngIf="todasSucursalesS || seleccionMultiple">{{servicioServs.nombreEmpresa}}</td>
                                     <td>{{servicioServs.Usuario}}</td>
+                                    <td>{{servicioServs.Servicio}}</td>
                                     <td>{{servicioServs.Fecha}}</td>
                                     <td>{{servicioServs.Excelente}}</td>
                                     <td *ngIf="!opcionCuatro">{{servicioServs.Muy_Bueno}}</td>
@@ -107,14 +127,15 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <h3>MÁXIMOS Y MíNIMOS</h3>
+                    <h3>EVALUACIONES MÁXIMAS Y MíNIMAS POR SERVICIOS</h3>
                     <hr>
                     <div class="table-responsive" id="contentServsMaxMin" #contentServsMaxMin #tableServsMaxMin>
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesS" style="width: 300px;">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesS">Sucursal</th>
                                     <th scope="col" class="text-center">Cajero</th>
+                                    <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
                                     <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
@@ -130,6 +151,7 @@
                                 <tr *ngFor="let servicioServsMaxMin of servicioServsMaxMin | paginate:configSMM">
                                     <td *ngIf="todasSucursalesS">{{servicioServsMaxMin.nombreEmpresa}}</td>
                                     <td>{{servicioServsMaxMin.Usuario}}</td>
+                                    <td>{{servicioServsMaxMin.Servicio}}</td>
                                     <td>{{servicioServsMaxMin.Fecha}}</td>
                                     <td>{{servicioServsMaxMin.Excelente}}</td>
                                     <td *ngIf="!opcionCuatro">{{servicioServsMaxMin.Muy_Bueno}}</td>
@@ -157,12 +179,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateDesdeEvalEmpl">Fecha desde:</label>
-                                <input type="date" id="fromDateDesdeEvalEmpl" value="{{fromDate}}" [max]="toDate"
-                                    name="fromDateDesdeEvalEmpl" #fromDateDesdeEvalEmpl><br><br>
-                                <label for="toDateHastaEvalEmpl">Fecha hasta: </label>
-                                <input type="date" id="toDateHastaEvalEmpl" value="{{toDate}}" [max]="toDate"
-                                    name="toDateHastaEvalEmpl" #toDateHastaEvalEmpl>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateDesdeEvalEmpl">Fecha desde:</label>
+                                        <input type="date" id="fromDateDesdeEvalEmpl" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateDesdeEvalEmpl" #fromDateDesdeEvalEmpl><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateHastaEvalEmpl">Fecha hasta: </label>
+                                        <input type="date" id="toDateHastaEvalEmpl" value="{{toDate}}" [max]="toDate"
+                                            name="toDateHastaEvalEmpl" #toDateHastaEvalEmpl>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioC>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinC>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -191,7 +231,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>EMPLEADO</h3>
+                    <h3>EVALUACIÓN POR CAJERO</h3>
                     <hr>
                     <div class="table-responsive" id="contentEvalEmpl" #contentEvalEmpl #tableEvalEmpl>
                         <table class="table table-striped">
@@ -229,7 +269,7 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <h3>MÁXIMOS Y MÍNIMOS EMPLEADO</h3>
+                    <h3>EVALUACIONES MÁXIMAS Y MÍNIMAS POR CAJERO</h3>
                     <hr>
                     <div class="table-responsive" id="contentEvalMMEmpl" #contentEvalMMEmpl #TABLEEvalMMEmpl #table>
                         <table class="table table-striped">
@@ -278,12 +318,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateDesdeEvalOmitidas">Fecha desde:</label>
-                                <input type="date" id="fromDateDesdeEvalOmitidas" value="{{fromDate}}" [max]="toDate"
-                                    name="fromDateDesdeEvalOmitidas" #fromDateDesdeEvalOmitidas><br><br>
-                                <label for="toDateHastaEvalOmitidas">Fecha hasta: </label>
-                                <input type="date" id="toDateHastaEvalOmitidas" value="{{toDate}}" [max]="toDate"
-                                    name="toDateHastaEvalOmitidas" #toDateHastaEvalOmitidas>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateDesdeEvalOmitidas">Fecha desde:</label>
+                                        <input type="date" id="fromDateDesdeEvalOmitidas" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateDesdeEvalOmitidas" #fromDateDesdeEvalOmitidas><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateHastaEvalOmitidas">Fecha hasta: </label>
+                                        <input type="date" id="toDateHastaEvalOmitidas" value="{{toDate}}" [max]="toDate"
+                                            name="toDateHastaEvalOmitidas" #toDateHastaEvalOmitidas>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioO>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinO>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -352,12 +410,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateEstb">Fecha desde:</label>
-                                <input type="date" id="fromDateEstb" value="{{fromDate}}" [max]="toDate"
-                                    name="fromDateEstb" #fromDateEstb><br><br>
-                                <label for="toDateEstb">Fecha hasta: </label>
-                                <input type="date" id="toDateEstb" value="{{toDate}}" [max]="toDate" name="toDateEstb"
-                                    #toDateEstb>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateEstb">Fecha desde:</label>
+                                        <input type="date" id="fromDateEstb" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateEstb" #fromDateEstb><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateEstb">Fecha hasta: </label>
+                                        <input type="date" id="toDateEstb" value="{{toDate}}" [max]="toDate" name="toDateEstb"
+                                            #toDateEstb>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioA>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinA>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                  <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -377,7 +453,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>ESTABLECIMIENTO</h3>
+                    <h3>EVALUACIÓN POR AGENCIA</h3>
                     <hr>
                     <div class="table-responsive" id="contentEstb" #contentEstb #tableEstb>
                         <table class="table table-striped">
@@ -421,12 +497,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateDesdeEvalGr">Fecha desde:</label>
-                                <input type="date" id="fromDateDesdeEvalGr" value="{{fromDate}}" [max]="toDate"
-                                    name="fromDateDesdeEvalGr" #fromDateDesdeEvalGr><br><br>
-                                <label for="toDateHastaEvalGr">Fecha hasta: </label>
-                                <input type="date" id="toDateHastaEvalGr" value="{{toDate}}" [max]="toDate"
-                                    name="toDateHastaEvalGr" #toDateHastaEvalGr>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateDesdeEvalGr">Fecha desde:</label>
+                                        <input type="date" id="fromDateDesdeEvalGr" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateDesdeEvalGr" #fromDateDesdeEvalGr><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateHastaEvalGr">Fecha hasta: </label>
+                                        <input type="date" id="toDateHastaEvalGr" value="{{toDate}}" [max]="toDate"
+                                            name="toDateHastaEvalGr" #toDateHastaEvalGr>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioAG>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinAG>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -455,7 +549,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>EVALUACIÓN POR GRUPOS</h3>
+                    <h3>EVALUACIÓN AGRUPADA POR CALIFICACIÓN</h3>
                     <hr>
                     <div class="table-responsive" id="contentEvalGr" #contentEvalGr #tableEvalGr>
                         <table class="table table-striped">
@@ -496,13 +590,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateDesdeEvalGra">Fecha desde:</label>
-                                <input type="date" id="fromDateDesdeEvalGra" value="{{fromDate}}" [max]="toDate"
-                                    name="fromDateDesdeEvalGra" #fromDateDesdeEvalGra><br><br>
-
-                                <label for="toDateHastaEvalGra">Fecha hasta: </label>
-                                <input type="date" id="toDateHastaEvalGra" value="{{toDate}}" [max]="toDate"
-                                    name="toDateHastaEvalGra" #toDateHastaEvalGra>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateDesdeEvalGra">Fecha desde:</label>
+                                        <input type="date" id="fromDateDesdeEvalGra" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateDesdeEvalGra" #fromDateDesdeEvalGra><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateHastaEvalGra">Fecha hasta: </label>
+                                        <input type="date" id="toDateHastaEvalGra" value="{{toDate}}" [max]="toDate"
+                                            name="toDateHastaEvalGra" #toDateHastaEvalGra>
+                                    </div>
+                                </div>  
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioG>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinG>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -532,7 +643,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>EVALUACIONES</h3>
+                    <h3>EVALUACIÓN</h3>
                     <hr>
                     <div class="container" id="contentGra" #contentGra #tableGra>
                         <div class="table-responsive">
@@ -568,7 +679,7 @@
                         </div>
                         <br>
                         <div id="canvasCont" *ngIf="!malRequestGra">
-                            <h3>GRÁFICO EVALUACIONES</h3><br>
+                            <h3>GRÁFICO EVALUACIÓN</h3><br>
                             <canvas id="canvas">{{chart}}</canvas>
                         </div>
                     </div>

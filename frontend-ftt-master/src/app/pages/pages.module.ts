@@ -14,6 +14,9 @@ import { AtendidosmultiplesComponent } from './atendidosmultiples/atendidosmulti
 import { SharedModule } from '../shared/shared.module';
 import { AppRoutingModule } from '../app-routing.module';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -54,7 +57,10 @@ import { ConfiguracionComponent } from './configuracion/configuracion.component'
     NgxPaginationModule,
     NgSelectModule,
     FormsModule,
-    MatSelectModule
+    MatSelectModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
   ]
 })
 export class PagesModule { }

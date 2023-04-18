@@ -12,8 +12,12 @@
                         aria-controls="promatencion" aria-selected="false">PROMEDIOS DE ATENCIÓN</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="tiempoatencion-tab" data-toggle="tab" href="#tiempoatencion" role="tab"
+                        aria-controls="tiempoatencion" aria-selected="false">TIEMPO DE ATENCIÓN POR TURNOS</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="maxaten-tab" data-toggle="tab" href="#maxaten" role="tab"
-                        aria-controls="maxaten" aria-selected="false">MÁXIMOS DE ATENCIÓN</a>
+                        aria-controls="maxaten" aria-selected="false">TIEMPO MÁXIMO DE ATENCIÓN</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="atenservicio-tab" data-toggle="tab" href="#atenservicio" role="tab"
@@ -32,13 +36,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtTC">Fecha desde:</label>
-                                <input type="date" id="fromDateAtTC" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtTC><br><br>
-
-                                <label for="toDateAtTC">Fecha hasta: </label>
-                                <input type="date" id="toDateAtTC" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtTC>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtTC">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtTC" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtTC><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtTC">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtTC" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtTC>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioTC>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTC>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -112,13 +133,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtPA">Fecha desde:</label>
-                                <input type="date" id="fromDateAtPA" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtPA><br><br>
-
-                                <label for="toDateAtPA">Fecha hasta: </label>
-                                <input type="date" id="toDateAtPA" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtPA>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtPA">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtPA" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtPA><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtPA">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtPA" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtPA>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioPA>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinPA>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -181,18 +219,128 @@
                     <button type="button" class="btn btn-info" (click)="generarPdfPromAtencion('hola', 1)">PDF</button>
                 </div>
 
+                <div class="tab-pane fade" id="tiempoatencion" role="tabpanel" aria-labelledby="tiempoatencion-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtTA">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtTA" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtTA><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtTA">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtTA" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtTA>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioTA>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTA>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesTA')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
+                                    (click)="selectAll('sucursalesSeleccionadasS')" [disabled]="todasSucursalesTA">
+                                        {{sucursal.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems" placeholder="Servicios">
+                                    <mat-option *ngIf="mostrarServicios" [value]="-1"  (click)="selectAll('allSelected')" >
+                                        Todos los servicios
+                                    </mat-option>
+                                    <mat-option *ngFor="let serviciosAtPA of serviciosAtPA" [value]="serviciosAtPA.serv_codigo" [disabled]="allSelected">
+                                        {{serviciosAtPA.serv_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerTiempoAtencion()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h3>TIEMPO DE ATENCIÓN POR TURNOS</h3>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="contentTA" #contentTA #tableTA>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesTA || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center">Turno</th>
+                                    <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Tiempo de espera </th>
+                                    <th scope="col" class="text-center">Tiempo de atención</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestAtTA">
+                                <tr *ngFor="let serviciota of serviciota | paginate:configTA">
+                                    <td *ngIf="todasSucursalesTA || seleccionMultiple">{{serviciota.nombreEmpresa}}</td>
+                                    <td>{{serviciota.turno}}</td>
+                                    <td>{{serviciota.SERV_NOMBRE}}</td>
+                                    <td>{{serviciota.TURN_FECHA}}</td>
+                                    <td>{{serviciota.espera}}</td>
+                                    <td>{{serviciota.atencion}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestAtTAPag" id="Atencionta"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            (pageChange)="pageChangedTA($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-info mx-2"
+                        (click)="exportarAExcelTiempoAtencion()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfTiempoAtencion('hola', 1)">PDF</button>
+                </div>
+
                 <div class="tab-pane fade" id="maxaten" role="tabpanel" aria-labelledby="maxaten-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtMA">Fecha desde:</label>
-                                <input type="date" id="fromDateAtMA" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtMA><br><br>
-
-                                <label for="toDateAtMA">Fecha hasta: </label>
-                                <input type="date" id="toDateAtMA" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtMA>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtMA">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtMA" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtMA><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtMA">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtMA" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtMA>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioTM>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTM>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -221,14 +369,13 @@
                         </div>
                     </div>
                     <br>
-                    <h3>MÁXIMOS ATENCIÓN</h3>
+                    <h3>TIEMPO MÁXIMO ATENCIÓN</h3>
                     <hr>
                     <div class="table-responsive" id="contentMaxAt" #contentMaxAt #tableMaxAt>
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesMA || seleccionMultiple">Sucursal</th>
-                                    <th scope="col" class="text-center">Cod.</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">T. Máximo de Atención</th>
@@ -237,7 +384,6 @@
                             <tbody *ngIf="!malRequestAtMA">
                                 <tr *ngFor="let serviciomax of serviciomax | paginate:configMA">
                                     <td *ngIf="todasSucursalesMA || seleccionMultiple">{{serviciomax.nombreEmpresa}}</td>
-                                    <td>{{serviciomax.SERV_CODIGO}}</td>
                                     <td>{{serviciomax.SERV_NOMBRE}}</td>
                                     <td>{{serviciomax.Fecha}}</td>
                                     <td>{{serviciomax.Maximo}}</td>
@@ -259,13 +405,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtAS">Fecha desde:</label>
-                                <input type="date" id="fromDateAtAS" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtAS><br><br>
-
-                                <label for="toDateAtAS">Fecha hasta: </label>
-                                <input type="date" id="toDateAtAS" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtAS>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtAS">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtAS" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtAS><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtAS">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtAS" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtAS>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioAS>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinAS>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -334,12 +497,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtG">Fecha desde:</label>
-                                <input type="date" id="fromDateAtG" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtG><br><br>
-                                <label for="toDateAtG">Fecha hasta: </label>
-                                <input type="date" id="toDateAtG" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtG>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtG">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtG" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtG><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtG">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtG" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtG>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioGS>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinGS>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
