@@ -29,6 +29,10 @@ export class AtendidosmultiplesComponent implements OnInit {
   @ViewChild('toDateAtM') toDateAtM: ElementRef;
   @ViewChild('codSucursalAtM') codSucursalAtM: ElementRef;
 
+  @ViewChild("horaInicioA") horaInicioA: ElementRef;
+  @ViewChild("horaFinA") horaFinA: ElementRef;
+
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioAtMul: any=[];
   sucursales: any[];
@@ -69,6 +73,8 @@ export class AtendidosmultiplesComponent implements OnInit {
   sucursalesSeleccionadas: string[] = [];
   seleccionMultiple: boolean = false;
 
+  horas: number[] = [];
+
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router, public datePipe: DatePipe,
@@ -82,6 +88,10 @@ export class AtendidosmultiplesComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioAtMul.length
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
   }
   //Eventos para avanzar o retroceder en la paginacion
   pageChangedAtM(event) {
@@ -150,10 +160,12 @@ export class AtendidosmultiplesComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioA.nativeElement.value;
+    let horaFin = this.horaFinA.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getatendidosmultiples(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
+      this.serviceService.getatendidosmultiples(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioAtMul = servicio.turnos;
         this.malRequestAtM = false;

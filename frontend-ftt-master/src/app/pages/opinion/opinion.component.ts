@@ -35,6 +35,12 @@ export class OpinionComponent implements OnInit {
   @ViewChild('codSucursalAtM') codSucursalAtM: ElementRef;
   @ViewChild('codSucursalOcupG') codSucursalOcupG: ElementRef;
 
+  @ViewChild("horaInicioI") horaInicioI: ElementRef;
+  @ViewChild("horaFinI") horaFinI: ElementRef;
+  @ViewChild("horaInicioG") horaInicioG: ElementRef;
+  @ViewChild("horaFinG") horaFinG: ElementRef;
+  
+
   //Variables de la grafica
   chartPie: any;
   chartBar: any;
@@ -99,6 +105,8 @@ export class OpinionComponent implements OnInit {
    //Orientacion
   orientacion: string;
 
+  horas: number[] = [];
+
   constructor(
     private serviceService: ServiceService,
     private auth: AuthenticationService,
@@ -114,6 +122,10 @@ export class OpinionComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioOpinion.length,
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
   }
 
   //Eventos para avanzar o retroceder en la paginacion
@@ -206,10 +218,11 @@ export class OpinionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtM.nativeElement.value.toString();
+    let horaInicio = this.horaInicioI.nativeElement.value;
+    let horaFin = this.horaFinI.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getopiniones(fD, fH, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
+      this.serviceService.getopiniones(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioOpinion = servicio.turnos;
@@ -254,11 +267,14 @@ export class OpinionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalOcupG.nativeElement.value.toString();
+    
+    let horaInicio = this.horaInicioG.nativeElement.value;
+    let horaFin = this.horaFinG.nativeElement.value;
+
     this.malRequestAtM = false;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getgraficoopinion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicioocg: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioocg = servicioocg.turnos;
@@ -297,7 +313,7 @@ export class OpinionComponent implements OnInit {
         }
       );
   
-      this.serviceService.getgraficoopinion(fD, fH, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getgraficoopinion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           //Se verifica el ancho de pantalla para colocar o no labels

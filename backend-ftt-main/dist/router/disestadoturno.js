@@ -9,20 +9,26 @@ const router = (0, express_1.Router)();
 /** ************************************************************************************************************* **
  ** **                                    DISTRIBUCION Y ESTADO DE TURNOS                                      ** **
  ** ************************************************************************************************************* **/
-router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales', (req, res) => {
+router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     let todosCajeros = false;
     let todasSucursales = false;
+    let diaCompleto = false;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
+    }
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
+        diaCompleto = true;
     }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS Usuario, COUNT(t.turn_codigo) AS turnos,
@@ -40,8 +46,9 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales',
             AND u.usua_codigo != 2
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         GROUP BY t.serv_codigo, t.turn_fecha
-        ORDER BY t.turn_fecha;
+        ORDER BY t.turn_fecha DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -61,20 +68,26 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales',
 /** ***************************************************************************************************************** **
  ** **                                    DISTRIBUCION Y ESTADO DE TURNOS RESUMEN                                  ** **
  ** ***************************************************************************************************************** **/
-router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales', (req, res) => {
+router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     let todosCajeros = false;
     let todasSucursales = false;
+    let diaCompleto = false;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
+    }
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
+        diaCompleto = true;
     }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS Usuario, COUNT(t.turn_codigo) AS turnos,
@@ -92,8 +105,9 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:listaCodigos/:sucur
             AND u.usua_codigo != 2
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         GROUP BY t.serv_codigo, t.turn_fecha
-        ORDER BY t.turn_fecha;
+        ORDER BY t.turn_fecha DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

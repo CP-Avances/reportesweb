@@ -14,11 +14,29 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtM">Fecha desde:</label>
-                                <input type="date" id="fromDateAtM" value="{{fromDate}}" [max]="toDate" name="fromDateAtM" #fromDateAtM>
-                                <br><br>
-                                <label for="toDateAtM">Fecha hasta: </label>
-                                <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtM">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtM" value="{{fromDate}}" [max]="toDate" name="fromDateAtM" #fromDateAtM>
+                                        <br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtM">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioA>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinA>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">

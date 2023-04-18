@@ -61,7 +61,6 @@ export class ConfiguracionComponent {
   }
 
   guardarMeta() {
-    console.log(`valor : ${this.valor}`);
     this.serviceService.setMeta(this.valor).subscribe(
       (res) => {
         // SE INFORMA QUE SE PUDO GUARDO LA IMAGEN
@@ -85,7 +84,6 @@ export class ConfiguracionComponent {
   getMeta() {
     this.serviceService.getMeta().subscribe((valor: any) => {
       this.valor = valor.valor;
-      console.log(valor);
     });
   }
 }

@@ -61,6 +61,17 @@ table {
     font-size: 14px;
 }
 
+.contenedor-horas, .contenedor-fechas {
+    display: flex;
+    flex-direction: row;
+  }
+
+.contenedor-fechas{
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+  
+
 ::ng-deep .card.mat-option.mat-selected .mat-pseudo-checkbox {
     background-color: #398bf7 !important;
   }

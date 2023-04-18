@@ -64,6 +64,20 @@ export class EvaluacionComponent implements OnInit {
   @ViewChild('codSucursalEst') codSucursalEst: ElementRef;
   @ViewChild('codSucursal') codSucursal: ElementRef;
 
+  @ViewChild("horaInicioS") horaInicioS: ElementRef;
+  @ViewChild("horaFinS") horaFinS: ElementRef;
+  @ViewChild("horaInicioC") horaInicioC: ElementRef;
+  @ViewChild("horaFinC") horaFinC: ElementRef;
+  @ViewChild("horaInicioA") horaInicioA: ElementRef;
+  @ViewChild("horaFinA") horaFinA: ElementRef;
+  @ViewChild("horaInicioAG") horaInicioAG: ElementRef;
+  @ViewChild("horaFinAG") horaFinAG: ElementRef;
+  @ViewChild("horaInicioO") horaInicioO: ElementRef;
+  @ViewChild("horaFinO") horaFinO: ElementRef;
+  @ViewChild("horaInicioG") horaInicioG: ElementRef;
+  @ViewChild("horaFinG") horaFinG: ElementRef;
+
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioServs: any = [];
   servicioServsMaxMin: any = [];
@@ -156,6 +170,9 @@ export class EvaluacionComponent implements OnInit {
   //Orientacion
   orientacion: string;
 
+  horas: number[] = [];
+
+
   constructor(
     private serviceService: ServiceService,
     private auth: AuthenticationService,
@@ -215,6 +232,10 @@ export class EvaluacionComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioEstb.length,
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
   }
   //Eventos para avanzar o retroceder en la paginacion
   pageChangedS(event) {
@@ -249,10 +270,6 @@ export class EvaluacionComponent implements OnInit {
      this.getOpcionesEvaluacion();
     //Cargamos componentes selects HTML
     this.getlastday();
-    // this.getServicios("-1");
-    // this.getCajeros("-1");
-    // this.getCajerosG("-1");
-    // this.getCajerosOmitidas("-1");
     this.getSucursales();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem("loggedUser");
@@ -400,11 +417,6 @@ export class EvaluacionComponent implements OnInit {
   }
 
   limpiar() {
-    // this.getCajeros("-1");
-    // this.getCajerosG("-1");
-    // this.getCajerosOmitidas("-1");
-    // this.getSucursales();
-    // this.getServicios("-1");
     this.cajerosEval=[];
     this.selectedItems = [];
     this.serviciosServs = [];
@@ -452,13 +464,14 @@ export class EvaluacionComponent implements OnInit {
       .toString()
       .trim();
     var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
-    // var serv = this.codServicioServs.nativeElement.value.toString().trim();
-    // let codSucursal = this.codSucursalServicio.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioS.nativeElement.value;
+    let horaFin = this.horaFinS.nativeElement.value;
 
     if (this.selectedItems.length!==0) {
       //Servicios
       this.serviceService
-        .getprmediosservicios(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
+        .getprmediosservicios(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -499,7 +512,7 @@ export class EvaluacionComponent implements OnInit {
 
       //Max Mins
       this.serviceService
-        .getmaxminservicios(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
+        .getmaxminservicios(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -552,11 +565,13 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalEmpl.nativeElement.value
       .toString()
       .trim();
-    // let codSucursal = this.codSucursalEvalEmpl.nativeElement.value.toString().trim();
+
+    let horaInicio = this.horaInicioC.nativeElement.value;
+    let horaFin = this.horaFinC.nativeElement.value;
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getprmediosempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas ,this.opcionCuatro.toString())
+        .getprmediosempleado(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas ,this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -596,7 +611,7 @@ export class EvaluacionComponent implements OnInit {
         );
 
       this.serviceService
-        .getmaxminempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
+        .getmaxminempleado(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicioEvalMMEmpl: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -638,6 +653,7 @@ export class EvaluacionComponent implements OnInit {
       this.malRequestEPag = true;
     }
   }
+
   buscarEvalOmitidas() {
     //captura de fechas para proceder con la busqueda
     var fechaDesde = this.fromDateDesdeEvalOmitidas.nativeElement.value
@@ -646,11 +662,13 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
       .toString()
       .trim();
-    // let codSucursal = this.codSucursalEvalOmitidas.nativeElement.value.toString().trim();
+
+    let horaInicio = this.horaInicioO.nativeElement.value;
+    let horaFin = this.horaFinO.nativeElement.value;
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getevalomitidasempleado(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .getevalomitidasempleado(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicioEvalOmitidas: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -706,11 +724,13 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
       .toString()
       .trim();
-    // let codSucursal = this.codSucursalEvalGr.nativeElement.value.toString().trim();
+    
+      let horaInicio = this.horaInicioAG.nativeElement.value;
+      let horaFin = this.horaFinAG.nativeElement.value;
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getevalgrupo(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
+        .getevalgrupo(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicioG: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -761,9 +781,12 @@ export class EvaluacionComponent implements OnInit {
     var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
 
+    let horaInicio = this.horaInicioA.nativeElement.value;
+    let horaFin = this.horaFinA.nativeElement.value;
+
     // var cod = this.codSucursalEst.nativeElement.value.toString().trim();
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getestablecimiento(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.opcionCuatro.toString()).subscribe(
+      this.serviceService.getestablecimiento(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.opcionCuatro.toString()).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioEstb = servicio.turnos;
@@ -811,13 +834,16 @@ export class EvaluacionComponent implements OnInit {
     var fechaHasta = this.toDateHastaEvalGra.nativeElement.value
       .toString()
       .trim();
-    // let codSucursal = this.codSucursal.nativeElement.value.toString().trim();
+    
+      let horaInicio = this.horaInicioG.nativeElement.value;
+      let horaFin = this.horaFinG.nativeElement.value;
+
     this.malRequestGra = false;
 
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getgraficobarrasfiltro(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
+        .getgraficobarrasfiltro(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
         .subscribe(
           (servicioGra: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas

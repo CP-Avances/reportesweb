@@ -7,9 +7,11 @@ const router = Router();
  ** **                                    DISTRIBUCION Y ESTADO DE TURNOS                                      ** **
  ** ************************************************************************************************************* **/
 
-router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales', (req: Request, res: Response) => {
+router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
     const listaSucursales = req.params.sucursales;
@@ -17,6 +19,7 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales',
 
     let todosCajeros = false;
     let todasSucursales = false;
+    let diaCompleto = false;
     
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -25,6 +28,10 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales',
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
     } 
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+        diaCompleto = true;
+      }
 
     const query =
         `
@@ -43,8 +50,9 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales',
             AND u.usua_codigo != 2
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         GROUP BY t.serv_codigo, t.turn_fecha
-        ORDER BY t.turn_fecha;
+        ORDER BY t.turn_fecha DESC;
         `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
 
@@ -66,9 +74,11 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales',
  ** **                                    DISTRIBUCION Y ESTADO DE TURNOS RESUMEN                                  ** **
  ** ***************************************************************************************************************** **/
 
-router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:listaCodigos/:sucursales', (req: Request, res: Response) => {
+router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaCodigos = req.params.listaCodigos;
     const codigosArray = listaCodigos.split(",");
     const listaSucursales = req.params.sucursales;
@@ -76,6 +86,7 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:listaCodigos/:sucur
 
     let todosCajeros = false;
     let todasSucursales = false;
+    let diaCompleto = false;
     
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -84,6 +95,10 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:listaCodigos/:sucur
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
     } 
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+        diaCompleto = true;
+      }
 
     const query =
         `
@@ -102,8 +117,9 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:listaCodigos/:sucur
             AND u.usua_codigo != 2
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         GROUP BY t.serv_codigo, t.turn_fecha
-        ORDER BY t.turn_fecha;
+        ORDER BY t.turn_fecha DESC;
         `
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
 

@@ -17,10 +17,28 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateDist">Fecha desde:</label>
-                                <input type="date" id="fromDateDist" value="{{fromDate}}" [max]="toDate" name="fromDateDist" #fromDateDist><br><br>
-                                <label for="toDateDist">Fecha hasta: </label>
-                                <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDist" #toDateDist>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateDist">Fecha desde:</label>
+                                        <input type="date" id="fromDateDist" value="{{fromDate}}" [max]="toDate" name="fromDateDist" #fromDateDist><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateDist">Fecha hasta: </label>
+                                        <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDist" #toDateDist>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioD>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinD>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -33,7 +51,7 @@
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Cajeros">
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems" placeholder="Cajeros">
                                     <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
                                         Todos los cajeros
                                     </mat-option>
@@ -94,10 +112,28 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateDistRes">Fecha desde:</label>
-                                <input type="date" id="fromDateDistRes" value="{{fromDate}}" [max]="toDate" name="fromDateDistRes" #fromDateDistRes><br><br>
-                                <label for="toDateDist">Fecha hasta: </label>
-                                <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDistRes" #toDateDistRes>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateDistRes">Fecha desde:</label>
+                                        <input type="date" id="fromDateDistRes" value="{{fromDate}}" [max]="toDate" name="fromDateDistRes" #fromDateDistRes><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateDist">Fecha hasta: </label>
+                                        <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDistRes" #toDateDistRes>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioR>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinR>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -110,7 +146,7 @@
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="selectedItems" placeholder="Cajeros">
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems" placeholder="Cajeros">
                                     <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
                                         Todos los cajeros
                                     </mat-option>

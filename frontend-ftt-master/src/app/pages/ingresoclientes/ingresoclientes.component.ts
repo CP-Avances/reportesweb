@@ -29,6 +29,10 @@ export class IngresoclientesComponent implements OnInit {
   @ViewChild('toDateIng') toDateIng: ElementRef;
   @ViewChild('codSucursalIngreso') codSucursalIngreso: ElementRef;
 
+  @ViewChild("horaInicioI") horaInicioI: ElementRef;
+  @ViewChild("horaFinI") horaFinI: ElementRef;
+
+
   //Servicios-Variables donde se almacenaran las consultas a la BD
   servicioIngrClientes: any = [];
   sucursales: any[];
@@ -69,6 +73,8 @@ export class IngresoclientesComponent implements OnInit {
   sucursalesSeleccionadas: string[] = [];
   seleccionMultiple: boolean = false;
 
+  horas: number[] = [];
+
   constructor(private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router, public datePipe: DatePipe,
@@ -82,6 +88,10 @@ export class IngresoclientesComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioIngrClientes.length
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
   }
   //Eventos para avanzar o retroceder en la paginacion
   pageChangedTE(event) {
@@ -151,10 +161,12 @@ export class IngresoclientesComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateIng.nativeElement.value.toString().trim();
     var fH = this.toDateIng.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalIngreso.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioI.nativeElement.value;
+    let horaFin = this.horaFinI.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getingresoclientes(fD, fH, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
+      this.serviceService.getingresoclientes(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe((servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         this.servicioIngrClientes = servicio.turnos;
         this.malRequestIng = false;

@@ -9,14 +9,20 @@ const router = (0, express_1.Router)();
 /** ************************************************************************************************************* **
  ** **                                        ATENDIDOS MULTIPLES                                              ** **
  ** ************************************************************************************************************* **/
-router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:sucursales', (req, res) => {
+router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales', (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
+    let diaCompleto = false;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
+    }
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
+        diaCompleto = true;
     }
     const query = `
             SELECT em.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario, count(eval_codigo) AS Atendidos
@@ -27,6 +33,7 @@ router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:sucursales', (req, res)
                 AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
                 AND u.usua_codigo != 2
                 ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+                ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
             GROUP BY usua_nombre, nombreEmpresa;
             `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

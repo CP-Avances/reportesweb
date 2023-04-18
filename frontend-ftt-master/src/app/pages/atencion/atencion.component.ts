@@ -43,16 +43,19 @@ export class AtencionComponent implements OnInit {
   @ViewChild("fromDateAtG") fromDateAtG: ElementRef;
   @ViewChild("toDateAtG") toDateAtG: ElementRef;
 
-  // @ViewChild("codCajeroAtTC") codCajeroAtTC: ElementRef;
-  // @ViewChild("codServicioAtPA") codServicioAtPA: ElementRef;
-  // @ViewChild("codServicioAtMA") codServicioAtMA: ElementRef;
-  // @ViewChild("codCajeroAtAS") codCajeroAtAS: ElementRef;
+  @ViewChild("horaInicioTC") horaInicioTC: ElementRef;
+  @ViewChild("horaFinTC") horaFinTC: ElementRef;
+  @ViewChild("horaInicioPA") horaInicioPA: ElementRef;
+  @ViewChild("horaFinPA") horaFinPA: ElementRef;
+  @ViewChild("horaInicioTA") horaInicioTA: ElementRef;
+  @ViewChild("horaFinTA") horaFinTA: ElementRef;
+  @ViewChild("horaInicioTM") horaInicioTM: ElementRef;
+  @ViewChild("horaFinTM") horaFinTM: ElementRef;
+  @ViewChild("horaInicioAS") horaInicioAS: ElementRef;
+  @ViewChild("horaFinAS") horaFinAS: ElementRef;
+  @ViewChild("horaInicioGS") horaInicioGS: ElementRef;
+  @ViewChild("horaFinGS") horaFinGS: ElementRef;
 
-  // @ViewChild("codSucursalAtGs") codSucursalAtGs: ElementRef;
-  // @ViewChild("codSucursalAtTC") codSucursalAtTC: ElementRef;
-  // @ViewChild("codSucursalAtPA") codSucursalAtPA: ElementRef;
-  // @ViewChild("codSucursalAtMA") codSucursalAtMA: ElementRef;
-  // @ViewChild("codSucursalAtAS") codSucursalAtAS: ElementRef;
 
   // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   servicioTiempoComp: any = [];
@@ -139,6 +142,8 @@ export class AtencionComponent implements OnInit {
   // ORIENTACION
   orientacion: string;
 
+  horas: number[] = [];
+
   constructor(
     private serviceService: ServiceService,
     private router: Router,
@@ -185,6 +190,10 @@ export class AtencionComponent implements OnInit {
       currentPage: 1,
       totalItems: this.serviciograf.length,
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
   }
 
   // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
@@ -318,9 +327,6 @@ export class AtencionComponent implements OnInit {
   }
 
   limpiar() {
-    // this.getCajeros("-1");
-    // this.getSucursales();
-    // this.getServicios("-1");
     this.serviciosAtPA=[]
     this.selectedItems = [];
     this.cajerosAtencion=[];
@@ -374,10 +380,13 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTC.nativeElement.value.toString().trim();
-    // let codSucursal = this.codSucursalAtTC.nativeElement.value.toString().trim();
+
+    let horaInicio = this.horaInicioTC.nativeElement.value;
+    let horaFin = this.horaFinTC.nativeElement.value;
+
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .gettiemposcompletos(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .gettiemposcompletos(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -422,12 +431,13 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtPA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtPA.nativeElement.value.toString().trim();
-    // var cod = this.codServicioAtPA.nativeElement.value.toString().trim();
-    // let codSucursal = this.codSucursalAtPA.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioPA.nativeElement.value;
+    let horaFin = this.horaFinPA.nativeElement.value;
 
     if (this.selectedItems.length!==0) {  
       this.serviceService
-        .getpromatencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .getpromatencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (serviciopa: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -471,12 +481,13 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtTA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTA.nativeElement.value.toString().trim();
-    // var cod = this.codServicioAtPA.nativeElement.value.toString().trim();
-    // let codSucursal = this.codSucursalAtPA.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioTA.nativeElement.value;
+    let horaFin = this.horaFinTA.nativeElement.value;
 
     if (this.selectedItems.length!==0) {  
       this.serviceService
-        .gettiempoatencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .gettiempoatencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (serviciota: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -521,12 +532,13 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
-    // var cod = this.codServicioAtMA.nativeElement.value.toString().trim();
-    // let codSucursal = this.codSucursalAtMA.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioTM.nativeElement.value;
+    let horaFin = this.horaFinTM.nativeElement.value;
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getmaxatencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .getmaxatencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (serviciomax: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -571,11 +583,13 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
-    // let codSucursal = this.codSucursalAtAS.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioAS.nativeElement.value;
+    let horaFin = this.horaFinAS.nativeElement.value;
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getatencionservicio(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .getatencionservicio(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicioatser: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -620,11 +634,14 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioGS.nativeElement.value;
+    let horaFin = this.horaFinGS.nativeElement.value;
+
     this.malRequestAtG = false;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (serviciograf: any) => {
           // VERIFICACION DE ANCHO DE PANTALLA PARA MOSTRAR O NO LABELS
           this.legend = screen.width < 575 ? false : true;

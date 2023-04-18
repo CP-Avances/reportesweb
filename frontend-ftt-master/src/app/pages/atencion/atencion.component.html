@@ -36,13 +36,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtTC">Fecha desde:</label>
-                                <input type="date" id="fromDateAtTC" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtTC><br><br>
-
-                                <label for="toDateAtTC">Fecha hasta: </label>
-                                <input type="date" id="toDateAtTC" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtTC>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtTC">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtTC" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtTC><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtTC">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtTC" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtTC>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioTC>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTC>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -116,13 +133,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtPA">Fecha desde:</label>
-                                <input type="date" id="fromDateAtPA" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtPA><br><br>
-
-                                <label for="toDateAtPA">Fecha hasta: </label>
-                                <input type="date" id="toDateAtPA" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtPA>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtPA">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtPA" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtPA><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtPA">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtPA" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtPA>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioPA>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinPA>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -190,13 +224,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtTA">Fecha desde:</label>
-                                <input type="date" id="fromDateAtTA" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtTA><br><br>
-
-                                <label for="toDateAtTA">Fecha hasta: </label>
-                                <input type="date" id="toDateAtTA" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtTA>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtTA">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtTA" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtTA><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtTA">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtTA" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtTA>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioTA>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTA>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -266,13 +317,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtMA">Fecha desde:</label>
-                                <input type="date" id="fromDateAtMA" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtMA><br><br>
-
-                                <label for="toDateAtMA">Fecha hasta: </label>
-                                <input type="date" id="toDateAtMA" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtMA>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtMA">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtMA" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtMA><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtMA">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtMA" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtMA>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioTM>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTM>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -337,13 +405,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtAS">Fecha desde:</label>
-                                <input type="date" id="fromDateAtAS" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtAS><br><br>
-
-                                <label for="toDateAtAS">Fecha hasta: </label>
-                                <input type="date" id="toDateAtAS" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtAS>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtAS">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtAS" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtAS><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtAS">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtAS" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtAS>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioAS>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinAS>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
@@ -412,12 +497,30 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
-                                <label for="fromDateAtG">Fecha desde:</label>
-                                <input type="date" id="fromDateAtG" value="{{fromDate}}" [max]="toDate" name="fromDate"
-                                    #fromDateAtG><br><br>
-                                <label for="toDateAtG">Fecha hasta: </label>
-                                <input type="date" id="toDateAtG" value="{{toDate}}" [max]="toDate" name="toDate"
-                                    #toDateAtG>
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtG">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtG" value="{{fromDate}}" [max]="toDate" name="fromDate"
+                                            #fromDateAtG><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtG">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtG" value="{{toDate}}" [max]="toDate" name="toDate"
+                                            #toDateAtG>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioGS>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinGS>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">

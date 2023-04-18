@@ -36,6 +36,11 @@ export class OcupacionComponent implements OnInit {
   @ViewChild("codSucursalOCs") codSucursalOCs: ElementRef;
   @ViewChild("codSucursalOCsG") codSucursalOCsG: ElementRef;
 
+  @ViewChild("horaInicioOS") horaInicioOS: ElementRef;
+  @ViewChild("horaFinOS") horaFinOS: ElementRef;
+  @ViewChild("horaInicioOG") horaInicioOG: ElementRef;
+  @ViewChild("horaFinOG") horaFinOG: ElementRef;
+
   //Variables de la grafica
   chartPie: any;
   chartBar: any;
@@ -96,6 +101,8 @@ export class OcupacionComponent implements OnInit {
   turnosTotal: number;
   mostrarTotal: boolean = false;
 
+  horas: number[] = [];
+
   constructor(
     private serviceService: ServiceService,
     private auth: AuthenticationService,
@@ -111,6 +118,11 @@ export class OcupacionComponent implements OnInit {
       currentPage: 1,
       totalItems: this.serviciooc.length,
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
+
   }
   //Eventos para avanzar o retroceder en la paginacion
   pageChangedOS(event) {
@@ -200,10 +212,12 @@ export class OcupacionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupOS.nativeElement.value.toString().trim();
     var fH = this.toDateOcupOS.nativeElement.value.toString().trim();
-    // var cod =  this.codSucursalOCs.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioOS.nativeElement.value;
+    let horaFin = this.horaFinOS.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getocupacionservicios(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (serviciooc: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.serviciooc = serviciooc.turnos;
@@ -259,11 +273,14 @@ export class OcupacionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
-    // var cod =  this.codSucursalOCsG.nativeElement.value.toString().trim();
+   
+    let horaInicio = this.horaInicioOG.nativeElement.value;
+    let horaFin = this.horaFinOG.nativeElement.value;
+
     this.malRequestOcupOS = false;
 
     if (this.sucursalesSeleccionadas.length!==0) {
-      this.serviceService.getocupacionservicios(fD, fH, this.sucursalesSeleccionadas).subscribe(
+      this.serviceService.getocupacionservicios(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicioocg: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioocg = servicioocg.turnos;
@@ -302,7 +319,7 @@ export class OcupacionComponent implements OnInit {
       );
     }
 
-    this.serviceService.getgraficoocupacion(fD, fH, this.sucursalesSeleccionadas).subscribe(
+    this.serviceService.getgraficoocupacion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
       (servicio: any) => {
         //Si se consulta correctamente se guarda en variable y setea banderas de tablas
         //Se verifica el ancho de pantalla para colocar o no labels

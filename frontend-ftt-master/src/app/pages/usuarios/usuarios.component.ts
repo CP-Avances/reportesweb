@@ -49,6 +49,21 @@ export class UsuariosComponent implements OnInit {
   @ViewChild("fromDateUES") fromDateUES: ElementRef;
   @ViewChild("toDateUES") toDateUES: ElementRef;
 
+  @ViewChild("horaInicioTF") horaInicioTF: ElementRef;
+  @ViewChild("horaFinTF") horaFinTF: ElementRef;
+  @ViewChild("horaInicioTTF") horaInicioTTF: ElementRef;
+  @ViewChild("horaFinTTF") horaFinTTF: ElementRef;
+  @ViewChild("horaInicioTM") horaInicioTM: ElementRef;
+  @ViewChild("horaFinTM") horaFinTM: ElementRef;
+  @ViewChild("horaInicioTPA") horaInicioTPA: ElementRef;
+  @ViewChild("horaFinTPA") horaFinTPA: ElementRef;
+  @ViewChild("horaInicioTA") horaInicioTA: ElementRef;
+  @ViewChild("horaFinTA") horaFinTA: ElementRef;
+  @ViewChild("horaInicioAU") horaInicioAU: ElementRef;
+  @ViewChild("horaFinAU") horaFinAU: ElementRef;
+  @ViewChild("horaInicioES") horaInicioES: ElementRef;
+  @ViewChild("horaFinES") horaFinES: ElementRef;
+
   // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   turno: turno[];
   cajero: cajero[];
@@ -129,6 +144,9 @@ export class UsuariosComponent implements OnInit {
 
   valor: number;
 
+  horas: number[] = [];
+
+
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
   constructor(
@@ -189,6 +207,10 @@ export class UsuariosComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioAtencionUsua.length,
     };
+
+    for (let i = 0; i <= 24; i++) {
+      this.horas.push(i);
+    }
   }
 
   // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
@@ -297,7 +319,6 @@ export class UsuariosComponent implements OnInit {
   getMeta() {
     this.serviceService.getMeta().subscribe((valor: any) => {
       this.valor = valor.valor;
-      console.log(valor);
     });
   }
 
@@ -334,8 +355,6 @@ export class UsuariosComponent implements OnInit {
 
   // METODO PARA LLAMAR CONSULTA DE DATOS
   limpiar() {
-    // this.getCajeros("-1");
-    // this.getSucursales();
     this.cajerosUsuarios=[];
     this.mostrarCajeros = false;
     this.selectedItems = [];
@@ -374,11 +393,13 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTurnosFecha.nativeElement.value
       .toString()
       .trim();
-    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+
+    let horaInicio = this.horaInicioTF.nativeElement.value;
+    let horaFin = this.horaFinTF.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
       this.serviceService
-        .getfiltroturnosfechas(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.selectedItems)
+        .getfiltroturnosfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -437,11 +458,13 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTurnosTotalFecha.nativeElement.value
       .toString()
       .trim();
-    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioTTF.nativeElement.value;
+    let horaFin = this.horaFinTTF.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
       this.serviceService
-        .getturnostotalfechas(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.selectedItems)
+        .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -500,11 +523,13 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTurnosMeta.nativeElement.value
       .toString()
       .trim();
-    // var cod = this.codSucursal.nativeElement.value.toString().trim();
+
+    let horaInicio = this.horaInicioTM.nativeElement.value;
+    let horaFin = this.horaFinTM.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
       this.serviceService
-        .getturnosMeta(fechaDesde, fechaHasta, this.sucursalesSeleccionadas, this.selectedItems)
+        .getturnosMeta(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -563,10 +588,13 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDatePromAtencion.nativeElement.value
       .toString()
       .trim();
+    
+    let horaInicio = this.horaInicioTPA.nativeElement.value;
+    let horaFin = this.horaFinTPA.nativeElement.value;
   
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getturnosF(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -637,10 +665,13 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTiempoAtencion.nativeElement.value
       .toString()
       .trim();
+
+    let horaInicio = this.horaInicioTA.nativeElement.value;
+    let horaFin = this.horaFinTA.nativeElement.value;
   
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getturnosAtencion(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .getturnosAtencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -707,13 +738,13 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateAtencionUsua.nativeElement.value
       .toString()
       .trim();
-    // let codSucursal = this.codSucursalAtencionUsua.nativeElement.value
-    //   .toString()
-    //   .trim();
+
+    let horaInicio = this.horaInicioAU.nativeElement.value;
+    let horaFin = this.horaFinAU.nativeElement.value;
 
     if (this.selectedItems.length!==0) {
       this.serviceService
-        .getatencionusuarios(fechaDesde, fechaHasta, this.selectedItems, this.sucursalesSeleccionadas)
+        .getatencionusuarios(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -775,11 +806,12 @@ export class UsuariosComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     let fechaDesde = this.fromDateUES.nativeElement.value.toString().trim();
     let fechaHasta = this.toDateUES.nativeElement.value.toString().trim();
-    // let cod = this.codSucursalEntradas.nativeElement.value.toString().trim();
+    let horaInicio = this.horaInicioES.nativeElement.value;
+    let horaFin = this.horaFinES.nativeElement.value;
 
     if (this.sucursalesSeleccionadas.length!==0) {
       this.serviceService
-        .getentradassalidasistema(fechaDesde, fechaHasta, this.sucursalesSeleccionadas)
+        .getentradassalidasistema(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas)
         .subscribe(
           (servicio: any) => {
             //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -1185,6 +1217,23 @@ export class UsuariosComponent implements OnInit {
     );
   }
 
+  validarHoras(hInicio, hFin){
+    let diaCompleto:boolean = false;
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
+    }
+
+    if (diaCompleto) {
+      return {};
+    } else {
+      return {
+        style: "subtitulos",
+        text: "Hora desde " + hInicio + " hasta " + hFin,
+      };
+    }
+  }
+
   //----GENERACION DE PDF'S----
   generarPdfTurnosFecha(action = "open", pdf: number) {
     //Seteo de rango de fechas de la consulta para impresión en PDF
@@ -1195,6 +1244,9 @@ export class UsuariosComponent implements OnInit {
       .toString()
       .trim();
 
+    let horaInicio = this.horaInicioTF.nativeElement.value;
+    let horaFin = this.horaFinTF.nativeElement.value;
+
     // var cod = this.codSucursal.nativeElement.value.toString().trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
@@ -1203,6 +1255,8 @@ export class UsuariosComponent implements OnInit {
       documentDefinition = this.getDocumentturnosfecha(
         fechaDesde,
         fechaHasta,
+        horaInicio,
+        horaFin,
       );
     }
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
@@ -1224,7 +1278,7 @@ export class UsuariosComponent implements OnInit {
   }
 
   //Funcion delegada para seteo de información
-  getDocumentturnosfecha(fechaDesde, fechaHasta) {
+  getDocumentturnosfecha(fechaDesde, fechaHasta, horaInicio, horaFin) {
     //Se obtiene la fecha actual
     let f = new Date();
     f.setUTCHours(f.getHours());

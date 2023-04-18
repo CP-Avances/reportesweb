@@ -7,17 +7,24 @@ const router = Router();
  ** **                                      INGRESO DE CLIENTES                                               ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:sucursales', (req: Request, res: Response) => {
+router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales', (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
 
     let todasSucursales = false;
+    let diaCompleto = false;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
     }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+        diaCompleto = true;
+      }
 
     const query = `
             SELECT e.empr_nombre AS nombreEmpresa, date_format(turn_fecha, '%Y-%m-%d') AS Fecha, 
@@ -32,7 +39,9 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:sucursales', (req: Request
                 AND turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
                 AND turno.caje_codigo != 0
                 ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
-            GROUP BY turn_fecha, nombreEmpresa;
+                ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            GROUP BY turn_fecha, nombreEmpresa
+            ORDER BY turno.turn_fecha DESC;
             `;
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {

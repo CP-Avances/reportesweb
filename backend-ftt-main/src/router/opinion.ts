@@ -8,10 +8,12 @@ const router = Router();
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/opinion/:fechaDesde/:fechaHasta/:sucursales/:tipos",
+  "/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     const listaTipos = req.params.tipos;
@@ -19,6 +21,7 @@ router.get(
 
     let todasSucursales = false;
     let todasTipos = false;
+    let diaCompleto = false;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
@@ -26,6 +29,10 @@ router.get(
 
     if (tiposArray.includes("-1")) {
       todasTipos = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
     }
 
     const query =
@@ -45,6 +52,7 @@ router.get(
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         ORDER BY quejas.emi_fecha DESC, quejas.emi_hora DESC, quejas.emi_minuto DESC, quejas.emi_codigo DESC;
         `;
 
@@ -70,17 +78,24 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/graficoopinion/:fechaDesde/:fechaHasta/:sucursales",
+  "/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales",
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
 
     let todasSucursales = false;
+    let diaCompleto = false;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
     }
 
     const query =
@@ -95,9 +110,10 @@ router.get(
         INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         GROUP BY emi_tipo, empresa.empr_nombre;
         `;
-    console.log(query);
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
