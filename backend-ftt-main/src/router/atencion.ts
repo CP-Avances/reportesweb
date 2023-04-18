@@ -305,7 +305,7 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
         `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio,
             SUM(turn_estado = 1) AS Atendidos,
-            SUM(turn_estado = -1 OR turn_estado = 2) AS NoAtendidos,
+            SUM(turn_estado != 1 AND turn_estado != 0) AS NoAtendidos,
             SUM(turn_estado != 0) AS total
         FROM usuarios u, turno t, cajero c, servicio s, empresa e
         WHERE u.usua_codigo = c.usua_codigo
@@ -363,7 +363,7 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
         `
         SELECT e.empr_nombre AS nombreEmpresa, serv_nombre AS Servicio,
             SUM(turn_estado = 1) AS Atendidos,
-            SUM(turn_estado = 2 OR turn_estado = -1) AS No_Atendidos,
+            SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos,
             SUM(turn_estado != 0) AS Total
         FROM turno t, servicio s, usuarios u, cajero c, empresa e
         WHERE t.serv_codigo = s.serv_codigo

@@ -11,8 +11,8 @@ router.get("/turnosfecha", (req: Request, res: Response) => {
   const query = `
         SELECT usua_nombre as Usuario, serv_nombre as Servicio,
             date_format(turn_fecha, "%Y-%m-%d") as Fecha, SUM(turn_estado = 1) AS Atendidos,
-            SUM( turn_estado = 2 OR turn_estado = -1 ) AS No_Atendidos,
-            COUNT( turn_estado ) AS Total
+            SUM( turn_estado != 1 AND turn_estado != 0) AS No_Atendidos,
+            SUM(turn_estado != 0) AS Total 
         FROM turno t, servicio s, usuarios u, cajero c
         WHERE t.serv_codigo = s.serv_codigo 
             AND t.caje_codigo = c.caje_codigo 
@@ -388,7 +388,7 @@ router.get(
     const query = `
     SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio, 
         SUM(turn_estado = 1) AS Atendidos,
-        SUM(turn_estado = 2 OR turn_estado = -1) AS No_Atendidos, 
+        SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
         SUM(turn_estado != 0) AS Total 
     FROM usuarios u, turno t, cajero c, servicio s, empresa e 
     WHERE u.usua_codigo = c.usua_codigo 
@@ -428,8 +428,8 @@ router.get("/turnosfecha/:fecha", (req: Request, res: Response) => {
   const query = `
         SELECT usua_nombre AS Usuario, serv_nombre AS Servicio, turn_fecha AS Fecha, 
             SUM(turn_estado = 1) AS Atendidos, 
-            SUM(turn_estado = 2 OR turn_estado = -1) AS No_Atendidos, 
-            COUNT(turn_estado) AS Total 
+            SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
+            SUM(turn_estado != 0) AS Total  
         FROM turno t, servicio s, usuarios u, cajero c 
         WHERE t.serv_codigo = s.serv_codigo 
             AND t.caje_codigo = c.caje_codigo 
@@ -486,7 +486,7 @@ router.get(
            s.serv_nombre AS Servicio, 
            DATE_FORMAT(turn_fecha, '%Y-%m-%d') AS Fecha, 
            SUM(turn_estado = 1) AS Atendidos, 
-           SUM(turn_estado = 2 OR turn_estado = -1) AS No_Atendidos, 
+           SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
            SUM(turn_estado != 0) AS Total 
     FROM turno t 
     JOIN servicio s ON t.serv_codigo = s.serv_codigo 
@@ -552,7 +552,7 @@ router.get(
            u.usua_nombre AS Usuario, 
            DATE_FORMAT(turn_fecha, '%Y-%m-%d') AS Fecha, 
            SUM(turn_estado = 1) AS Atendidos, 
-           SUM(turn_estado = 2 OR turn_estado = -1) AS No_Atendidos, 
+           SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
            SUM(turn_estado != 0) AS Total 
     FROM turno t 
     JOIN cajero c ON t.caje_codigo = c.caje_codigo 
