@@ -170,6 +170,9 @@ export class EvaluacionComponent implements OnInit {
   //Orientacion
   orientacion: string;
 
+
+  //Información
+  marca: string = "FullTime Tickets";
   horas: number[] = [];
 
 
@@ -271,6 +274,7 @@ export class EvaluacionComponent implements OnInit {
     //Cargamos componentes selects HTML
     this.getlastday();
     this.getSucursales();
+    this.getMarca();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
@@ -343,6 +347,12 @@ export class EvaluacionComponent implements OnInit {
         default:
             break;
     }
+  }
+
+  getMarca() {
+    this.serviceService.getMarca().subscribe((marca: any) => {
+      this.marca = marca.marca;
+    });
   }
 
   //Se obtiene fecha actual
@@ -1443,7 +1453,7 @@ getDocumentServicios(fechaDesde, fechaHasta) {
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
     watermark: {
-      text: "FullTime Tickets",
+      text: this.marca,
       color: "blue",
       opacity: 0.1,
       bold: true,
@@ -2016,7 +2026,7 @@ getDocumentEmpleado(fechaDesde, fechaHasta) {
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
     watermark: {
-      text: "FullTime Tickets",
+      text: this.marca,
       color: "blue",
       opacity: 0.1,
       bold: true,
@@ -2590,7 +2600,7 @@ getDocumentEvaluacionesOmitidas(fechaDesde, fechaHasta) {
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
     watermark: {
-      text: "FullTime Tickets",
+      text: this.marca,
       color: "blue",
       opacity: 0.1,
       bold: true,
@@ -2796,7 +2806,7 @@ getDocumentEstablecimiento(fD, fH) {
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
     watermark: {
-      text: "FullTime Tickets",
+      text: this.marca,
       color: "blue",
       opacity: 0.1,
       bold: true,
@@ -3096,7 +3106,7 @@ getDocumentEvaGrupo(fechaDesde, fechaHasta) {
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
     watermark: {
-      text: "FullTime Tickets",
+      text: this.marca,
       color: "blue",
       opacity: 0.1,
       bold: true,
@@ -3340,7 +3350,7 @@ getDocumentGr(fechaDesde, fechaHasta) {
   return {
     //Seteo de marca de agua y encabezado con nombre de usuario logueado
     watermark: {
-      text: "FullTime Tickets",
+      text: this.marca,
       color: "blue",
       opacity: 0.1,
       bold: true,

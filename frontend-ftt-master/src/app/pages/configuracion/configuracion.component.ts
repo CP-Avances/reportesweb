@@ -13,6 +13,7 @@ export class ConfiguracionComponent {
   logo: any;
   nombreImagen: any[];
   valor: number;
+  marca: string;
 
   constructor(
     private toastr: ToastrService,
@@ -21,6 +22,7 @@ export class ConfiguracionComponent {
 
   ngOnInit(): void {
     this.getMeta();
+    this.getMarca();
   }
 
   onFileSelected(event) {
@@ -84,6 +86,33 @@ export class ConfiguracionComponent {
   getMeta() {
     this.serviceService.getMeta().subscribe((valor: any) => {
       this.valor = valor.valor;
+    });
+  }
+
+  guardarMarca() {
+    this.serviceService.setMarca(this.marca).subscribe(
+      (res) => {
+        // SE INFORMA QUE SE PUDO GUARDO LA IMAGEN
+        this.toastr.success(
+          "Exito",
+          "La marcar de agua se ha guardado correctamente",
+          {
+            timeOut: 6000,
+          }
+        );
+      },
+      (error) => {
+        // SE INFORMA QUE NO SE GUARDO LA IMAGEN
+        this.toastr.error("Error al guardar la marca de agua.", "Upss !!!.", {
+          timeOut: 6000,
+        });
+      }
+    );
+  }
+
+  getMarca() {
+    this.serviceService.getMarca().subscribe((marca: any) => {
+      this.marca = marca.marca;
     });
   }
 }

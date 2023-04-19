@@ -73,6 +73,8 @@ export class IngresoclientesComponent implements OnInit {
   sucursalesSeleccionadas: string[] = [];
   seleccionMultiple: boolean = false;
 
+  //Informacion
+  marca: string = "FullTime Tickets";
   horas: number[] = [];
 
   constructor(private serviceService: ServiceService,
@@ -102,6 +104,7 @@ export class IngresoclientesComponent implements OnInit {
     //Cargamos componentes selects HTML
     this.getlastday();
     this.getSucursales();
+    this.getMarca();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem('loggedUser');
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
@@ -129,6 +132,12 @@ export class IngresoclientesComponent implements OnInit {
         default:
             break;
     }
+  }
+
+  getMarca() {
+    this.serviceService.getMarca().subscribe((marca: any) => {
+      this.marca = marca.marca;
+    });
   }
 
   //Obtiene la fecha actual
@@ -290,7 +299,7 @@ export class IngresoclientesComponent implements OnInit {
 
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
-      watermark: { text: 'FullTime Tickets', color: 'blue', opacity: 0.1, bold: true, italics: false, fontSize: 52 },
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false, fontSize: 52 },
       header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3 },
       //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
       footer: function (currentPage, pageCount, fecha) {

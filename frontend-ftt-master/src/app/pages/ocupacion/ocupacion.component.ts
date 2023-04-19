@@ -101,6 +101,8 @@ export class OcupacionComponent implements OnInit {
   turnosTotal: number;
   mostrarTotal: boolean = false;
 
+  //Información
+  marca: string = "FullTime Tickets";
   horas: number[] = [];
 
   constructor(
@@ -137,6 +139,7 @@ export class OcupacionComponent implements OnInit {
     //Cargamos componentes selects HTML
     this.getlastday();
     this.getSucursales();
+    this.getMarca();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
@@ -178,6 +181,12 @@ export class OcupacionComponent implements OnInit {
   //cambio orientacion
   cambiarOrientacion(orientacion: string) {
     this.orientacion = orientacion;
+  }
+
+  getMarca() {
+    this.serviceService.getMarca().subscribe((marca: any) => {
+      this.marca = marca.marca;
+    });
   }
 
   //Se obtiene la fecha actual
@@ -578,7 +587,7 @@ export class OcupacionComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -744,7 +753,7 @@ export class OcupacionComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
