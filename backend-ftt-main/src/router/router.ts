@@ -196,7 +196,6 @@ router.post('/uploadImage', upload.single('image'), (req, res) => {
 
 function ActualizarImagen(res: any, archivo: any) {
     const query = `UPDATE general SET gene_valor = '${archivo}' WHERE gene_codigo = 8;`
-
     MySQL.ejecutarQuery(query, (err: any, usuario: Object[]) => {
         if (err) {
             res.status(400).json({
@@ -214,11 +213,12 @@ function ActualizarImagen(res: any, archivo: any) {
 }
 
 router.get('/nombreImagen', (req: Request, res: Response) => {
-    const query =
-        `
-        SELECT gene_valor FROM general WHERE gene_codigo = 8;
-        `
-        ;
+    const query = `
+      SELECT gene_valor FROM general WHERE gene_codigo = 8;
+      `;
+
+    ;
+
     let nombreImagen: any[];
 
     MySQL.ejecutarQuery(query, (err: any, imagen: Object[]) => {
@@ -281,4 +281,3 @@ router.get('/getMeta', (req: Request, res: Response) => {
 });
 
 export default router;
-

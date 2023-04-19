@@ -52,6 +52,10 @@ export class ServiceService {
     return this.http.get<empresa[]>(this.URL + "/getallsucursales");
   }
 
+  getAllCategorias(tipo: any): Observable<any> {
+    return this.http.get<any>(this.URL + "/categorias/" + tipo);
+  }
+
   getAllCajeros(): Observable<cajero[]> {
     return this.http.get<cajero[]>(this.URL + "/getallcajeros");
   }
@@ -198,6 +202,10 @@ export class ServiceService {
   /* OPINIONES */
   getopiniones(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, tipos: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/opinion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + tipos);
+  }
+
+  getopinionesIC(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, tipos: any, categorias: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/opinionIC/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + tipos + "/" + categorias);
   }
 
   getgraficoopinion(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any): Observable<servicio[]> {

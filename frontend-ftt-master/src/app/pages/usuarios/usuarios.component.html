@@ -104,7 +104,7 @@
                                 <tr>
                                     <th class="text-center" *ngIf="todasSucursalesTF || seleccionMultiple">Sucursal
                                     </th>
-                                    <th class="text-center">Cajero</th>
+                                    <th class="text-center">Cajero(a)</th>
                                     <th class="text-center">Servicio</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
@@ -207,7 +207,7 @@
                                 <tr>
                                     <th class="text-center" *ngIf="todasSucursalesTTF || seleccionMultiple">Sucursal
                                     </th>
-                                    <th class="text-center">Cajero</th>
+                                    <th class="text-center">Cajero(a)</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">No atendidos</th>
@@ -309,7 +309,7 @@
                                 <tr>
                                     <th class="text-center" *ngIf="todasSucursalesTM || seleccionMultiple">Sucursal
                                     </th>
-                                    <th class="text-center">Cajero</th>
+                                    <th class="text-center">Cajero(a)</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">Porcentaje de cumplimiento</th>
@@ -407,7 +407,7 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTPA || seleccionMultiple">
                                         Sucursal</th>
-                                    <th scope="col" class="text-center">Cajero</th>
+                                    <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Tiempo</th>
                                     <th scope="col" class="text-center">Turnos totales</th>
@@ -506,10 +506,10 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTA || seleccionMultiple">
                                         Sucursal</th>
-                                    <th scope="col" class="text-center">Turno</th>
-                                    <th scope="col" class="text-center">Cajero</th>
-                                    <th scope="col" class="text-center">Servicio</th>
-                                    <th scope="col" class="text-center">Fecha</th>
+                                        <th scope="col" class="text-center">Cajero(a)</th>
+                                        <th scope="col" class="text-center">Fecha</th>
+                                        <th scope="col" class="text-center">Servicio</th>
+                                        <th scope="col" class="text-center">Turno</th>
                                     <th scope="col" class="text-center">Tiempo de atención</th>
                                 </tr>
                             </thead>
@@ -517,10 +517,10 @@
                                 <tr *ngFor="let servicioTiempoAtencion of servicioTiempoAtencion | paginate:configTA">
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">
                                         {{servicioTiempoAtencion.nombreEmpresa}}</td>
-                                    <td>{{servicioTiempoAtencion.turno}}</td>
-                                    <td>{{servicioTiempoAtencion.Nombre}}</td>
-                                    <td>{{servicioTiempoAtencion.Servicio}}</td>
-                                    <td>{{servicioTiempoAtencion.TURN_FECHA}}</td>
+                                        <td>{{servicioTiempoAtencion.Nombre}}</td>
+                                        <td>{{servicioTiempoAtencion.TURN_FECHA}}</td>
+                                        <td>{{servicioTiempoAtencion.Servicio}}</td>
+                                        <td>{{servicioTiempoAtencion.turno}}</td>
                                     <td>{{servicioTiempoAtencion.atencion}}</td>
                                 </tr>
                             </tbody>
@@ -597,7 +597,7 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesES || seleccionMultiple">
                                         Sucursal</th>
-                                    <th scope="col" class="text-center">Cajero</th>
+                                    <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Fecha y hora</th>
                                     <th scope="col" class="text-center">Razón</th>
                                 </tr>

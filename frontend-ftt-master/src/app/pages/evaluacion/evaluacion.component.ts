@@ -741,7 +741,6 @@ export class EvaluacionComponent implements OnInit {
             if (this.configEG.currentPage > 1) {
               this.configEG.currentPage = 1;
             }
-            // this.todasSucursalesEG = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -784,7 +783,6 @@ export class EvaluacionComponent implements OnInit {
     let horaInicio = this.horaInicioA.nativeElement.value;
     let horaFin = this.horaFinA.nativeElement.value;
 
-    // var cod = this.codSucursalEst.nativeElement.value.toString().trim();
     if (this.sucursalesSeleccionadas.length!==0) {
       this.serviceService.getestablecimiento(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.opcionCuatro.toString()).subscribe(
         (servicio: any) => {
@@ -854,7 +852,6 @@ export class EvaluacionComponent implements OnInit {
             if (this.configG.currentPage > 1) {
               this.configG.currentPage = 1;
             }
-            // this.todasSucursalesG = this.comprobarBusquedaSucursales(codSucursal);
             //Formateo y mapeo de datos para imprimir valores en grafico
             let evOrig = this.servicioGra;
             let evaluaciones = (this.selectedItems[0]=="-2" ? ["Todos los usuarios"] : servicioGra.turnos.map((res) => res.usuario));  
@@ -936,7 +933,6 @@ export class EvaluacionComponent implements OnInit {
               //Creacion de chart [imagen] de tipo canvas de tipo pie
               //Se define parametros como los labels, data, opciones (mostrar el titulo o responsive)
               this.chart = new Chart("canvas", {
-                //type: this.tipo,
                 type: 'pie',
                 data: {
                   labels: Nombres, //eje x
@@ -1036,7 +1032,6 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelServicios() {
-    // let cod = this.codSucursalServicio.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Servicios
     //Mapeo de información de consulta a formato JSON para exportar a Excel
@@ -1046,7 +1041,7 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesS || this.seleccionMultiple
           ? { Sucursal: this.servicioServs[i].nombreEmpresa }
           : {}),
-        Usuario: this.servicioServs[i].Usuario,
+        "Cajero(a)": this.servicioServs[i].Usuario,
         Fecha: this.servicioServs[i].Fecha,
         Excelente: this.servicioServs[i].Excelente,
         ...(!this.opcionCuatro
@@ -1084,7 +1079,7 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesS
           ? { Sucursal: this.servicioServsMaxMin[i].nombreEmpresa }
           : {}),
-        Usuario: this.servicioServsMaxMin[i].Usuario,
+        "Cajero(a)": this.servicioServsMaxMin[i].Usuario,
         Fecha: this.servicioServsMaxMin[i].Fecha,
         Excelente: this.servicioServsMaxMin[i].Excelente,
         ...(!this.opcionCuatro
@@ -1130,7 +1125,7 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesE || this.seleccionMultiple
           ? { Sucursal: this.servicioEvalEmpl[i].nombreEmpresa }
           : {}),
-        Usuario: this.servicioEvalEmpl[i].usua_nombre,
+        "Cajero(a)": this.servicioEvalEmpl[i].usua_nombre,
         Fecha: this.servicioEvalEmpl[i].fecha,
         Excelente: this.servicioEvalEmpl[i].Excelente,
         ...(!this.opcionCuatro
@@ -1165,7 +1160,7 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesE
           ? { Sucursal: this.servicioEvalMMEmpl[i].nombreEmpresa }
           : {}),
-        Usuario: this.servicioEvalMMEmpl[i].usua_nombre,
+        "Cajero(a)": this.servicioEvalMMEmpl[i].usua_nombre,
         Fecha: this.servicioEvalMMEmpl[i].fecha,
         Excelente: this.servicioEvalMMEmpl[i].Excelente,
         ...(!this.opcionCuatro
@@ -1214,7 +1209,7 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesEO || this.seleccionMultiple
           ? { Sucursal: this.servicioEvalOmitidas[i].nombreEmpresa }
           : {}),
-        Usuario: this.servicioEvalOmitidas[i].usua_nombre,
+        "Cajero(a)": this.servicioEvalOmitidas[i].usua_nombre,
         Fecha: this.servicioEvalOmitidas[i].fecha,
         Total: this.servicioEvalOmitidas[i].Total,
       };
@@ -1299,7 +1294,7 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesEG || this.seleccionMultiple
           ? { Sucursal: this.servicioG[i].nombreEmpresa }
           : {}),
-        Usuario: this.servicioG[i].usua_nombre,
+        "Cajero(a)": this.servicioG[i].usua_nombre,
         Fecha: this.servicioG[i].fecha,
         Bueno: this.servicioG[i].Bueno,
         Malo: this.servicioG[i].Malo,
@@ -1373,7 +1368,7 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesG || this.seleccionMultiple
           ? { Sucursal: this.servicioGra[i].nombreEmpresa }
           : {}),
-        Usuario: this.servicioGra[i].usuario,
+        "Cajero(a)": this.servicioGra[i].usuario,
         Evaluación: this.servicioGra[i].evaluacion,
         Total: this.servicioGra[i].total,
         Porcentajes: this.servicioGra[i].porcentaje,
@@ -1578,7 +1573,7 @@ servicios(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Muy Bueno", style: "tableHeader" },
@@ -1628,7 +1623,7 @@ servicios(servicio: any[]) {
         ],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Muy Bueno", style: "tableHeader" },
@@ -1686,7 +1681,7 @@ maxmin(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Muy Bueno", style: "tableHeader" },
@@ -1740,7 +1735,7 @@ maxmin(servicio: any[]) {
         ],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Muy Bueno", style: "tableHeader" },
@@ -1797,7 +1792,7 @@ serviciosC(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Bueno", style: "tableHeader" },
@@ -1835,7 +1830,7 @@ serviciosC(servicio: any[]) {
         widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Bueno", style: "tableHeader" },
@@ -1890,7 +1885,7 @@ maxminC(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Bueno", style: "tableHeader" },
@@ -1941,7 +1936,7 @@ maxminC(servicio: any[]) {
         ],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Bueno", style: "tableHeader" },
@@ -2152,7 +2147,7 @@ empleado(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Muy Bueno", style: "tableHeader" },
@@ -2202,7 +2197,7 @@ empleado(servicio: any[]) {
         ],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Muy Bueno", style: "tableHeader" },
@@ -2260,7 +2255,7 @@ maxmine(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Muy Bueno", style: "tableHeader" },
@@ -2314,7 +2309,7 @@ maxmine(servicio: any[]) {
         ],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Muy Bueno", style: "tableHeader" },
@@ -2371,7 +2366,7 @@ empleadoC(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Bueno", style: "tableHeader" },
@@ -2409,7 +2404,7 @@ empleadoC(servicio: any[]) {
         widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Bueno", style: "tableHeader" },
@@ -2464,7 +2459,7 @@ maxmineC(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Bueno", style: "tableHeader" },
@@ -2515,7 +2510,7 @@ maxmineC(servicio: any[]) {
         ],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Excelente", style: "tableHeader" },
             { text: "Bueno", style: "tableHeader" },
@@ -2557,9 +2552,6 @@ generarPdfEvalOmitidas(action = "open", pdf: number) {
   var fechaHasta = this.toDateHastaEvalOmitidas.nativeElement.value
     .toString()
     .trim();
-  // var cod = this.codSucursalEvalOmitidas.nativeElement.value
-  //   .toString()
-  //   .trim();
   //Definicion de funcion delegada para setear estructura del PDF
   let documentDefinition;
   if (pdf === 1) {
@@ -2711,7 +2703,7 @@ omitidas(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Total", style: "tableHeader" },
           ],
@@ -2739,7 +2731,7 @@ omitidas(servicio: any[]) {
         widths: ["*", "auto", "auto"],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Fecha", style: "tableHeader" },
             { text: "Total", style: "tableHeader" },
           ],
@@ -3481,7 +3473,7 @@ grafico(servicio: any[]) {
         body: [
           [
             { text: "Sucursal", style: "tableHeader" },
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Evaluacion", style: "tableHeader" },
             { text: "Total", style: "tableHeader" },
             { text: "Porcentajes", style: "tableHeader" },
@@ -3511,7 +3503,7 @@ grafico(servicio: any[]) {
         widths: ["*", "*", "*", "*"],
         body: [
           [
-            { text: "Usuario", style: "tableHeader" },
+            { text: "Cajero(a)", style: "tableHeader" },
             { text: "Evaluacion", style: "tableHeader" },
             { text: "Total", style: "tableHeader" },
             { text: "Porcentajes", style: "tableHeader" },

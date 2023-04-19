@@ -317,129 +317,129 @@ export class OcupacionComponent implements OnInit {
           }
         }
       );
-    }
-
-    this.serviceService.getgraficoocupacion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
-      (servicio: any) => {
-        //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-        //Se verifica el ancho de pantalla para colocar o no labels
-        this.legend = screen.width < 575 ? false : true;
-        //Mapeo de porcentajes para mostrar en pantalla
-        this.servicio = servicio.turnos;
-        let total = servicio.turnos.map((res) => res.total);
-        let servicios = servicio.turnos.map((res) => res.SERV_NOMBRE);
-        let codigo = servicio.turnos.map((res) => res.SERV_CODIGO);
-        let Nombres = [];
-        let totalPorc = 0;
-        for (var i = 0; i < servicios.length; i++) {
-          totalPorc = totalPorc + total[i];
-        }
-        for (var i = 0; i < servicios.length; i++) {
-          Nombres.push(
-            servicios[i] +
-              "\n" +
-              Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
-              "%"
-          );
-        }
-
-        //Se crea el grafico
-        this.chartPie = new Chart("canvas", {
-          //El tipo de grafico
-          type: (this.tipo = "pie"),
-          data: {
-            labels: Nombres, //eje x
-            datasets: [
-              {
-                label: "Total",
-                data: total, //eje y
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.6)",
-                  "rgba(54, 162, 235, 0.6)",
-                  "rgba(255, 206, 86, 0.6)",
-                  "rgba(75, 192, 192, 0.6)",
-                  "rgba(153, 102, 255, 0.6)",
-                  "rgba(255, 159, 64, 0.6)",
-                  ///////////////////////////F
-                  "rgba(104, 210, 34, 0.6)",
-                ],
-              },
-            ],
-          },
-          //Se setea titulo asi como valores en grafico
-          options: {
-       
-            plugins: {
-              title: {
-                display: true,
-              },
-              datalabels: {
-                color: "black",
-                labels: {
-                  title: {
-                    color: "blue",
-                    font: {
-                      weight: "bold",
+      this.serviceService.getgraficoocupacion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
+        (servicio: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          //Se verifica el ancho de pantalla para colocar o no labels
+          this.legend = screen.width < 575 ? false : true;
+          //Mapeo de porcentajes para mostrar en pantalla
+          this.servicio = servicio.turnos;
+          let total = servicio.turnos.map((res) => res.total);
+          let servicios = servicio.turnos.map((res) => res.SERV_NOMBRE);
+          let codigo = servicio.turnos.map((res) => res.SERV_CODIGO);
+          let Nombres = [];
+          let totalPorc = 0;
+          for (var i = 0; i < servicios.length; i++) {
+            totalPorc = totalPorc + total[i];
+          }
+          for (var i = 0; i < servicios.length; i++) {
+            Nombres.push(
+              servicios[i] +
+                "\n" +
+                Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
+                "%"
+            );
+          }
+  
+          //Se crea el grafico
+          this.chartPie = new Chart("canvas", {
+            //El tipo de grafico
+            type: (this.tipo = "pie"),
+            data: {
+              labels: Nombres, //eje x
+              datasets: [
+                {
+                  label: "Total",
+                  data: total, //eje y
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.6)",
+                    "rgba(54, 162, 235, 0.6)",
+                    "rgba(255, 206, 86, 0.6)",
+                    "rgba(75, 192, 192, 0.6)",
+                    "rgba(153, 102, 255, 0.6)",
+                    "rgba(255, 159, 64, 0.6)",
+                    ///////////////////////////F
+                    "rgba(104, 210, 34, 0.6)",
+                  ],
+                },
+              ],
+            },
+            //Se setea titulo asi como valores en grafico
+            options: {
+         
+              plugins: {
+                title: {
+                  display: true,
+                },
+                datalabels: {
+                  color: "black",
+                  labels: {
+                    title: {
+                      color: "blue",
+                      font: {
+                        weight: "bold",
+                      },
                     },
                   },
                 },
               },
+              responsive: true,
             },
-            responsive: true,
-          },
-        });
-        //Se crea segundo grafico
-        this.chartBar = new Chart("canvas2", {
-          //Tipo de gráfico bar
-          type: (this.tipo = "bar"),
-          data: {
-            labels: Nombres, //eje x
-            datasets: [
-              {
-                label: "Total",
-                data: total, //eje y
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.6)",
-                  "rgba(54, 162, 235, 0.6)",
-                  "rgba(255, 206, 86, 0.6)",
-                  "rgba(75, 192, 192, 0.6)",
-                  "rgba(153, 102, 255, 0.6)",
-                  "rgba(255, 159, 64, 0.6)",
-                  ///////////////////////////F
-                  "rgba(104, 210, 34, 0.6)",
-                ],
-              },
-            ],
-          },
-          options: {
-            scales: {
-              /*xAxes: [
+          });
+          //Se crea segundo grafico
+          this.chartBar = new Chart("canvas2", {
+            //Tipo de gráfico bar
+            type: (this.tipo = "bar"),
+            data: {
+              labels: Nombres, //eje x
+              datasets: [
                 {
-                  ticks: {
-                    display: this.legend,
-                  },
+                  label: "Total",
+                  data: total, //eje y
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.6)",
+                    "rgba(54, 162, 235, 0.6)",
+                    "rgba(255, 206, 86, 0.6)",
+                    "rgba(75, 192, 192, 0.6)",
+                    "rgba(153, 102, 255, 0.6)",
+                    "rgba(255, 159, 64, 0.6)",
+                    ///////////////////////////F
+                    "rgba(104, 210, 34, 0.6)",
+                  ],
                 },
-              ],*/
+              ],
             },
-            plugins:{
-              title: {
-                display: true,
+            options: {
+              scales: {
+                /*xAxes: [
+                  {
+                    ticks: {
+                      display: this.legend,
+                    },
+                  },
+                ],*/
               },
-              legend: {
-                display: false,
+              plugins:{
+                title: {
+                  display: true,
+                },
+                legend: {
+                  display: false,
+                },
               },
+              responsive: true,
             },
-            responsive: true,
-          },
-        });
-      },
-      (error) => {
-        if (error.status == 400) {
-          //Por error 400 se vacia variable de consulta
-          this.servicio = null;
+          });
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Por error 400 se vacia variable de consulta
+            this.servicio = null;
+          }
         }
-      }
-    );
+      );
+    }
+
     //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
     if (this.chartPie != undefined || this.chartPie != null) {
       this.chartPie.destroy();
@@ -481,7 +481,7 @@ export class OcupacionComponent implements OnInit {
           Hasta: this.serviciooc[step].fechamaxima,
           Servicio: this.serviciooc[step].SERV_NOMBRE,
           "T. Turno": this.serviciooc[step].total,
-          "Porcentaje Ocupación": this.serviciooc[step].PORCENTAJE,
+          "Porcentaje Ocupación": this.serviciooc[step].PORCENTAJE+ "%",
         });
       }
     } else {
@@ -491,7 +491,7 @@ export class OcupacionComponent implements OnInit {
           Hasta: this.serviciooc[step].fechamaxima,
           Servicio: this.serviciooc[step].SERV_NOMBRE,
           "T. Turno": this.serviciooc[step].total,
-          "Porcentaje Ocupación": this.serviciooc[step].PORCENTAJE,
+          "Porcentaje Ocupación": this.serviciooc[step].PORCENTAJE+ "%",
         });
       }
     }
@@ -528,7 +528,7 @@ export class OcupacionComponent implements OnInit {
           Hasta: this.servicioocg[step].fechamaxima,
           Servicio: this.servicioocg[step].SERV_NOMBRE,
           "T. Turno": this.servicioocg[step].total,
-          "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE,
+          "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE + "%",
         });
       }
     } else {
@@ -538,7 +538,7 @@ export class OcupacionComponent implements OnInit {
           Hasta: this.servicioocg[step].fechamaxima,
           Servicio: this.servicioocg[step].SERV_NOMBRE,
           "T. Turno": this.servicioocg[step].total,
-          "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE,
+          "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE + "%",
         });
       }
     }
@@ -810,7 +810,13 @@ export class OcupacionComponent implements OnInit {
           style: "subtitulos",
           text: "Periodo de " + fD + " hasta " + fH,
         },
-        this.ocupacion(this.serviciooc), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.ocupacion(this.serviciooc),
+
+        {
+          style: "subtitulos",
+          text: "TOTAL: Turnos " + this.turnosTotal + ", Porcentaje de ocupación " + this.porcentajeTotal + " %",
+        },
+         //Definicion de funcion delegada para setear informacion de tabla del PDF
       ],
       styles: {
         tableTotal: {
@@ -869,7 +875,7 @@ export class OcupacionComponent implements OnInit {
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.total },
-                { style: "itemsTable", text: res.PORCENTAJE },
+                { style: "itemsTable", text: res.PORCENTAJE + " %" },
               ];
             }),
           ],
@@ -900,7 +906,7 @@ export class OcupacionComponent implements OnInit {
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.total },
-                { style: "itemsTable", text: res.PORCENTAJE },
+                { style: "itemsTable", text: res.PORCENTAJE + " %"},
               ];
             }),
           ],
@@ -938,7 +944,7 @@ export class OcupacionComponent implements OnInit {
                   { style: "itemsTable", text: res.fechamaxima },
                   { style: "itemsTable", text: res.SERV_NOMBRE },
                   { style: "itemsTable", text: res.total },
-                  { style: "itemsTable", text: res.PORCENTAJE },
+                  { style: "itemsTable", text: res.PORCENTAJE + " %"},
                 ];
               }),
             ],
@@ -970,7 +976,7 @@ export class OcupacionComponent implements OnInit {
                   { style: "itemsTable", text: res.fechamaxima },
                   { style: "itemsTable", text: res.SERV_NOMBRE },
                   { style: "itemsTable", text: res.total },
-                  { style: "itemsTable", text: res.PORCENTAJE },
+                  { style: "itemsTable", text: res.PORCENTAJE + " %" },
                 ];
               }),
             ],

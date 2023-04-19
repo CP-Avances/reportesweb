@@ -19,9 +19,11 @@ export class ConfiguracionComponent {
     private serviceService: ServiceService
   ) { }
 
+
   ngOnInit(): void {
     this.getMeta();
   }
+
 
   verificador: number = 0;
   onFileSelected(event: any) {

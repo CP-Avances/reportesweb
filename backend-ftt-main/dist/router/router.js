@@ -193,8 +193,9 @@ function ActualizarImagen(res, archivo) {
 }
 router.get('/nombreImagen', (req, res) => {
     const query = `
-        SELECT gene_valor FROM general WHERE gene_codigo = 8;
-        `;
+      SELECT gene_valor FROM general WHERE gene_codigo = 8;
+      `;
+    ;
     let nombreImagen;
     mysql_1.default.ejecutarQuery(query, (err, imagen) => {
         if (err) {

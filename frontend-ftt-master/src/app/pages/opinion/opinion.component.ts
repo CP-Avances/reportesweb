@@ -15,7 +15,7 @@ import { Utils } from "../../utils/util";
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 
 import * as XLSX from "xlsx";
-import { servicio } from '../../models/servicio';
+
 const EXCEL_EXTENSION = ".xlsx";
 
 @Component({
@@ -30,6 +30,8 @@ export class OpinionComponent implements OnInit {
   //captura de elementos de la interfaz visual para tratarlos y capturar datos
   @ViewChild("fromDateAtM") fromDateAtM: ElementRef;
   @ViewChild("toDateAtM") toDateAtM: ElementRef;
+  @ViewChild("fromDateIC") fromDateIC: ElementRef;
+  @ViewChild("toDateIC") toDateIC: ElementRef;
   @ViewChild("fromDateOcupG") fromDateOcupG: ElementRef;
   @ViewChild("toDateOcupG") toDateOcupG: ElementRef;
   @ViewChild('codSucursalAtM') codSucursalAtM: ElementRef;
@@ -37,6 +39,8 @@ export class OpinionComponent implements OnInit {
 
   @ViewChild("horaInicioI") horaInicioI: ElementRef;
   @ViewChild("horaFinI") horaFinI: ElementRef;
+  @ViewChild("horaInicioIC") horaInicioIC: ElementRef;
+  @ViewChild("horaFinIC") horaFinIC: ElementRef;
   @ViewChild("horaInicioG") horaInicioG: ElementRef;
   @ViewChild("horaFinG") horaFinG: ElementRef;
   
@@ -47,8 +51,10 @@ export class OpinionComponent implements OnInit {
   tipo: string;
 
   //Servicios-Variables donde se almacenaran las consultas a la BD
+  servicioOpinionIC: any = [];
   servicioOpinion: any = [];
   servicioocg: any = [];
+  categorias: any[];
   sucursales: any[];
   servicio: any;
 
@@ -57,12 +63,16 @@ export class OpinionComponent implements OnInit {
 
   //Banderas para mostrar la tabla correspondiente a las consultas
   todasSucursalesI: boolean = false;
+  todasSucursalesIC: boolean = false;
   todasSucursalesG: boolean = false;
+  todasCategorias: boolean = false;
   todosTipos: boolean = false;
 
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestAtM: boolean = false;
   malRequestAtMPag: boolean = false;
+  malRequestIC: boolean = false;
+  malRequestICPag: boolean = false;
   malRequestOcupG: boolean = false;
 
   //Usuario que ingreso al sistema
@@ -70,6 +80,7 @@ export class OpinionComponent implements OnInit {
 
   //Control paginacion
   configAtM: any;
+  configIC: any;
   private MAX_PAGS = 10;
 
   //Palabras de componente de paginacion
@@ -93,7 +104,7 @@ export class OpinionComponent implements OnInit {
   //OPCIONES MULTIPLES
   sucursalesSeleccionadas: string[] = [];
   tiposSeleccionados: string[] = [];
-  categoriasSeleccionados: string[] = [];
+  categoriasSeleccionadas: string[] = [];
   seleccionMultiple: boolean = false;
   tipos = [
     {nombre: 'Quejas', valor: '1'},
@@ -106,6 +117,8 @@ export class OpinionComponent implements OnInit {
   orientacion: string;
 
   horas: number[] = [];
+
+  mostrarCategorias: boolean = false;
 
   constructor(
     private serviceService: ServiceService,
@@ -122,6 +135,12 @@ export class OpinionComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioOpinion.length,
     };
+    this.configIC = {
+      id: "opinionesIC",
+      itemsPerPage: this.MAX_PAGS,
+      currentPage: 1,
+      totalItems: this.servicioOpinionIC.length,
+    };
 
     for (let i = 0; i <= 24; i++) {
       this.horas.push(i);
@@ -131,6 +150,10 @@ export class OpinionComponent implements OnInit {
   //Eventos para avanzar o retroceder en la paginacion
   pageChangedAtM(event) {
     this.configAtM.currentPage = event;
+  }
+
+  pageChangedIC(event) {
+    this.configIC.currentPage = event;
   }
 
   ngOnInit(): void {
@@ -145,6 +168,7 @@ export class OpinionComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
     this.malRequestAtMPag = true;
+    this.malRequestICPag = true;
     // CARGAR LOGO PARA LOS REPORTES
     this.imagenesService.cargarImagen().then((result: string) => {
       this.urlImagen = result;
@@ -160,11 +184,23 @@ export class OpinionComponent implements OnInit {
         case 'todasSucursalesI':
             this.todasSucursalesI = !this.todasSucursalesI;
             break;
+        case 'todasSucursalesIC':
+            this.todasSucursalesIC = !this.todasSucursalesIC;
+            break;
         case 'todasSucursalesES':
             this.todasSucursalesG = !this.todasSucursalesG;
             break;
+        case 'todasCategorias':
+            this.todasCategorias = !this.todasCategorias;
+            break;
         case 'todosTipos':
             this.todosTipos = !this.todosTipos;
+            break;
+        case 'tipo1':
+            this.getCategorias(1);
+            break;
+        case 'tipo2':
+          this.getCategorias(2);
             break;
         case 'sucursalesSeleccionadas':
             this.sucursalesSeleccionadas.length > 1 
@@ -188,6 +224,13 @@ export class OpinionComponent implements OnInit {
   getSucursales() {
     this.serviceService.getAllSucursales().subscribe((empresas: any) => {
       this.sucursales = empresas.empresas;
+    });
+  }
+
+  getCategorias(tipo: any) {
+    this.serviceService.getAllCategorias(tipo).subscribe((categoria: any) => {
+      this.categorias = categoria.categoria;
+      this.mostrarCategorias = true;
     });
   }
 
@@ -250,6 +293,54 @@ export class OpinionComponent implements OnInit {
   
             //Por error 400 se setea elementos de paginacion
             this.configAtM = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        }
+      );
+    }
+  }
+
+  leerOpinionesC() {
+    //captura de fechas para proceder con la busqueda
+    var fD = this.fromDateIC.nativeElement.value.toString().trim();
+    var fH = this.toDateIC.nativeElement.value.toString().trim();
+    let horaInicio = this.horaInicioIC.nativeElement.value;
+    let horaFin = this.horaFinIC.nativeElement.value;
+
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados, this.categoriasSeleccionadas).subscribe(
+        (servicio: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.servicioOpinionIC = servicio.turnos;
+          this.malRequestIC = false;
+          this.malRequestICPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configIC.currentPage > 1) {
+            this.configIC.currentPage = 1;
+          }
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioOpinionIC = null;
+            this.malRequestIC = true;
+            this.malRequestICPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioOpinionIC == null) {
+              this.configIC.totalItems = 0;
+            } else {
+              this.configIC.totalItems = this.servicioOpinionIC.length;
+            }
+  
+            //Por error 400 se setea elementos de paginacion
+            this.configIC = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
@@ -510,6 +601,53 @@ export class OpinionComponent implements OnInit {
     );
   }
 
+  exportTOExcelOpinionesIC() {
+    // let cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    let jsonServicio = [];
+      if (this.todasSucursalesIC || this.seleccionMultiple) {
+        for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+          jsonServicio.push({
+            Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
+            Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
+            Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
+            Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
+            Caja: this.servicioOpinionIC[step].caja_caja_nombre,
+            Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
+          });
+        }
+      } else {
+        for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+          jsonServicio.push({
+            Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
+            Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
+            Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
+            Caja: this.servicioOpinionIC[step].caja_caja_nombre,
+            Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
+          });
+        }
+      }
+    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioOpinionIC[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols = [];
+    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 })
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Informe");
+    XLSX.writeFile(
+      wb,
+      "informeOpinionesExcel - "+nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+
   exportTOExcelOpinionesGrafico() {
     // let cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
@@ -699,6 +837,149 @@ export class OpinionComponent implements OnInit {
     };
   }
 
+  generarPdfOpinionesIC(action = "open", pdf: number) {
+    //Seteo de rango de fechas de la consulta para impresión en PDF
+    var fD = this.fromDateIC.nativeElement.value.toString().trim();
+    var fH = this.toDateIC.nativeElement.value.toString().trim();
+    
+    //Definicion de funcion delegada para setear estructura del PDF
+    let documentDefinition;
+    if (pdf === 1) {
+      // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
+      documentDefinition = this.getDocumentOpinionesIC(fD, fH);
+    } 
+
+    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    switch (action) {
+      case "open":
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+      case "print":
+        pdfMake.createPdf(documentDefinition).print();
+        break;
+      case "download":
+        pdfMake.createPdf(documentDefinition).download();
+        break;
+
+      default:
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+    }
+  }
+
+  //Funcion delegada para seteo de información
+  getDocumentOpinionesIC(fD, fH) {
+    //Se obtiene la fecha actual
+    let f = new Date();
+    f.setUTCHours(f.getHours());
+    this.date = f.toJSON();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+
+    return {
+      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      watermark: {
+        text: "FullTime Tickets",
+        color: "blue",
+        opacity: 0.1,
+        bold: true,
+        italics: false,
+        fontSize: 52,
+      },
+      header: {
+        text: "Impreso por:  " + this.userDisplayName,
+        margin: 10,
+        fontSize: 9,
+        opacity: 0.3,
+      },
+      pageOrientation: 'landscape',
+      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+      footer: function (currentPage, pageCount, fecha) {
+        fecha = f.toJSON().split("T")[0];
+        var timer = f.toJSON().split("T")[1].slice(0, 5);
+        return [
+          {
+            margin: [10, 20, 10, 0],
+            columns: [
+              "Fecha: " + fecha + " Hora: " + timer,
+              {
+                text: [
+                  {
+                    text:
+                      "© Pag " + currentPage.toString() + " of " + pageCount,
+                    alignment: "right",
+                    color: "blue",
+                    opacity: 0.5,
+                  },
+                ],
+              },
+            ],
+            fontSize: 9,
+            color: "#A4B8FF",
+          },
+        ];
+      },
+      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      content: [
+        {
+          columns: [
+            {
+              image: this.urlImagen,
+              width: 90,
+              height: 45,
+            },
+            {
+              width: "*",
+              alignment: "center",
+              text: "Reporte - Informe de opiniones",
+              bold: true,
+              fontSize: 15,
+              margin: [-90, 20, 0, 0],
+            },
+          ],
+        },
+        {
+          style: "subtitulos",
+          text: nombreSucursal,
+        },
+        {
+          style: "subtitulos",
+          text: "Periodo  de " + fD + " hasta " + fH,
+        },
+        this.opinionesIC(this.servicioOpinionIC), //Definicion de funcion delegada para setear informacion de tabla del PDF
+      ],
+      styles: {
+        tableTotal: {
+          fontSize: 30,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        tableHeader: {
+          fontSize: 9,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        itemsTable: { fontSize: 8, margin: [5, 5, 5, 5] },
+        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+        subtitulos: {
+          fontSize: 16,
+          alignment: "center",
+          margin: [0, 5, 0, 10],
+        },
+        tableMargin: { margin: [80,5,80,40], alignment: "center" },
+        CabeceraTabla: {
+          fontSize: 12,
+          alignment: "center",
+          margin: [0, 8, 0, 8],
+          fillColor: this.p_color,
+        },
+        quote: { margin: [5, -2, 0, -2], italics: true },
+        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+      },
+    };
+  }
+
   //Funcion delegada para seteo de información
   getDocumentOpinionesGraficos(fD, fH) {
     //Selecciona de la interfaz el elemento que contiene la grafica
@@ -842,6 +1123,78 @@ export class OpinionComponent implements OnInit {
   //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
   opiniones(servicio: any[]) {
     if (this.todasSucursalesI || this.seleccionMultiple) {
+      return {
+        style: "tableMargin",
+        table: {
+          alignment: "center",
+          headerRows: 1,
+          widths: ["*", "auto", "auto", "auto", "auto", "*"],
+  
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Tipo", style: "tableHeader" },
+              { text: "Categoría", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Caja", style: "tableHeader" },
+              { text: "Opinión", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.empresa_empr_nombre },
+                { style: "itemsTable", text: res.quejas_emi_tipo },
+                { style: "itemsTable", text: res.quejas_emi_categoria },
+                { style: "itemsTable", text: res.quejas_emi_fecha },
+                { style: "itemsTable", text: res.caja_caja_nombre },
+                { style: "itemsTable",alignment: "left", text: res.quejas_emi_queja },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    } else {
+      return {
+        style: "tableMargin",
+        table: {
+          alignment: "center",
+          headerRows: 1,
+          widths: ["auto", "auto", "auto", "auto", "*"],
+  
+          body: [
+            [
+              { text: "Tipo", style: "tableHeader" },
+              { text: "Categoría", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Caja", style: "tableHeader" },
+              { text: "Opinión", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.quejas_emi_tipo },
+                { style: "itemsTable", text: res.quejas_emi_categoria },
+                { style: "itemsTable", text: res.quejas_emi_fecha },
+                { style: "itemsTable", text: res.caja_caja_nombre },
+                { style: "itemsTable",alignment: "left", text: res.quejas_emi_queja },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+  }
+
+  opinionesIC(servicio: any[]) {
+    if (this.todasSucursalesIC || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {

@@ -397,7 +397,6 @@ export class AtencionComponent implements OnInit {
             if (this.configTC.currentPage > 1) {
               this.configTC.currentPage = 1;
             }
-            // this.todasSucursalesTC = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -448,7 +447,6 @@ export class AtencionComponent implements OnInit {
             if (this.configPA.currentPage > 1) {
               this.configPA.currentPage = 1;
             }
-            // this.todasSucursalesPA = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -498,7 +496,6 @@ export class AtencionComponent implements OnInit {
             if (this.configTA.currentPage > 1) {
               this.configTA.currentPage = 1;
             }
-            // this.todasSucursalesPA = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -549,7 +546,6 @@ export class AtencionComponent implements OnInit {
             if (this.configMA.currentPage > 1) {
               this.configMA.currentPage = 1;
             }
-            // this.todasSucursalesMA = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -600,7 +596,6 @@ export class AtencionComponent implements OnInit {
             if (this.configAS.currentPage > 1) {
               this.configAS.currentPage = 1;
             }
-            // this.todasSucursalesAS = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -653,7 +648,6 @@ export class AtencionComponent implements OnInit {
           if (this.configGS.currentPage > 1) {
             this.configGS.currentPage = 1;
           }
-          // this.todasSucursalesGS = this.comprobarBusquedaSucursales(cod);
           // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
           let Nombres = serviciograf.turnos.map((res) => res.Servicio);
           let totales = serviciograf.turnos.map((res) => res.Total);
@@ -765,7 +759,6 @@ export class AtencionComponent implements OnInit {
 
   //---EXCEL
   exportarAExcelTiempoComp() {
-    // let cod = this.codSucursalAtTC.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
@@ -773,7 +766,7 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.servicioTiempoComp.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioTiempoComp[step].nombreEmpresa,
-          Usuario: this.servicioTiempoComp[step].Usuario,
+          "Cajero(a)": this.servicioTiempoComp[step].Usuario,
           Servicio: this.servicioTiempoComp[step].Servicio,
           Fecha: this.servicioTiempoComp[step].Fecha,
           "Tiempo Espera": this.servicioTiempoComp[step].Tiempo_Espera,
@@ -784,7 +777,7 @@ export class AtencionComponent implements OnInit {
     else {
       for (let step = 0; step < this.servicioTiempoComp.length; step++) {
         jsonServicio.push({
-          Usuario: this.servicioTiempoComp[step].Usuario,
+          "Cajero(a)": this.servicioTiempoComp[step].Usuario,
           Servicio: this.servicioTiempoComp[step].Servicio,
           Fecha: this.servicioTiempoComp[step].Fecha,
           "Tiempo Espera": this.servicioTiempoComp[step].Tiempo_Espera,
@@ -814,7 +807,6 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelPromAtencion() {
-    // let cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
@@ -860,7 +852,6 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelTiempoAtencion() {
-    // let cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
@@ -868,9 +859,9 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciota.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciota[step].nombreEmpresa,
-          Turno: this.serviciota[step].turno,
-          Servicio: this.serviciota[step].SERV_NOMBRE,
           Fecha: this.serviciota[step].TURN_FECHA,
+          Servicio: this.serviciota[step].SERV_NOMBRE,
+          Turno: this.serviciota[step].turno,
           "Tiempo de espera": this.serviciota[step].espera,
           "Tiempo de atención": this.serviciota[step].atencion,
         });
@@ -879,9 +870,9 @@ export class AtencionComponent implements OnInit {
     else {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
-          Turno: this.serviciota[step].turno,
-          Servicio: this.serviciota[step].SERV_NOMBRE,
           Fecha: this.serviciota[step].TURN_FECHA,
+          Servicio: this.serviciota[step].SERV_NOMBRE,
+          Turno: this.serviciota[step].turno,
           "Tiempo de espera": this.serviciota[step].espera,
           "Tiempo de atención": this.serviciota[step].atencion,
         });
@@ -908,7 +899,6 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelMaxAtencion() {
-    // let cod = this.codSucursalAtMA.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
@@ -916,7 +906,6 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciomax[step].nombreEmpresa,
-          Cod: this.serviciomax[step].SERV_CODIGO,
           Servicio: this.serviciomax[step].SERV_NOMBRE,
           Fecha: this.serviciomax[step].Fecha,
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
@@ -926,7 +915,6 @@ export class AtencionComponent implements OnInit {
     else {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
-          Cod: this.serviciomax[step].SERV_CODIGO,
           Servicio: this.serviciomax[step].SERV_NOMBRE,
           Fecha: this.serviciomax[step].Fecha,
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
@@ -954,7 +942,6 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelAtServ() {
-    // let cod = this.codSucursalAtAS.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio = [];
@@ -1002,8 +989,6 @@ export class AtencionComponent implements OnInit {
   }
 
   exportarAExcelGraServ() {
-
-    // let cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     
     // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -1047,7 +1032,6 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTC.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtTC.nativeElement.value.toString().trim();
     let documentDefinition;
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     if (pdf === 1) {
@@ -1199,7 +1183,7 @@ export class AtencionComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Usuario", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Tiempo Espera", style: "tableHeader" },
@@ -1232,7 +1216,7 @@ export class AtencionComponent implements OnInit {
           widths: ["*", "auto", "auto", "auto", "auto"],
           body: [
             [
-              { text: "Usuario", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Tiempo Espera", style: "tableHeader" },
@@ -1262,7 +1246,6 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtPA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtPA.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
     if (pdf === 1) {
@@ -1472,7 +1455,6 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtTA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTA.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtPA.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
     if (pdf === 1) {
@@ -1624,18 +1606,18 @@ export class AtencionComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Turno", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Turno", style: "tableHeader" },
               { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.turno },
-                { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
               ];
@@ -1656,17 +1638,17 @@ export class AtencionComponent implements OnInit {
           widths: ["*", "*", "auto", "auto", "auto"],
           body: [
             [
-              { text: "Turno", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Turno", style: "tableHeader" },
               { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
-                { style: "itemsTable", text: res.turno },
-                { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
               ];
@@ -1686,7 +1668,6 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtMA.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
     if (pdf === 1) {
@@ -1829,11 +1810,10 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Cod.", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "T. Promedio de Espera", style: "tableHeader" },
               { text: "T. Promedio de Atención", style: "tableHeader" },
@@ -1841,7 +1821,6 @@ export class AtencionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.SERV_CODIGO },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Maximo },
@@ -1861,17 +1840,15 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["auto", "*", "auto", "auto"],
+          widths: ["*", "auto", "auto"],
           body: [
             [
-              { text: "Cod.", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "T. Promedio de Espera", style: "tableHeader" },
               { text: "T. Promedio de Atención", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
-                { style: "itemsTable", text: res.SERV_CODIGO },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Maximo },
@@ -1892,7 +1869,6 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtAS.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition: any;
     if (pdf === 1) {
@@ -2106,7 +2082,6 @@ export class AtencionComponent implements OnInit {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalAtGs.nativeElement.value.toString().trim();
 
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition;
