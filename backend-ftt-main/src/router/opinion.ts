@@ -72,6 +72,85 @@ router.get(
   }
 );
 
+router.get(
+  "/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos/:categorias",
+  (req: Request, res: Response) => {
+    const fDesde = req.params.fechaDesde;
+    const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    const listaTipos = req.params.tipos;
+    const tiposArray = listaTipos.split(",");
+    const listaCategorias = req.params.categorias;
+    const categoriasArray = listaCategorias.split(",");
+
+    let todasSucursales = false;
+    let todasTipos = false;
+    let todasCategorias = false;
+    let diaCompleto = false;
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
+    if (tiposArray.includes("-1")) {
+      todasTipos = true
+    }
+
+    if (categoriasArray.includes("-1")) {
+      todasCategorias = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
+    }
+
+    let resultado = '';
+
+    if (!todasCategorias) {
+      const listaCategoriasConComillas = categoriasArray.map(categoria => `'${categoria}'`);
+      resultado = listaCategoriasConComillas.join(', ');
+    }
+
+    const query =
+        `
+        SELECT quejas.emi_codigo AS quejas_emi_codigo, 
+          IF((quejas.emi_tipo = 1), 'Queja', 
+          IF((quejas.emi_tipo = 2), 'Reclamo', 'No Existe')) AS quejas_emi_tipo, 
+          quejas.emi_categoria AS quejas_emi_categoria, 
+          CAST(STR_TO_DATE(concat(quejas.emi_fecha," ",quejas.emi_hora,":",quejas.emi_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS CHAR) AS quejas_emi_fecha,  
+          empresa.empr_nombre AS empresa_empr_nombre, 
+          quejas.caja_codigo AS caja_caja_nombre, 
+          quejas.emi_queja AS quejas_emi_queja 
+        FROM empresa 
+        INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo 
+        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+        AND (quejas.emi_tipo = 1 OR quejas.emi_tipo = 2)
+        ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
+        ${!todasCategorias ? `AND quejas.emi_categoria IN (${resultado})` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ORDER BY quejas.emi_fecha DESC, quejas.emi_hora DESC, quejas.emi_minuto DESC, quejas.emi_codigo DESC;
+        `;
+
+    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
+      if (err) {
+        res.status(400).json({
+          ok: false,
+          error: err,
+        });
+      } else {
+        res.json({
+          ok: true,
+          turnos,
+        });
+      }
+    });
+  }
+);
+
 
 /** ************************************************************************************************************ **
  ** **                                       GRAFICO OPINION                                                  ** ** 
@@ -129,5 +208,27 @@ router.get(
     });
   }
 );
+
+//Obtener categorias
+router.get("/categorias/:tipo", (req: Request, res: Response) => {
+  const tipo = req.params.tipo;
+  const query = `
+  SELECT DISTINCT emi_categoria FROM quejas WHERE emi_tipo = ${tipo} ORDER BY emi_categoria ASC;
+    `;
+
+  MySQL.ejecutarQuery(query, (err: any, categoria: Object[]) => {
+    if (err) {
+      res.status(400).json({
+        ok: false,
+        error: err,
+      });
+    } else {
+      res.json({
+        ok: true,
+        categoria: categoria,
+      });
+    }
+  });
+});
 
 export default router;

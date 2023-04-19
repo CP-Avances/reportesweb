@@ -12,7 +12,7 @@ import { cajero } from '../models/cajero';
 
 export class ServiceService {
 
-  private URL = "http://192.168.1.6:3004";
+  private URL = "http://192.168.1.11:3004";
 
   constructor(
     private http: HttpClient
@@ -50,6 +50,10 @@ export class ServiceService {
 
   getAllSucursales(): Observable<empresa[]> {
     return this.http.get<empresa[]>(this.URL + "/getallsucursales");
+  }
+
+  getAllCategorias(tipo: any): Observable<any> {
+    return this.http.get<any>(this.URL + "/categorias/" + tipo);
   }
 
   getAllCajeros(): Observable<cajero[]> {
@@ -198,6 +202,10 @@ export class ServiceService {
   /* OPINIONES */
   getopiniones(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, tipos: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/opinion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + tipos);
+  }
+
+  getopinionesIC(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, tipos: any, categorias: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/opinionIC/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + tipos + "/" + categorias);
   }
 
   getgraficoopinion(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any): Observable<servicio[]> {

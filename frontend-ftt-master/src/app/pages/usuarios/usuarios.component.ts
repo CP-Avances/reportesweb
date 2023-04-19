@@ -248,7 +248,6 @@ export class UsuariosComponent implements OnInit {
     this.date = f.format("YYYY-MM-DD");
 
     // CARGAMOS COMPONENTES SELECTS HTML
-    // this.getCajeros("-1");
     this.getlastday();
     this.getSucursales();
     this.getMeta();
@@ -411,9 +410,6 @@ export class UsuariosComponent implements OnInit {
             if (this.configTF.currentPage > 1) {
               this.configTF.currentPage = 1;
             }
-  
-            // COMPROBACION DE LA SUCURSAL COONSULTADA
-            // this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
           },
           (error) => {
             if (error.status == 400) {
@@ -476,9 +472,6 @@ export class UsuariosComponent implements OnInit {
             if (this.configTTF.currentPage > 1) {
               this.configTTF.currentPage = 1;
             }
-  
-            // COMPROBACION DE LA SUCURSAL COONSULTADA
-            // this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
           },
           (error) => {
             if (error.status == 400) {
@@ -541,9 +534,6 @@ export class UsuariosComponent implements OnInit {
             if (this.configTM.currentPage > 1) {
               this.configTM.currentPage = 1;
             }
-  
-            // COMPROBACION DE LA SUCURSAL COONSULTADA
-            // this.todasSucursalesTF = this.comprobarBusquedaSucursales(cod);
           },
           (error) => {
             if (error.status == 400) {
@@ -605,9 +595,6 @@ export class UsuariosComponent implements OnInit {
             if (this.configTP.currentPage > 1) {
               this.configTP.currentPage = 1;
             }
-            // // COMPROBACION DE LA SUCURSAL COONSULTADA
-            // this.todasSucursalesTPA =
-            //   this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -682,9 +669,6 @@ export class UsuariosComponent implements OnInit {
             if (this.configTA.currentPage > 1) {
               this.configTA.currentPage = 1;
             }
-            // // COMPROBACION DE LA SUCURSAL COONSULTADA
-            // this.todasSucursalesTPA =
-            //   this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -755,8 +739,6 @@ export class UsuariosComponent implements OnInit {
             if (this.configAU.currentPage > 1) {
               this.configAU.currentPage = 1;
             }
-
-            // this.todasSucursalesAU = this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -822,8 +804,6 @@ export class UsuariosComponent implements OnInit {
             if (this.configES.currentPage > 1) {
               this.configES.currentPage = 1;
             }
-            // this.todasSucursalesES =
-            //   this.comprobarBusquedaSucursales(codSucursal);
           },
           (error) => {
             if (error.status == 400) {
@@ -877,7 +857,6 @@ export class UsuariosComponent implements OnInit {
 
 
   exportarAExcelEntradaSalida() {
-    // let cod = this.codSucursal.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -885,7 +864,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioEntradaSalida.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioEntradaSalida[i].nombreEmpresa,
-          Cajero: this.servicioEntradaSalida[i].Usuario,
+          "Cajero(a)": this.servicioEntradaSalida[i].Usuario,
           "Fecha y hora": this.servicioEntradaSalida[i].fecha,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
@@ -893,7 +872,7 @@ export class UsuariosComponent implements OnInit {
     } else {
       for (let i = 0; i < this.servicioEntradaSalida.length; i++) {
         jsonServicio.push({
-          Cajero: this.servicioEntradaSalida[i].Usuario,
+          "Cajero(a)": this.servicioEntradaSalida[i].Usuario,
           "Hora Registrada": this.servicioEntradaSalida[i].fecha,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
@@ -922,7 +901,6 @@ export class UsuariosComponent implements OnInit {
   }
 
   ExportTOExcelTurnosFecha() {
-    // let cod = this.codSucursal.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -930,7 +908,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTurnosFecha.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioTurnosFecha[i].nombreEmpresa,
-          Cajero: this.servicioTurnosFecha[i].Usuario,
+          "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
           Fecha: this.servicioTurnosFecha[i].Fecha,
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
@@ -941,7 +919,7 @@ export class UsuariosComponent implements OnInit {
     } else {
       for (let i = 0; i < this.servicioTurnosFecha.length; i++) {
         jsonServicio.push({
-          Cajero: this.servicioTurnosFecha[i].Usuario,
+          "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
           Fecha: this.servicioTurnosFecha[i].Fecha,
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
@@ -973,7 +951,6 @@ export class UsuariosComponent implements OnInit {
   }
 
   ExportTOExcelTurnosTotalFecha() {
-    // let cod = this.codSucursal.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -981,7 +958,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioTurnosTotalFecha[i].nombreEmpresa,
-          Cajero: this.servicioTurnosTotalFecha[i].Usuario,
+          "Cajero(a)": this.servicioTurnosTotalFecha[i].Usuario,
           Fecha: this.servicioTurnosTotalFecha[i].Fecha,
           Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
           "No Atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
@@ -991,7 +968,7 @@ export class UsuariosComponent implements OnInit {
     } else {
       for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
         jsonServicio.push({
-          Cajero: this.servicioTurnosTotalFecha[i].Usuario,
+          "Cajero(a)": this.servicioTurnosTotalFecha[i].Usuario,
           Fecha: this.servicioTurnosTotalFecha[i].Fecha,
           Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
           "No Atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
@@ -1022,7 +999,6 @@ export class UsuariosComponent implements OnInit {
   }
 
   ExportTOExcelTurnosMeta() {
-    // let cod = this.codSucursal.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -1030,7 +1006,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioTurnosMeta[i].nombreEmpresa,
-          Cajero: this.servicioTurnosMeta[i].Usuario,
+          "Cajero(a)": this.servicioTurnosMeta[i].Usuario,
           Fecha: this.servicioTurnosMeta[i].Fecha,
           Atendidos: this.servicioTurnosMeta[i].Atendidos,
           "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos+"%",
@@ -1039,7 +1015,7 @@ export class UsuariosComponent implements OnInit {
     } else {
       for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
         jsonServicio.push({
-          Cajero: this.servicioTurnosMeta[i].Usuario,
+          "Cajero(a)": this.servicioTurnosMeta[i].Usuario,
           Fecha: this.servicioTurnosMeta[i].Fecha,
           Atendidos: this.servicioTurnosMeta[i].Atendidos,
           "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos+"%",
@@ -1069,7 +1045,6 @@ export class UsuariosComponent implements OnInit {
   }
 
   exportarAExcelPromAtencion() {
-    // let cod = this.codSucursalPromAtencion.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -1078,7 +1053,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioPromAtencion.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioPromAtencion[i].nombreEmpresa,
-          Cajero: this.servicioPromAtencion[i].Nombre,
+          "Cajero(a)": this.servicioPromAtencion[i].Nombre,
           Servicio: this.servicioPromAtencion[i].Servicio,
           Tiempo: this.servicioPromAtencion[i].Promedio,
           Turnos: this.servicioPromAtencion[i].Turnos,
@@ -1088,7 +1063,7 @@ export class UsuariosComponent implements OnInit {
     } else {
       for (let i = 0; i < this.servicioPromAtencion.length; i++) {
         jsonServicio.push({
-          Usuario: this.servicioPromAtencion[i].Nombre,
+          "Cajero(a)": this.servicioPromAtencion[i].Nombre,
           Servicio: this.servicioPromAtencion[i].Servicio,
           Tiempo: this.servicioPromAtencion[i].Promedio,
           Turnos: this.servicioPromAtencion[i].Turnos,
@@ -1118,7 +1093,6 @@ export class UsuariosComponent implements OnInit {
   }
 
   exportarAExcelTiempoAtencion() {
-    // let cod = this.codSucursalPromAtencion.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -1127,22 +1101,22 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioTiempoAtencion[i].nombreEmpresa,
-          Turno: this.servicioTiempoAtencion[i].turno,
-          Cajero: this.servicioTiempoAtencion[i].Nombre,
-          Servicio: this.servicioTiempoAtencion[i].Servicio,
+          "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
           Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
-          Tiempo: this.servicioTiempoAtencion[i].atencion,
+          Servicio: this.servicioTiempoAtencion[i].Servicio,
+          Turno: this.servicioTiempoAtencion[i].turno,
+          "Tiempo de atención": this.servicioTiempoAtencion[i].atencion,
         });
       }
       tamanos = [this.servicioTiempoAtencion[0].nombreEmpresa];
     } else {
       for (let i = 0; i < this.servicioPromAtencion.length; i++) {
         jsonServicio.push({
-          Turno: this.servicioTiempoAtencion[i].turno,
-          Cajero: this.servicioTiempoAtencion[i].Nombre,
-          Servicio: this.servicioTiempoAtencion[i].Servicio,
+          "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
           Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
-          Tiempo: this.servicioTiempoAtencion[i].atencion,
+          Servicio: this.servicioTiempoAtencion[i].Servicio,
+          Turno: this.servicioTiempoAtencion[i].turno,
+          "Tiempo de atención": this.servicioTiempoAtencion[i].atencion,
         });
       }
     }
@@ -1169,7 +1143,6 @@ export class UsuariosComponent implements OnInit {
   }
 
   exportarAExcelAtencionUsuario() {
-    // let cod = this.codSucursal.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -1177,7 +1150,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioAtencionUsua.length; i++) {
         jsonServicio.push({
           Sucursal: this.servicioAtencionUsua[i].nombreEmpresa,
-          Cajero: this.servicioAtencionUsua[i].Nombre,
+          "Cajero(a)": this.servicioAtencionUsua[i].Nombre,
           Servicio: this.servicioAtencionUsua[i].Servicio,
           Atendidos: this.servicioAtencionUsua[i].Atendidos,
           "No atendidos": this.servicioAtencionUsua[i].No_Atendidos,
@@ -1187,7 +1160,7 @@ export class UsuariosComponent implements OnInit {
     } else {
       for (let i = 0; i < this.servicioAtencionUsua.length; i++) {
         jsonServicio.push({
-          Cajero: this.servicioAtencionUsua[i].Nombre,
+          "Cajero(a)": this.servicioAtencionUsua[i].Nombre,
           Servicio: this.servicioAtencionUsua[i].Servicio,
           Atendidos: this.servicioAtencionUsua[i].Atendidos,
           "No atendidos": this.servicioAtencionUsua[i].No_Atendidos,
@@ -1270,7 +1243,6 @@ export class UsuariosComponent implements OnInit {
       case "download":
         pdfMake.createPdf(documentDefinition).download();
         break;
-
       default:
         pdfMake.createPdf(documentDefinition).open();
         break;
@@ -1401,7 +1373,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
@@ -1436,7 +1408,7 @@ export class UsuariosComponent implements OnInit {
 
           body: [
             [
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
@@ -1472,8 +1444,6 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTurnosTotalFecha.nativeElement.value
       .toString()
       .trim();
-
-    // var cod = this.codSucursal.nativeElement.value.toString().trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
@@ -1625,7 +1595,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "No Atendidos", style: "tableHeader" },
@@ -1658,7 +1628,7 @@ export class UsuariosComponent implements OnInit {
 
           body: [
             [
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "No Atendidos", style: "tableHeader" },
@@ -1692,8 +1662,6 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTurnosMeta.nativeElement.value
       .toString()
       .trim();
-
-    // var cod = this.codSucursal.nativeElement.value.toString().trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
@@ -1845,7 +1813,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "Porcentaje de cumplimiento", style: "tableHeader" },
@@ -1876,7 +1844,7 @@ export class UsuariosComponent implements OnInit {
 
           body: [
             [
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "Porcentaje de cumplimiento", style: "tableHeader" },
@@ -1909,10 +1877,6 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDatePromAtencion.nativeElement.value
       .toString()
       .trim();
-
-    // var cod = this.codSucursalPromAtencion.nativeElement.value
-    //   .toString()
-    //   .trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
@@ -2065,7 +2029,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Tiempo", style: "tableHeader" },
               { text: "Turnos", style: "tableHeader" },
@@ -2096,7 +2060,7 @@ export class UsuariosComponent implements OnInit {
           widths: ["*", "auto", "auto", "auto"],
           body: [
             [
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Tiempo", style: "tableHeader" },
               { text: "Turnos", style: "tableHeader" },
@@ -2128,10 +2092,6 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateTiempoAtencion.nativeElement.value
       .toString()
       .trim();
-
-    // var cod = this.codSucursalPromAtencion.nativeElement.value
-    //   .toString()
-    //   .trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
@@ -2285,7 +2245,7 @@ export class UsuariosComponent implements OnInit {
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
@@ -2318,7 +2278,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Turno", style: "tableHeader" },
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
@@ -2347,7 +2307,6 @@ export class UsuariosComponent implements OnInit {
     //Seteo de rango de fechas de la consulta para impresión en PDF
     var fechaDesde = this.fromDateUES.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateUES.nativeElement.value.toString().trim();
-    // var cod = this.codSucursalEntradas.nativeElement.value.toString().trim();
 
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
@@ -2499,7 +2458,7 @@ export class UsuariosComponent implements OnInit {
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha y hora", style: "tableHeader" },
               { text: "Razón", style: "tableHeader" },
             ],
@@ -2528,7 +2487,7 @@ export class UsuariosComponent implements OnInit {
           widths: ["*", "auto", "auto"],
           body: [
             [
-              { text: "Cajero", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha y hora", style: "tableHeader" },
               { text: "Razón", style: "tableHeader" },
             ],
@@ -2558,9 +2517,7 @@ export class UsuariosComponent implements OnInit {
     var fechaHasta = this.toDateAtencionUsua.nativeElement.value
       .toString()
       .trim();
-    // var cod = this.codSucursalAtencionUsua.nativeElement.value
-    //   .toString()
-    //   .trim();
+      
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
@@ -2707,7 +2664,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "*", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -2741,7 +2698,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Nombre", style: "tableHeader" },

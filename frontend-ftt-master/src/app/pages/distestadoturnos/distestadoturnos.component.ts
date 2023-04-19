@@ -337,7 +337,7 @@ export class DistestadoturnosComponent implements OnInit {
       for (let step = 0; step < this.servicioDist.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioDist[step].nombreEmpresa,
-          Usuario: this.servicioDist[step].Usuario,
+          "Cajero(a)": this.servicioDist[step].Usuario,
           Servicio: this.servicioDist[step].SERV_NOMBRE,
           Fecha: this.servicioDist[step].fecha,
           "Total Turnos": this.servicioDist[step].turnos,
@@ -348,7 +348,7 @@ export class DistestadoturnosComponent implements OnInit {
     } else {
       for (let step = 0; step < this.servicioDist.length; step++) {
         jsonServicio.push({
-          Usuario: this.servicioDist[step].Usuario,
+          "Cajero(a)": this.servicioDist[step].Usuario,
           Servicio: this.servicioDist[step].SERV_NOMBRE,
           Fecha: this.servicioDist[step].fecha,
           "Total Turnos": this.servicioDist[step].turnos,
@@ -380,7 +380,7 @@ export class DistestadoturnosComponent implements OnInit {
       for (let step = 0; step < this.servicioRes.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioRes[step].nombreEmpresa,
-          Usuario: this.servicioRes[step].Usuario,
+          "Cajero(a)": this.servicioRes[step].Usuario,
           Servicio: this.servicioRes[step].SERV_NOMBRE,
           Atendidos: this.servicioRes[step].ATENDIDOS,
           "No Atendidos": this.servicioRes[step].NOATENDIDOS,
@@ -390,7 +390,7 @@ export class DistestadoturnosComponent implements OnInit {
     } else {
       for (let step = 0; step < this.servicioRes.length; step++) {
         jsonServicio.push({
-          Usuario: this.servicioRes[step].Usuario,
+          "Cajero(a)": this.servicioRes[step].Usuario,
           Servicio: this.servicioRes[step].SERV_NOMBRE,
           Atendidos: this.servicioRes[step].ATENDIDOS,
           "No Atendidos": this.servicioRes[step].NOATENDIDOS,
@@ -520,7 +520,7 @@ export class DistestadoturnosComponent implements OnInit {
           body: [
             [
               { text: 'Sucursal', style: 'tableHeader' },
-              { text: 'Usuario', style: 'tableHeader' },
+              { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
               { text: 'Fecha', style: 'tableHeader' },
               { text: 'Total Turnos', style: 'tableHeader' },
@@ -554,7 +554,7 @@ export class DistestadoturnosComponent implements OnInit {
           widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
-              { text: 'Usuario', style: 'tableHeader' },
+              { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
               { text: 'Fecha', style: 'tableHeader' },
               { text: 'Total Turnos', style: 'tableHeader' },
@@ -692,7 +692,7 @@ export class DistestadoturnosComponent implements OnInit {
           body: [
             [
               { text: 'Sucursal', style: 'tableHeader' },
-              { text: 'Usuario', style: 'tableHeader' },
+              { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
               { text: 'T. Atendidos', style: 'tableHeader' },
               { text: 'No Atendidos', style: 'tableHeader' },
@@ -724,7 +724,7 @@ export class DistestadoturnosComponent implements OnInit {
           widths: ['*', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
-              { text: 'Usuario', style: 'tableHeader' },
+              { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
               { text: 'T. Atendidos', style: 'tableHeader' },
               { text: 'No Atendidos', style: 'tableHeader' },

@@ -95,7 +95,7 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTC || seleccionMultiple">Sucursal</th>
-                                    <th scope="col" class="text-center">Cajero</th>
+                                    <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Tiempo Espera</th>
@@ -283,9 +283,9 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTA || seleccionMultiple">Sucursal</th>
-                                    <th scope="col" class="text-center">Turno</th>
-                                    <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Turno</th>
                                     <th scope="col" class="text-center">Tiempo de espera </th>
                                     <th scope="col" class="text-center">Tiempo de atención</th>
                                 </tr>
@@ -293,9 +293,9 @@
                             <tbody *ngIf="!malRequestAtTA">
                                 <tr *ngFor="let serviciota of serviciota | paginate:configTA">
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">{{serviciota.nombreEmpresa}}</td>
-                                    <td>{{serviciota.turno}}</td>
-                                    <td>{{serviciota.SERV_NOMBRE}}</td>
                                     <td>{{serviciota.TURN_FECHA}}</td>
+                                    <td>{{serviciota.SERV_NOMBRE}}</td>
+                                    <td>{{serviciota.turno}}</td>
                                     <td>{{serviciota.espera}}</td>
                                     <td>{{serviciota.atencion}}</td>
                                 </tr>

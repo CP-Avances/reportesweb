@@ -7,6 +7,9 @@
                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">INFORME</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab" aria-controls="opcategoria" aria-selected="false">INFORME QUEJAS Y RECLAMOS</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#opserviciosgraf" role="tab" aria-controls="ocserviciosgraf" aria-selected="false">GRÁFICOS</a>
                 </li>
             </ul>
@@ -103,6 +106,108 @@
                     </div>
                     <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpiniones()">EXCEL</button>
                     <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',1)">PDF</button>
+                </div>
+
+                <div class="tab-pane fade" id="opcategoria" role="tabpanel" aria-labelledby="opcategoria-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateIC">Fecha desde:</label>
+                                        <input type="date" id="fromDateIC" value="{{fromDate}}" [max]="toDate" name="fromDateIC" #fromDateIC>
+                                        <br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateIC">Fecha hasta: </label>
+                                        <input type="date" id="toDateIC" value="{{toDate}}" [max]="toDate" name="toDateIC" #toDateIC>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioIC>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinIC>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesIC')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesIC">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select class="form-control" name="selectmake" [(value)]="tiposSeleccionados" placeholder="Tipos">
+                                    <mat-option [value]="1" (click)="selectAll('tipo1')">
+                                        Quejas
+                                    </mat-option>
+                                    <mat-option [value]="2" (click)="selectAll('tipo2')">
+                                        Reclamos
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="categoriasSeleccionadas" placeholder="Categorias">
+                                    <mat-option *ngIf="mostrarCategorias" [value]="-1"  (click)="selectAll('todasCategorias')" >
+                                        Todas las categorias
+                                    </mat-option>
+                                    <mat-option *ngFor="let categoria of categorias" [value]="categoria.emi_categoria" [disabled]="todasCategorias"> 
+                                        {{categoria.emi_categoria}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerOpinionesC()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h3>OPINIONES</h3>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="contentIC" #contentIC #tableIC>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesIC || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center">Tipo</th>
+                                    <th scope="col" class="text-center">Categoría</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Caja</th>
+                                    <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
+                                </tr>
+                            </thead>
+                            <tbody >
+                                <tr *ngFor="let servicioOpinionIC of servicioOpinionIC | paginate:configIC">
+                                    <td *ngIf="todasSucursalesIC || seleccionMultiple">{{servicioOpinionIC.empresa_empr_nombre}}</td>
+                                    <td>{{servicioOpinionIC.quejas_emi_tipo}}</td>
+                                    <td>{{servicioOpinionIC.quejas_emi_categoria}}</td>
+                                    <td>{{servicioOpinionIC.quejas_emi_fecha}}</td>
+                                    <td>{{servicioOpinionIC.caja_caja_nombre}}</td>
+                                    <td class="text-left">{{servicioOpinionIC.quejas_emi_queja}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls 
+                            *ngIf="!malRequestICPag" 
+                            id= "opinionesIC"
+                            [previousLabel]="labels.previousLabel"
+                            [nextLabel]="labels.nextLabel"  
+                            (pageChange)="pageChangedIC($event)">
+                        </pagination-controls>
+                    </div>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesIC()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOpinionesIC('hola',1)">PDF</button>
                 </div>
 
                 <div class="tab-pane fade" id="opserviciosgraf" role="tabpanel" aria-labelledby="ocserviciosgraf-tab">

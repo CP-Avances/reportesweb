@@ -14,7 +14,7 @@ export default class MySQL {
         console.log('clase inicializada');
 
         this.cnn = mysql.createConnection({
-            host: '192.168.1.6',
+            host: '192.168.1.11',
             port: 3307,
             user: 'root',
             password: 'root',
