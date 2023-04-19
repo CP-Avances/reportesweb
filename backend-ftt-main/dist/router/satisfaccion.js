@@ -16,7 +16,6 @@ router.get('/totaltickets/:fecha', (req, res) => {
     let fechas = req.params.fecha;
     const query = `
         SELECT turn_fecha as fecha, count(*) AS numeroturnos FROM turno WHERE turn_fecha = '${fechas}'
-        AND caje_codigo !=0
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

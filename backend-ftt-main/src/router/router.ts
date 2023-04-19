@@ -7,7 +7,7 @@ import path from 'path'
 let jwt = require('jsonwebtoken');
 const router = Router();
 
-const ImagenBase64LogosEmpresas = function(path_file:string) {
+const ImagenBase64LogosEmpresas = function (path_file: string) {
     try {
         path_file = path.resolve('uploads') + '/' + path_file
         let data = fs.readFileSync(path_file);
@@ -141,15 +141,62 @@ router.get('/renew', (req: Request, res: Response) => {
     })
 });
 
-const upload = multer({ dest: 'uploads/' });
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
 
-//Guardar nombre imagen en la base de datos
-router.post('/uploadImage', upload.single('image'),(req, res) =>{
+const upload = multer({ storage: storage });
+
+// GUARDAR NOMBRE IMAGEN EN LA BASE DE DATOS
+router.post('/uploadImage', upload.single('image'), (req, res) => {
+
     const filename = req.file?.path.split("\\")[1];
-    // const list: any = req.file;
-    // let logo = list.file.path.split("\\")[1];// const ruta = req.params.ruta;
-    const  query = `UPDATE general SET gene_valor = '${filename}' WHERE gene_codigo = 8;`
-    
+
+    // BUSQUEDA DE LOGO
+    const logo =
+        `
+        SELECT gene_valor FROM general WHERE gene_codigo = 8;
+        `
+        ;
+
+    let nombreImagen: any[];
+
+    MySQL.ejecutarQuery(logo, (err: any, imagen: Object[]) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err,
+            });
+        } else {
+            nombreImagen = imagen;
+            if (nombreImagen[0].gene_valor != null && nombreImagen[0].gene_valor != '') {
+
+                if (nombreImagen[0].gene_valor === filename) {
+                    ActualizarImagen(res, filename);
+                }
+                else {
+                    let path_file = path.resolve('uploads') + '/' + nombreImagen[0].gene_valor
+                    // ELIMINAR REGISTRO DEL SERVIDOR
+                    fs.unlinkSync(path_file);
+                    ActualizarImagen(res, filename);
+                }
+            }
+            else {
+                ActualizarImagen(res, filename);
+            }
+        }
+    });
+}
+);
+
+function ActualizarImagen(res: any, archivo: any) {
+    const query = `UPDATE general SET gene_valor = '${archivo}' WHERE gene_codigo = 8;`
+
     MySQL.ejecutarQuery(query, (err: any, usuario: Object[]) => {
         if (err) {
             res.status(400).json({
@@ -165,39 +212,37 @@ router.post('/uploadImage', upload.single('image'),(req, res) =>{
         }
     })
 }
-);
 
-router.get('/nombreImagen',(req: Request, res: Response) => {
-    const query = `
-      SELECT gene_valor FROM general WHERE gene_codigo = 8;
-      `;
-  
-      ;
-
+router.get('/nombreImagen', (req: Request, res: Response) => {
+    const query =
+        `
+        SELECT gene_valor FROM general WHERE gene_codigo = 8;
+        `
+        ;
     let nombreImagen: any[];
 
     MySQL.ejecutarQuery(query, (err: any, imagen: Object[]) => {
-      if (err) {
-        res.status(400).json({
-          ok: false,
-          error: err,
-        });
-      } else {
-          nombreImagen = imagen;
-        const codificado =  ImagenBase64LogosEmpresas(nombreImagen[0].gene_valor);
-        res.json({
-          ok: true,
-          imagen: codificado,
-        });
-      }
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err,
+            });
+        } else {
+            nombreImagen = imagen;
+            const codificado = ImagenBase64LogosEmpresas(nombreImagen[0].gene_valor);
+            res.json({
+                ok: true,
+                imagen: codificado,
+            });
+        }
     });
-  });
+});
 
-  //Guardar meta de turnos en la base de datos
-router.get('/setMeta/:valor',(req, res) =>{
+//Guardar meta de turnos en la base de datos
+router.get('/setMeta/:valor', (req, res) => {
     const valor = req.params.valor;
 
-    const  query = `UPDATE general SET gene_valor = '${valor}' WHERE gene_codigo = 9;`
+    const query = `UPDATE general SET gene_valor = '${valor}' WHERE gene_codigo = 9;`
 
     MySQL.ejecutarQuery(query, (err: any, usuario: Object[]) => {
         if (err) {
@@ -215,25 +260,25 @@ router.get('/setMeta/:valor',(req, res) =>{
 }
 );
 
-router.get('/getMeta',(req: Request, res: Response) => {
+router.get('/getMeta', (req: Request, res: Response) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 9;
       `;
 
     MySQL.ejecutarQuery(query, (err: any, valor: any) => {
-      if (err) {
-        res.status(400).json({
-          ok: false,
-          error: err,
-        });
-      } else {
-        res.json({
-          ok: true,
-          valor: valor[0].gene_valor,
-        });
-      }
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err,
+            });
+        } else {
+            res.json({
+                ok: true,
+                valor: valor[0].gene_valor,
+            });
+        }
     });
-  });
+});
 
 export default router;
 

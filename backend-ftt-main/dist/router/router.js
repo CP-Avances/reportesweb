@@ -130,14 +130,52 @@ router.get('/renew', (req, res) => {
         mensaje: 'todo esta bien'
     });
 });
-const upload = (0, multer_1.default)({ dest: 'uploads/' });
-//Guardar nombre imagen en la base de datos
+const storage = multer_1.default.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+const upload = (0, multer_1.default)({ storage: storage });
+// GUARDAR NOMBRE IMAGEN EN LA BASE DE DATOS
 router.post('/uploadImage', upload.single('image'), (req, res) => {
     var _a;
     const filename = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path.split("\\")[1];
-    // const list: any = req.file;
-    // let logo = list.file.path.split("\\")[1];// const ruta = req.params.ruta;
-    const query = `UPDATE general SET gene_valor = '${filename}' WHERE gene_codigo = 8;`;
+    // BUSQUEDA DE LOGO
+    const logo = `
+        SELECT gene_valor FROM general WHERE gene_codigo = 8;
+        `;
+    let nombreImagen;
+    mysql_1.default.ejecutarQuery(logo, (err, imagen) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err,
+            });
+        }
+        else {
+            nombreImagen = imagen;
+            if (nombreImagen[0].gene_valor != null && nombreImagen[0].gene_valor != '') {
+                if (nombreImagen[0].gene_valor === filename) {
+                    ActualizarImagen(res, filename);
+                }
+                else {
+                    let path_file = path_1.default.resolve('uploads') + '/' + nombreImagen[0].gene_valor;
+                    // ELIMINAR REGISTRO DEL SERVIDOR
+                    fs_1.default.unlinkSync(path_file);
+                    ActualizarImagen(res, filename);
+                }
+            }
+            else {
+                ActualizarImagen(res, filename);
+            }
+        }
+    });
+});
+function ActualizarImagen(res, archivo) {
+    const query = `UPDATE general SET gene_valor = '${archivo}' WHERE gene_codigo = 8;`;
     mysql_1.default.ejecutarQuery(query, (err, usuario) => {
         if (err) {
             res.status(400).json({
@@ -152,12 +190,11 @@ router.post('/uploadImage', upload.single('image'), (req, res) => {
             });
         }
     });
-});
+}
 router.get('/nombreImagen', (req, res) => {
     const query = `
-      SELECT gene_valor FROM general WHERE gene_codigo = 8;
-      `;
-    ;
+        SELECT gene_valor FROM general WHERE gene_codigo = 8;
+        `;
     let nombreImagen;
     mysql_1.default.ejecutarQuery(query, (err, imagen) => {
         if (err) {
