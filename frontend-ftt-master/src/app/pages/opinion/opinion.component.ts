@@ -34,6 +34,8 @@ export class OpinionComponent implements OnInit {
   @ViewChild("toDateIC") toDateIC: ElementRef;
   @ViewChild("fromDateOcupG") fromDateOcupG: ElementRef;
   @ViewChild("toDateOcupG") toDateOcupG: ElementRef;
+  @ViewChild("fromDateOcupGIC") fromDateOcupGIC: ElementRef;
+  @ViewChild("toDateOcupGIC") toDateOcupGIC: ElementRef;
   @ViewChild('codSucursalAtM') codSucursalAtM: ElementRef;
   @ViewChild('codSucursalOcupG') codSucursalOcupG: ElementRef;
 
@@ -43,6 +45,8 @@ export class OpinionComponent implements OnInit {
   @ViewChild("horaFinIC") horaFinIC: ElementRef;
   @ViewChild("horaInicioG") horaInicioG: ElementRef;
   @ViewChild("horaFinG") horaFinG: ElementRef;
+  @ViewChild("horaInicioGIC") horaInicioGIC: ElementRef;
+  @ViewChild("horaFinGIC") horaFinGIC: ElementRef;
   
 
   //Variables de la grafica
@@ -54,6 +58,7 @@ export class OpinionComponent implements OnInit {
   servicioOpinionIC: any = [];
   servicioOpinion: any = [];
   servicioocg: any = [];
+  servicioocgIC: any = [];
   categorias: any[];
   sucursales: any[];
   servicio: any;
@@ -65,12 +70,15 @@ export class OpinionComponent implements OnInit {
   todasSucursalesI: boolean = false;
   todasSucursalesIC: boolean = false;
   todasSucursalesG: boolean = false;
+  todasSucursalesGIC: boolean = false;
   todasCategorias: boolean = false;
   todosTipos: boolean = false;
 
   //Banderas para que no se quede en pantalla consultas anteriores
   malRequestAtM: boolean = false;
+  malRequestAtMIC: boolean = false;
   malRequestAtMPag: boolean = false;
+  malRequestAtMICPag: boolean = false;
   malRequestIC: boolean = false;
   malRequestICPag: boolean = false;
   malRequestOcupG: boolean = false;
@@ -80,6 +88,7 @@ export class OpinionComponent implements OnInit {
 
   //Control paginacion
   configAtM: any;
+  configAtMIC: any;
   configIC: any;
   private MAX_PAGS = 10;
 
@@ -137,6 +146,12 @@ export class OpinionComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioOpinion.length,
     };
+    this.configAtMIC = {
+      id: "AtendidosMatmIC",
+      itemsPerPage: this.MAX_PAGS,
+      currentPage: 1,
+      totalItems: this.servicioocgIC.length,
+    };
     this.configIC = {
       id: "opinionesIC",
       itemsPerPage: this.MAX_PAGS,
@@ -190,8 +205,11 @@ export class OpinionComponent implements OnInit {
         case 'todasSucursalesIC':
             this.todasSucursalesIC = !this.todasSucursalesIC;
             break;
-        case 'todasSucursalesES':
+        case 'todasSucursalesG':
             this.todasSucursalesG = !this.todasSucursalesG;
+            break;
+        case 'todasSucursalesGIC':
+            this.todasSucursalesGIC = !this.todasSucursalesGIC;
             break;
         case 'todasCategorias':
             this.todasCategorias = !this.todasCategorias;
@@ -544,6 +562,187 @@ export class OpinionComponent implements OnInit {
     }
   }
 
+  leerGrafOpinionIC() {
+    //captura de fechas para proceder con la busqueda
+    var fD = this.fromDateOcupGIC.nativeElement.value.toString().trim();
+    var fH = this.toDateOcupGIC.nativeElement.value.toString().trim();
+    
+    let horaInicio = this.horaInicioGIC.nativeElement.value;
+    let horaFin = this.horaFinGIC.nativeElement.value;
+
+    this.malRequestAtMIC = false;
+
+    if (this.sucursalesSeleccionadas.length!==0) {
+      this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
+        (servicioocgIC: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          this.servicioocgIC = servicioocgIC.turnos;
+          // this.malRequestAtM = false;
+          this.malRequestAtMICPag = false;
+          //Seteo de paginacion cuando se hace una nueva busqueda
+          if (this.configAtMIC.currentPage > 1) {
+            this.configAtMIC.currentPage = 1;
+          }
+          // this.todasSucursalesG = this.comprobarBusquedaSucursales(cod);
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            this.servicioocgIC = null;
+            this.malRequestAtMIC = true;
+            this.malRequestAtMICPag = true;
+            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
+            //caso contrario se setea la cantidad de elementos
+            if (this.servicioocgIC == null) {
+              this.configAtMIC.totalItems = 0;
+            } else {
+              this.configAtMIC.totalItems = this.servicioocgIC.length;
+            }
+  
+            //Por error 400 se setea elementos de paginacion
+            this.configAtMIC = {
+              itemsPerPage: this.MAX_PAGS,
+              currentPage: 1,
+            };
+            //Se informa que no se encontraron registros
+            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+              timeOut: 6000,
+            });
+          }
+        }
+      );
+  
+      this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas,this.tiposSeleccionados).subscribe(
+        (servicio: any) => {
+          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          //Se verifica el ancho de pantalla para colocar o no labels
+          this.legend = screen.width < 575 ? false : true;
+          //Mapeo de porcentajes para mostrar en pantalla
+          this.servicio = servicio.turnos;
+          let total = servicio.turnos.map((res) => res.queja_cantidad);
+          let tipo = servicio.turnos.map((res) => res.quejas_emi_categoria);
+          let Nombres = [];
+          let totalPorc = 0;
+          for (var i = 0; i < tipo.length; i++) {
+            totalPorc = totalPorc + total[i];
+          }
+          for (var i = 0; i < tipo.length; i++) {
+            Nombres.push(
+              tipo[i] +
+                "\n" +
+                Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
+                "%"
+            );
+          }
+  
+          //Se crea el grafico
+          this.chartPie = new Chart("canvas3", {
+            //El tipo de grafico
+            type: (this.tipo = "pie"),
+            data: {
+              labels: Nombres, //eje x
+              datasets: [
+                {
+                  label: "Total",
+                  data: total, //eje y
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.6)",
+                    "rgba(54, 162, 235, 0.6)",
+                    "rgba(255, 206, 86, 0.6)",
+                    "rgba(75, 192, 192, 0.6)",
+                    "rgba(153, 102, 255, 0.6)",
+                    "rgba(255, 159, 64, 0.6)",
+                    ///////////////////////////F
+                    "rgba(104, 210, 34, 0.6)",
+                  ],
+                },
+              ],
+            },
+            //Se setea titulo asi como valores en grafico
+            options: {
+            
+              plugins: {
+                title: {
+                  display: true,
+                },
+                datalabels: {
+                  color: "black",
+                  labels: {
+                    title: {
+                      color: "blue",
+                      font: {
+                        weight: "bold",
+                      },
+                    },
+                  },
+                },
+              },
+              responsive: true,
+            },
+          });
+          //Se crea segundo grafico
+          this.chartBar = new Chart("canvas4", {
+            //Tipo de gráfico bar
+            type: (this.tipo = "bar"),
+            data: {
+              labels: Nombres, //eje x
+              datasets: [
+                {
+                  label: "Total",
+                  data: total, //eje y
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.6)",
+                    "rgba(54, 162, 235, 0.6)",
+                    "rgba(255, 206, 86, 0.6)",
+                    "rgba(75, 192, 192, 0.6)",
+                    "rgba(153, 102, 255, 0.6)",
+                    "rgba(255, 159, 64, 0.6)",
+                    ///////////////////////////F
+                    "rgba(104, 210, 34, 0.6)",
+                  ],
+                },
+              ],
+            },
+            options: {
+              scales: {
+               /* xAxes: [
+                  {
+                    ticks: {
+                      display: this.legend,
+                    },
+                  },
+                ],*/
+              },
+              plugins:{
+                title: {
+                  display: true,
+                },
+                legend: {
+                  display: false,
+                },
+              },
+            
+              responsive: true,
+            },
+          });
+        },
+        (error) => {
+          if (error.status == 400) {
+            //Por error 400 se vacia variable de consulta
+            this.servicio = null;
+          }
+        }
+      );
+    }
+    //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
+    if (this.chartPie != undefined || this.chartPie != null) {
+      this.chartPie.destroy();
+    }
+    if (this.chartBar != undefined || this.chartBar != null) {
+      this.chartBar.destroy();
+    }
+  }
+
   obtenerNombreSucursal(sucursales: any) {
     const listaSucursales = sucursales;
     let nombreSucursal = "";
@@ -693,6 +892,50 @@ export class OpinionComponent implements OnInit {
     XLSX.writeFile(
       wb,
       "informeOpinionesExcel - "+nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION
+    );
+  }
+
+  exportTOExcelOpinionesGraficoIC() {
+    // let cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+
+    //Mapeo de información de consulta a formato JSON para exportar a Excel
+    let jsonServicio = [];
+      if (this.todasSucursalesGIC || this.seleccionMultiple) {
+        for (let step = 0; step < this.servicioocgIC.length; step++) {
+          jsonServicio.push({
+            Sucursal: this.servicioocgIC[step].empresa_empr_nombre,
+            Tipo: this.servicioocgIC[step].quejas_emi_tipo,
+            Categoria: this.servicioocgIC[step].quejas_emi_categoria,
+            Cantidad: this.servicioocgIC[step].queja_cantidad,
+          });
+        }
+      } else {
+        for (let step = 0; step < this.servicioocgIC.length; step++) {
+          jsonServicio.push({
+            Tipo: this.servicioocgIC[step].quejas_emi_tipo,
+            Categoria: this.servicioocgIC[step].quejas_emi_categoria,
+            Cantidad: this.servicioocgIC[step].queja_cantidad,
+          });
+        }
+      }
+    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioocgIC[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols = [];
+    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 })
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Informe");
+    XLSX.writeFile(
+      wb,
+      "informeOpinionesExcelG - "+nombreSucursal +
         " - " +
         new Date().toLocaleString() +
         EXCEL_EXTENSION
@@ -856,7 +1099,11 @@ export class OpinionComponent implements OnInit {
     if (pdf === 1) {
       // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentOpinionesIC(fD, fH);
-    } 
+    } else if (pdf === 2) {
+      // var cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
+      documentDefinition = this.getDocumentOpinionesGraficosIC(fD, fH);
+    }
+    
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
     switch (action) {
@@ -1110,6 +1357,126 @@ export class OpinionComponent implements OnInit {
     };
   }
 
+  getDocumentOpinionesGraficosIC(fD, fH) {
+    //Selecciona de la interfaz el elemento que contiene la grafica
+    var canvas1 = document.querySelector("#canvas3") as HTMLCanvasElement;
+    var canvas2 = document.querySelector("#canvas4") as HTMLCanvasElement;
+    //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+    var canvasImg = canvas1.toDataURL("image/png");
+    var canvasImg1 = canvas2.toDataURL("image/png");
+    //Se obtiene la fecha actual
+    let f = new Date();
+    f.setUTCHours(f.getHours());
+    this.date = f.toJSON();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+
+    return {
+      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      watermark: {
+        text: this.marca,
+        color: "blue",
+        opacity: 0.1,
+        bold: true,
+        italics: false,
+        fontSize: 52,
+      },
+      header: {
+        text: "Impreso por:  " + this.userDisplayName,
+        margin: 10,
+        fontSize: 9,
+        opacity: 0.3,
+      },
+      pageOrientation: this.orientacion,
+      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
+      footer: function (currentPage, pageCount, fecha) {
+        fecha = f.toJSON().split("T")[0];
+        var timer = f.toJSON().split("T")[1].slice(0, 5);
+        return [
+          {
+            margin: [10, 20, 10, 0],
+            columns: [
+              "Fecha: " + fecha + " Hora: " + timer,
+              {
+                text: [
+                  {
+                    text:
+                      "© Pag " + currentPage.toString() + " of " + pageCount,
+                    alignment: "right",
+                    color: "blue",
+                    opacity: 0.5,
+                  },
+                ],
+              },
+            ],
+            fontSize: 9,
+            color: "#A4B8FF",
+          },
+        ];
+      },
+      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      content: [
+        {
+          columns: [
+            {
+              image: this.urlImagen,
+              width: 90,
+              height: 45,
+            },
+            {
+              width: "*",
+              alignment: "center",
+              text: "Reporte - Opiniones",
+              bold: true,
+              fontSize: 15,
+              margin: [-90, 20, 0, 0],
+            },
+          ],
+        },
+        {
+          style: "subtitulos",
+          text: nombreSucursal,
+        },
+        {
+          style: "subtitulos",
+          text: "Periodo de " + fD + " hasta " + fH,
+        },
+        this.opinionesGraficosIC(this.servicioocgIC),
+        this.grafico(canvasImg),
+        this.grafico(canvasImg1), //Definicion de funcion delegada para setear informacion de tabla del PDF
+      ],
+      styles: {
+        tableTotal: {
+          fontSize: 30,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        tableHeader: {
+          fontSize: 9,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+        subtitulos: {
+          fontSize: 16,
+          alignment: "center",
+          margin: [0, 5, 0, 10],
+        },
+        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+        CabeceraTabla: {
+          fontSize: 12,
+          alignment: "center",
+          margin: [0, 8, 0, 8],
+          fillColor: this.p_color,
+        },
+        quote: { margin: [5, -2, 0, -2], italics: true },
+        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+      },
+    };
+  }
+
   grafico(imagen: any) {
     if (this.orientacion == "landscape") {
       return {
@@ -1319,6 +1686,68 @@ export class OpinionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.quejas_emi_tipo },
+                { style: "itemsTable", text: res.queja_cantidad },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+  }
+
+  opinionesGraficosIC(servicio: any[]) {
+    if (this.todasSucursalesGIC || this.seleccionMultiple) {
+      return {
+        style: "tableMargin",
+        table: {
+          alignment: "center",
+          headerRows: 1,
+          widths: ["*", "*", "*", "auto"],
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Tipo", style: "tableHeader" },
+              { text: "Categoria", style: "tableHeader" },
+              { text: "Cantidad", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.empresa_empr_nombre },
+                { style: "itemsTable", text: res.quejas_emi_tipo },
+                { style: "itemsTable", text: res.quejas_emi_categoria },
+                { style: "itemsTable", text: res.queja_cantidad },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    } else {
+      return {
+        style: "tableMargin",
+        table: {
+          alignment: "center",
+          headerRows: 1,
+          widths: ["*", "*", "auto"],
+          body: [
+            [
+              { text: "Tipo", style: "tableHeader" },
+              { text: "Categoria", style: "tableHeader" },
+              { text: "Cantidad", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.quejas_emi_tipo },
+                { style: "itemsTable", text: res.queja_emi_categoria },
                 { style: "itemsTable", text: res.queja_cantidad },
               ];
             }),

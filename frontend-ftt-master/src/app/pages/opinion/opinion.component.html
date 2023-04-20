@@ -4,13 +4,16 @@
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">INFORME</a>
-                </li>
-                <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab" aria-controls="opcategoria" aria-selected="false">INFORME QUEJAS Y RECLAMOS</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#opserviciosgraf" role="tab" aria-controls="ocserviciosgraf" aria-selected="false">GRÁFICOS</a>
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">INFORME GENERAL</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="ocserviciosgrafIC-tab" data-toggle="tab" href="#opserviciosgrafIC" role="tab" aria-controls="ocserviciosgrafIC" aria-selected="false">GRÁFICOS QUEJAS Y RECLAMOS</a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#opserviciosgraf" role="tab" aria-controls="ocserviciosgraf" aria-selected="false">GRÁFICOS GENERAL</a>
                 </li>
             </ul>
 
@@ -278,6 +281,86 @@
                     </fieldset>
                     <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGrafico()">EXCEL</button>
                     <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',2)">PDF</button>
+                    <br>
+                </div>
+
+                <div class="tab-pane fade" id="opserviciosgrafIC" role="tabpanel" aria-labelledby="ocserviciosgrafIC-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateOcupGIC">Fecha desde:</label>
+                                        <input type="date" id="fromDateOcupGIC" value="{{fromDate}}" [max]="toDate" name="fromDateOcupGIC" #fromDateOcupGIC>
+                                        <br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateOcupGIC">Fecha hasta: </label>
+                                        <input type="date" id="toDateOcupGIC" value="{{toDate}}" [max]="toDate" name="toDateOcupGIC" #toDateOcupGIC>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioGIC>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinGIC>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesGIC')" >
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
+                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesGIC">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select class="form-control" name="selectmake" [(value)]="tiposSeleccionados" placeholder="Tipos">
+                                    <mat-option [value]="1" >
+                                        Quejas
+                                    </mat-option>
+                                    <mat-option [value]="2">
+                                        Reclamos
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerGrafOpinionIC()">
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div *ngIf="!malRequestAtMIC" id="contentChartIC" #contentChartIC>
+                        <h3>GRÁFICO - OPINIONES</h3><br>
+                        <canvas id="canvas3">{{chart}}</canvas><br>
+                        <canvas id="canvas4">{{chart}}</canvas>
+                    </div>
+                    <br>
+                    <fieldset>
+                        <div>
+                            <label>Orientación de página: </label>
+
+                            <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
+                                value="portrait" (click)="cambiarOrientacion('portrait')" checked>
+                            <label for="vertical">Vertical </label>
+
+                            <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
+                                value="landscape" (click)="cambiarOrientacion('landscape')">
+                            <label for="horizontal">Horizontal </label>
+                        </div>
+                    </fieldset>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGraficoIC()">EXCEL</button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOpinionesIC('hola',2)">PDF</button>
                     <br>
                 </div>
             </div>

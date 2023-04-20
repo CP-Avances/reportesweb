@@ -209,6 +209,69 @@ router.get(
   }
 );
 
+router.get(
+  "/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos",
+  (req: Request, res: Response) => {
+    const fDesde = req.params.fechaDesde;
+    const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    const listaTipos = req.params.tipos;
+    const tiposArray = listaTipos.split(",");
+
+    let todasSucursales = false;
+    let todasTipos = false;
+    let diaCompleto = false;
+
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+
+    if (tiposArray.includes("-1")) {
+      todasTipos = true
+    }
+
+    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+      diaCompleto = true;
+    }
+
+    const query =
+        `
+        SELECT COUNT(quejas.emi_categoria) AS queja_cantidad,
+        IF((quejas.emi_tipo = 1), 'Queja', 
+          IF((quejas.emi_tipo = 2), 'Reclamo',
+          IF((quejas.emi_tipo = 3), 'Sugerencia',
+          IF((quejas.emi_tipo = 4), 'Felicitaciones', 'No Existe')))) AS quejas_emi_tipo,
+        quejas.emi_categoria AS quejas_emi_categoria,
+        empresa.empr_nombre AS empresa_empr_nombre
+        FROM empresa 
+        INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo
+        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+        ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        GROUP BY quejas.emi_categoria, empresa.empr_nombre;
+        `;
+
+    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
+      if (err) {
+        res.status(400).json({
+          ok: false,
+          error: err,
+        });
+      } else {
+        res.json({
+          ok: true,
+          turnos,
+        });
+      }
+    });
+  }
+);
+
+
 //Obtener categorias
 router.get("/categorias/:tipo", (req: Request, res: Response) => {
   const tipo = req.params.tipo;
