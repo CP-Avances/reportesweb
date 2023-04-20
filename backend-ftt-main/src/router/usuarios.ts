@@ -208,6 +208,7 @@ router.get(
 
     let query = `
     SELECT e.empr_nombre AS nombreEmpresa, CAST(CONCAT(s.serv_descripcion,t.turn_numero) AS CHAR) AS turno, serv_nombre AS Servicio, caje_nombre AS Nombre, 
+    sec_to_time(time_to_sec(turn_tiempoespera)) AS espera,
     sec_to_time(IFNUll(turn_duracionatencion, 0)) AS atencion,
     date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA
     FROM cajero c, turno t, servicio s, empresa e, usuarios u

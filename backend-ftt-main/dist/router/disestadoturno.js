@@ -34,7 +34,10 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS Usuario, COUNT(t.turn_codigo) AS turnos,
             s.SERV_NOMBRE, date_format(t.TURN_FECHA, '%Y-%m-%d') AS fecha,
             SUM(t.TURN_ESTADO = 1) AS ATENDIDOS,
-            SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS NOATENDIDOS,
+            SUM(t.TURN_ESTADO = 0) AS PENDIENTES,
+            SUM(t.TURN_ESTADO = -1) AS EN_ATENCION,
+            SUM(t.TURN_ESTADO = 3) AS EN_PAUSA,
+            SUM(t.TURN_ESTADO = 2) AS NOATENDIDOS,
             (SELECT MAX(turn_fecha) FROM turno WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechamaxima,
             (SELECT MIN(turn_fecha) FROM turno WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechaminima
         FROM servicio s, turno t, cajero c, empresa e, usuarios u
@@ -48,7 +51,7 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
             ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         GROUP BY t.serv_codigo, t.turn_fecha
-        ORDER BY t.turn_fecha DESC;
+        ORDER BY t.turn_fecha DESC, c.caje_nombre ASC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -93,7 +96,10 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS Usuario, COUNT(t.turn_codigo) AS turnos,
         s.SERV_NOMBRE,
         SUM(t.TURN_ESTADO = 1) AS ATENDIDOS,
-        SUM(t.TURN_ESTADO != 0 AND t.TURN_ESTADO != 1) AS NOATENDIDOS,
+        SUM(t.TURN_ESTADO = 0) AS PENDIENTES,
+        SUM(t.TURN_ESTADO = -1) AS EN_ATENCION,
+        SUM(t.TURN_ESTADO = 3) AS EN_PAUSA,
+        SUM(t.TURN_ESTADO = 2) AS NOATENDIDOS,
         (SELECT MAX(turn_fecha) FROM turno WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechamaxima,
         (SELECT MIN(turn_fecha) FROM turno WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}') AS fechaminima
         FROM servicio s, turno t, cajero c, empresa e, usuarios u
@@ -106,8 +112,8 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
             ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-        GROUP BY t.serv_codigo, t.turn_fecha
-        ORDER BY t.turn_fecha DESC;
+        GROUP BY t.serv_codigo, c.caje_codigo
+        ORDER BY s.SERV_NOMBRE ASC, c.caje_nombre ASC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

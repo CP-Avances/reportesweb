@@ -506,21 +506,23 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTA || seleccionMultiple">
                                         Sucursal</th>
-                                        <th scope="col" class="text-center">Cajero(a)</th>
-                                        <th scope="col" class="text-center">Fecha</th>
-                                        <th scope="col" class="text-center">Servicio</th>
-                                        <th scope="col" class="text-center">Turno</th>
+                                    <th scope="col" class="text-center">Cajero(a)</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Turno</th>
+                                    <th scope="col" class="text-center">Tiempo de espera</th>
                                     <th scope="col" class="text-center">Tiempo de atención</th>
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestTPA">
                                 <tr *ngFor="let servicioTiempoAtencion of servicioTiempoAtencion | paginate:configTA">
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">
-                                        {{servicioTiempoAtencion.nombreEmpresa}}</td>
-                                        <td>{{servicioTiempoAtencion.Nombre}}</td>
-                                        <td>{{servicioTiempoAtencion.TURN_FECHA}}</td>
-                                        <td>{{servicioTiempoAtencion.Servicio}}</td>
-                                        <td>{{servicioTiempoAtencion.turno}}</td>
+                                    {{servicioTiempoAtencion.nombreEmpresa}}</td>
+                                    <td>{{servicioTiempoAtencion.Nombre}}</td>
+                                    <td>{{servicioTiempoAtencion.TURN_FECHA}}</td>
+                                    <td>{{servicioTiempoAtencion.Servicio}}</td>
+                                    <td>{{servicioTiempoAtencion.turno}}</td>
+                                    <td>{{servicioTiempoAtencion.espera}}</td>
                                     <td>{{servicioTiempoAtencion.atencion}}</td>
                                 </tr>
                             </tbody>

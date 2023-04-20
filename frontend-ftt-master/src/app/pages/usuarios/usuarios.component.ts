@@ -1113,6 +1113,7 @@ export class UsuariosComponent implements OnInit {
           Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
           Servicio: this.servicioTiempoAtencion[i].Servicio,
           Turno: this.servicioTiempoAtencion[i].turno,
+          "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
           "Tiempo de atención": this.servicioTiempoAtencion[i].atencion,
         });
       }
@@ -1124,6 +1125,7 @@ export class UsuariosComponent implements OnInit {
           Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
           Servicio: this.servicioTiempoAtencion[i].Servicio,
           Turno: this.servicioTiempoAtencion[i].turno,
+          "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
           "Tiempo de atención": this.servicioTiempoAtencion[i].atencion,
         });
       }
@@ -2248,23 +2250,25 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "auto", "*", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
-              { text: "Turno", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Turno", style: "tableHeader" },
+              { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.Nombre },
-                { style: "itemsTable", text: res.Servicio },
                 { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.turno },
+                { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
               ];
             }),
@@ -2282,21 +2286,23 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["auto", "*", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
-              { text: "Turno", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Turno", style: "tableHeader" },
+              { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
-                { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.Nombre },
-                { style: "itemsTable", text: res.Servicio },
                 { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.turno },
+                { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
               ];
             }),

@@ -13,16 +13,16 @@
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="tiempoatencion-tab" data-toggle="tab" href="#tiempoatencion" role="tab"
-                        aria-controls="tiempoatencion" aria-selected="false">TIEMPO DE ATENCIÓN POR TURNOS</a>
+                        aria-controls="tiempoatencion" aria-selected="false">TIEMPO DE ATENCIÓN POR TURNOS-SERVICIOS</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="maxaten-tab" data-toggle="tab" href="#maxaten" role="tab"
                         aria-controls="maxaten" aria-selected="false">TIEMPO MÁXIMO DE ATENCIÓN</a>
                 </li>
-                <li class="nav-item" (click)="limpiar()">
+                <!-- <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="atenservicio-tab" data-toggle="tab" href="#atenservicio" role="tab"
                         aria-controls="atenservicio" aria-selected="false">ATENCIÓN SERVICIO</a>
-                </li>
+                </li> -->
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="graficoservicio-tab" data-toggle="tab" href="#graficoservicio" role="tab"
                         aria-controls="graficoservicio" aria-selected="false">GRÁFICO SERVICIO</a>
@@ -276,13 +276,14 @@
                         </div>
                     </div>
                     <br>
-                    <h3>TIEMPO DE ATENCIÓN POR TURNOS</h3>
+                    <h3>TIEMPO DE ATENCIÓN POR TURNOS-SERVICIOS</h3>
                     <hr>
                     <div class="table-responsive">
                         <table class="table table-striped" id="contentTA" #contentTA #tableTA>
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTA || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Turno</th>
@@ -293,6 +294,7 @@
                             <tbody *ngIf="!malRequestAtTA">
                                 <tr *ngFor="let serviciota of serviciota | paginate:configTA">
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">{{serviciota.nombreEmpresa}}</td>
+                                    <td>{{serviciota.cajero}}</td>
                                     <td>{{serviciota.TURN_FECHA}}</td>
                                     <td>{{serviciota.SERV_NOMBRE}}</td>
                                     <td>{{serviciota.turno}}</td>

@@ -77,9 +77,12 @@
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
-                                    <th scope="col" class="text-center">Total Turnos</th>
+                                    <th scope="col" class="text-center">Pendientes</th>
+                                    <th scope="col" class="text-center">En atención</th>
+                                    <th scope="col" class="text-center">En pausa</th>
                                     <th scope="col" class="text-center">Atendidos</th>
-                                    <th scope="col" class="text-center">No Atendidos</th>
+                                    <th scope="col" class="text-center">No atendidos</th>
+                                    <th scope="col" class="text-center">Total turnos</th>
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestDist">
@@ -88,9 +91,12 @@
                                     <td>{{servicioDist.Usuario}}</td>
                                     <td>{{servicioDist.SERV_NOMBRE}}</td>
                                     <td>{{servicioDist.fecha}}</td>
-                                    <td>{{servicioDist.turnos}}</td>
+                                    <td>{{servicioDist.PENDIENTES}}</td>
+                                    <td>{{servicioDist.EN_ATENCION}}</td>
+                                    <td>{{servicioDist.EN_PAUSA}}</td>
                                     <td>{{servicioDist.ATENDIDOS}}</td>
                                     <td>{{servicioDist.NOATENDIDOS}}</td>
+                                    <td>{{servicioDist.turnos}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -171,9 +177,12 @@
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesR || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Pendientes</th>
+                                    <th scope="col" class="text-center">En atención</th>
+                                    <th scope="col" class="text-center">En pausa</th>
                                     <th scope="col" class="text-center">Atendidos</th>
-                                    <th scope="col" class="text-center">No Atendidos</th>
-                                    <th scope="col" class="text-center">Total Turnos</th>
+                                    <th scope="col" class="text-center">No atendidos</th>
+                                    <th scope="col" class="text-center">Total turnos</th>
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestDistRes">
@@ -181,6 +190,9 @@
                                     <td *ngIf="todasSucursalesR || seleccionMultiple">{{servicioRes.nombreEmpresa}}</td>
                                     <td>{{servicioRes.Usuario}}</td>
                                     <td>{{servicioRes.SERV_NOMBRE}}</td>
+                                    <td>{{servicioRes.PENDIENTES}}</td>
+                                    <td>{{servicioRes.EN_ATENCION}}</td>
+                                    <td>{{servicioRes.EN_PAUSA}}</td>
                                     <td>{{servicioRes.ATENDIDOS}}</td>
                                     <td>{{servicioRes.NOATENDIDOS}}</td>
                                     <td>{{servicioRes.turnos}}</td>

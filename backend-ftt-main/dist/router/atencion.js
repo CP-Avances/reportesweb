@@ -150,12 +150,13 @@ router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
         diaCompleto = true;
     }
     const query = `
-        SELECT e.empr_nombre AS nombreEmpresa, CAST(CONCAT(s.serv_descripcion,t.turn_numero) AS CHAR) AS turno, t.SERV_CODIGO, s.SERV_NOMBRE,
+        SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS cajero, CAST(CONCAT(s.serv_descripcion,t.turn_numero) AS CHAR) AS turno, t.SERV_CODIGO, s.SERV_NOMBRE,
             sec_to_time(time_to_sec(turn_tiempoespera)) AS espera,
             SEC_TO_TIME(turn_duracionatencion) AS atencion,
             date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA
-        FROM turno t, servicio s, empresa e
+        FROM turno t, servicio s, empresa e, cajero c
         WHERE t.serv_codigo = s.serv_codigo
+            AND t.caje_codigo = c.caje_codigo
             AND t.turn_estado = 1
             AND s.empr_codigo = e.empr_codigo
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
