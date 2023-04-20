@@ -508,6 +508,7 @@
                                         Sucursal</th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Turno</th>
                                     <th scope="col" class="text-center">Tiempo de espera</th>
@@ -520,6 +521,7 @@
                                     {{servicioTiempoAtencion.nombreEmpresa}}</td>
                                     <td>{{servicioTiempoAtencion.Nombre}}</td>
                                     <td>{{servicioTiempoAtencion.TURN_FECHA}}</td>
+                                    <td>{{servicioTiempoAtencion.hora}}</td>
                                     <td>{{servicioTiempoAtencion.Servicio}}</td>
                                     <td>{{servicioTiempoAtencion.turno}}</td>
                                     <td>{{servicioTiempoAtencion.espera}}</td>
@@ -600,7 +602,8 @@
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesES || seleccionMultiple">
                                         Sucursal</th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
-                                    <th scope="col" class="text-center">Fecha y hora</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Razón</th>
                                 </tr>
                             </thead>
@@ -610,6 +613,7 @@
                                         {{servicioEntradaSalida.nombreEmpresa}}</td>
                                     <td>{{servicioEntradaSalida.Usuario}}</td>
                                     <td>{{servicioEntradaSalida.fecha}}</td>
+                                    <td>{{servicioEntradaSalida.hora}}</td>
                                     <td>{{servicioEntradaSalida.Razon}}</td>
                                 </tr>
                             </tbody>

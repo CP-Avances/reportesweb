@@ -47,7 +47,7 @@ export class OpinionComponent implements OnInit {
   @ViewChild("horaFinG") horaFinG: ElementRef;
   @ViewChild("horaInicioGIC") horaInicioGIC: ElementRef;
   @ViewChild("horaFinGIC") horaFinGIC: ElementRef;
-  
+
 
   //Variables de la grafica
   chartPie: any;
@@ -199,37 +199,37 @@ export class OpinionComponent implements OnInit {
 
   selectAll(opcion: string) {
     switch (opcion) {
-        case 'todasSucursalesI':
-            this.todasSucursalesI = !this.todasSucursalesI;
-            break;
-        case 'todasSucursalesIC':
-            this.todasSucursalesIC = !this.todasSucursalesIC;
-            break;
-        case 'todasSucursalesG':
-            this.todasSucursalesG = !this.todasSucursalesG;
-            break;
-        case 'todasSucursalesGIC':
-            this.todasSucursalesGIC = !this.todasSucursalesGIC;
-            break;
-        case 'todasCategorias':
-            this.todasCategorias = !this.todasCategorias;
-            break;
-        case 'todosTipos':
-            this.todosTipos = !this.todosTipos;
-            break;
-        case 'tipo1':
-            this.getCategorias(1);
-            break;
-        case 'tipo2':
-          this.getCategorias(2);
-            break;
-        case 'sucursalesSeleccionadas':
-            this.sucursalesSeleccionadas.length > 1 
-            ? this.seleccionMultiple = true 
-            : this.seleccionMultiple = false;
-            break;
-        default:
-            break;
+      case 'todasSucursalesI':
+        this.todasSucursalesI = !this.todasSucursalesI;
+        break;
+      case 'todasSucursalesIC':
+        this.todasSucursalesIC = !this.todasSucursalesIC;
+        break;
+      case 'todasSucursalesG':
+        this.todasSucursalesG = !this.todasSucursalesG;
+        break;
+      case 'todasSucursalesGIC':
+        this.todasSucursalesGIC = !this.todasSucursalesGIC;
+        break;
+      case 'todasCategorias':
+        this.todasCategorias = !this.todasCategorias;
+        break;
+      case 'todosTipos':
+        this.todosTipos = !this.todosTipos;
+        break;
+      case 'tipo1':
+        this.getCategorias(1);
+        break;
+      case 'tipo2':
+        this.getCategorias(2);
+        break;
+      case 'sucursalesSeleccionadas':
+        this.sucursalesSeleccionadas.length > 1
+          ? this.seleccionMultiple = true
+          : this.seleccionMultiple = false;
+        break;
+      default:
+        break;
     }
   }
 
@@ -576,13 +576,13 @@ export class OpinionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupGIC.nativeElement.value.toString().trim();
     var fH = this.toDateOcupGIC.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioGIC.nativeElement.value;
     let horaFin = this.horaFinGIC.nativeElement.value;
 
     this.malRequestAtMIC = false;
 
-    if (this.sucursalesSeleccionadas.length!==0) {
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicioocgIC: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -608,7 +608,7 @@ export class OpinionComponent implements OnInit {
             } else {
               this.configAtMIC.totalItems = this.servicioocgIC.length;
             }
-  
+
             //Por error 400 se setea elementos de paginacion
             this.configAtMIC = {
               itemsPerPage: this.MAX_PAGS,
@@ -621,8 +621,8 @@ export class OpinionComponent implements OnInit {
           }
         }
       );
-  
-      this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas,this.tiposSeleccionados).subscribe(
+
+      this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           //Se verifica el ancho de pantalla para colocar o no labels
@@ -639,12 +639,12 @@ export class OpinionComponent implements OnInit {
           for (var i = 0; i < tipo.length; i++) {
             Nombres.push(
               tipo[i] +
-                "\n" +
-                Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
-                "%"
+              "\n" +
+              Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
+              "%"
             );
           }
-  
+
           //Se crea el grafico
           this.chartPie = new Chart("canvas3", {
             //El tipo de grafico
@@ -670,7 +670,7 @@ export class OpinionComponent implements OnInit {
             },
             //Se setea titulo asi como valores en grafico
             options: {
-            
+
               plugins: {
                 title: {
                   display: true,
@@ -715,15 +715,15 @@ export class OpinionComponent implements OnInit {
             },
             options: {
               scales: {
-               /* xAxes: [
-                  {
-                    ticks: {
-                      display: this.legend,
-                    },
-                  },
-                ],*/
+                /* xAxes: [
+                   {
+                     ticks: {
+                       display: this.legend,
+                     },
+                   },
+                 ],*/
               },
-              plugins:{
+              plugins: {
                 title: {
                   display: true,
                 },
@@ -731,7 +731,7 @@ export class OpinionComponent implements OnInit {
                   display: false,
                 },
               },
-            
+
               responsive: true,
             },
           });
@@ -784,6 +784,7 @@ export class OpinionComponent implements OnInit {
           Tipo: this.servicioOpinion[step].quejas_emi_tipo,
           Categoría: this.servicioOpinion[step].quejas_emi_categoria,
           Fecha: this.servicioOpinion[step].quejas_emi_fecha,
+          Hora: this.servicioOpinion[step].hora,
           Caja: this.servicioOpinion[step].caja_caja_nombre,
           Opinión: this.servicioOpinion[step].quejas_emi_queja,
         });
@@ -794,6 +795,7 @@ export class OpinionComponent implements OnInit {
           Tipo: this.servicioOpinion[step].quejas_emi_tipo,
           Categoría: this.servicioOpinion[step].quejas_emi_categoria,
           Fecha: this.servicioOpinion[step].quejas_emi_fecha,
+          Hora: this.servicioOpinion[step].hora,
           Caja: this.servicioOpinion[step].caja_caja_nombre,
           Opinión: this.servicioOpinion[step].quejas_emi_queja,
         });
@@ -824,28 +826,30 @@ export class OpinionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-    if (this.todasSucursalesIC || this.seleccionMultiple) {
-      for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-        jsonServicio.push({
-          Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
-          Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
-          Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-          Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
-          Caja: this.servicioOpinionIC[step].caja_caja_nombre,
-          Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
-        });
+      if (this.todasSucursalesIC || this.seleccionMultiple) {
+        for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+          jsonServicio.push({
+            Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
+            Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
+            Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
+            Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
+            Hora: this.servicioOpinionIC[step].hora,
+            Caja: this.servicioOpinionIC[step].caja_caja_nombre,
+            Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
+          });
+        }
+      } else {
+        for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+          jsonServicio.push({
+            Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
+            Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
+            Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
+            Hora: this.servicioOpinionIC[step].hora,
+            Caja: this.servicioOpinionIC[step].caja_caja_nombre,
+            Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
+          });
+        }
       }
-    } else {
-      for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-        jsonServicio.push({
-          Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
-          Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-          Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
-          Caja: this.servicioOpinionIC[step].caja_caja_nombre,
-          Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
-        });
-      }
-    }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -914,24 +918,24 @@ export class OpinionComponent implements OnInit {
 
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-      if (this.todasSucursalesGIC || this.seleccionMultiple) {
-        for (let step = 0; step < this.servicioocgIC.length; step++) {
-          jsonServicio.push({
-            Sucursal: this.servicioocgIC[step].empresa_empr_nombre,
-            Tipo: this.servicioocgIC[step].quejas_emi_tipo,
-            Categoria: this.servicioocgIC[step].quejas_emi_categoria,
-            Cantidad: this.servicioocgIC[step].queja_cantidad,
-          });
-        }
-      } else {
-        for (let step = 0; step < this.servicioocgIC.length; step++) {
-          jsonServicio.push({
-            Tipo: this.servicioocgIC[step].quejas_emi_tipo,
-            Categoria: this.servicioocgIC[step].quejas_emi_categoria,
-            Cantidad: this.servicioocgIC[step].queja_cantidad,
-          });
-        }
+    if (this.todasSucursalesGIC || this.seleccionMultiple) {
+      for (let step = 0; step < this.servicioocgIC.length; step++) {
+        jsonServicio.push({
+          Sucursal: this.servicioocgIC[step].empresa_empr_nombre,
+          Tipo: this.servicioocgIC[step].quejas_emi_tipo,
+          Categoria: this.servicioocgIC[step].quejas_emi_categoria,
+          Cantidad: this.servicioocgIC[step].queja_cantidad,
+        });
       }
+    } else {
+      for (let step = 0; step < this.servicioocgIC.length; step++) {
+        jsonServicio.push({
+          Tipo: this.servicioocgIC[step].quejas_emi_tipo,
+          Categoria: this.servicioocgIC[step].quejas_emi_categoria,
+          Cantidad: this.servicioocgIC[step].queja_cantidad,
+        });
+      }
+    }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -945,10 +949,10 @@ export class OpinionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Informe");
     XLSX.writeFile(
       wb,
-      "informeOpinionesExcelG - "+nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "informeOpinionesExcelG - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -1113,7 +1117,7 @@ export class OpinionComponent implements OnInit {
       // var cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentOpinionesGraficosIC(fD, fH);
     }
-    
+
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
     switch (action) {
@@ -1514,7 +1518,7 @@ export class OpinionComponent implements OnInit {
         table: {
           alignment: "center",
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "*"],
+          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
 
           body: [
             [
@@ -1522,6 +1526,7 @@ export class OpinionComponent implements OnInit {
               { text: "Tipo", style: "tableHeader" },
               { text: "Categoría", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
+              { text: "Hora", style: "tableHeader" },
               { text: "Caja", style: "tableHeader" },
               { text: "Opinión", style: "tableHeader" },
             ],
@@ -1531,6 +1536,7 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_tipo },
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
+                { style: "itemsTable", text: res.hora },
                 { style: "itemsTable", text: res.caja_caja_nombre },
                 { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
               ];
@@ -1549,13 +1555,14 @@ export class OpinionComponent implements OnInit {
         table: {
           alignment: "center",
           headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "*"],
+          widths: ["auto", "auto", "auto", "auto", "auto", "*"],
 
           body: [
             [
               { text: "Tipo", style: "tableHeader" },
               { text: "Categoría", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
+              { text: "Hora", style: "tableHeader" },
               { text: "Caja", style: "tableHeader" },
               { text: "Opinión", style: "tableHeader" },
             ],
@@ -1564,6 +1571,7 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_tipo },
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
+                { style: "itemsTable", text: res.hora },
                 { style: "itemsTable", text: res.caja_caja_nombre },
                 { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
               ];
@@ -1586,7 +1594,7 @@ export class OpinionComponent implements OnInit {
         table: {
           alignment: "center",
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "*"],
+          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
 
           body: [
             [
@@ -1594,6 +1602,7 @@ export class OpinionComponent implements OnInit {
               { text: "Tipo", style: "tableHeader" },
               { text: "Categoría", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
+              { text: "Hora", style: "tableHeader" },
               { text: "Caja", style: "tableHeader" },
               { text: "Opinión", style: "tableHeader" },
             ],
@@ -1603,6 +1612,7 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_tipo },
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
+                { style: "itemsTable", text: res.hora },
                 { style: "itemsTable", text: res.caja_caja_nombre },
                 { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
               ];
@@ -1621,13 +1631,14 @@ export class OpinionComponent implements OnInit {
         table: {
           alignment: "center",
           headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "*"],
+          widths: ["auto", "auto", "auto", "auto", "auto", "*"],
 
           body: [
             [
               { text: "Tipo", style: "tableHeader" },
               { text: "Categoría", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
+              { text: "Hora", style: "tableHeader" },
               { text: "Caja", style: "tableHeader" },
               { text: "Opinión", style: "tableHeader" },
             ],
@@ -1636,6 +1647,7 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_tipo },
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
+                { style: "itemsTable", text: res.hora },
                 { style: "itemsTable", text: res.caja_caja_nombre },
                 { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
               ];

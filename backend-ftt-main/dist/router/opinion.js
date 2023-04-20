@@ -37,7 +37,8 @@ router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:t
           IF((quejas.emi_tipo = 3), 'Sugerencia', 
           IF((quejas.emi_tipo = 4), 'Felicitaciones', 'No Existe')))) AS quejas_emi_tipo, 
           quejas.emi_categoria AS quejas_emi_categoria, 
-          CAST(STR_TO_DATE(concat(quejas.emi_fecha," ",quejas.emi_hora,":",quejas.emi_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS CHAR) AS quejas_emi_fecha,  
+          CAST(STR_TO_DATE(quejas.emi_fecha,'%Y-%m-%d') AS CHAR) AS quejas_emi_fecha, 
+          CAST(CONCAT(LPAD(quejas.emi_hora, 2, '0'), ':', LPAD(quejas.emi_minuto, 2, '0')) AS CHAR) AS hora, 
           empresa.empr_nombre AS empresa_empr_nombre, 
           quejas.caja_codigo AS caja_caja_nombre, 
           quejas.emi_queja AS quejas_emi_queja 
@@ -47,7 +48,7 @@ router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:t
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
         ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-        ORDER BY quejas.emi_fecha DESC, quejas.emi_hora DESC, quejas.emi_minuto DESC, quejas.emi_codigo DESC;
+        ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -101,7 +102,8 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
           IF((quejas.emi_tipo = 1), 'Queja', 
           IF((quejas.emi_tipo = 2), 'Reclamo', 'No Existe')) AS quejas_emi_tipo, 
           quejas.emi_categoria AS quejas_emi_categoria, 
-          CAST(STR_TO_DATE(concat(quejas.emi_fecha," ",quejas.emi_hora,":",quejas.emi_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS CHAR) AS quejas_emi_fecha,  
+          CAST(STR_TO_DATE(quejas.emi_fecha,'%Y-%m-%d') AS CHAR) AS quejas_emi_fecha, 
+          CAST(CONCAT(LPAD(quejas.emi_hora, 2, '0'), ':', LPAD(quejas.emi_minuto, 2, '0')) AS CHAR) AS hora, 
           empresa.empr_nombre AS empresa_empr_nombre, 
           quejas.caja_codigo AS caja_caja_nombre, 
           quejas.emi_queja AS quejas_emi_queja 
@@ -113,7 +115,7 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
         ${!todasCategorias ? `AND quejas.emi_categoria IN (${resultado})` : ''}
         ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-        ORDER BY quejas.emi_fecha DESC, quejas.emi_hora DESC, quejas.emi_minuto DESC, quejas.emi_codigo DESC;
+        ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

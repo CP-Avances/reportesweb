@@ -285,6 +285,7 @@
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTA || seleccionMultiple">Sucursal</th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Turno</th>
                                     <th scope="col" class="text-center">Tiempo de espera </th>
@@ -296,6 +297,7 @@
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">{{serviciota.nombreEmpresa}}</td>
                                     <td>{{serviciota.cajero}}</td>
                                     <td>{{serviciota.TURN_FECHA}}</td>
+                                    <td>{{serviciota.hora}}</td>
                                     <td>{{serviciota.SERV_NOMBRE}}</td>
                                     <td>{{serviciota.turno}}</td>
                                     <td>{{serviciota.espera}}</td>

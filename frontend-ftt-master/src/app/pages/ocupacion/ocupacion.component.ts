@@ -299,7 +299,16 @@ export class OcupacionComponent implements OnInit {
           if (this.configOS.currentPage > 1) {
             this.configOS.currentPage = 1;
           }
-          // this.todasSucursalesOG = this.comprobarBusquedaSucursales(cod);
+          let totalT = servicioocg.turnos.map((res) => res.total);
+          let totalP = servicioocg.turnos.map((res) => res.PORCENTAJE);
+          let totalTurnos = 0;
+          let totalPorc = 0;
+          for (var i = 0; i < totalT.length; i++) {
+            totalTurnos = totalTurnos + totalT[i];
+            totalPorc = totalPorc + totalP[i];
+          }
+          this.turnosTotal = totalTurnos;
+          this.porcentajeTotal = Math.round(totalPorc);
         },
         (error) => {
           if (error.status == 400) {
@@ -655,6 +664,10 @@ export class OcupacionComponent implements OnInit {
           text: "Periodo de " + fD + " hasta " + fH,
         },
         this.ocupacionGrafica(this.servicioocg),
+        {
+          style: "subtitulos",
+          text: "TOTAL: Turnos " + this.turnosTotal + ", Porcentaje de ocupación " + this.porcentajeTotal + " %",
+        },
         this.grafico(canvasImg),
         this.grafico(canvasImg1), //Definicion de funcion delegada para setear informacion de tabla del PDF
       ],
