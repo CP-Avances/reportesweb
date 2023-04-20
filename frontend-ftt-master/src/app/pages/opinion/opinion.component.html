@@ -4,10 +4,10 @@
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab" aria-controls="opcategoria" aria-selected="false">INFORME QUEJAS Y RECLAMOS</a>
+                    <a class="nav-link active" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab" aria-controls="opcategoria" aria-selected="true">INFORME QUEJAS Y RECLAMOS</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">INFORME GENERAL</a>
+                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="false">INFORME GENERAL</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="ocserviciosgrafIC-tab" data-toggle="tab" href="#opserviciosgrafIC" role="tab" aria-controls="ocserviciosgrafIC" aria-selected="false">GRÁFICOS QUEJAS Y RECLAMOS</a>
@@ -18,7 +18,7 @@
             </ul>
 
             <div class="tab-content" id="myTabContent">
-                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
@@ -84,6 +84,7 @@
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Caja</th>
                                     <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
                                 </tr>
@@ -94,6 +95,7 @@
                                     <td>{{servicioOpinion.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinion.quejas_emi_categoria}}</td>
                                     <td>{{servicioOpinion.quejas_emi_fecha}}</td>
+                                    <td>{{servicioOpinion.hora}}</td>
                                     <td>{{servicioOpinion.caja_caja_nombre}}</td>
                                     <td class="text-left">{{servicioOpinion.quejas_emi_queja}}</td>
                                 </tr>
@@ -111,7 +113,7 @@
                     <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',1)">PDF</button>
                 </div>
 
-                <div class="tab-pane fade" id="opcategoria" role="tabpanel" aria-labelledby="opcategoria-tab">
+                <div class="tab-pane fade show active" id="opcategoria" role="tabpanel" aria-labelledby="opcategoria-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
@@ -186,6 +188,7 @@
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Caja</th>
                                     <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
                                 </tr>
@@ -196,6 +199,7 @@
                                     <td>{{servicioOpinionIC.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinionIC.quejas_emi_categoria}}</td>
                                     <td>{{servicioOpinionIC.quejas_emi_fecha}}</td>
+                                    <td>{{servicioOpinionIC.hora}}</td>
                                     <td>{{servicioOpinionIC.caja_caja_nombre}}</td>
                                     <td class="text-left">{{servicioOpinionIC.quejas_emi_queja}}</td>
                                 </tr>

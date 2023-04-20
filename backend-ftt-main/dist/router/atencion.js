@@ -153,7 +153,8 @@ router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS cajero, CAST(CONCAT(s.serv_descripcion,t.turn_numero) AS CHAR) AS turno, t.SERV_CODIGO, s.SERV_NOMBRE,
             sec_to_time(time_to_sec(turn_tiempoespera)) AS espera,
             SEC_TO_TIME(turn_duracionatencion) AS atencion,
-            date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA
+            date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA,
+            CAST(CONCAT(LPAD(t.turn_hora, 2, '0'), ':', LPAD(t.turn_minuto, 2, '0')) AS CHAR) AS hora
         FROM turno t, servicio s, empresa e, cajero c
         WHERE t.serv_codigo = s.serv_codigo
             AND t.caje_codigo = c.caje_codigo
@@ -164,7 +165,7 @@ router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
             ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
             ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
             AND t.caje_codigo !=0
-            ORDER BY t.TURN_FECHA DESC;
+            ORDER BY t.TURN_FECHA DESC, hora DESC;
     `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

@@ -210,7 +210,8 @@ router.get(
     SELECT e.empr_nombre AS nombreEmpresa, CAST(CONCAT(s.serv_descripcion,t.turn_numero) AS CHAR) AS turno, serv_nombre AS Servicio, caje_nombre AS Nombre, 
     sec_to_time(time_to_sec(turn_tiempoespera)) AS espera,
     sec_to_time(IFNUll(turn_duracionatencion, 0)) AS atencion,
-    date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA
+    date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA,
+    CAST(CONCAT(LPAD(t.turn_hora, 2, '0'), ':', LPAD(t.turn_minuto, 2, '0')) AS CHAR) AS hora
     FROM cajero c, turno t, servicio s, empresa e, usuarios u
     WHERE t.caje_codigo = c.caje_codigo 
     AND t.serv_codigo = s.serv_codigo 
@@ -221,7 +222,7 @@ router.get(
     ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
     ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-    ORDER BY t.TURN_FECHA DESC;
+    ORDER BY t.TURN_FECHA DESC, hora DESC;
     `;
 
 
@@ -296,8 +297,8 @@ router.get(
     const query = `
       SELECT e.empr_nombre AS nombreEmpresa,
       usua_nombre AS Usuario,
-      CAST(STR_TO_DATE(concat(reg_fecha," ",reg_hora,":",reg_minuto,":00"),'%Y-%m-%d %H:%i:%s') AS CHAR) AS fecha,
-      reg_hora as Hora, reg_minuto as Minuto,
+      CAST(STR_TO_DATE(reg_fecha,'%Y-%m-%d') AS CHAR) AS fecha,
+      CAST(CONCAT(LPAD(reg_hora, 2, '0'), ':', LPAD(reg_minuto, 2, '0')) AS CHAR) AS hora,
       CASE r.reg_estado
                 WHEN 1 THEN 'Entrada Servicio'
                 WHEN 2 THEN 'Salida Servicio'
@@ -310,7 +311,7 @@ router.get(
       AND reg_fecha BETWEEN '${fDesde}' AND '${fHasta}'
       ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
       AND u.usua_codigo != 2
-      ORDER BY reg_fecha DESC, fecha;
+      ORDER BY fecha DESC, hora DESC;
   `;
   
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
@@ -485,7 +486,7 @@ router.get(
     SELECT e.empr_nombre AS nombreEmpresa,
            u.usua_nombre AS Usuario, 
            s.serv_nombre AS Servicio, 
-           DATE_FORMAT(turn_fecha, '%Y-%m-%d') AS Fecha, 
+           DATE_FORMAT(turn_fecha, '%Y-%m-%d') AS Fecha,
            SUM(turn_estado = 1) AS Atendidos, 
            SUM(turn_estado != 1 AND turn_estado != 0) AS No_Atendidos, 
            SUM(turn_estado != 0) AS Total 
