@@ -142,8 +142,9 @@ export class UsuariosComponent implements OnInit {
   //MOSTRAR CAJEROS
   mostrarCajeros: boolean = false;
 
+  //Variables de informacion
   valor: number;
-
+  marca: string = "FullTime Tickets";
   horas: number[] = [];
 
 
@@ -251,6 +252,7 @@ export class UsuariosComponent implements OnInit {
     this.getlastday();
     this.getSucursales();
     this.getMeta();
+    this.getMarca();
 
     // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
@@ -318,6 +320,12 @@ export class UsuariosComponent implements OnInit {
   getMeta() {
     this.serviceService.getMeta().subscribe((valor: any) => {
       this.valor = valor.valor;
+    });
+  }
+
+  getMarca() {
+    this.serviceService.getMarca().subscribe((marca: any) => {
+      this.marca = marca.marca;
     });
   }
 
@@ -910,7 +918,7 @@ export class UsuariosComponent implements OnInit {
           Sucursal: this.servicioTurnosFecha[i].nombreEmpresa,
           "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
-          Fecha: this.servicioTurnosFecha[i].Fecha,
+          Fecha: moment(this.servicioTurnosFecha[i].Fecha).format('DD/MM/YYYY'),
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
           "No Atendidos": this.servicioTurnosFecha[i].No_Atendidos,
           Total: this.servicioTurnosFecha[i].Total,
@@ -1260,7 +1268,7 @@ export class UsuariosComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -1482,7 +1490,7 @@ export class UsuariosComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -1700,7 +1708,7 @@ export class UsuariosComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -1916,7 +1924,7 @@ export class UsuariosComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -2131,7 +2139,7 @@ export class UsuariosComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -2345,7 +2353,7 @@ export class UsuariosComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -2555,7 +2563,7 @@ export class UsuariosComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,

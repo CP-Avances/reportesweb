@@ -200,7 +200,7 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
     ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
     ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-    ORDER BY t.TURN_FECHA DESC;
+    ORDER BY t.turn_codigo DESC, t.TURN_FECHA DESC;
     `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -358,7 +358,8 @@ router.get("/atencionusuario/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-        GROUP BY Nombre, Servicio;
+        GROUP BY Servicio, Nombre
+        ORDER BY  Nombre ASC, Servicio ASC;
     `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

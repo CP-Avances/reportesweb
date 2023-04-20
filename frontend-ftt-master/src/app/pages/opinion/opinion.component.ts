@@ -116,6 +116,8 @@ export class OpinionComponent implements OnInit {
    //Orientacion
   orientacion: string;
 
+  //Infotmación
+  marca: string = "FullTime Tickets";
   horas: number[] = [];
 
   mostrarCategorias: boolean = false;
@@ -164,6 +166,7 @@ export class OpinionComponent implements OnInit {
     //Cargamos componentes selects HTML
     this.getlastday();
     this.getSucursales();
+    this.getMarca();
     //Cargamos nombre de usuario logueado
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
@@ -210,6 +213,12 @@ export class OpinionComponent implements OnInit {
         default:
             break;
     }
+  }
+
+  getMarca() {
+    this.serviceService.getMarca().subscribe((marca: any) => {
+      this.marca = marca.marca;
+    });
   }
 
   //Se obtiene dia actual
@@ -735,7 +744,7 @@ export class OpinionComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -878,7 +887,7 @@ export class OpinionComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -997,7 +1006,7 @@ export class OpinionComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,

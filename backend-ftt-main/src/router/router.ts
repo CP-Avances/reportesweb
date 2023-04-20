@@ -280,4 +280,46 @@ router.get('/getMeta', (req: Request, res: Response) => {
     });
 });
 
+  //Guardar marca de agua
+router.get('/setMarca/:marca',(req, res) =>{
+    const marca = req.params.marca;
+
+    const  query = `UPDATE general SET gene_valor = '${marca}' WHERE gene_codigo = 10;`
+
+    MySQL.ejecutarQuery(query, (err: any, usuario: Object[]) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err
+            });
+
+        } else {
+            res.json({
+                ok: true,
+            })
+        }
+    })
+}
+);
+
+router.get('/getMarca',(req: Request, res: Response) => {
+    const query = `
+      SELECT gene_valor FROM general WHERE gene_codigo = 10;
+      `;
+
+    MySQL.ejecutarQuery(query, (err: any, marca: any) => {
+      if (err) {
+        res.status(400).json({
+          ok: false,
+          error: err,
+        });
+      } else {
+        res.json({
+          ok: true,
+          marca: marca[0].gene_valor,
+        });
+      }
+    });
+  });
+
 export default router;

@@ -266,12 +266,22 @@ export class ServiceService {
     return this.http.get<any>(this.URL + "/nombreImagen");
   }
 
+  //Meta de turnos
   setMeta(valor: number){
     return this.http.get<any>(`${this.URL}/setMeta/${valor}`);
   }
 
   getMeta(): Observable<any> {
     return this.http.get<any>(this.URL + "/getMeta");
+  }
+
+  //Marca de agua
+  setMarca(marca: string){
+    return this.http.get<any>(`${this.URL}/setMarca/${marca}`);
+  }
+
+  getMarca(): Observable<any> {
+    return this.http.get<any>(this.URL + "/getMarca");
   }
 
 }

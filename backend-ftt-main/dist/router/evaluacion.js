@@ -896,7 +896,8 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
         ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
         AND eval_califica != 50
-      GROUP BY f.eval_fecha, f.usua_codigo;
+      GROUP BY f.eval_fecha, f.usua_codigo
+      ORDER BY f.eval_fecha DESC;
       `;
     }
     else {
@@ -916,7 +917,8 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
         ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-      GROUP BY f.eval_fecha, f.usua_codigo;
+      GROUP BY f.eval_fecha, f.usua_codigo
+      ORDER BY f.eval_fecha DESC;
       `;
     }
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

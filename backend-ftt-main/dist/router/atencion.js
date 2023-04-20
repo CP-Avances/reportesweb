@@ -278,7 +278,8 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
             ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-        GROUP BY Servicio, Nombre;
+        GROUP BY Servicio, Nombre
+        ORDER BY  Nombre ASC, Servicio ASC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

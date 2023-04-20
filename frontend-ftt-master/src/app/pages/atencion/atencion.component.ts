@@ -142,6 +142,8 @@ export class AtencionComponent implements OnInit {
   // ORIENTACION
   orientacion: string;
 
+  //Informacion
+  marca: string = "Fulltime Tickets";
   horas: number[] = [];
 
   constructor(
@@ -219,9 +221,8 @@ export class AtencionComponent implements OnInit {
   ngOnInit(): void {
     // CARGAMOS COMPONENTES SELECTS HTML
     this.getlastday();
-    // this.getCajeros("-1");
-    // this.getServicios("-1");
     this.getSucursales();
+    this.getMarca();
 
     // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
@@ -295,6 +296,12 @@ export class AtencionComponent implements OnInit {
   salir() {
     this.auth.logout();
     this.router.navigateByUrl("/");
+  }
+
+  getMarca() {
+    this.serviceService.getMarca().subscribe((marca: any) => {
+      this.marca = marca.marca;
+    });
   }
 
   // OBTIENE LA FECHA ACTUAL
@@ -1070,7 +1077,7 @@ export class AtencionComponent implements OnInit {
     return {
       // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -1284,7 +1291,7 @@ export class AtencionComponent implements OnInit {
     return {
       // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -1493,7 +1500,7 @@ export class AtencionComponent implements OnInit {
     return {
       // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -1702,7 +1709,7 @@ export class AtencionComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -1907,7 +1914,7 @@ export class AtencionComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,
@@ -2128,7 +2135,7 @@ export class AtencionComponent implements OnInit {
     return {
       //Seteo de marca de agua y encabezado con nombre de usuario logueado
       watermark: {
-        text: "FullTime Tickets",
+        text: this.marca,
         color: "blue",
         opacity: 0.1,
         bold: true,

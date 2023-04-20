@@ -128,16 +128,16 @@ router.get(
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
-    
+
     if (codigosArray.includes("-2")) {
       todosCajeros = true
-    } 
+    }
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
     }
 
@@ -193,16 +193,16 @@ router.get(
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
-    
+
     if (codigosArray.includes("-2")) {
       todosCajeros = true
-    } 
+    }
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
     }
 
@@ -220,7 +220,7 @@ router.get(
     ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
     ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-    ORDER BY t.TURN_FECHA DESC;
+    ORDER BY t.turn_codigo DESC, t.TURN_FECHA DESC;
     `;
 
 
@@ -288,7 +288,7 @@ router.get(
       todasSucursales = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
     }
 
@@ -311,7 +311,7 @@ router.get(
       AND u.usua_codigo != 2
       ORDER BY reg_fecha DESC, fecha;
   `;
-  
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
@@ -372,16 +372,16 @@ router.get(
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
-    
+
     if (codigosArray.includes("-2")) {
       todosCajeros = true
-    } 
+    }
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
-    } 
+    }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
     }
 
@@ -400,7 +400,8 @@ router.get(
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-        GROUP BY Nombre, Servicio;
+        GROUP BY Servicio, Nombre
+        ORDER BY  Nombre ASC, Servicio ASC;
     `;
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
@@ -476,7 +477,7 @@ router.get(
       todasCajeros = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
     }
 
@@ -500,7 +501,7 @@ router.get(
       ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario, Servicio 
     ORDER BY Fecha DESC, Usuario, Servicio;
-    `;   
+    `;
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
@@ -542,7 +543,7 @@ router.get(
       todasCajeros = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
     }
 
@@ -564,7 +565,7 @@ router.get(
       ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario
     ORDER BY Fecha DESC, Usuario;
-    `;   
+    `;
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
@@ -606,7 +607,7 @@ router.get(
       todasCajeros = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
     }
 
@@ -627,7 +628,7 @@ router.get(
       ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario
     ORDER BY Fecha DESC, Usuario;
-    `;   
+    `;
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
