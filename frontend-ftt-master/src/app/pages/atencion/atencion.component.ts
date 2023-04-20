@@ -866,6 +866,7 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciota.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciota[step].nombreEmpresa,
+          "Cajero(a)": this.serviciota[step].cajero,
           Fecha: this.serviciota[step].TURN_FECHA,
           Servicio: this.serviciota[step].SERV_NOMBRE,
           Turno: this.serviciota[step].turno,
@@ -877,6 +878,7 @@ export class AtencionComponent implements OnInit {
     else {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
+          "Cajero(a)": this.serviciota[step].cajero,
           Fecha: this.serviciota[step].TURN_FECHA,
           Servicio: this.serviciota[step].SERV_NOMBRE,
           Turno: this.serviciota[step].turno,
@@ -1023,7 +1025,7 @@ export class AtencionComponent implements OnInit {
       wscols.push({ wpx: 150 })
     }
     ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.utils.book_append_sheet(wb, ws, "Atencion - Servicios");
     XLSX.writeFile(
       wb,
       "GraficoAtencion - " +
@@ -1609,10 +1611,11 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "*", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
@@ -1622,6 +1625,7 @@ export class AtencionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.cajero },
                 { style: "itemsTable", text: res.TURN_FECHA },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.turno },
@@ -1642,9 +1646,10 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto"],
+          widths: ["*", "auto", "*" ,"auto", "auto", "auto"],
           body: [
             [
+              { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
@@ -1653,6 +1658,7 @@ export class AtencionComponent implements OnInit {
             ],
             ...servicio.map((res) => {
               return [
+                { style: "itemsTable", text: res.cajero },
                 { style: "itemsTable", text: res.TURN_FECHA },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.turno },

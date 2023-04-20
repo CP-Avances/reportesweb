@@ -348,9 +348,12 @@ export class DistestadoturnosComponent implements OnInit {
           "Cajero(a)": this.servicioDist[step].Usuario,
           Servicio: this.servicioDist[step].SERV_NOMBRE,
           Fecha: this.servicioDist[step].fecha,
-          "Total Turnos": this.servicioDist[step].turnos,
+          Pendientes: this.servicioDist[step].PENDIENTES,
+          "En atención": this.servicioDist[step].EN_ATENCION,
+          "En pausa": this.servicioDist[step].EN_PAUSA,
           Atendidos: this.servicioDist[step].ATENDIDOS,
-          "No Atendidos": this.servicioDist[step].NOATENDIDOS
+          "No atendidos": this.servicioDist[step].NOATENDIDOS,
+          "Total turnos": this.servicioDist[step].turnos,
         });
       }
     } else {
@@ -359,9 +362,12 @@ export class DistestadoturnosComponent implements OnInit {
           "Cajero(a)": this.servicioDist[step].Usuario,
           Servicio: this.servicioDist[step].SERV_NOMBRE,
           Fecha: this.servicioDist[step].fecha,
-          "Total Turnos": this.servicioDist[step].turnos,
+          Pendientes: this.servicioDist[step].PENDIENTES,
+          "En atención": this.servicioDist[step].EN_ATENCION,
+          "En pausa": this.servicioDist[step].EN_PAUSA,
           Atendidos: this.servicioDist[step].ATENDIDOS,
-          "No Atendidos": this.servicioDist[step].NOATENDIDOS
+          "No atendidos": this.servicioDist[step].NOATENDIDOS,
+          "Total turnos": this.servicioDist[step].turnos,
         });
       }
     }
@@ -390,9 +396,12 @@ export class DistestadoturnosComponent implements OnInit {
           Sucursal: this.servicioRes[step].nombreEmpresa,
           "Cajero(a)": this.servicioRes[step].Usuario,
           Servicio: this.servicioRes[step].SERV_NOMBRE,
+          Pendientes: this.servicioRes[step].PENDIENTES,
+          "En atención": this.servicioRes[step].EN_ATENCION,
+          "En pausa": this.servicioRes[step].EN_PAUSA,
           Atendidos: this.servicioRes[step].ATENDIDOS,
-          "No Atendidos": this.servicioRes[step].NOATENDIDOS,
-          "Total Turnos": this.servicioRes[step].turnos
+          "No atendidos": this.servicioRes[step].NOATENDIDOS,
+          "Total turnos": this.servicioRes[step].turnos,
         });
       }
     } else {
@@ -400,9 +409,12 @@ export class DistestadoturnosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioRes[step].Usuario,
           Servicio: this.servicioRes[step].SERV_NOMBRE,
+          Pendientes: this.servicioRes[step].PENDIENTES,
+          "En atención": this.servicioRes[step].EN_ATENCION,
+          "En pausa": this.servicioRes[step].EN_PAUSA,
           Atendidos: this.servicioRes[step].ATENDIDOS,
-          "No Atendidos": this.servicioRes[step].NOATENDIDOS,
-          "Total Turnos": this.servicioRes[step].turnos
+          "No atendidos": this.servicioRes[step].NOATENDIDOS,
+          "Total turnos": this.servicioRes[step].turnos,
         });
       }
     }
@@ -524,16 +536,19 @@ export class DistestadoturnosComponent implements OnInit {
         style: 'tableMargin',
         table: {
           headerRows: 1,
-          widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Sucursal', style: 'tableHeader' },
               { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
               { text: 'Fecha', style: 'tableHeader' },
-              { text: 'Total Turnos', style: 'tableHeader' },
-              { text: 'T. Atendidos', style: 'tableHeader' },
-              { text: 'No Atendidos', style: 'tableHeader' }
+              { text: 'Pendientes', style: 'tableHeader' },
+              { text: 'En atención', style: 'tableHeader' },
+              { text: 'En pausa', style: 'tableHeader' },
+              { text: 'Atendidos', style: 'tableHeader' },
+              { text: 'No atendidos', style: 'tableHeader' },
+              { text: 'Total turnos', style: 'tableHeader' },
             ],
             ...servicio.map(res => {
               return [
@@ -541,9 +556,12 @@ export class DistestadoturnosComponent implements OnInit {
                 { style: 'itemsTable', text: res.Usuario },
                 { style: 'itemsTable', text: res.SERV_NOMBRE },
                 { style: 'itemsTable', text: res.fecha },
-                { style: 'itemsTable', text: res.turnos },
+                { style: 'itemsTable', text: res.PENDIENTES },
+                { style: 'itemsTable', text: res.EN_ATENCION },
+                { style: 'itemsTable', text: res.EN_PAUSA },
                 { style: 'itemsTable', text: res.ATENDIDOS },
-                { style: 'itemsTable', text: res.NOATENDIDOS }
+                { style: 'itemsTable', text: res.NOATENDIDOS },
+                { style: 'itemsTable', text: res.turnos },
               ]
             })
           ]
@@ -559,24 +577,30 @@ export class DistestadoturnosComponent implements OnInit {
         style: 'tableMargin',
         table: {
           headerRows: 1,
-          widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
               { text: 'Fecha', style: 'tableHeader' },
-              { text: 'Total Turnos', style: 'tableHeader' },
-              { text: 'T. Atendidos', style: 'tableHeader' },
-              { text: 'No Atendidos', style: 'tableHeader' }
+              { text: 'Pendientes', style: 'tableHeader' },
+              { text: 'En atención', style: 'tableHeader' },
+              { text: 'En pausa', style: 'tableHeader' },
+              { text: 'Atendidos', style: 'tableHeader' },
+              { text: 'No atendidos', style: 'tableHeader' },
+              { text: 'Total turnos', style: 'tableHeader' },
             ],
             ...servicio.map(res => {
               return [
                 { style: 'itemsTable', text: res.Usuario },
                 { style: 'itemsTable', text: res.SERV_NOMBRE },
                 { style: 'itemsTable', text: res.fecha },
-                { style: 'itemsTable', text: res.turnos },
+                { style: 'itemsTable', text: res.PENDIENTES },
+                { style: 'itemsTable', text: res.EN_ATENCION },
+                { style: 'itemsTable', text: res.EN_PAUSA },
                 { style: 'itemsTable', text: res.ATENDIDOS },
-                { style: 'itemsTable', text: res.NOATENDIDOS }
+                { style: 'itemsTable', text: res.NOATENDIDOS },
+                { style: 'itemsTable', text: res.turnos },
               ]
             })
           ]
@@ -696,21 +720,27 @@ export class DistestadoturnosComponent implements OnInit {
         style: 'tableMargin',
         table: {
           headerRows: 1,
-          widths: ['*', '*', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Sucursal', style: 'tableHeader' },
               { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
-              { text: 'T. Atendidos', style: 'tableHeader' },
-              { text: 'No Atendidos', style: 'tableHeader' },
-              { text: 'Total Turnos', style: 'tableHeader' }
+              { text: 'Pendientes', style: 'tableHeader' },
+              { text: 'En atención', style: 'tableHeader' },
+              { text: 'En pausa', style: 'tableHeader' },
+              { text: 'Atendidos', style: 'tableHeader' },
+              { text: 'No atendidos', style: 'tableHeader' },
+              { text: 'Total turnos', style: 'tableHeader' },
             ],
             ...servicio.map(res => {
               return [
                 { style: 'itemsTable', text: res.nombreEmpresa },
                 { style: 'itemsTable', text: res.Usuario },
                 { style: 'itemsTable', text: res.SERV_NOMBRE },
+                { style: 'itemsTable', text: res.PENDIENTES },
+                { style: 'itemsTable', text: res.EN_ATENCION },
+                { style: 'itemsTable', text: res.EN_PAUSA },
                 { style: 'itemsTable', text: res.ATENDIDOS },
                 { style: 'itemsTable', text: res.NOATENDIDOS },
                 { style: 'itemsTable', text: res.turnos }
@@ -729,19 +759,25 @@ export class DistestadoturnosComponent implements OnInit {
         style: 'tableMargin',
         table: {
           headerRows: 1,
-          widths: ['*', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
-              { text: 'T. Atendidos', style: 'tableHeader' },
-              { text: 'No Atendidos', style: 'tableHeader' },
-              { text: 'Total Turnos', style: 'tableHeader' }
+              { text: 'Pendientes', style: 'tableHeader' },
+              { text: 'En atención', style: 'tableHeader' },
+              { text: 'En pausa', style: 'tableHeader' },
+              { text: 'Atendidos', style: 'tableHeader' },
+              { text: 'No atendidos', style: 'tableHeader' },
+              { text: 'Total turnos', style: 'tableHeader' },
             ],
             ...servicio.map(res => {
               return [
                 { style: 'itemsTable', text: res.Usuario },
                 { style: 'itemsTable', text: res.SERV_NOMBRE },
+                { style: 'itemsTable', text: res.PENDIENTES },
+                { style: 'itemsTable', text: res.EN_ATENCION },
+                { style: 'itemsTable', text: res.EN_PAUSA },
                 { style: 'itemsTable', text: res.ATENDIDOS },
                 { style: 'itemsTable', text: res.NOATENDIDOS },
                 { style: 'itemsTable', text: res.turnos }

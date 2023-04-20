@@ -43,7 +43,7 @@ export class OpinionComponent implements OnInit {
   @ViewChild("horaFinIC") horaFinIC: ElementRef;
   @ViewChild("horaInicioG") horaInicioG: ElementRef;
   @ViewChild("horaFinG") horaFinG: ElementRef;
-  
+
 
   //Variables de la grafica
   chartPie: any;
@@ -107,13 +107,13 @@ export class OpinionComponent implements OnInit {
   categoriasSeleccionadas: string[] = [];
   seleccionMultiple: boolean = false;
   tipos = [
-    {nombre: 'Quejas', valor: '1'},
-    {nombre: 'Reclamos', valor: '2'},
-    {nombre: 'Sugerencias', valor: '3'},
-    {nombre: 'Felicitaciones', valor: '4'},
-  ] 
+    { nombre: 'Quejas', valor: '1' },
+    { nombre: 'Reclamos', valor: '2' },
+    { nombre: 'Sugerencias', valor: '3' },
+    { nombre: 'Felicitaciones', valor: '4' },
+  ]
 
-   //Orientacion
+  //Orientacion
   orientacion: string;
 
   //Infotmación
@@ -184,34 +184,34 @@ export class OpinionComponent implements OnInit {
 
   selectAll(opcion: string) {
     switch (opcion) {
-        case 'todasSucursalesI':
-            this.todasSucursalesI = !this.todasSucursalesI;
-            break;
-        case 'todasSucursalesIC':
-            this.todasSucursalesIC = !this.todasSucursalesIC;
-            break;
-        case 'todasSucursalesES':
-            this.todasSucursalesG = !this.todasSucursalesG;
-            break;
-        case 'todasCategorias':
-            this.todasCategorias = !this.todasCategorias;
-            break;
-        case 'todosTipos':
-            this.todosTipos = !this.todosTipos;
-            break;
-        case 'tipo1':
-            this.getCategorias(1);
-            break;
-        case 'tipo2':
-          this.getCategorias(2);
-            break;
-        case 'sucursalesSeleccionadas':
-            this.sucursalesSeleccionadas.length > 1 
-            ? this.seleccionMultiple = true 
-            : this.seleccionMultiple = false;
-            break;
-        default:
-            break;
+      case 'todasSucursalesI':
+        this.todasSucursalesI = !this.todasSucursalesI;
+        break;
+      case 'todasSucursalesIC':
+        this.todasSucursalesIC = !this.todasSucursalesIC;
+        break;
+      case 'todasSucursalesES':
+        this.todasSucursalesG = !this.todasSucursalesG;
+        break;
+      case 'todasCategorias':
+        this.todasCategorias = !this.todasCategorias;
+        break;
+      case 'todosTipos':
+        this.todosTipos = !this.todosTipos;
+        break;
+      case 'tipo1':
+        this.getCategorias(1);
+        break;
+      case 'tipo2':
+        this.getCategorias(2);
+        break;
+      case 'sucursalesSeleccionadas':
+        this.sucursalesSeleccionadas.length > 1
+          ? this.seleccionMultiple = true
+          : this.seleccionMultiple = false;
+        break;
+      default:
+        break;
     }
   }
 
@@ -252,8 +252,8 @@ export class OpinionComponent implements OnInit {
   }
 
   //Comprueba si se realizo una busqueda por sucursales
-  comprobarBusquedaSucursales(cod: string){
-    return cod=="-1" ? true : false;
+  comprobarBusquedaSucursales(cod: string) {
+    return cod == "-1" ? true : false;
   }
 
   salir() {
@@ -273,11 +273,16 @@ export class OpinionComponent implements OnInit {
     let horaInicio = this.horaInicioI.nativeElement.value;
     let horaFin = this.horaFinI.nativeElement.value;
 
-    if (this.sucursalesSeleccionadas.length!==0) {
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getopiniones(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioOpinion = servicio.turnos;
+          this.servicioOpinion.forEach(dato => {
+            if (dato.caja_caja_nombre === '0') {
+              dato.caja_caja_nombre = ' ';
+            }
+          })
           this.malRequestAtM = false;
           this.malRequestAtMPag = false;
           //Seteo de paginacion cuando se hace una nueva busqueda
@@ -299,7 +304,7 @@ export class OpinionComponent implements OnInit {
             } else {
               this.configAtM.totalItems = this.servicioOpinion.length;
             }
-  
+
             //Por error 400 se setea elementos de paginacion
             this.configAtM = {
               itemsPerPage: this.MAX_PAGS,
@@ -322,11 +327,16 @@ export class OpinionComponent implements OnInit {
     let horaInicio = this.horaInicioIC.nativeElement.value;
     let horaFin = this.horaFinIC.nativeElement.value;
 
-    if (this.sucursalesSeleccionadas.length!==0) {
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados, this.categoriasSeleccionadas).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
           this.servicioOpinionIC = servicio.turnos;
+          this.servicioOpinionIC.forEach(dato => {
+            if (dato.caja_caja_nombre === '0') {
+              dato.caja_caja_nombre = ' ';
+            }
+          })
           this.malRequestIC = false;
           this.malRequestICPag = false;
           //Seteo de paginacion cuando se hace una nueva busqueda
@@ -347,7 +357,7 @@ export class OpinionComponent implements OnInit {
             } else {
               this.configIC.totalItems = this.servicioOpinionIC.length;
             }
-  
+
             //Por error 400 se setea elementos de paginacion
             this.configIC = {
               itemsPerPage: this.MAX_PAGS,
@@ -367,13 +377,13 @@ export class OpinionComponent implements OnInit {
     //captura de fechas para proceder con la busqueda
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioG.nativeElement.value;
     let horaFin = this.horaFinG.nativeElement.value;
 
     this.malRequestAtM = false;
 
-    if (this.sucursalesSeleccionadas.length!==0) {
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getgraficoopinion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicioocg: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -399,7 +409,7 @@ export class OpinionComponent implements OnInit {
             } else {
               this.configAtM.totalItems = this.servicioocg.length;
             }
-  
+
             //Por error 400 se setea elementos de paginacion
             this.configAtM = {
               itemsPerPage: this.MAX_PAGS,
@@ -412,7 +422,7 @@ export class OpinionComponent implements OnInit {
           }
         }
       );
-  
+
       this.serviceService.getgraficoopinion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicio: any) => {
           //Si se consulta correctamente se guarda en variable y setea banderas de tablas
@@ -430,12 +440,12 @@ export class OpinionComponent implements OnInit {
           for (var i = 0; i < tipo.length; i++) {
             Nombres.push(
               tipo[i] +
-                "\n" +
-                Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
-                "%"
+              "\n" +
+              Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
+              "%"
             );
           }
-  
+
           //Se crea el grafico
           this.chartPie = new Chart("canvas", {
             //El tipo de grafico
@@ -461,7 +471,7 @@ export class OpinionComponent implements OnInit {
             },
             //Se setea titulo asi como valores en grafico
             options: {
-            
+
               plugins: {
                 title: {
                   display: true,
@@ -506,15 +516,15 @@ export class OpinionComponent implements OnInit {
             },
             options: {
               scales: {
-               /* xAxes: [
-                  {
-                    ticks: {
-                      display: this.legend,
-                    },
-                  },
-                ],*/
+                /* xAxes: [
+                   {
+                     ticks: {
+                       display: this.legend,
+                     },
+                   },
+                 ],*/
               },
-              plugins:{
+              plugins: {
                 title: {
                   display: true,
                 },
@@ -522,7 +532,7 @@ export class OpinionComponent implements OnInit {
                   display: false,
                 },
               },
-            
+
               responsive: true,
             },
           });
@@ -547,10 +557,10 @@ export class OpinionComponent implements OnInit {
   obtenerNombreSucursal(sucursales: any) {
     const listaSucursales = sucursales;
     let nombreSucursal = "";
-    
+
     listaSucursales.forEach(elemento => {
       const cod = elemento;
-      if (cod=="-1") {
+      if (cod == "-1") {
         nombreSucursal = "Todas las sucursales";
         return;
       }
@@ -568,28 +578,28 @@ export class OpinionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-      if (this.todasSucursalesI || this.seleccionMultiple) {
-        for (let step = 0; step < this.servicioOpinion.length; step++) {
-          jsonServicio.push({
-            Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
-            Tipo: this.servicioOpinion[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-            Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Caja: this.servicioOpinion[step].caja_caja_nombre,
-            Opinión: this.servicioOpinion[step].quejas_emi_queja,
-          });
-        }
-      } else {
-        for (let step = 0; step < this.servicioOpinion.length; step++) {
-          jsonServicio.push({
-            Tipo: this.servicioOpinion[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-            Fecha: this.servicioOpinion[step].quejas_emi_fecha,
-            Caja: this.servicioOpinion[step].caja_caja_nombre,
-            Opinión: this.servicioOpinion[step].quejas_emi_queja,
-          });
-        }
+    if (this.todasSucursalesI || this.seleccionMultiple) {
+      for (let step = 0; step < this.servicioOpinion.length; step++) {
+        jsonServicio.push({
+          Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
+          Tipo: this.servicioOpinion[step].quejas_emi_tipo,
+          Categoría: this.servicioOpinion[step].quejas_emi_categoria,
+          Fecha: this.servicioOpinion[step].quejas_emi_fecha,
+          Caja: this.servicioOpinion[step].caja_caja_nombre,
+          Opinión: this.servicioOpinion[step].quejas_emi_queja,
+        });
       }
+    } else {
+      for (let step = 0; step < this.servicioOpinion.length; step++) {
+        jsonServicio.push({
+          Tipo: this.servicioOpinion[step].quejas_emi_tipo,
+          Categoría: this.servicioOpinion[step].quejas_emi_categoria,
+          Fecha: this.servicioOpinion[step].quejas_emi_fecha,
+          Caja: this.servicioOpinion[step].caja_caja_nombre,
+          Opinión: this.servicioOpinion[step].quejas_emi_queja,
+        });
+      }
+    }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -603,10 +613,10 @@ export class OpinionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Informe");
     XLSX.writeFile(
       wb,
-      "informeOpinionesExcel - "+nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "informeOpinionesExcel - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -615,28 +625,28 @@ export class OpinionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-      if (this.todasSucursalesIC || this.seleccionMultiple) {
-        for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-          jsonServicio.push({
-            Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
-            Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-            Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
-            Caja: this.servicioOpinionIC[step].caja_caja_nombre,
-            Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
-          });
-        }
-      } else {
-        for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-          jsonServicio.push({
-            Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-            Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
-            Caja: this.servicioOpinionIC[step].caja_caja_nombre,
-            Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
-          });
-        }
+    if (this.todasSucursalesIC || this.seleccionMultiple) {
+      for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+        jsonServicio.push({
+          Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
+          Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
+          Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
+          Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
+          Caja: this.servicioOpinionIC[step].caja_caja_nombre,
+          Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
+        });
       }
+    } else {
+      for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+        jsonServicio.push({
+          Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
+          Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
+          Fecha: this.servicioOpinionIC[step].quejas_emi_fecha,
+          Caja: this.servicioOpinionIC[step].caja_caja_nombre,
+          Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
+        });
+      }
+    }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -650,10 +660,10 @@ export class OpinionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Informe");
     XLSX.writeFile(
       wb,
-      "informeOpinionesExcel - "+nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "informeOpinionesExcel - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -663,22 +673,22 @@ export class OpinionComponent implements OnInit {
 
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
-      if (this.todasSucursalesG || this.seleccionMultiple) {
-        for (let step = 0; step < this.servicioocg.length; step++) {
-          jsonServicio.push({
-            Sucursal: this.servicioocg[step].empresa_empr_nombre,
-            Tipo: this.servicioocg[step].quejas_emi_tipo,
-            Cantidad: this.servicioocg[step].queja_cantidad,
-          });
-        }
-      } else {
-        for (let step = 0; step < this.servicioocg.length; step++) {
-          jsonServicio.push({
-            Tipo: this.servicioocg[step].quejas_emi_tipo,
-            Cantidad: this.servicioocg[step].queja_cantidad,
-          });
-        }
+    if (this.todasSucursalesG || this.seleccionMultiple) {
+      for (let step = 0; step < this.servicioocg.length; step++) {
+        jsonServicio.push({
+          Sucursal: this.servicioocg[step].empresa_empr_nombre,
+          Tipo: this.servicioocg[step].quejas_emi_tipo,
+          Cantidad: this.servicioocg[step].queja_cantidad,
+        });
       }
+    } else {
+      for (let step = 0; step < this.servicioocg.length; step++) {
+        jsonServicio.push({
+          Tipo: this.servicioocg[step].quejas_emi_tipo,
+          Cantidad: this.servicioocg[step].queja_cantidad,
+        });
+      }
+    }
     //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -692,10 +702,10 @@ export class OpinionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Informe");
     XLSX.writeFile(
       wb,
-      "informeOpinionesExcel - "+nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "informeOpinionesExcel - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -704,7 +714,7 @@ export class OpinionComponent implements OnInit {
     //Seteo de rango de fechas de la consulta para impresión en PDF
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    
+
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
@@ -833,7 +843,7 @@ export class OpinionComponent implements OnInit {
           alignment: "center",
           margin: [0, 5, 0, 10],
         },
-        tableMargin: { margin: [80,5,80,40], alignment: "center" },
+        tableMargin: { margin: [80, 5, 80, 40], alignment: "center" },
         CabeceraTabla: {
           fontSize: 12,
           alignment: "center",
@@ -850,13 +860,13 @@ export class OpinionComponent implements OnInit {
     //Seteo de rango de fechas de la consulta para impresión en PDF
     var fD = this.fromDateIC.nativeElement.value.toString().trim();
     var fH = this.toDateIC.nativeElement.value.toString().trim();
-    
+
     //Definicion de funcion delegada para setear estructura del PDF
     let documentDefinition;
     if (pdf === 1) {
       // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentOpinionesIC(fD, fH);
-    } 
+    }
 
     //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
     switch (action) {
@@ -976,7 +986,7 @@ export class OpinionComponent implements OnInit {
           alignment: "center",
           margin: [0, 5, 0, 10],
         },
-        tableMargin: { margin: [80,5,80,40], alignment: "center" },
+        tableMargin: { margin: [80, 5, 80, 40], alignment: "center" },
         CabeceraTabla: {
           fontSize: 12,
           alignment: "center",
@@ -1138,7 +1148,7 @@ export class OpinionComponent implements OnInit {
           alignment: "center",
           headerRows: 1,
           widths: ["*", "auto", "auto", "auto", "auto", "*"],
-  
+
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -1155,7 +1165,7 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
                 { style: "itemsTable", text: res.caja_caja_nombre },
-                { style: "itemsTable",alignment: "left", text: res.quejas_emi_queja },
+                { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
               ];
             }),
           ],
@@ -1173,7 +1183,7 @@ export class OpinionComponent implements OnInit {
           alignment: "center",
           headerRows: 1,
           widths: ["auto", "auto", "auto", "auto", "*"],
-  
+
           body: [
             [
               { text: "Tipo", style: "tableHeader" },
@@ -1188,7 +1198,7 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
                 { style: "itemsTable", text: res.caja_caja_nombre },
-                { style: "itemsTable",alignment: "left", text: res.quejas_emi_queja },
+                { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
               ];
             }),
           ],
@@ -1210,7 +1220,7 @@ export class OpinionComponent implements OnInit {
           alignment: "center",
           headerRows: 1,
           widths: ["*", "auto", "auto", "auto", "auto", "*"],
-  
+
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -1227,7 +1237,7 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
                 { style: "itemsTable", text: res.caja_caja_nombre },
-                { style: "itemsTable",alignment: "left", text: res.quejas_emi_queja },
+                { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
               ];
             }),
           ],
@@ -1245,7 +1255,7 @@ export class OpinionComponent implements OnInit {
           alignment: "center",
           headerRows: 1,
           widths: ["auto", "auto", "auto", "auto", "*"],
-  
+
           body: [
             [
               { text: "Tipo", style: "tableHeader" },
@@ -1260,7 +1270,7 @@ export class OpinionComponent implements OnInit {
                 { style: "itemsTable", text: res.quejas_emi_categoria },
                 { style: "itemsTable", text: res.quejas_emi_fecha },
                 { style: "itemsTable", text: res.caja_caja_nombre },
-                { style: "itemsTable",alignment: "left", text: res.quejas_emi_queja },
+                { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
               ];
             }),
           ],

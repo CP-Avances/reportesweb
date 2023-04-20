@@ -4,13 +4,16 @@
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">INFORME</a>
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
+                        aria-controls="home" aria-selected="true">INFORME</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab" aria-controls="opcategoria" aria-selected="false">INFORME QUEJAS Y RECLAMOS</a>
+                    <a class="nav-link" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab"
+                        aria-controls="opcategoria" aria-selected="false">INFORME QUEJAS Y RECLAMOS</a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#opserviciosgraf" role="tab" aria-controls="ocserviciosgraf" aria-selected="false">GRÁFICOS</a>
+                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#opserviciosgraf" role="tab"
+                        aria-controls="ocserviciosgraf" aria-selected="false">GRÁFICOS</a>
                 </li>
             </ul>
 
@@ -23,12 +26,14 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateAtM">Fecha desde:</label>
-                                        <input type="date" id="fromDateAtM" value="{{fromDate}}" [max]="toDate" name="fromDateAtM" #fromDateAtM>
+                                        <input type="date" id="fromDateAtM" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateAtM" #fromDateAtM>
                                         <br><br>
                                     </div>
                                     <div>
                                         <label for="toDateAtM">Fecha hasta: </label>
-                                        <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate" name="toDateAtM" #toDateAtM>
+                                        <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate"
+                                            name="toDateAtM" #toDateAtM>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
@@ -45,21 +50,23 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesI')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesI')">
                                         Todas las sucursales
                                     </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
-                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesI">
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesI">
                                         {{option.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="tiposSeleccionados" placeholder="Tipos">
-                                    <mat-option [value]="-1"  (click)="selectAll('todosTipos')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="tiposSeleccionados" placeholder="Tipos">
+                                    <mat-option [value]="-1" (click)="selectAll('todosTipos')">
                                         Todos los tipos
                                     </mat-option>
-                                    <mat-option *ngFor="let tipo of tipos" [value]="tipo.valor" [disabled]="todosTipos"> 
+                                    <mat-option *ngFor="let tipo of tipos" [value]="tipo.valor" [disabled]="todosTipos">
                                         {{tipo.nombre}}
                                     </mat-option>
                                 </mat-select>
@@ -77,7 +84,8 @@
                         <table class="table table-striped" id="contentAtMul" #contentAtMul #tableAtMul>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI || seleccionMultiple">
+                                        Sucursal</th>
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
@@ -87,7 +95,8 @@
                             </thead>
                             <tbody *ngIf="!malRequestAtM">
                                 <tr *ngFor="let servicioOpinion of servicioOpinion | paginate:configAtM">
-                                    <td *ngIf="todasSucursalesI || seleccionMultiple">{{servicioOpinion.empresa_empr_nombre}}</td>
+                                    <td *ngIf="todasSucursalesI || seleccionMultiple">
+                                        {{servicioOpinion.empresa_empr_nombre}}</td>
                                     <td>{{servicioOpinion.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinion.quejas_emi_categoria}}</td>
                                     <td>{{servicioOpinion.quejas_emi_fecha}}</td>
@@ -96,11 +105,8 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <pagination-controls 
-                            *ngIf="!malRequestAtMPag" 
-                            id= "AtendidosMatm"
-                            [previousLabel]="labels.previousLabel"
-                            [nextLabel]="labels.nextLabel"  
+                        <pagination-controls *ngIf="!malRequestAtMPag" id="AtendidosMatm"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
                             (pageChange)="pageChangedAtM($event)">
                         </pagination-controls>
                     </div>
@@ -116,12 +122,14 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateIC">Fecha desde:</label>
-                                        <input type="date" id="fromDateIC" value="{{fromDate}}" [max]="toDate" name="fromDateIC" #fromDateIC>
+                                        <input type="date" id="fromDateIC" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateIC" #fromDateIC>
                                         <br><br>
                                     </div>
                                     <div>
                                         <label for="toDateIC">Fecha hasta: </label>
-                                        <input type="date" id="toDateIC" value="{{toDate}}" [max]="toDate" name="toDateIC" #toDateIC>
+                                        <input type="date" id="toDateIC" value="{{toDate}}" [max]="toDate"
+                                            name="toDateIC" #toDateIC>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
@@ -138,17 +146,19 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesIC')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesIC')">
                                         Todas las sucursales
                                     </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
-                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesIC">
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesIC">
                                         {{option.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <mat-select class="form-control" name="selectmake" [(value)]="tiposSeleccionados" placeholder="Tipos">
+                                <mat-select class="form-control" name="selectmake" [(value)]="tiposSeleccionados"
+                                    placeholder="Tipos">
                                     <mat-option [value]="1" (click)="selectAll('tipo1')">
                                         Quejas
                                     </mat-option>
@@ -157,11 +167,14 @@
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="categoriasSeleccionadas" placeholder="Categorias">
-                                    <mat-option *ngIf="mostrarCategorias" [value]="-1"  (click)="selectAll('todasCategorias')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="categoriasSeleccionadas" placeholder="Categorias">
+                                    <mat-option *ngIf="mostrarCategorias" [value]="-1"
+                                        (click)="selectAll('todasCategorias')">
                                         Todas las categorias
                                     </mat-option>
-                                    <mat-option *ngFor="let categoria of categorias" [value]="categoria.emi_categoria" [disabled]="todasCategorias"> 
+                                    <mat-option *ngFor="let categoria of categorias" [value]="categoria.emi_categoria"
+                                        [disabled]="todasCategorias">
                                         {{categoria.emi_categoria}}
                                     </mat-option>
                                 </mat-select>
@@ -179,7 +192,8 @@
                         <table class="table table-striped" id="contentIC" #contentIC #tableIC>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesIC || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesIC || seleccionMultiple">
+                                        Sucursal</th>
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
@@ -187,9 +201,10 @@
                                     <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
                                 </tr>
                             </thead>
-                            <tbody >
+                            <tbody>
                                 <tr *ngFor="let servicioOpinionIC of servicioOpinionIC | paginate:configIC">
-                                    <td *ngIf="todasSucursalesIC || seleccionMultiple">{{servicioOpinionIC.empresa_empr_nombre}}</td>
+                                    <td *ngIf="todasSucursalesIC || seleccionMultiple">
+                                        {{servicioOpinionIC.empresa_empr_nombre}}</td>
                                     <td>{{servicioOpinionIC.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinionIC.quejas_emi_categoria}}</td>
                                     <td>{{servicioOpinionIC.quejas_emi_fecha}}</td>
@@ -198,11 +213,8 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <pagination-controls 
-                            *ngIf="!malRequestICPag" 
-                            id= "opinionesIC"
-                            [previousLabel]="labels.previousLabel"
-                            [nextLabel]="labels.nextLabel"  
+                        <pagination-controls *ngIf="!malRequestICPag" id="opinionesIC"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
                             (pageChange)="pageChangedIC($event)">
                         </pagination-controls>
                     </div>
@@ -218,12 +230,14 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateOcupG">Fecha desde:</label>
-                                        <input type="date" id="fromDateOcupG" value="{{fromDate}}" [max]="toDate" name="fromDateOcupG" #fromDateOcupG>
+                                        <input type="date" id="fromDateOcupG" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateOcupG" #fromDateOcupG>
                                         <br><br>
                                     </div>
                                     <div>
                                         <label for="toDateOcupG">Fecha hasta: </label>
-                                        <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate" name="toDateOcupG" #toDateOcupG>
+                                        <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate"
+                                            name="toDateOcupG" #toDateOcupG>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
@@ -240,12 +254,13 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesG')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesG')">
                                         Todas las sucursales
                                     </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
-                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesG">
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesG">
                                         {{option.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
@@ -276,7 +291,8 @@
                             <label for="horizontal">Horizontal </label>
                         </div>
                     </fieldset>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGrafico()">EXCEL</button>
+                    <button type="button" class="btn btn-info mx-2"
+                        (click)="exportTOExcelOpinionesGrafico()">EXCEL</button>
                     <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',2)">PDF</button>
                     <br>
                 </div>
