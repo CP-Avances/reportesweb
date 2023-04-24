@@ -1,6 +1,8 @@
+import { Router } from '@angular/router';
 import { Component } from "@angular/core";
 import { ToastrService } from "ngx-toastr";
 import { ServiceService } from "../../services/service.service";
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
   selector: "app-configuracion",
@@ -16,8 +18,10 @@ export class ConfiguracionComponent {
   marca: string = " ";
 
   constructor(
+    private router: Router,
     private toastr: ToastrService,
-    private serviceService: ServiceService
+    private auth: AuthenticationService,
+    private serviceService: ServiceService,
   ) { }
 
 
@@ -68,14 +72,16 @@ export class ConfiguracionComponent {
         (res) => {
           // SE INFORMA QUE SE PUDO GUARDO LA IMAGEN
           this.toastr.success(
-            "Se actualizará la página para aplicar el cambio",
+            `Para llevar a cabo los cambios necesarios, la sesión actual deberá cerrarse. 
+            Esto permitirá que los cambios se realicen adecuadamente y se guarden correctamente en el sistema.`,
             "La imagen se ha guardado correctamente",
             {
-              timeOut: 6000,
+              timeOut: 7000,
             }
           );
           setTimeout(() => {
-            location.reload();
+            this.auth.logout();
+            this.router.navigateByUrl('/');
           }, 6000);
         },
         (error) => {
