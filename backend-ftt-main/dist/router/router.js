@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const verifivarToken_1 = require("../libs/verifivarToken");
 const express_1 = require("express");
 const mysql_1 = __importDefault(require("../mysql/mysql"));
 const multer_1 = __importDefault(require("multer"));
@@ -37,7 +38,7 @@ router.get('/heroes/:id', (req, res) => {
     });
 });
 //querys
-router.get('/usuarios', (0, cors_1.default)(), (req, res) => {
+router.get('/usuarios', verifivarToken_1.TokenValidation, (0, cors_1.default)(), (req, res) => {
     const query = `
         SELECT * FROM usuarios
         `;
@@ -56,7 +57,7 @@ router.get('/usuarios', (0, cors_1.default)(), (req, res) => {
         }
     });
 });
-router.get('/usuario/:id', (req, res) => {
+router.get('/usuario/:id', verifivarToken_1.TokenValidation, (req, res) => {
     const id = req.params.id;
     const usua_codigo = id;
     const escapeId = mysql_1.default.instance.cnn.escape(id);
@@ -79,7 +80,7 @@ router.get('/usuario/:id', (req, res) => {
     });
 });
 //////getuser
-router.get('/username/:usua_login', (req, res) => {
+router.get('/username/:usua_login', verifivarToken_1.TokenValidation, (req, res) => {
     const username = req.params.usua_login;
     const escapeUsername = mysql_1.default.instance.cnn.escape(username);
     const query = `
@@ -115,7 +116,7 @@ router.post('/login/:usua_login/:usua_password', (req, res) => {
             });
         }
         else {
-            let token = jwt.sign({ data: usuario[0] }, 'peter', { expiresIn: 60 * 60 });
+            let token = jwt.sign({ data: usuario[0] }, 'llaveSecreta', { expiresIn: 60 * 60 * 23 });
             res.json({
                 ok: true,
                 token
@@ -140,7 +141,7 @@ const storage = multer_1.default.diskStorage({
 });
 const upload = (0, multer_1.default)({ storage: storage });
 // GUARDAR NOMBRE IMAGEN EN LA BASE DE DATOS
-router.post('/uploadImage', upload.single('image'), (req, res) => {
+router.post('/uploadImage', verifivarToken_1.TokenValidation, upload.single('image'), (req, res) => {
     var _a;
     const filename = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path.split("\\")[1];
     // BUSQUEDA DE LOGO
@@ -191,7 +192,7 @@ function ActualizarImagen(res, archivo) {
         }
     });
 }
-router.get('/nombreImagen', (req, res) => {
+router.get('/nombreImagen', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 8;
       `;
@@ -215,7 +216,7 @@ router.get('/nombreImagen', (req, res) => {
     });
 });
 //Guardar meta de turnos en la base de datos
-router.get('/setMeta/:valor', (req, res) => {
+router.get('/setMeta/:valor', verifivarToken_1.TokenValidation, (req, res) => {
     const valor = req.params.valor;
     const query = `UPDATE general SET gene_valor = '${valor}' WHERE gene_codigo = 9;`;
     mysql_1.default.ejecutarQuery(query, (err, usuario) => {
@@ -232,7 +233,7 @@ router.get('/setMeta/:valor', (req, res) => {
         }
     });
 });
-router.get('/getMeta', (req, res) => {
+router.get('/getMeta', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 9;
       `;
@@ -252,7 +253,7 @@ router.get('/getMeta', (req, res) => {
     });
 });
 //Guardar marca de agua
-router.get('/setMarca/:marca', (req, res) => {
+router.get('/setMarca/:marca', verifivarToken_1.TokenValidation, (req, res) => {
     const marca = req.params.marca;
     const query = `UPDATE general SET gene_valor = '${marca}' WHERE gene_codigo = 10;`;
     mysql_1.default.ejecutarQuery(query, (err, usuario) => {
@@ -269,7 +270,7 @@ router.get('/setMarca/:marca', (req, res) => {
         }
     });
 });
-router.get('/getMarca', (req, res) => {
+router.get('/getMarca', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 10;
       `;

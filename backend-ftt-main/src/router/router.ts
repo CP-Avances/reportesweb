@@ -1,3 +1,4 @@
+import { TokenValidation } from '../libs/verifivarToken';
 import { Router, Request, Response } from 'express'
 import MySQL from '../mysql/mysql';
 import multer from 'multer';
@@ -37,7 +38,7 @@ router.get('/heroes/:id', (req: Request, res: Response) => {
 
 
 //querys
-router.get('/usuarios', cors(), (req: Request, res: Response) => {
+router.get('/usuarios', TokenValidation, cors(), (req: Request, res: Response) => {
 
     const query =
         `
@@ -58,7 +59,7 @@ router.get('/usuarios', cors(), (req: Request, res: Response) => {
     })
 });
 
-router.get('/usuario/:id', (req: Request, res: Response) => {
+router.get('/usuario/:id', TokenValidation, (req: Request, res: Response) => {
     const id = req.params.id;
     const usua_codigo = id;
     const escapeId = MySQL.instance.cnn.escape(id);
@@ -84,7 +85,7 @@ router.get('/usuario/:id', (req: Request, res: Response) => {
 
 
 //////getuser
-router.get('/username/:usua_login', (req: Request, res: Response) => {
+router.get('/username/:usua_login', TokenValidation, (req: Request, res: Response) => {
 
     const username = req.params.usua_login;
     const escapeUsername = MySQL.instance.cnn.escape(username);
@@ -124,7 +125,7 @@ router.post('/login/:usua_login/:usua_password', (req: Request, res: Response) =
             });
 
         } else {
-            let token = jwt.sign({ data: usuario[0] }, 'peter', { expiresIn: 60 * 60 });
+            let token = jwt.sign({ data: usuario[0] }, 'llaveSecreta', { expiresIn: 60 * 60 * 23 });
             res.json({
                 ok: true,
                 token
@@ -153,7 +154,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // GUARDAR NOMBRE IMAGEN EN LA BASE DE DATOS
-router.post('/uploadImage', upload.single('image'), (req, res) => {
+router.post('/uploadImage', TokenValidation, upload.single('image'), (req, res) => {
 
     const filename = req.file?.path.split("\\")[1];
 
@@ -212,7 +213,7 @@ function ActualizarImagen(res: any, archivo: any) {
     })
 }
 
-router.get('/nombreImagen', (req: Request, res: Response) => {
+router.get('/nombreImagen', TokenValidation, (req: Request, res: Response) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 8;
       `;
@@ -239,7 +240,7 @@ router.get('/nombreImagen', (req: Request, res: Response) => {
 });
 
 //Guardar meta de turnos en la base de datos
-router.get('/setMeta/:valor', (req, res) => {
+router.get('/setMeta/:valor', TokenValidation, (req, res) => {
     const valor = req.params.valor;
 
     const query = `UPDATE general SET gene_valor = '${valor}' WHERE gene_codigo = 9;`
@@ -260,7 +261,7 @@ router.get('/setMeta/:valor', (req, res) => {
 }
 );
 
-router.get('/getMeta', (req: Request, res: Response) => {
+router.get('/getMeta', TokenValidation, (req: Request, res: Response) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 9;
       `;
@@ -281,7 +282,7 @@ router.get('/getMeta', (req: Request, res: Response) => {
 });
 
   //Guardar marca de agua
-router.get('/setMarca/:marca',(req, res) =>{
+router.get('/setMarca/:marca', TokenValidation, (req, res) =>{
     const marca = req.params.marca;
 
     const  query = `UPDATE general SET gene_valor = '${marca}' WHERE gene_codigo = 10;`
@@ -302,7 +303,7 @@ router.get('/setMarca/:marca',(req, res) =>{
 }
 );
 
-router.get('/getMarca',(req: Request, res: Response) => {
+router.get('/getMarca', TokenValidation, (req: Request, res: Response) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 10;
       `;

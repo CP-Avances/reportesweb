@@ -1,3 +1,4 @@
+import { TokenValidation } from '../libs/verifivarToken';
 import { Router, Request, Response } from "express";
 import MySQL from "../mysql/mysql";
 
@@ -8,7 +9,7 @@ const router = Router();
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos",
+  "/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -74,7 +75,7 @@ router.get(
 );
 
 router.get(
-  "/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos/:categorias",
+  "/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos/:categorias", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -159,7 +160,7 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales",
+  "/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -212,7 +213,7 @@ router.get(
 );
 
 router.get(
-  "/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos",
+  "/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -275,7 +276,7 @@ router.get(
 
 
 //Obtener categorias
-router.get("/categorias/:tipo", (req: Request, res: Response) => {
+router.get("/categorias/:tipo", TokenValidation, (req: Request, res: Response) => {
   const tipo = req.params.tipo;
   const query = `
   SELECT DISTINCT emi_categoria FROM quejas WHERE emi_tipo = ${tipo} ORDER BY emi_categoria ASC;

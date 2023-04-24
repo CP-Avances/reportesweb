@@ -1,3 +1,4 @@
+import { TokenValidation } from '../libs/verifivarToken';
 import { Router, Request, Response } from 'express'
 import MySQL from '../mysql/mysql';
 
@@ -7,7 +8,8 @@ const router = Router();
  ** **                                      INGRESO DE CLIENTES                                               ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales', (req: Request, res: Response) => {
+router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -60,7 +62,7 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
     })
 });
 
-router.get('/ingresoclientesmenu/:fecha', (req: Request, res: Response) => {
+router.get('/ingresoclientesmenu/:fecha', TokenValidation, (req: Request, res: Response) => {
 
     let fechas = req.params.fecha;
 

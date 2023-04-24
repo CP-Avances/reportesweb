@@ -1,3 +1,4 @@
+import { TokenValidation } from '../libs/verifivarToken';
 import { Router, Request, Response } from 'express'
 import MySQL from '../mysql/mysql';
 
@@ -7,7 +8,8 @@ const router = Router();
  ** **                                    DISTRIBUCION Y ESTADO DE TURNOS                                      ** **
  ** ************************************************************************************************************* **/
 
-router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req: Request, res: Response) => {
+router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -77,7 +79,8 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
  ** **                                    DISTRIBUCION Y ESTADO DE TURNOS RESUMEN                                  ** **
  ** ***************************************************************************************************************** **/
 
-router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req: Request, res: Response) => {
+router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;

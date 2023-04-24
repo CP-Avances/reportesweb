@@ -25,34 +25,34 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  login1(form: NgForm, username: any, password: any) {
-    username = this.usua_login;
-    password = this.usua_password;
-    if (form.invalid) { return; }
+  // login1(form: NgForm, username: any, password: any) {
+  //   username = this.usua_login;
+  //   password = this.usua_password;
+  //   if (form.invalid) { return; }
 
-    Swal.fire({
-      allowOutsideClick: false,
-      text: 'Espere un momento.....',
-    });
-    Swal.showLoading();
+  //   Swal.fire({
+  //     allowOutsideClick: false,
+  //     text: 'Espere un momento.....',
+  //   });
+  //   Swal.showLoading();
 
 
-    this.authenticationService.loginUsuario(username, password)
-      .subscribe(resp => {
-        localStorage.setItem("token", resp.token);
-        localStorage.setItem("user", username);
-        this.router.navigateByUrl('/menu');
-        Swal.close();
-      }, (err) => {
-        Swal.fire({
-          allowOutsideClick: false,
-          title: 'Error!',
-          text: 'Usuario o password incorrecto.',
-          icon: 'error',
-          confirmButtonText: 'ok'
-        });
-      })
-  }
+  //   this.authenticationService.loginUsuario(username, password)
+  //     .subscribe(resp => {
+  //       localStorage.setItem("token", resp.token);
+  //       localStorage.setItem("user", username);
+  //       this.router.navigateByUrl('/menu');
+  //       Swal.close();
+  //     }, (err) => {
+  //       Swal.fire({
+  //         allowOutsideClick: false,
+  //         title: 'Error!',
+  //         text: 'Usuario o password incorrecto.',
+  //         icon: 'error',
+  //         confirmButtonText: 'ok'
+  //       });
+  //     })
+  // }
 
   login2(form: NgForm, username, password) {
     if (form.invalid) { return; }
@@ -62,6 +62,7 @@ export class LoginComponent implements OnInit {
       text: 'Espere por favor...'
     });
     Swal.showLoading();
+    
 
     this.authenticationService.login(username, password)
       .subscribe(resp => {

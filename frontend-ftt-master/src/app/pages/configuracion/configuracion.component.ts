@@ -13,7 +13,7 @@ export class ConfiguracionComponent {
   logo: any;
   nombreImagen: any[];
   valor: number;
-  marca: string;
+  marca: string = " ";
 
   constructor(
     private toastr: ToastrService,

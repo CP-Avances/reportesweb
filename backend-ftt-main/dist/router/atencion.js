@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const verifivarToken_1 = require("../libs/verifivarToken");
 const express_1 = require("express");
 const mysql_1 = __importDefault(require("../mysql/mysql"));
 const router = (0, express_1.Router)();
 /** ********************************************************************************************************** **
  ** **                                    TIEMPOS COMPLETOS                                                 ** **
  ** ********************************************************************************************************** **/
-router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req, res) => {
+router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -68,7 +69,7 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
 /** ****************************************************************************************************** **
  ** **                                      PROMEDIOS DE ATENCION                                       ** **
  ** ****************************************************************************************************** **/
-router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', (req, res) => {
+router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -128,7 +129,7 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:ser
 /** ****************************************************************************************************** **
  ** **                                      TIEMPO DE ATENCION                                       ** **
  ** ****************************************************************************************************** **/
-router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', (req, res) => {
+router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -185,7 +186,7 @@ router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
 /** ************************************************************************************************************* **
  ** **                                        MAXIMOS DE ATENCION                                              ** **
  ** ************************************************************************************************************* **/
-router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', (req, res) => {
+router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -244,7 +245,7 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios
 /** ******************************************************************************************************* **
  ** **                                     ATENCION SERVICIO                                             ** **
  ** ******************************************************************************************************* **/
-router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req, res) => {
+router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -301,7 +302,7 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
 /** ***************************************************************************************************** **
  ** **                                   GRAFICO SERVICIO                                              ** **
  ** ***************************************************************************************************** **/
-router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales', (req, res) => {
+router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales', verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -351,7 +352,7 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
 /** ************************************************************************************************************* **
  ** **                                               MENU                                                      ** **
  ** ************************************************************************************************************* **/
-router.get('/promediosatencionmenu/:fecha', (req, res) => {
+router.get('/promediosatencionmenu/:fecha', verifivarToken_1.TokenValidation, (req, res) => {
     let fechas = req.params.fecha;
     const query = `
         SELECT t.SERV_CODIGO, s.SERV_NOMBRE, 

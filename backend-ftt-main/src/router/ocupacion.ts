@@ -1,3 +1,4 @@
+import { TokenValidation } from '../libs/verifivarToken';
 import { Router, Request, Response } from "express";
 import MySQL from "../mysql/mysql";
 
@@ -8,7 +9,7 @@ const router = Router();
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales",
+  "/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -77,7 +78,7 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales",
+  "/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -140,7 +141,7 @@ router.get(
   }
 );
 
-router.get("/graficoocupacion/:fecha", (req: Request, res: Response) => {
+router.get("/graficoocupacion/:fecha", TokenValidation, (req: Request, res: Response) => {
   let fechas = req.params.fecha;
   const query = `
         SELECT COUNT(turno.TURN_ESTADO) AS total, servicio.SERV_NOMBRE, servicio.SERV_CODIGO, 
