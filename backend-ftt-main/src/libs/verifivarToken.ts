@@ -10,7 +10,6 @@ export const TokenValidation = (req: Request, res: Response, next: NextFunction)
     }
    // Verificar si el token JWT está presente en la solicitud
    const token = req.headers.authorization.split(' ')[1];
-   console.log("token:  " +token);
    if (token === 'null') {
      // Si no se proporciona un token, responder con un error 401 (no autorizado)
      console.log("validacion");
@@ -22,7 +21,6 @@ export const TokenValidation = (req: Request, res: Response, next: NextFunction)
      const decodedToken = jwt.verify(token, 'llaveSecreta');
      // Agregar los datos decodificados del token a la solicitud para su posterior uso
      // Permitir que la solicitud continúe
-     console.log("token valido")
      next();
    } catch (error) {
      // Si el token no es válido, responder con un error 401 (no autorizado)
