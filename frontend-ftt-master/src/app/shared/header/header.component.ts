@@ -53,7 +53,6 @@ export class HeaderComponent implements OnInit {
   salir() {
     this.auth.logout();
     this.router.navigateByUrl('/');
-    location.reload();
   }
 
   mostrarMenu() {
