@@ -22,17 +22,17 @@ const routes: Routes = [
   canActivate: [ AuthGuard ],
   children: [
 
-    {path:'', component:MenuComponent},
-    {path:'usuarios', component:UsuariosComponent},
-    {path:'evaluacion', component:EvaluacionComponent},
-    {path:'atencion', component:AtencionComponent},
-    {path:'ocupacion', component:OcupacionComponent},
+    {path:'', component:MenuComponent, canActivate: [ AuthGuard ]},
+    {path:'usuarios', component:UsuariosComponent, canActivate: [ AuthGuard ]},
+    {path:'evaluacion', component:EvaluacionComponent, canActivate: [ AuthGuard ]},
+    {path:'atencion', component:AtencionComponent, canActivate: [ AuthGuard ]},
+    {path:'ocupacion', component:OcupacionComponent, canActivate: [ AuthGuard ]},
     //aqui va satisfacciones
-    {path:'distestadoturnos', component:DistestadoturnosComponent},
-    {path:'ingresoclientes', component:IngresoclientesComponent},
-    {path:'atendidosmultiples', component:AtendidosmultiplesComponent},
-    {path:'opinion', component:OpinionComponent},
-    {path: 'configuracion', component: ConfiguracionComponent}
+    {path:'distestadoturnos', component:DistestadoturnosComponent, canActivate: [ AuthGuard ]},
+    {path:'ingresoclientes', component:IngresoclientesComponent, canActivate: [ AuthGuard ]},
+    {path:'atendidosmultiples', component:AtendidosmultiplesComponent, canActivate: [ AuthGuard ]},
+    {path:'opinion', component:OpinionComponent, canActivate: [ AuthGuard ]},
+    {path: 'configuracion', component: ConfiguracionComponent, canActivate: [ AuthGuard ]}
   ]
 },
 ];

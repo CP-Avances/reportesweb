@@ -1,3 +1,4 @@
+import { TokenValidation } from '../libs/verifivarToken';
 import { Router, Request, Response } from 'express'
 import MySQL from '../mysql/mysql';
 
@@ -12,7 +13,7 @@ const router = Router();
  ** **                                    TOTAL TICKETS EMITIDOS                                              ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/totaltickets/:fecha', (req: Request, res: Response) => {
+router.get('/totaltickets/:fecha', TokenValidation, (req: Request, res: Response) => {
 
     let fechas = req.params.fecha;
     const query =
@@ -40,7 +41,7 @@ router.get('/totaltickets/:fecha', (req: Request, res: Response) => {
  ** **                                PROMEDIO DE ATENCION POR SERVICIO                                       ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/promedioatencionporservicio', (req: Request, res: Response) => {
+router.get('/promedioatencionporservicio', TokenValidation, (req: Request, res: Response) => {
 
     const query =
         `
@@ -71,7 +72,7 @@ router.get('/promedioatencionporservicio', (req: Request, res: Response) => {
  ** **                                           TOTAL ATENDIDOS                                              ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/totalatendidos/:fecha', (req: Request, res: Response) => {
+router.get('/totalatendidos/:fecha', TokenValidation, (req: Request, res: Response) => {
     let fechas = req.params.fecha;
     const query =
         `
@@ -101,7 +102,7 @@ router.get('/totalatendidos/:fecha', (req: Request, res: Response) => {
  ** **                                           TOTAL SIN ATENDER                                            ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/totalsinatender/:fecha', (req: Request, res: Response) => {
+router.get('/totalsinatender/:fecha', TokenValidation, (req: Request, res: Response) => {
 
     let fechas = req.params.fecha;
     const query =
@@ -132,7 +133,7 @@ router.get('/totalsinatender/:fecha', (req: Request, res: Response) => {
  ** **                                           PROMEDIO ATENCION                                            ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/promedioatencion/:fecha', (req: Request, res: Response) => {
+router.get('/promedioatencion/:fecha', TokenValidation, (req: Request, res: Response) => {
 
     let fechas = req.params.fecha;
     const query =
@@ -162,7 +163,7 @@ router.get('/promedioatencion/:fecha', (req: Request, res: Response) => {
  ** **                                         EVALUACION PROMEDIO                                            ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/evapromedio', (req: Request, res: Response) => {
+router.get('/evapromedio', TokenValidation, (req: Request, res: Response) => {
 
     const query =
         `
@@ -193,7 +194,7 @@ router.get('/evapromedio', (req: Request, res: Response) => {
  ** **                                          EVALUACION GRAFICO                                            ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/evagraf', (req: Request, res: Response) => {
+router.get('/evagraf', TokenValidation, (req: Request, res: Response) => {
 
     const query =
         `
@@ -231,7 +232,7 @@ router.get('/evagraf', (req: Request, res: Response) => {
  ** **                                   TURNOS CON MAS ATENCIONES                                            ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/turnate', (req: Request, res: Response) => {
+router.get('/turnate', TokenValidation, (req: Request, res: Response) => {
 
     const query =
         `
@@ -259,7 +260,7 @@ router.get('/turnate', (req: Request, res: Response) => {
  ** **                                          SERVICIOS MAS SOLICITADOS                                     ** ** 
  ** ************************************************************************************************************ **/
 
-router.get('/servsoli', (req: Request, res: Response) => {
+router.get('/servsoli', TokenValidation, (req: Request, res: Response) => {
 
     const query =
         `

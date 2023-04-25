@@ -19,7 +19,7 @@ export class AuthenticationService {
   password: '';
   us: '';
 
-  private URL = "http://192.168.0.145:3005";
+  private URL = "http://192.168.0.145:3004";
 
   constructor(private http: HttpClient,
     private router: Router) {
@@ -41,7 +41,6 @@ export class AuthenticationService {
         map(resp => {
           this.guardaToken(resp['token']);
           this.getnombreusuario(username);
-          //return resp;
         })
       );
   }
@@ -62,6 +61,12 @@ export class AuthenticationService {
       this.userToken = '';
     }
     return this.userToken;
+  }
+
+  isAuthenticated() {
+    const token = localStorage.getItem('token');
+    // verificar si el token es válido y no ha expirado
+    return !!token;
   }
 
   estaAutenticado(): boolean {

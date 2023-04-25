@@ -1,3 +1,4 @@
+import { TokenValidation } from '../libs/verifivarToken';
 import { Router, Request, Response } from 'express'
 import MySQL from '../mysql/mysql';
 
@@ -7,7 +8,8 @@ const router = Router();
  ** **                                    TIEMPOS COMPLETOS                                                 ** **
  ** ********************************************************************************************************** **/
 
-router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req: Request, res: Response) => {
+router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -74,7 +76,8 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
  ** **                                      PROMEDIOS DE ATENCION                                       ** **
  ** ****************************************************************************************************** **/
 
-router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', (req: Request, res: Response) => {
+router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -143,7 +146,8 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:ser
  ** **                                      TIEMPO DE ATENCION                                       ** **
  ** ****************************************************************************************************** **/
 
-router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', (req: Request, res: Response) => {
+router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -209,7 +213,8 @@ router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
  ** **                                        MAXIMOS DE ATENCION                                              ** **
  ** ************************************************************************************************************* **/
 
-router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', (req: Request, res: Response) => {
+router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -276,7 +281,8 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios
  ** **                                     ATENCION SERVICIO                                             ** ** 
  ** ******************************************************************************************************* **/
 
-router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', (req: Request, res: Response) => {
+router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -342,7 +348,8 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
  ** **                                   GRAFICO SERVICIO                                              ** ** 
  ** ***************************************************************************************************** **/
 
-router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales', (req: Request, res: Response) => {
+router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales', TokenValidation,
+ (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -400,7 +407,7 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
  ** **                                               MENU                                                      ** **
  ** ************************************************************************************************************* **/
 
-router.get('/promediosatencionmenu/:fecha', (req: Request, res: Response) => {
+router.get('/promediosatencionmenu/:fecha', TokenValidation, (req: Request, res: Response) => {
     let fechas = req.params.fecha;
 
     const query =

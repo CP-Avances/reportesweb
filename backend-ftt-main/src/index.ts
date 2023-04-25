@@ -16,10 +16,10 @@ import opinion from './router/opinion';
 import express = require('express');
 
 //////
-const server = Server.init(process.env.PORT || 3005);
+const server = Server.init(process.env.PORT || 3004);
 //////
 
-const port = process.env.PORT || 3005;
+const port = process.env.PORT || 3004;
 
 //llamar rutas
 server.app.use(router);

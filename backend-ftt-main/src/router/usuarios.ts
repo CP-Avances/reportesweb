@@ -1,3 +1,4 @@
+import { TokenValidation } from '../libs/verifivarToken';
 import { Router, Request, Response } from "express";
 import MySQL from "../mysql/mysql";
 
@@ -7,7 +8,7 @@ const router = Router();
  ** **                                      TURNOS POR FECHA                                                  ** **
  ** ************************************************************************************************************ **/
 
-router.get("/turnosfecha", (req: Request, res: Response) => {
+router.get("/turnosfecha", TokenValidation, (req: Request, res: Response) => {
   const query = `
         SELECT usua_nombre as Usuario, serv_nombre as Servicio,
             date_format(turn_fecha, "%Y-%m-%d") as Fecha, SUM(turn_estado = 1) AS Atendidos,
@@ -35,7 +36,7 @@ router.get("/turnosfecha", (req: Request, res: Response) => {
   });
 });
 
-router.get("/getallsucursales", (req: Request, res: Response) => {
+router.get("/getallsucursales", TokenValidation, (req: Request, res: Response) => {
   const query = `
         SELECT * FROM empresa ORDER BY empr_nombre ASC;
         `;
@@ -55,7 +56,7 @@ router.get("/getallsucursales", (req: Request, res: Response) => {
   });
 });
 
-router.get("/getallcajeros", (req: Request, res: Response) => {
+router.get("/getallcajeros", TokenValidation, (req: Request, res: Response) => {
   const query = `
         SELECT * FROM cajero usua_codigo != 2 ORDER BY caje_nombre ASC;
         `;
@@ -74,7 +75,7 @@ router.get("/getallcajeros", (req: Request, res: Response) => {
   });
 });
 
-router.get("/getallcajeros/:sucursales", (req: Request, res: Response) => {
+router.get("/getallcajeros/:sucursales", TokenValidation, (req: Request, res: Response) => {
   const listaSucursales = req.params.sucursales;
   const sucursalesArray = listaSucursales.split(",");
 
@@ -114,7 +115,7 @@ router.get("/getallcajeros/:sucursales", (req: Request, res: Response) => {
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales",
+  "/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -179,7 +180,7 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales",
+  "/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -242,7 +243,7 @@ router.get(
   }
 );
 
-router.get("/tiempopromedioatencion", (req: Request, res: Response) => {
+router.get("/tiempopromedioatencion", TokenValidation, (req: Request, res: Response) => {
   const query = `
         SELECT serv_nombre AS Servicio, caje_nombre as Nombre,
             COUNT(turn_codigo) AS Turnos, 
@@ -274,7 +275,7 @@ router.get("/tiempopromedioatencion", (req: Request, res: Response) => {
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales",
+  "/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -334,7 +335,7 @@ router.get(
  ** **                                       ATENCION AL USUARIO                                              ** **
  ** ************************************************************************************************************ **/
 
-router.get("/atencionusuario", (req: Request, res: Response) => {
+router.get("/atencionusuario", TokenValidation, (req: Request, res: Response) => {
   const query = `
         SELECT usua_nombre AS Nombre, serv_nombre AS Servicio,
             SUM(turn_estado = 1) AS Atendidos
@@ -360,7 +361,7 @@ router.get("/atencionusuario", (req: Request, res: Response) => {
 });
 
 router.get(
-  "/atencionusuario/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales",
+  "/atencionusuario/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -426,7 +427,7 @@ router.get(
  ** **                                          TURNOS POR FECHA                                              ** **
  ** ************************************************************************************************************ **/
 
-router.get("/turnosfecha/:fecha", (req: Request, res: Response) => {
+router.get("/turnosfecha/:fecha", TokenValidation, (req: Request, res: Response) => {
   let fechas = req.params.fecha;
   const query = `
         SELECT usua_nombre AS Usuario, serv_nombre AS Servicio, turn_fecha AS Fecha, 
@@ -456,7 +457,7 @@ router.get("/turnosfecha/:fecha", (req: Request, res: Response) => {
 });
 
 router.get(
-  "/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros",
+  "/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -522,7 +523,7 @@ router.get(
 );
 
 router.get(
-  "/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros",
+  "/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -586,7 +587,7 @@ router.get(
 );
 
 router.get(
-  "/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros",
+  "/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;

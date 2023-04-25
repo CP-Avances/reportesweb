@@ -18,9 +18,9 @@ const opinion_1 = __importDefault(require("./router/opinion"));
 ////////////
 const express = require("express");
 //////
-const server = server_1.default.init(process.env.PORT || 3005);
+const server = server_1.default.init(process.env.PORT || 3004);
 //////
-const port = process.env.PORT || 3005;
+const port = process.env.PORT || 3004;
 //llamar rutas
 server.app.use(router_1.default);
 server.app.use(usuarios_1.default);

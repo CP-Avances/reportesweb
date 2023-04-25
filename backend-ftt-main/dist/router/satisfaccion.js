@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const verifivarToken_1 = require("../libs/verifivarToken");
 const express_1 = require("express");
 const mysql_1 = __importDefault(require("../mysql/mysql"));
 const router = (0, express_1.Router)();
@@ -12,7 +13,7 @@ const router = (0, express_1.Router)();
 /** ************************************************************************************************************ **
  ** **                                    TOTAL TICKETS EMITIDOS                                              ** **
  ** ************************************************************************************************************ **/
-router.get('/totaltickets/:fecha', (req, res) => {
+router.get('/totaltickets/:fecha', verifivarToken_1.TokenValidation, (req, res) => {
     let fechas = req.params.fecha;
     const query = `
         SELECT turn_fecha as fecha, count(*) AS numeroturnos FROM turno WHERE turn_fecha = '${fechas}'
@@ -35,7 +36,7 @@ router.get('/totaltickets/:fecha', (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                PROMEDIO DE ATENCION POR SERVICIO                                       ** **
  ** ************************************************************************************************************ **/
-router.get('/promedioatencionporservicio', (req, res) => {
+router.get('/promedioatencionporservicio', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
         SELECT turn_codigo, serv_nombre, 
             date_format(SEC_TO_TIME(AVG(turn_duracionatencion)),'%H:%i:%s') AS PromedioAtencion
@@ -62,7 +63,7 @@ router.get('/promedioatencionporservicio', (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                           TOTAL ATENDIDOS                                              ** **
  ** ************************************************************************************************************ **/
-router.get('/totalatendidos/:fecha', (req, res) => {
+router.get('/totalatendidos/:fecha', verifivarToken_1.TokenValidation, (req, res) => {
     let fechas = req.params.fecha;
     const query = `
         SELECT turn_fecha, count(*) as atendidostotales 
@@ -88,7 +89,7 @@ router.get('/totalatendidos/:fecha', (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                           TOTAL SIN ATENDER                                            ** **
  ** ************************************************************************************************************ **/
-router.get('/totalsinatender/:fecha', (req, res) => {
+router.get('/totalsinatender/:fecha', verifivarToken_1.TokenValidation, (req, res) => {
     let fechas = req.params.fecha;
     const query = `
         SELECT turn_fecha, count(turn_codigo) AS noatendidos 
@@ -114,7 +115,7 @@ router.get('/totalsinatender/:fecha', (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                           PROMEDIO ATENCION                                            ** **
  ** ************************************************************************************************************ **/
-router.get('/promedioatencion/:fecha', (req, res) => {
+router.get('/promedioatencion/:fecha', verifivarToken_1.TokenValidation, (req, res) => {
     let fechas = req.params.fecha;
     const query = `
         SELECT turn_fecha, 
@@ -140,7 +141,7 @@ router.get('/promedioatencion/:fecha', (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                         EVALUACION PROMEDIO                                            ** **
  ** ************************************************************************************************************ **/
-router.get('/evapromedio', (req, res) => {
+router.get('/evapromedio', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
         SELECT IF(AVG(eval_califica)> = 42, 'Excelente',
             IF(AVG(eval_califica) >= 34, 'Muy Bueno',
@@ -167,7 +168,7 @@ router.get('/evapromedio', (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                          EVALUACION GRAFICO                                            ** **
  ** ************************************************************************************************************ **/
-router.get('/evagraf', (req, res) => {
+router.get('/evagraf', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
         SELECT 
             SUM(eval_califica = 50) AS Excelente,
@@ -201,7 +202,7 @@ router.get('/evagraf', (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                   TURNOS CON MAS ATENCIONES                                            ** **
  ** ************************************************************************************************************ **/
-router.get('/turnate', (req, res) => {
+router.get('/turnate', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
         SELECT serv_nombre FROM servicio, turno
         WHERE servicio.serv_codigo = turno.serv_codigo
@@ -225,7 +226,7 @@ router.get('/turnate', (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                          SERVICIOS MAS SOLICITADOS                                     ** **
  ** ************************************************************************************************************ **/
-router.get('/servsoli', (req, res) => {
+router.get('/servsoli', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
         SELECT  serv_nombre as Servicio,
             SUM( turn_estado = 1 ) as Atendidos,

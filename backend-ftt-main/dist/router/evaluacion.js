@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const verifivarToken_1 = require("../libs/verifivarToken");
 const express_1 = require("express");
 const mysql_1 = __importDefault(require("../mysql/mysql"));
 const router = (0, express_1.Router)();
 /** ************************************************************************************************************ **
  ** **                                      SERVICIO                                                          ** **
  ** ************************************************************************************************************ **/
-router.get("/promedios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales/:opcion", (req, res) => {
+router.get("/promedios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -100,7 +101,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:
         }
     });
 });
-router.get("/getallservicios", (req, res) => {
+router.get("/getallservicios", verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
     SELECT * FROM servicio ORDER BY serv_nombre ASC;
     `;
@@ -119,7 +120,7 @@ router.get("/getallservicios", (req, res) => {
         }
     });
 });
-router.get("/getallservicios/:sucursales", (req, res) => {
+router.get("/getallservicios/:sucursales", verifivarToken_1.TokenValidation, (req, res) => {
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
@@ -150,7 +151,7 @@ router.get("/getallservicios/:sucursales", (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                      MAXIMOS Y MINIMOS                                                 ** **
  ** ************************************************************************************************************ **/
-router.get("/maximosminimos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales/:opcion", (req, res) => {
+router.get("/maximosminimos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -287,7 +288,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
 /** ************************************************************************************************************ **
  ** **                                           EMPLEADO                                                     ** **
  ** ************************************************************************************************************ **/
-router.get("/promediose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:opcion", (req, res) => {
+router.get("/promediose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -381,7 +382,7 @@ router.get("/promediose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodig
 /** ************************************************************************************************************ **
  ** **                                    MAXIMOS Y MINIMOS EMPLEADO                                          ** **
  ** ************************************************************************************************************ **/
-router.get("/maximosminimose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:opcion", (req, res) => {
+router.get("/maximosminimose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -516,7 +517,7 @@ router.get("/maximosminimose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
 /** ************************************************************************************************************ **
  ** **                                     EVALUACIONES OMITIDAS                                              ** **
  ** ************************************************************************************************************ **/
-router.get("/omitidas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales", (req, res) => {
+router.get("/omitidas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -570,7 +571,7 @@ router.get("/omitidas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos
 /** ************************************************************************************************************ **
  ** **                                              GRAFICOS                                                  ** **
  ** ************************************************************************************************************ **/
-router.get("/graficobarras/:opcion", (req, res) => {
+router.get("/graficobarras/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
     const opcion = req.params.opcion;
     let query;
     if (opcion == "true") {
@@ -627,7 +628,7 @@ router.get("/graficobarras/:opcion", (req, res) => {
         }
     });
 });
-router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:opcion", (req, res) => {
+router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -736,7 +737,7 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:l
         }
     });
 });
-router.get("/graficopastel", (req, res) => {
+router.get("/graficopastel", verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
     SELECT u.usua_nombre, e.eval_califica, COUNT(e.eval_califica) AS cuenta, 
       IF((eval_califica) = 50, 'Excelente',
@@ -769,7 +770,7 @@ router.get("/graficopastel", (req, res) => {
 /** ************************************************************************************************************ **
  ** **                                       ESTABLECIMIENTO                                                  ** **
  ** ************************************************************************************************************ **/
-router.get("/establecimiento/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:opcion", (req, res) => {
+router.get("/establecimiento/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -855,7 +856,7 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
 /** ************************************************************************************************************ **
  ** **                                       EVALUACION POR GRUPOS                                            ** **
  ** ************************************************************************************************************ **/
-router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:opcion", (req, res) => {
+router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -936,7 +937,7 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
         }
     });
 });
-router.get("/opcionesEvaluacion", (req, res) => {
+router.get("/opcionesEvaluacion", verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
     select gene_valor from general where gene_codigo = 7;
     `;

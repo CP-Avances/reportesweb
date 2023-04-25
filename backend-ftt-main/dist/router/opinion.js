@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const verifivarToken_1 = require("../libs/verifivarToken");
 const express_1 = require("express");
 const mysql_1 = __importDefault(require("../mysql/mysql"));
 const router = (0, express_1.Router)();
 /** ************************************************************************************************************ **
  ** **                                             OPINIONES                                                  ** **
  ** ************************************************************************************************************ **/
-router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos", (req, res) => {
+router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -65,7 +66,7 @@ router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:t
         }
     });
 });
-router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos/:categorias", (req, res) => {
+router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos/:categorias", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -135,7 +136,7 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
 /** ************************************************************************************************************ **
  ** **                                       GRAFICO OPINION                                                  ** **
  ** ************************************************************************************************************ **/
-router.get("/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", (req, res) => {
+router.get("/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -179,7 +180,7 @@ router.get("/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucurs
         }
     });
 });
-router.get("/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos", (req, res) => {
+router.get("/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -232,7 +233,7 @@ router.get("/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
     });
 });
 //Obtener categorias
-router.get("/categorias/:tipo", (req, res) => {
+router.get("/categorias/:tipo", verifivarToken_1.TokenValidation, (req, res) => {
     const tipo = req.params.tipo;
     const query = `
   SELECT DISTINCT emi_categoria FROM quejas WHERE emi_tipo = ${tipo} ORDER BY emi_categoria ASC;

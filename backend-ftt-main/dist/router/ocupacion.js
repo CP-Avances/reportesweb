@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const verifivarToken_1 = require("../libs/verifivarToken");
 const express_1 = require("express");
 const mysql_1 = __importDefault(require("../mysql/mysql"));
 const router = (0, express_1.Router)();
 /** ************************************************************************************************************ **
  ** **                                      OCUPACION POR SERVICIOS                                           ** **
  ** ************************************************************************************************************ **/
-router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", (req, res) => {
+router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -69,7 +70,7 @@ router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:su
 /** ************************************************************************************************************ **
  ** **                                          GRAFICO OCUPACION                                             ** **
  ** ************************************************************************************************************ **/
-router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", (req, res) => {
+router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -125,7 +126,7 @@ router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
         }
     });
 });
-router.get("/graficoocupacion/:fecha", (req, res) => {
+router.get("/graficoocupacion/:fecha", verifivarToken_1.TokenValidation, (req, res) => {
     let fechas = req.params.fecha;
     const query = `
         SELECT COUNT(turno.TURN_ESTADO) AS total, servicio.SERV_NOMBRE, servicio.SERV_CODIGO, 

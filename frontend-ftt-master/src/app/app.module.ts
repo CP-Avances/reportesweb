@@ -10,7 +10,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { DpDatePickerModule } from 'ng2-date-picker';//usando esta libreria
 
 ///////////Paginacion//////////
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FilterPipe } from './pipes/filter.pipe';
 import { PagesModule } from './pages/pages.module';
@@ -22,6 +22,10 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 Chart.register(ChartDataLabels);
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@Angular/platform-browser/animations';
+
+// SEGURIDAD
+import { AuthGuard } from "./guards/auth.guard";
+import {TokenInterceptorService} from './services/token-interceptor.service'
 
 @NgModule({
   declarations: [
@@ -43,8 +47,9 @@ import { BrowserAnimationsModule } from '@Angular/platform-browser/animations';
     NgxPaginationModule,
   ],
   providers: [
+    AuthGuard,
     DatePipe,
-    { provide: LocationStrategy, useClass: HashLocationStrategy }
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptorService, multi: true }
   ],
   bootstrap: [AppComponent]
 })
