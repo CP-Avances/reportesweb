@@ -51,7 +51,7 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
             ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
-        GROUP BY t.serv_codigo, t.turn_fecha
+        GROUP BY t.serv_codigo, t.turn_fecha, c.caje_codigo
         ORDER BY t.turn_fecha DESC, c.caje_nombre ASC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

@@ -877,7 +877,7 @@ export class AtencionComponent implements OnInit {
       }
     }
     else {
-      for (let step = 0; step < this.serviciopa.length; step++) {
+      for (let step = 0; step < this.serviciota.length; step++) {
         jsonServicio.push({
           "Cajero(a)": this.serviciota[step].cajero,
           Fecha: this.serviciota[step].TURN_FECHA,

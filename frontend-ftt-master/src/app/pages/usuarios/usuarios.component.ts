@@ -1121,7 +1121,7 @@ export class UsuariosComponent implements OnInit {
       }
       tamanos = [this.servicioTiempoAtencion[0].nombreEmpresa];
     } else {
-      for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+      for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
           Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
