@@ -9,6 +9,7 @@ import { AuthenticationService } from '../../services/authentication.service';
   templateUrl: "./configuracion.component.html",
   styleUrls: ["./configuracion.component.scss"],
 })
+
 export class ConfiguracionComponent {
   imageUrl: string;
   file: File;
@@ -76,13 +77,13 @@ export class ConfiguracionComponent {
             Será necesario volver a acceder al sistema.`,
             "La imagen se ha guardado correctamente",
             {
-              timeOut: 6000,
+              timeOut: 2000,
             }
           );
           setTimeout(() => {
             this.auth.logout();
             this.router.navigateByUrl('/');
-          }, 6000);
+          }, 2000);
         },
         (error) => {
           // SE INFORMA QUE NO SE GUARDO LA IMAGEN

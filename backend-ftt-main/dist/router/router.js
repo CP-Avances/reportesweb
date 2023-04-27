@@ -9,13 +9,68 @@ const mysql_1 = __importDefault(require("../mysql/mysql"));
 const multer_1 = __importDefault(require("multer"));
 const cors_1 = __importDefault(require("cors"));
 const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
 let jwt = require('jsonwebtoken');
 const router = (0, express_1.Router)();
+const ObtenerRuta = function () {
+    var ruta = '';
+    for (var i = 0; i < __dirname.split('\\').length - 2; i++) {
+        if (ruta === '') {
+            ruta = __dirname.split('\\')[i];
+        }
+        else {
+            ruta = ruta + "\\" + __dirname.split('\\')[i];
+        }
+    }
+    return ruta + '\\imagenesReportes';
+};
+const storage = multer_1.default.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, ObtenerRuta());
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+const upload = (0, multer_1.default)({ storage: storage });
+// GUARDAR NOMBRE IMAGEN EN LA BASE DE DATOS
+router.post('/uploadImage', verifivarToken_1.TokenValidation, upload.single('image'), (req, res) => {
+    var _a;
+    const filename = (_a = req.file) === null || _a === void 0 ? void 0 : _a.originalname;
+    // BUSQUEDA DE LOGO
+    const logo = `
+        SELECT gene_valor FROM general WHERE gene_codigo = 8;
+        `;
+    let nombreImagen;
+    mysql_1.default.ejecutarQuery(logo, (err, imagen) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err,
+            });
+        }
+        else {
+            nombreImagen = imagen;
+            if (nombreImagen[0].gene_valor != null && nombreImagen[0].gene_valor != '') {
+                if (nombreImagen[0].gene_valor === filename) {
+                    ActualizarImagen(res, filename);
+                }
+                else {
+                    var direccion = ObtenerRuta() + '\\' + nombreImagen[0].gene_valor;
+                    // ELIMINAR REGISTRO DEL SERVIDOR
+                    fs_1.default.unlinkSync(direccion);
+                    ActualizarImagen(res, filename);
+                }
+            }
+            else {
+                ActualizarImagen(res, filename);
+            }
+        }
+    });
+});
 const ImagenBase64LogosEmpresas = function (path_file) {
     try {
-        path_file = path_1.default.resolve('uploads') + '/' + path_file;
-        let data = fs_1.default.readFileSync(path_file);
+        var ruta = ObtenerRuta() + '\\' + path_file;
+        let data = fs_1.default.readFileSync(ruta);
         return data.toString('base64');
     }
     catch (error) {
@@ -129,50 +184,6 @@ router.get('/renew', (req, res) => {
     res.json({
         ok: true,
         mensaje: 'todo esta bien'
-    });
-});
-const storage = multer_1.default.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads');
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
-    }
-});
-const upload = (0, multer_1.default)({ storage: storage });
-// GUARDAR NOMBRE IMAGEN EN LA BASE DE DATOS
-router.post('/uploadImage', verifivarToken_1.TokenValidation, upload.single('image'), (req, res) => {
-    var _a;
-    const filename = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path.split("\\")[1];
-    // BUSQUEDA DE LOGO
-    const logo = `
-        SELECT gene_valor FROM general WHERE gene_codigo = 8;
-        `;
-    let nombreImagen;
-    mysql_1.default.ejecutarQuery(logo, (err, imagen) => {
-        if (err) {
-            res.status(400).json({
-                ok: false,
-                error: err,
-            });
-        }
-        else {
-            nombreImagen = imagen;
-            if (nombreImagen[0].gene_valor != null && nombreImagen[0].gene_valor != '') {
-                if (nombreImagen[0].gene_valor === filename) {
-                    ActualizarImagen(res, filename);
-                }
-                else {
-                    let path_file = path_1.default.resolve('uploads') + '/' + nombreImagen[0].gene_valor;
-                    // ELIMINAR REGISTRO DEL SERVIDOR
-                    fs_1.default.unlinkSync(path_file);
-                    ActualizarImagen(res, filename);
-                }
-            }
-            else {
-                ActualizarImagen(res, filename);
-            }
-        }
     });
 });
 function ActualizarImagen(res, archivo) {
