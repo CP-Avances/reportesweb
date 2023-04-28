@@ -17,6 +17,7 @@ export class ConfiguracionComponent {
   nombreImagen: any[];
   valor: number;
   marca: string = " ";
+  desactivarMarca = false;
 
   constructor(
     private router: Router,
@@ -123,7 +124,14 @@ export class ConfiguracionComponent {
   }
 
   guardarMarca() {
-    this.serviceService.setMarca(this.marca).subscribe(
+    let marcaAux: string = " ";
+    if (this.desactivarMarca) {
+      marcaAux = "desactivar";
+    } else {
+      marcaAux = this.marca;
+    }
+
+    this.serviceService.setMarca(marcaAux).subscribe(
       (res) => {
         // SE INFORMA QUE SE PUDO GUARDO LA IMAGEN
         this.toastr.success(

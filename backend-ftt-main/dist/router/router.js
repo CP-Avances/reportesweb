@@ -265,7 +265,10 @@ router.get('/getMeta', verifivarToken_1.TokenValidation, (req, res) => {
 });
 //Guardar marca de agua
 router.get('/setMarca/:marca', verifivarToken_1.TokenValidation, (req, res) => {
-    const marca = req.params.marca;
+    let marca = req.params.marca;
+    if (marca == "desactivar") {
+        marca = " ";
+    }
     const query = `UPDATE general SET gene_valor = '${marca}' WHERE gene_codigo = 10;`;
     mysql_1.default.ejecutarQuery(query, (err, usuario) => {
         if (err) {

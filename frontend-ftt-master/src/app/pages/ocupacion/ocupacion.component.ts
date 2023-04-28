@@ -993,7 +993,6 @@ export class OcupacionComponent implements OnInit {
               ],
               ...servicio.map((res) => {
                 return [
-                  { style: "itemsTable", text: res.Usuario },
                   { style: "itemsTable", text: res.fechaminima },
                   { style: "itemsTable", text: res.fechamaxima },
                   { style: "itemsTable", text: res.SERV_NOMBRE },

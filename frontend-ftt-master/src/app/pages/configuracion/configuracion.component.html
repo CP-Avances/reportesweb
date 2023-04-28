@@ -63,14 +63,20 @@
                         <p>
                             <mat-form-field appearance="outline">
                                 <mat-label>Marca de agua</mat-label>
-                                <input matInput matInput maxlength="30" name="marca" [(ngModel)]="marca" >
+                                <input matInput matInput maxlength="30" name="marca" [(ngModel)]="marca" [disabled]="desactivarMarca" >
                                 <mat-hint align="end">{{marca.length}} / 30 caracteres</mat-hint>
                             </mat-form-field>  
                         </p>
                         <div class="input-group-append mt-3">
                             <button class="btn btn-outline-secondary ml-4" type="button"
                                (click)="guardarMarca()">Guardar</button>
-                        </div>                    
+                        </div>         
+                    </div>
+                    <div>
+                        <label class="mat-checkbox-label">
+                            <mat-checkbox [(ngModel)]="desactivarMarca" color="primary"></mat-checkbox>
+                            Desactivar marca de agua
+                        </label>                          
                     </div>
                 </div>
             </div>
