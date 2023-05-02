@@ -242,14 +242,14 @@ export class IngresoclientesComponent implements OnInit {
       for (let step = 0; step < this.servicioIngrClientes.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioIngrClientes[step].nombreEmpresa,
-          Fecha: this.servicioIngrClientes[step].Fecha,
+          Fecha: new Date(this.servicioIngrClientes[step].Fecha),
           "Total Clientes": this.servicioIngrClientes[step].clientes
         });
       }
     } else {
       for (let step = 0; step < this.servicioIngrClientes.length; step++) {
         jsonServicio.push({
-          Fecha: this.servicioIngrClientes[step].Fecha,
+          Fecha: new Date(this.servicioIngrClientes[step].Fecha),
           "Total Clientes": this.servicioIngrClientes[step].clientes
         });
       }

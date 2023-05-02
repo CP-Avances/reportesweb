@@ -873,7 +873,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioEntradaSalida[i].nombreEmpresa,
           "Cajero(a)": this.servicioEntradaSalida[i].Usuario,
-          Fecha: this.servicioEntradaSalida[i].fecha,
+          Fecha: new Date(this.servicioEntradaSalida[i].fecha),
           Hora: this.servicioEntradaSalida[i].hora,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
@@ -882,7 +882,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioEntradaSalida.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioEntradaSalida[i].Usuario,
-          Fecha: this.servicioEntradaSalida[i].fecha,
+          Fecha: new Date(this.servicioEntradaSalida[i].fecha),
           Hora: this.servicioEntradaSalida[i].hora,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
@@ -920,7 +920,7 @@ export class UsuariosComponent implements OnInit {
           Sucursal: this.servicioTurnosFecha[i].nombreEmpresa,
           "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
-          Fecha: moment(this.servicioTurnosFecha[i].Fecha).format('DD/MM/YYYY'),
+          Fecha: new Date(this.servicioTurnosFecha[i].Fecha),
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosFecha[i].No_Atendidos,
           Total: this.servicioTurnosFecha[i].Total,
@@ -931,7 +931,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
-          Fecha: this.servicioTurnosFecha[i].Fecha,
+          Fecha: new Date(this.servicioTurnosFecha[i].Fecha),
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosFecha[i].No_Atendidos,
           Total: this.servicioTurnosFecha[i].Total,
@@ -969,7 +969,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioTurnosTotalFecha[i].nombreEmpresa,
           "Cajero(a)": this.servicioTurnosTotalFecha[i].Usuario,
-          Fecha: this.servicioTurnosTotalFecha[i].Fecha,
+          Fecha: new Date(this.servicioTurnosTotalFecha[i].Fecha),
           Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
           Total: this.servicioTurnosTotalFecha[i].Total,
@@ -979,7 +979,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioTurnosTotalFecha[i].Usuario,
-          Fecha: this.servicioTurnosTotalFecha[i].Fecha,
+          Fecha: new Date(this.servicioTurnosTotalFecha[i].Fecha),
           Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
           Total: this.servicioTurnosTotalFecha[i].Total,
@@ -997,10 +997,11 @@ export class UsuariosComponent implements OnInit {
       wscols.push({ wpx: 150 });
     }
     ws["!cols"] = wscols;
+
     XLSX.utils.book_append_sheet(wb, ws, "Turnos Fecha");
     XLSX.writeFile(
       wb,
-      "Turnos por fecha - " +
+      "Turnos totales por fecha - " +
         nombreSucursal +
         " "+
         new Date().toLocaleString() +
@@ -1017,7 +1018,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioTurnosMeta[i].nombreEmpresa,
           "Cajero(a)": this.servicioTurnosMeta[i].Usuario,
-          Fecha: this.servicioTurnosMeta[i].Fecha,
+          Fecha: new Date(this.servicioTurnosMeta[i].Fecha),
           Atendidos: this.servicioTurnosMeta[i].Atendidos,
           "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos+"%",
         });
@@ -1026,7 +1027,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioTurnosMeta[i].Usuario,
-          Fecha: this.servicioTurnosMeta[i].Fecha,
+          Fecha: new Date(this.servicioTurnosMeta[i].Fecha),
           Atendidos: this.servicioTurnosMeta[i].Atendidos,
           "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos+"%",
         });
@@ -1112,7 +1113,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioTiempoAtencion[i].nombreEmpresa,
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
-          Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
+          Fecha: new Date(this.servicioTiempoAtencion[i].TURN_FECHA),
           Servicio: this.servicioTiempoAtencion[i].Servicio,
           Turno: this.servicioTiempoAtencion[i].turno,
           "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
@@ -1124,7 +1125,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
-          Fecha: this.servicioTiempoAtencion[i].TURN_FECHA,
+          Fecha: new Date(this.servicioTiempoAtencion[i].TURN_FECHA),
           Servicio: this.servicioTiempoAtencion[i].Servicio,
           Turno: this.servicioTiempoAtencion[i].turno,
           "Tiempo de espera": this.servicioTiempoAtencion[i].espera,

@@ -1052,7 +1052,7 @@ export class EvaluacionComponent implements OnInit {
           ? { Sucursal: this.servicioServs[i].nombreEmpresa }
           : {}),
         "Cajero(a)": this.servicioServs[i].Usuario,
-        Fecha: this.servicioServs[i].Fecha,
+        Fecha: new Date(this.servicioServs[i].Fecha),
         Excelente: this.servicioServs[i].Excelente,
         ...(!this.opcionCuatro
           ? { "Muy Bueno": this.servicioServs[i].Muy_Bueno }
@@ -1090,7 +1090,7 @@ export class EvaluacionComponent implements OnInit {
           ? { Sucursal: this.servicioServsMaxMin[i].nombreEmpresa }
           : {}),
         "Cajero(a)": this.servicioServsMaxMin[i].Usuario,
-        Fecha: this.servicioServsMaxMin[i].Fecha,
+        Fecha: new Date(this.servicioServsMaxMin[i].Fecha),
         Excelente: this.servicioServsMaxMin[i].Excelente,
         ...(!this.opcionCuatro
           ? { "Muy Bueno": this.servicioServsMaxMin[i].Muy_Bueno }
@@ -1136,7 +1136,7 @@ export class EvaluacionComponent implements OnInit {
           ? { Sucursal: this.servicioEvalEmpl[i].nombreEmpresa }
           : {}),
         "Cajero(a)": this.servicioEvalEmpl[i].usua_nombre,
-        Fecha: this.servicioEvalEmpl[i].fecha,
+        Fecha: new Date(this.servicioEvalEmpl[i].fecha),
         Excelente: this.servicioEvalEmpl[i].Excelente,
         ...(!this.opcionCuatro
           ? { "Muy Bueno": this.servicioEvalEmpl[i].Muy_Bueno }
@@ -1171,7 +1171,7 @@ export class EvaluacionComponent implements OnInit {
           ? { Sucursal: this.servicioEvalMMEmpl[i].nombreEmpresa }
           : {}),
         "Cajero(a)": this.servicioEvalMMEmpl[i].usua_nombre,
-        Fecha: this.servicioEvalMMEmpl[i].fecha,
+        Fecha: new Date(this.servicioEvalMMEmpl[i].fecha),
         Excelente: this.servicioEvalMMEmpl[i].Excelente,
         ...(!this.opcionCuatro
           ? { "Muy Bueno": this.servicioEvalMMEmpl[i].Muy_Bueno }
@@ -1207,9 +1207,6 @@ export class EvaluacionComponent implements OnInit {
   }
 
   exportarAExcelEvalOmitidas() {
-    // let cod = this.codSucursalEvalOmitidas.nativeElement.value
-    //   .toString()
-    //   .trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     //Mapeo de información de consulta a formato JSON para exportar a Excel
     let jsonServicio = [];
@@ -1220,7 +1217,7 @@ export class EvaluacionComponent implements OnInit {
           ? { Sucursal: this.servicioEvalOmitidas[i].nombreEmpresa }
           : {}),
         "Cajero(a)": this.servicioEvalOmitidas[i].usua_nombre,
-        Fecha: this.servicioEvalOmitidas[i].fecha,
+        Fecha: new Date(this.servicioEvalOmitidas[i].fecha),
         Total: this.servicioEvalOmitidas[i].Total,
       };
       jsonServicio.push(item);
@@ -1260,7 +1257,7 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesEST || this.seleccionMultiple
           ? { Sucursal: this.servicioEstb[i].nombreEmpresa }
           : {}),
-        Fecha: this.servicioEstb[i].fecha,
+        Fecha: new Date(this.servicioEstb[i].fecha),
         Excelente: this.servicioEstb[i].Excelente,
         "Muy Bueno": this.servicioEstb[i].Muy_Bueno,
         Bueno: this.servicioEstb[i].Bueno,
@@ -1305,7 +1302,7 @@ export class EvaluacionComponent implements OnInit {
           ? { Sucursal: this.servicioG[i].nombreEmpresa }
           : {}),
         "Cajero(a)": this.servicioG[i].usua_nombre,
-        Fecha: this.servicioG[i].fecha,
+        Fecha: new Date(this.servicioG[i].fecha),
         Bueno: this.servicioG[i].Bueno,
         Malo: this.servicioG[i].Malo,
         Total: this.servicioG[i].Total,
@@ -1381,7 +1378,7 @@ export class EvaluacionComponent implements OnInit {
         "Cajero(a)": this.servicioGra[i].usuario,
         Evaluación: this.servicioGra[i].evaluacion,
         Total: this.servicioGra[i].total,
-        Porcentajes: this.servicioGra[i].porcentaje,
+        Porcentajes: this.servicioGra[i].porcentaje + "%",
       };
       jsonServicio.push(item);
     }
@@ -3494,7 +3491,7 @@ grafico(servicio: any[]) {
               { style: "itemsTable", text: res.usuario },
               { style: "itemsTable", text: res.evaluacion },
               { style: "itemsTable", text: res.total },
-              { style: "itemsTable", text: res.porcentaje },
+              { style: "itemsTable", text: res.porcentaje + "%"},
             ];
           }),
         ],
@@ -3523,7 +3520,7 @@ grafico(servicio: any[]) {
               { style: "itemsTable", text: res.usuario },
               { style: "itemsTable", text: res.evaluacion },
               { style: "itemsTable", text: res.total },
-              { style: "itemsTable", text: res.porcentaje },
+              { style: "itemsTable", text: res.porcentaje + "%"},
             ];
           }),
         ],

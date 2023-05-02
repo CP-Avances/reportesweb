@@ -775,7 +775,7 @@ export class AtencionComponent implements OnInit {
           Sucursal: this.servicioTiempoComp[step].nombreEmpresa,
           "Cajero(a)": this.servicioTiempoComp[step].Usuario,
           Servicio: this.servicioTiempoComp[step].Servicio,
-          Fecha: this.servicioTiempoComp[step].Fecha,
+          Fecha: new Date(this.servicioTiempoComp[step].Fecha),
           "Tiempo Espera": this.servicioTiempoComp[step].Tiempo_Espera,
           "Tiempo Atención": this.servicioTiempoComp[step].Tiempo_Atencion,
         });
@@ -786,7 +786,7 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioTiempoComp[step].Usuario,
           Servicio: this.servicioTiempoComp[step].Servicio,
-          Fecha: this.servicioTiempoComp[step].Fecha,
+          Fecha: new Date(this.servicioTiempoComp[step].Fecha),
           "Tiempo Espera": this.servicioTiempoComp[step].Tiempo_Espera,
           "Tiempo Atención": this.servicioTiempoComp[step].Tiempo_Atencion,
         });
@@ -822,7 +822,7 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.serviciopa[step].nombreEmpresa,
           Servicios: this.serviciopa[step].SERV_NOMBRE,
-          Fecha: this.serviciopa[step].TURN_FECHA,
+          Fecha: new Date(this.serviciopa[step].TURN_FECHA),
           "T. Promedio de Espera": this.serviciopa[step].PromedioEspera,
           "T. Promedio de Atención": this.serviciopa[step].PromedioAtencion,
         });
@@ -832,7 +832,7 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
           Servicios: this.serviciopa[step].SERV_NOMBRE,
-          Fecha: this.serviciopa[step].TURN_FECHA,
+          Fecha: new Date(this.serviciopa[step].TURN_FECHA),
           "T. Promedio de Espera": this.serviciopa[step].PromedioEspera,
           "T. Promedio de Atención": this.serviciopa[step].PromedioAtencion,
         });
@@ -867,7 +867,7 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.serviciota[step].nombreEmpresa,
           "Cajero(a)": this.serviciota[step].cajero,
-          Fecha: this.serviciota[step].TURN_FECHA,
+          Fecha: new Date(this.serviciota[step].TURN_FECHA),
           Hora: this.serviciota[step].hora,
           Servicio: this.serviciota[step].SERV_NOMBRE,
           Turno: this.serviciota[step].turno,
@@ -880,7 +880,7 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciota.length; step++) {
         jsonServicio.push({
           "Cajero(a)": this.serviciota[step].cajero,
-          Fecha: this.serviciota[step].TURN_FECHA,
+          Fecha: new Date(this.serviciota[step].TURN_FECHA),
           Hora: this.serviciota[step].hora,
           Servicio: this.serviciota[step].SERV_NOMBRE,
           Turno: this.serviciota[step].turno,
@@ -918,7 +918,7 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.serviciomax[step].nombreEmpresa,
           Servicio: this.serviciomax[step].SERV_NOMBRE,
-          Fecha: this.serviciomax[step].Fecha,
+          Fecha: new Date(this.serviciomax[step].Fecha),
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
         });
       }
@@ -927,7 +927,7 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
           Servicio: this.serviciomax[step].SERV_NOMBRE,
-          Fecha: this.serviciomax[step].Fecha,
+          Fecha: new Date(this.serviciomax[step].Fecha),
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
         });
       }

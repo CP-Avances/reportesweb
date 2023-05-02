@@ -495,21 +495,21 @@ export class OcupacionComponent implements OnInit {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciooc[step].nombreEmpresa,
-          Desde: this.serviciooc[step].fechaminima,
-          Hasta: this.serviciooc[step].fechamaxima,
+          Desde: new Date(this.serviciooc[step].fechaminima),
+          Hasta: new Date(this.serviciooc[step].fechamaxima),
           Servicio: this.serviciooc[step].SERV_NOMBRE,
           "T. Turno": this.serviciooc[step].total,
-          "Porcentaje Ocupación": this.serviciooc[step].PORCENTAJE+ "%",
+          "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE+ "%",
         });
       }
     } else {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
-          Desde: this.serviciooc[step].fechaminima,
-          Hasta: this.serviciooc[step].fechamaxima,
+          Desde: new Date(this.serviciooc[step].fechaminima),
+          Hasta: new Date(this.serviciooc[step].fechamaxima),
           Servicio: this.serviciooc[step].SERV_NOMBRE,
           "T. Turno": this.serviciooc[step].total,
-          "Porcentaje Ocupación": this.serviciooc[step].PORCENTAJE+ "%",
+          "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE+ "%",
         });
       }
     }
@@ -542,8 +542,8 @@ export class OcupacionComponent implements OnInit {
       for (let step = 0; step < this.servicioocg.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioocg[step].nombreEmpresa,
-          Desde: this.servicioocg[step].fechaminima,
-          Hasta: this.servicioocg[step].fechamaxima,
+          Desde: new Date(this.servicioocg[step].fechaminima),
+          Hasta: new Date(this.servicioocg[step].fechamaxima),
           Servicio: this.servicioocg[step].SERV_NOMBRE,
           "T. Turno": this.servicioocg[step].total,
           "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE + "%",
@@ -552,8 +552,8 @@ export class OcupacionComponent implements OnInit {
     } else {
       for (let step = 0; step < this.servicioocg.length; step++) {
         jsonServicio.push({
-          Desde: this.servicioocg[step].fechaminima,
-          Hasta: this.servicioocg[step].fechamaxima,
+          Desde: new Date(this.servicioocg[step].fechaminima),
+          Hasta: new Date(this.servicioocg[step].fechamaxima),
           Servicio: this.servicioocg[step].SERV_NOMBRE,
           "T. Turno": this.servicioocg[step].total,
           "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE + "%",

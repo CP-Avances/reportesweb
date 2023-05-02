@@ -347,7 +347,7 @@ export class DistestadoturnosComponent implements OnInit {
           Sucursal: this.servicioDist[step].nombreEmpresa,
           "Cajero(a)": this.servicioDist[step].Usuario,
           Servicio: this.servicioDist[step].SERV_NOMBRE,
-          Fecha: this.servicioDist[step].fecha,
+          Fecha: new Date(this.servicioDist[step].fecha),
           "En espera": this.servicioDist[step].PENDIENTES,
           "En atención": this.servicioDist[step].EN_ATENCION,
           "En pausa": this.servicioDist[step].EN_PAUSA,
@@ -361,7 +361,7 @@ export class DistestadoturnosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioDist[step].Usuario,
           Servicio: this.servicioDist[step].SERV_NOMBRE,
-          Fecha: this.servicioDist[step].fecha,
+          Fecha: new Date(this.servicioDist[step].fecha),
           "En espera": this.servicioDist[step].PENDIENTES,
           "En atención": this.servicioDist[step].EN_ATENCION,
           "En pausa": this.servicioDist[step].EN_PAUSA,
