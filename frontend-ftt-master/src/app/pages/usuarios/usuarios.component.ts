@@ -1114,6 +1114,7 @@ export class UsuariosComponent implements OnInit {
           Sucursal: this.servicioTiempoAtencion[i].nombreEmpresa,
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
           Fecha: new Date(this.servicioTiempoAtencion[i].TURN_FECHA),
+          Hora: this.servicioTiempoAtencion[i].hora,
           Servicio: this.servicioTiempoAtencion[i].Servicio,
           Turno: this.servicioTiempoAtencion[i].turno,
           "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
@@ -1126,6 +1127,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
           Fecha: new Date(this.servicioTiempoAtencion[i].TURN_FECHA),
+          Hora: this.servicioTiempoAtencion[i].hora,
           Servicio: this.servicioTiempoAtencion[i].Servicio,
           Turno: this.servicioTiempoAtencion[i].turno,
           "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
