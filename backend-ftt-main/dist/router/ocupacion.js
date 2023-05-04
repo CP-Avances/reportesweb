@@ -19,11 +19,15 @@ router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:su
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
             SELECT empresa.empr_nombre AS nombreEmpresa, COUNT(turno.TURN_ESTADO) AS total,
@@ -33,7 +37,7 @@ router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:su
                     FROM (SELECT COUNT(turn_estado) AS c 
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
                         AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2) AS PORCENTAJE,
                                 DATE_FORMAT((SELECT MAX(turn_fecha) 
@@ -49,7 +53,7 @@ router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:su
             WHERE turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
             AND turno.caje_codigo != 0
             ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             GROUP BY servicio.SERV_CODIGO;
             `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -79,11 +83,15 @@ router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
             SELECT empresa.empr_nombre AS nombreEmpresa, COUNT(turno.TURN_ESTADO) AS total,
@@ -92,7 +100,7 @@ router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
                     FROM (SELECT COUNT(turn_estado) as c
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
                         AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2)AS PORCENTAJE, 
                             (SELECT MAX(turn_fecha) 
@@ -108,7 +116,7 @@ router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
             WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             AND turno.caje_codigo != 0
             ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             GROUP BY servicio.SERV_CODIGO;
             `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

@@ -19,14 +19,17 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
 
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
-        diaCompleto = true;
-      }
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
+      diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
+    }
 
     const query = `
             SELECT e.empr_nombre AS nombreEmpresa, date_format(turn_fecha, '%Y-%m-%d') AS Fecha, 
@@ -41,7 +44,7 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
                 AND turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
                 AND turno.caje_codigo != 0
                 ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
-                ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+                ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             GROUP BY turn_fecha, nombreEmpresa
             ORDER BY turno.turn_fecha DESC;
             `;

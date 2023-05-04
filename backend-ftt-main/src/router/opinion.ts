@@ -23,6 +23,7 @@ router.get(
     let todasSucursales = false;
     let todasTipos = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
@@ -32,8 +33,10 @@ router.get(
       todasTipos = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query =
@@ -54,7 +57,7 @@ router.get(
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
 
@@ -92,6 +95,7 @@ router.get(
     let todasTipos = false;
     let todasCategorias = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
@@ -105,8 +109,10 @@ router.get(
       todasCategorias = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     let resultado = '';
@@ -134,7 +140,7 @@ router.get(
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
         ${!todasCategorias ? `AND quejas.emi_categoria IN (${resultado})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
 
@@ -171,13 +177,16 @@ router.get(
 
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query =
@@ -192,7 +201,7 @@ router.get(
         INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY emi_tipo, empresa.empr_nombre;
         `;
 
@@ -227,6 +236,7 @@ router.get(
     let todasSucursales = false;
     let todasTipos = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
@@ -236,8 +246,10 @@ router.get(
       todasTipos = true
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query =
@@ -254,7 +266,7 @@ router.get(
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY quejas.emi_categoria, empresa.empr_nombre;
         `;
 

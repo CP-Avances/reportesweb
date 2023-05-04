@@ -22,6 +22,7 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (codigosArray.includes("-2")) {
         todosCajeros = true
@@ -33,6 +34,8 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query =
@@ -52,10 +55,11 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
             AND u.usua_codigo != 2
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY Servicio, Usuario, Fecha
         ORDER BY Fecha DESC;
-        `
+        `;
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
         if (err) {
             res.status(400).json({
@@ -90,6 +94,7 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:ser
     let todosServicios = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true
@@ -100,7 +105,9 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:ser
     }
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
-        diaCompleto = true;
+      diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query =
@@ -120,7 +127,7 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:ser
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
             ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
-            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             AND t.caje_codigo !=0
         GROUP BY t.serv_codigo, t.turn_fecha
         ORDER BY t.turn_fecha DESC;
@@ -160,6 +167,7 @@ router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
     let todosServicios = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true
@@ -170,7 +178,9 @@ router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
     }
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
-        diaCompleto = true;
+      diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query =
@@ -188,7 +198,7 @@ router.get('/tiempoatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
             AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
             ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
-            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             AND t.caje_codigo !=0
             ORDER BY t.TURN_FECHA DESC, hora DESC, t.turn_codigo DESC;
     `;
@@ -227,6 +237,7 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios
     let todosServicios = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true
@@ -237,8 +248,11 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios
     }
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
-        diaCompleto = true;
+      diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
+
     const query =
         `
         SELECT empresa.empr_nombre AS nombreEmpresa, turno.SERV_CODIGO, servicio.SERV_NOMBRE,
@@ -255,11 +269,12 @@ router.get('/maxatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios
             AND turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
             ${!todosServicios ? `AND servicio.serv_codigo IN (${listaServicios})` : ''}
-            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             AND turno.caje_codigo !=0
         GROUP BY turno.serv_codigo, turno.turn_fecha
         ORDER BY turno.turn_fecha DESC;
-        `
+        `;
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
 
         if (err) {
@@ -295,6 +310,7 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (codigosArray.includes("-2")) {
         todosCajeros = true
@@ -305,7 +321,9 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
     }
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
-        diaCompleto = true;
+      diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query =
@@ -323,10 +341,11 @@ router.get('/atencionservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
             AND u.usua_codigo != 2
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY Servicio, Nombre
         ORDER BY  Nombre ASC, Servicio ASC;
-        `
+        `;
+
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
 
         if (err) {
@@ -359,13 +378,17 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
 
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
+    
 
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true
     }
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
-        diaCompleto = true;
+      diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query =
@@ -382,7 +405,7 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
             AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
             AND u.usua_codigo !=2
             ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY nombreEmpresa, Servicio
         ORDER BY Servicio;
         `;

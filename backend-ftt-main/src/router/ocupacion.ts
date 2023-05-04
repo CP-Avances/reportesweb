@@ -20,13 +20,16 @@ router.get(
 
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true;
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query = `
@@ -37,7 +40,7 @@ router.get(
                     FROM (SELECT COUNT(turn_estado) AS c 
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
                         AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2) AS PORCENTAJE,
                                 DATE_FORMAT((SELECT MAX(turn_fecha) 
@@ -53,7 +56,7 @@ router.get(
             WHERE turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
             AND turno.caje_codigo != 0
             ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})`: ''}
-            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             GROUP BY servicio.SERV_CODIGO;
             `;
 
@@ -89,13 +92,16 @@ router.get(
 
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true;
     }
 
-    if ((hInicio=="-1")||(hFin=="-1")||(parseInt(hInicio)>parseInt(hFin))) {
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query = `
@@ -105,7 +111,7 @@ router.get(
                     FROM (SELECT COUNT(turn_estado) as c
                         FROM turno
                         WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
                         AND turno.caje_codigo != 0
                         GROUP BY serv_codigo) as tl),2)AS PORCENTAJE, 
                             (SELECT MAX(turn_fecha) 
@@ -121,7 +127,7 @@ router.get(
             WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
             AND turno.caje_codigo != 0
             ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})`: ''}
-            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             GROUP BY servicio.SERV_CODIGO;
             `;
 
