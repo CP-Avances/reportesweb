@@ -23,6 +23,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:
     let todosServicios = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
@@ -31,6 +32,9 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let query;
     if (opcion == "true") {
@@ -52,7 +56,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:
         AND f.turn_codigo = t.turn_codigo 
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
         AND a.usua_codigo != 2
         GROUP BY f.eval_fecha, f.usua_codigo
@@ -80,7 +84,7 @@ router.get("/promedios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:
         AND f.turn_codigo = t.turn_codigo 
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND a.usua_codigo != 2
         GROUP BY f.eval_fecha, f.usua_codigo
         ORDER BY f.eval_fecha DESC;
@@ -164,6 +168,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
     let todosServicios = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
@@ -172,6 +177,9 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let query;
     if (opcion == "true") {
@@ -210,7 +218,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
         AND f.turn_codigo = t.turn_codigo
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
         AND a.usua_codigo != 2
       GROUP BY f.eval_fecha, f.usua_codigo
@@ -264,7 +272,7 @@ router.get("/maximosminimos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servic
         AND f.turn_codigo = t.turn_codigo
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND a.usua_codigo != 2
       GROUP BY f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
@@ -301,6 +309,7 @@ router.get("/promediose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodig
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -309,6 +318,9 @@ router.get("/promediose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodig
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let query;
     if (opcion == "true") {
@@ -332,7 +344,7 @@ router.get("/promediose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodig
         AND a.usua_codigo != 2
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
       `;
@@ -359,7 +371,7 @@ router.get("/promediose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodig
           AND a.usua_codigo != 2
           ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
           ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
-          ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+          ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY f.eval_fecha, f.usua_codigo
         ORDER BY f.eval_fecha DESC;
         `;
@@ -395,6 +407,7 @@ router.get("/maximosminimose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -403,6 +416,9 @@ router.get("/maximosminimose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let query;
     if (opcion == "true") {
@@ -441,7 +457,7 @@ router.get("/maximosminimose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
         AND a.usua_codigo != 2
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
       GROUP BY f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
@@ -494,7 +510,7 @@ router.get("/maximosminimose/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
         AND a.usua_codigo != 2
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
       `;
@@ -529,6 +545,7 @@ router.get("/omitidas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -537,6 +554,9 @@ router.get("/omitidas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
       SELECT e.empr_nombre as nombreEmpresa, a.usua_nombre, date_format(f.eval_fecha, '%Y-%m-%d') AS fecha,
@@ -549,7 +569,7 @@ router.get("/omitidas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos
         AND a.usua_codigo != 2
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY  f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
       `;
@@ -641,6 +661,7 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:l
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -649,6 +670,9 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:l
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let query;
     if (opcion == "true") {
@@ -668,7 +692,7 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:l
         ${!todasSucursales
             ? `AND usuarios.empr_codigo IN (${listaSucursales})`
             : ""}
-        ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
       GROUP BY eval_califica)as tl),3) AS porcentaje
       FROM evaluacion, usuarios, cajero, empresa e 
@@ -681,7 +705,7 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:l
         ${!todasSucursales
             ? `AND usuarios.empr_codigo IN (${listaSucursales})`
             : ""}
-        ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
       GROUP BY eval_califica, usua_nombre 
       ORDER BY eval_califica DESC;
@@ -705,7 +729,7 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:l
         ${!todasSucursales
             ? `AND usuarios.empr_codigo IN (${listaSucursales})`
             : ""}
-        ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY eval_califica)as tl),3) AS porcentaje
       FROM evaluacion, usuarios, cajero, empresa e 
       WHERE evaluacion.usua_codigo = usuarios.usua_codigo
@@ -717,7 +741,7 @@ router.get("/graficobarrasfiltro/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:l
         ${!todasSucursales
             ? `AND usuarios.empr_codigo IN (${listaSucursales})`
             : ""}
-        ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY eval_califica, usua_nombre 
       ORDER BY eval_califica DESC;
       `;
@@ -780,12 +804,16 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     let query;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     if (opcion == "true") {
         query = `
@@ -807,7 +835,7 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
           AND eval_califica != 50
           AND t.caje_codigo != 0
           ${!todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ""}
-          ${!diaCompleto ? `AND e.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+          ${!diaCompleto ? `AND e.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY e.eval_fecha , nombreEmpresa
         ORDER BY e.eval_fecha DESC;
         `;
@@ -833,7 +861,7 @@ router.get("/establecimiento/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
           AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           AND t.caje_codigo !=0
           ${!todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ""}
-          ${!diaCompleto ? `AND e.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+          ${!diaCompleto ? `AND e.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY e.eval_fecha , nombreEmpresa
         ORDER BY e.eval_fecha DESC;
         `;
@@ -869,6 +897,7 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -877,6 +906,9 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let query;
     if (opcion == "true") {
@@ -895,7 +927,7 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
         AND a.usua_codigo != 2
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
       GROUP BY f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
@@ -917,7 +949,7 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
         AND a.usua_codigo != 2
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ""}
         ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ""}
-        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
       `;

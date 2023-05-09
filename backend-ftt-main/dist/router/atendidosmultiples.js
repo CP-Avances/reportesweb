@@ -19,11 +19,15 @@ router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:su
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
             SELECT em.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario, count(eval_codigo) AS Atendidos
@@ -34,7 +38,7 @@ router.get('/atendidosmultiples/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:su
                 AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
                 AND u.usua_codigo != 2
                 ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-                ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+                ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
             GROUP BY usua_nombre, nombreEmpresa;
             `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

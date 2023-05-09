@@ -123,6 +123,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -131,6 +132,9 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let query = `
     SELECT e.empr_nombre AS nombreEmpresa, serv_nombre AS Servicio, caje_nombre AS Nombre, 
@@ -145,7 +149,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
     AND u.usua_codigo != 2
     ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
-    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     GROUP BY nombreEmpresa, Nombre, Servicio;
     `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -178,6 +182,7 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -186,6 +191,9 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let query = `
     SELECT e.empr_nombre AS nombreEmpresa, CAST(CONCAT(s.serv_descripcion,t.turn_numero) AS CHAR) AS turno, serv_nombre AS Servicio, caje_nombre AS Nombre, 
@@ -202,7 +210,7 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
     AND u.usua_codigo != 2
     ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
-    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     ORDER BY t.turn_codigo DESC, t.TURN_FECHA DESC, hora DESC;
     `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -257,11 +265,15 @@ router.get("/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
       SELECT e.empr_nombre AS nombreEmpresa,
@@ -278,7 +290,7 @@ router.get("/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
       WHERE r.usua_codigo = u.usua_codigo
       ${todasSucursales ? 'AND u.empr_codigo = e.empr_codigo' : `AND u.empr_codigo IN (${listaSucursales})`}
       AND reg_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-      ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+      ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       AND u.usua_codigo != 2
       ORDER BY fecha DESC, hora DESC;
   `;
@@ -337,6 +349,7 @@ router.get("/atencionusuario/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -345,6 +358,9 @@ router.get("/atencionusuario/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
     SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Nombre, serv_nombre AS Servicio, 
@@ -360,7 +376,7 @@ router.get("/atencionusuario/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
         AND u.usua_codigo != 2 
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
-        ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY Servicio, Nombre
         ORDER BY  Nombre ASC, Servicio ASC;
     `;
@@ -423,6 +439,7 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
@@ -431,6 +448,9 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
     SELECT e.empr_nombre AS nombreEmpresa,
@@ -449,7 +469,7 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
       AND u.usua_codigo != 2
       ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
       ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
-      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario, Servicio 
     ORDER BY Fecha DESC, Usuario, Servicio;
     `;
@@ -480,6 +500,7 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
@@ -488,6 +509,9 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
     SELECT e.empr_nombre AS nombreEmpresa,
@@ -504,7 +528,7 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
       AND u.usua_codigo != 2
       ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
       ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
-      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario
     ORDER BY Fecha DESC, Usuario;
     `;
@@ -535,6 +559,7 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
@@ -543,6 +568,9 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
     SELECT e.empr_nombre AS nombreEmpresa,
@@ -558,7 +586,7 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
       AND u.usua_codigo != 2
       ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
       ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
-      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario
     ORDER BY Fecha DESC, Usuario;
     `;

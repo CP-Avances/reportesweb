@@ -22,6 +22,7 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -30,6 +31,9 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS Usuario, COUNT(t.turn_codigo) AS turnos,
@@ -50,7 +54,7 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
             AND u.usua_codigo != 2
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY t.serv_codigo, t.turn_fecha, c.caje_codigo
         ORDER BY t.turn_fecha DESC, c.caje_nombre ASC;
         `;
@@ -84,6 +88,7 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -92,6 +97,9 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, c.caje_nombre AS Usuario, COUNT(t.turn_codigo) AS turnos,
@@ -112,7 +120,7 @@ router.get('/distestadoturnoresumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
             AND u.usua_codigo != 2
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY t.serv_codigo, c.caje_codigo
         ORDER BY s.SERV_NOMBRE ASC, c.caje_nombre ASC;
         `;

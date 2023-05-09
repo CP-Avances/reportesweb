@@ -22,6 +22,7 @@ router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:t
     let todasSucursales = false;
     let todasTipos = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
@@ -30,6 +31,9 @@ router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:t
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
         SELECT quejas.emi_codigo AS quejas_emi_codigo, 
@@ -48,7 +52,7 @@ router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:t
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -81,6 +85,7 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
     let todasTipos = false;
     let todasCategorias = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
@@ -92,6 +97,9 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     let resultado = '';
     if (!todasCategorias) {
@@ -115,7 +123,7 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
         ${!todasCategorias ? `AND quejas.emi_categoria IN (${resultado})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -145,11 +153,15 @@ router.get("/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucurs
     const sucursalesArray = listaSucursales.split(",");
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
         SELECT COUNT(quejas.emi_tipo) AS queja_cantidad,
@@ -162,7 +174,7 @@ router.get("/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucurs
         INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY emi_tipo, empresa.empr_nombre;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -192,6 +204,7 @@ router.get("/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
     let todasSucursales = false;
     let todasTipos = false;
     let diaCompleto = false;
+    let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
@@ -200,6 +213,9 @@ router.get("/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
     }
     const query = `
         SELECT COUNT(quejas.emi_categoria) AS queja_cantidad,
@@ -214,7 +230,7 @@ router.get("/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
         WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY quejas.emi_categoria, empresa.empr_nombre;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

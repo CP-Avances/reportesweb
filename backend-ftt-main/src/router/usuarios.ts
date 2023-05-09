@@ -129,6 +129,8 @@ router.get(
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
+    
 
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -140,6 +142,8 @@ router.get(
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     let query = `
@@ -155,7 +159,7 @@ router.get(
     AND u.usua_codigo != 2
     ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
-    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     GROUP BY nombreEmpresa, Nombre, Servicio;
     `;
 
@@ -194,6 +198,7 @@ router.get(
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -205,6 +210,8 @@ router.get(
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     let query = `
@@ -222,10 +229,9 @@ router.get(
     AND u.usua_codigo != 2
     ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
     ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
-    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     ORDER BY t.turn_codigo DESC, t.TURN_FECHA DESC, hora DESC;
     `;
-
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
@@ -286,6 +292,7 @@ router.get(
 
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
@@ -293,6 +300,8 @@ router.get(
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query = `
@@ -310,7 +319,7 @@ router.get(
       WHERE r.usua_codigo = u.usua_codigo
       ${todasSucursales ? 'AND u.empr_codigo = e.empr_codigo' : `AND u.empr_codigo IN (${listaSucursales})`}
       AND reg_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-      ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+      ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       AND u.usua_codigo != 2
       ORDER BY fecha DESC, hora DESC;
   `;
@@ -375,6 +384,7 @@ router.get(
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -386,6 +396,8 @@ router.get(
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query = `
@@ -402,7 +414,7 @@ router.get(
         AND u.usua_codigo != 2 
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
-        ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+        ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY Servicio, Nombre
         ORDER BY  Nombre ASC, Servicio ASC;
     `;
@@ -471,6 +483,7 @@ router.get(
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
@@ -482,6 +495,8 @@ router.get(
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query = `
@@ -501,7 +516,7 @@ router.get(
       AND u.usua_codigo != 2
       ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
       ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
-      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario, Servicio 
     ORDER BY Fecha DESC, Usuario, Servicio;
     `;
@@ -537,6 +552,7 @@ router.get(
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
@@ -548,6 +564,8 @@ router.get(
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query = `
@@ -565,7 +583,7 @@ router.get(
       AND u.usua_codigo != 2
       ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
       ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
-      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario
     ORDER BY Fecha DESC, Usuario;
     `;
@@ -601,6 +619,7 @@ router.get(
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
+    let hFinAux = 0;
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
@@ -612,6 +631,8 @@ router.get(
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
     }
 
     const query = `
@@ -628,7 +649,7 @@ router.get(
       AND u.usua_codigo != 2
       ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
       ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
-      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFin}' ` : ''}
+      ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
     GROUP BY nombreEmpresa, Fecha, Usuario
     ORDER BY Fecha DESC, Usuario;
     `;
