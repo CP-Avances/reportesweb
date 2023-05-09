@@ -14,11 +14,11 @@ export default class MySQL {
         console.log('clase inicializada');
 
         this.cnn = mysql.createConnection({
-            host: '192.168.0.9',
-            port: 3307,
+            host: '192.168.0.145',
+            port: 3306,
             user: 'root',
             password: 'root',
-            database: 'fulltimetickets'
+            database: 'fulltimetickets_ambato'
         });
 
         this.conectarDB();

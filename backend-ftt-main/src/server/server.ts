@@ -9,7 +9,7 @@ export default class Server {
         this.port = puerto;
         this.app = express();
         this.app.use(cors());
-        this.app.use(express.static('uploads'));
+        this.app.use(express.static('imagenesReportes'));
     }
 
     static init(puerto: string | number) {
