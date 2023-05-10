@@ -94,7 +94,7 @@ router.get('/totalsinatender/:fecha', verifivarToken_1.TokenValidation, (req, re
     const query = `
         SELECT turn_fecha, count(turn_codigo) AS noatendidos 
         FROM turno 
-        WHERE turn_estado = 2 and turn_estado = 3 and turn_fecha = '${fechas}'
+        WHERE turn_estado = 2 AND turn_fecha = '${fechas}'
         AND caje_codigo !=0
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
