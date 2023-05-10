@@ -1,7 +1,6 @@
 import Server from './server/server';
 import router from './router/router';
 
-////////////
 import usuarios from './router/usuarios';
 import evaluacion from './router/evaluacion';
 import atencion from './router/atencion';
@@ -12,16 +11,13 @@ import ingresoclientes from './router/ingresoclientes';
 import atendidosmultiples from './router/atendidosmultiples';
 import opinion from './router/opinion';
 
-////////////
 import express = require('express');
 
-//////
 const server = Server.init(process.env.PORT || 3004);
-//////
 
 const port = process.env.PORT || 3004;
 
-//llamar rutas
+// LLAMAR RUTAS
 server.app.use(router);
 server.app.use(usuarios);
 server.app.use(evaluacion);

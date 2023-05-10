@@ -1,21 +1,19 @@
 import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
+import { ToastrService } from "ngx-toastr";
+import { DatePipe } from "@angular/common";
+import { Router } from "@angular/router";
+import { Chart } from "chart.js";
+
 import { ServiceService } from "../../services/service.service";
 import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
-import { Router } from "@angular/router";
-import { DatePipe } from "@angular/common";
-import { Chart } from "chart.js";
-import { ToastrService } from "ngx-toastr";
 
-//Complementos para PDF y Excel
+// COMPLEMENTOS PARA PDF Y EXCEL
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { Utils } from "../../utils/util";
-
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
-
 import * as XLSX from "xlsx";
-
 const EXCEL_EXTENSION = ".xlsx";
 
 @Component({
@@ -23,11 +21,15 @@ const EXCEL_EXTENSION = ".xlsx";
   templateUrl: "./opinion.component.html",
   styleUrls: ["./opinion.component.scss"],
 })
+
 export class OpinionComponent implements OnInit {
-  //Seteo de fechas primer dia del mes actual y dia actual
-  fromDate;
-  toDate;
-  //captura de elementos de la interfaz visual para tratarlos y capturar datos
+  chart: any = '';
+
+  // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
+  fromDate: any;
+  toDate: any;
+
+  // CAPTURA DE ELEMENTOS DE LA INTERFAZ VISUAL PARA TRATARLOS Y CAPTURAR DATOS
   @ViewChild("fromDateAtM") fromDateAtM: ElementRef;
   @ViewChild("toDateAtM") toDateAtM: ElementRef;
   @ViewChild("fromDateIC") fromDateIC: ElementRef;
@@ -49,12 +51,12 @@ export class OpinionComponent implements OnInit {
   @ViewChild("horaFinGIC") horaFinGIC: ElementRef;
 
 
-  //Variables de la grafica
+  // VARIABLES DE LA GRAFICA
   chartPie: any;
   chartBar: any;
   tipo: string;
 
-  //Servicios-Variables donde se almacenaran las consultas a la BD
+  // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   servicioOpinionIC: any = [];
   servicioOpinion: any = [];
   servicioocg: any = [];
@@ -63,10 +65,10 @@ export class OpinionComponent implements OnInit {
   sucursales: any[];
   servicio: any;
 
-  //Variable usada en exportacion a excel
+  // VARIABLE USADA EN EXPORTACION A EXCEL
   p_color: any;
 
-  //Banderas para mostrar la tabla correspondiente a las consultas
+  // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
   todasSucursalesI: boolean = false;
   todasSucursalesIC: boolean = false;
   todasSucursalesG: boolean = false;
@@ -74,7 +76,7 @@ export class OpinionComponent implements OnInit {
   todasCategorias: boolean = false;
   todosTipos: boolean = false;
 
-  //Banderas para que no se quede en pantalla consultas anteriores
+  // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestAtM: boolean = false;
   malRequestAtMIC: boolean = false;
   malRequestAtMPag: boolean = false;
@@ -83,34 +85,34 @@ export class OpinionComponent implements OnInit {
   malRequestICPag: boolean = false;
   malRequestOcupG: boolean = false;
 
-  //Usuario que ingreso al sistema
+  // USUARIO QUE INGRESO AL SISTEMA
   userDisplayName: any;
 
-  //Control paginacion
+  // CONTROL PAGINACION
   configAtM: any;
   configAtMIC: any;
   configIC: any;
   private MAX_PAGS = 10;
 
-  //Palabras de componente de paginacion
+  // PALABRAS DE COMPONENTE DE PAGINACION
   public labels: any = {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
 
-  //Control de labels por ancho de pantalla
+  // CONTROL DE LABELS POR ANCHO DE PANTALLA
   legend: any;
 
-  //Obtiene fecha actual para colocarlo en cuadro de fecha
+  // OBTIENE FECHA ACTUAL para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
 
-  //Imagen Logo
+  // IMAGEN LOGO
   urlImagen: string;
 
-  //OPCIONES MULTIPLES
+  // OPCIONES MULTIPLES
   sucursalesSeleccionadas: string[] = [];
   tiposSeleccionados: string[] = [];
   categoriasSeleccionadas: string[] = [];
@@ -122,24 +124,24 @@ export class OpinionComponent implements OnInit {
     { nombre: 'Felicitaciones', valor: '4' },
   ]
 
-  //Orientacion
+  // ORIENTACION
   orientacion: string;
 
-  //Infotmación
+  // INFORMACION
   marca: string = "FullTime Tickets";
   horas: number[] = [];
 
   mostrarCategorias: boolean = false;
 
   constructor(
+    private imagenesService: ImagenesService,
     private serviceService: ServiceService,
-    private auth: AuthenticationService,
-    private router: Router,
-    public datePipe: DatePipe,
     private toastr: ToastrService,
-    private imagenesService: ImagenesService
+    private router: Router,
+    private auth: AuthenticationService,
+    public datePipe: DatePipe,
   ) {
-    //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
+    // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
     this.configAtM = {
       id: "AtendidosMatm",
       itemsPerPage: this.MAX_PAGS,
@@ -164,31 +166,31 @@ export class OpinionComponent implements OnInit {
     }
   }
 
-  //Eventos para avanzar o retroceder en la paginacion
-  pageChangedAtM(event) {
+  // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
+  pageChangedAtM(event: any) {
     this.configAtM.currentPage = event;
   }
 
-  pageChangedIC(event) {
+  pageChangedIC(event: any) {
     this.configIC.currentPage = event;
   }
 
   ngOnInit(): void {
-    //Cargamos tipo de grafico
+    // CARGAMOS TIPO DE GRAFICO
     this.tipo = "pie";
-    //seteo orientacion
+    // SETEO ORIENTACION
     this.orientacion = "portrait";
-    //Cargamos componentes selects HTML
+    // CARGAMOS COMPONENTES SELECTS HTML
     this.getlastday();
     this.getSucursales();
     this.getMarca();
-    //Cargamos nombre de usuario logueado
+    // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
-    //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
+    // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestAtMPag = true;
     this.malRequestICPag = true;
     // CARGAR LOGO PARA LOS REPORTES
-    this.imagenesService.cargarImagen().then((result: string) => {
+    this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;
     }).catch((error) => {
       Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
@@ -239,7 +241,7 @@ export class OpinionComponent implements OnInit {
     });
   }
 
-  //Se obtiene dia actual
+  // SE OBTIENE DIA ACTUAL
   getlastday() {
     this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
     let lastweek = new Date();
@@ -247,7 +249,7 @@ export class OpinionComponent implements OnInit {
     this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
   }
 
-  //Consulata para llenar la lista de surcursales.
+  // CONSULATA PARA LLENAR LA LISTA DE SURCURSALES.
   getSucursales() {
     this.serviceService.getAllSucursales().subscribe((empresas: any) => {
       this.sucursales = empresas.empresas;
@@ -269,7 +271,7 @@ export class OpinionComponent implements OnInit {
     this.sucursalesSeleccionadas = [];
   }
 
-  //Comprueba si se realizo una busqueda por sucursales
+  // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
   comprobarBusquedaSucursales(cod: string) {
     return cod == "-1" ? true : false;
   }
@@ -279,13 +281,13 @@ export class OpinionComponent implements OnInit {
     this.router.navigateByUrl("/");
   }
 
-  //cambio orientacion
+  // CAMBIO ORIENTACION
   cambiarOrientacion(orientacion: string) {
     this.orientacion = orientacion;
   }
 
   leerOpiniones() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
     let horaInicio = this.horaInicioI.nativeElement.value;
@@ -294,7 +296,7 @@ export class OpinionComponent implements OnInit {
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getopiniones(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicio: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioOpinion = servicio.turnos;
           this.servicioOpinion.forEach(dato => {
             if (dato.caja_caja_nombre === '0') {
@@ -303,32 +305,32 @@ export class OpinionComponent implements OnInit {
           })
           this.malRequestAtM = false;
           this.malRequestAtMPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configAtM.currentPage > 1) {
             this.configAtM.currentPage = 1;
           }
-          // this.todasSucursalesI = this.comprobarBusquedaSucursales(cod);
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioOpinion = null;
             this.malRequestAtM = true;
             this.malRequestAtMPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+             **/
             if (this.servicioOpinion == null) {
               this.configAtM.totalItems = 0;
             } else {
               this.configAtM.totalItems = this.servicioOpinion.length;
             }
 
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configAtM = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -339,7 +341,7 @@ export class OpinionComponent implements OnInit {
   }
 
   leerOpinionesC() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateIC.nativeElement.value.toString().trim();
     var fH = this.toDateIC.nativeElement.value.toString().trim();
     let horaInicio = this.horaInicioIC.nativeElement.value;
@@ -348,7 +350,7 @@ export class OpinionComponent implements OnInit {
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados, this.categoriasSeleccionadas).subscribe(
         (servicio: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioOpinionIC = servicio.turnos;
           this.servicioOpinionIC.forEach(dato => {
             if (dato.caja_caja_nombre === '0') {
@@ -357,31 +359,32 @@ export class OpinionComponent implements OnInit {
           })
           this.malRequestIC = false;
           this.malRequestICPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configIC.currentPage > 1) {
             this.configIC.currentPage = 1;
           }
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioOpinionIC = null;
             this.malRequestIC = true;
             this.malRequestICPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+             **/
             if (this.servicioOpinionIC == null) {
               this.configIC.totalItems = 0;
             } else {
               this.configIC.totalItems = this.servicioOpinionIC.length;
             }
 
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configIC = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -392,7 +395,7 @@ export class OpinionComponent implements OnInit {
   }
 
   leerGrafOpinion() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
 
@@ -404,36 +407,36 @@ export class OpinionComponent implements OnInit {
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getgraficoopinion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicioocg: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioocg = servicioocg.turnos;
           // this.malRequestAtM = false;
           this.malRequestAtMPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configAtM.currentPage > 1) {
             this.configAtM.currentPage = 1;
           }
-          // this.todasSucursalesG = this.comprobarBusquedaSucursales(cod);
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioocg = null;
             this.malRequestAtM = true;
             this.malRequestAtMPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+             **/
             if (this.servicioocg == null) {
               this.configAtM.totalItems = 0;
             } else {
               this.configAtM.totalItems = this.servicioocg.length;
             }
 
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configAtM = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -443,14 +446,14 @@ export class OpinionComponent implements OnInit {
 
       this.serviceService.getgraficoopinion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicio: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-          //Se verifica el ancho de pantalla para colocar o no labels
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+          // SE VERIFICA EL ANCHO DE PANTALLA PARA COLOCAR O NO LABELS
           this.legend = screen.width < 575 ? false : true;
-          //Mapeo de porcentajes para mostrar en pantalla
+          // MAPEO DE PORCENTAJES PARA MOSTRAR EN PANTALLA
           this.servicio = servicio.turnos;
           let total = servicio.turnos.map((res) => res.queja_cantidad);
           let tipo = servicio.turnos.map((res) => res.quejas_emi_tipo);
-          let Nombres = [];
+          let Nombres: any = [];
           let totalPorc = 0;
           for (var i = 0; i < tipo.length; i++) {
             totalPorc = totalPorc + total[i];
@@ -464,16 +467,16 @@ export class OpinionComponent implements OnInit {
             );
           }
 
-          //Se crea el grafico
+          // SE CREA EL GRAFICO
           this.chartPie = new Chart("canvas", {
-            //El tipo de grafico
+            // EL TIPO DE GRAFICO
             type: (this.tipo = "pie"),
             data: {
-              labels: Nombres, //eje x
+              labels: Nombres, // EJE X
               datasets: [
                 {
                   label: "Total",
-                  data: total, //eje y
+                  data: total, // EJE Y
                   backgroundColor: [
                     "rgba(255, 99, 132, 0.6)",
                     "rgba(54, 162, 235, 0.6)",
@@ -481,13 +484,13 @@ export class OpinionComponent implements OnInit {
                     "rgba(75, 192, 192, 0.6)",
                     "rgba(153, 102, 255, 0.6)",
                     "rgba(255, 159, 64, 0.6)",
-                    ///////////////////////////F
+
                     "rgba(104, 210, 34, 0.6)",
                   ],
                 },
               ],
             },
-            //Se setea titulo asi como valores en grafico
+            // SE SETEA TITULO ASI COMO VALORES EN GRAFICO
             options: {
 
               plugins: {
@@ -509,16 +512,16 @@ export class OpinionComponent implements OnInit {
               responsive: true,
             },
           });
-          //Se crea segundo grafico
+          // SE CREA SEGUNDO GRAFICO
           this.chartBar = new Chart("canvas2", {
-            //Tipo de gráfico bar
+            // TIPO DE GRÁFICO BAR
             type: (this.tipo = "bar"),
             data: {
-              labels: Nombres, //eje x
+              labels: Nombres, // EJE X
               datasets: [
                 {
                   label: "Total",
-                  data: total, //eje y
+                  data: total, // EJE Y
                   backgroundColor: [
                     "rgba(255, 99, 132, 0.6)",
                     "rgba(54, 162, 235, 0.6)",
@@ -526,7 +529,7 @@ export class OpinionComponent implements OnInit {
                     "rgba(75, 192, 192, 0.6)",
                     "rgba(153, 102, 255, 0.6)",
                     "rgba(255, 159, 64, 0.6)",
-                    ///////////////////////////F
+
                     "rgba(104, 210, 34, 0.6)",
                   ],
                 },
@@ -557,13 +560,15 @@ export class OpinionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Por error 400 se vacia variable de consulta
+            // POR ERROR 400 SE VACIA VARIABLE DE CONSULTA
             this.servicio = null;
           }
         }
       );
     }
-    //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
+    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+     *  EVITANDO SUPERPOSISION DEL NUEVO CHART
+     **/
     if (this.chartPie != undefined || this.chartPie != null) {
       this.chartPie.destroy();
     }
@@ -573,7 +578,7 @@ export class OpinionComponent implements OnInit {
   }
 
   leerGrafOpinionIC() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateOcupGIC.nativeElement.value.toString().trim();
     var fH = this.toDateOcupGIC.nativeElement.value.toString().trim();
 
@@ -585,36 +590,35 @@ export class OpinionComponent implements OnInit {
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicioocgIC: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioocgIC = servicioocgIC.turnos;
-          // this.malRequestAtM = false;
           this.malRequestAtMICPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configAtMIC.currentPage > 1) {
             this.configAtMIC.currentPage = 1;
           }
-          // this.todasSucursalesG = this.comprobarBusquedaSucursales(cod);
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioocgIC = null;
             this.malRequestAtMIC = true;
             this.malRequestAtMICPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+             **/
             if (this.servicioocgIC == null) {
               this.configAtMIC.totalItems = 0;
             } else {
               this.configAtMIC.totalItems = this.servicioocgIC.length;
             }
 
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configAtMIC = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -624,14 +628,14 @@ export class OpinionComponent implements OnInit {
 
       this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicio: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-          //Se verifica el ancho de pantalla para colocar o no labels
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+          // SE VERIFICA EL ANCHO DE PANTALLA PARA COLOCAR O NO LABELS
           this.legend = screen.width < 575 ? false : true;
-          //Mapeo de porcentajes para mostrar en pantalla
+          // MAPEO DE PORCENTAJES PARA MOSTRAR EN PANTALLA
           this.servicio = servicio.turnos;
           let total = servicio.turnos.map((res) => res.queja_cantidad);
           let tipo = servicio.turnos.map((res) => res.quejas_emi_categoria);
-          let Nombres = [];
+          let Nombres: any = [];
           let totalPorc = 0;
           for (var i = 0; i < tipo.length; i++) {
             totalPorc = totalPorc + total[i];
@@ -645,16 +649,16 @@ export class OpinionComponent implements OnInit {
             );
           }
 
-          //Se crea el grafico
+          // SE CREA EL GRAFICO
           this.chartPie = new Chart("canvas3", {
-            //El tipo de grafico
+            // EL TIPO DE GRAFICO
             type: (this.tipo = "pie"),
             data: {
-              labels: Nombres, //eje x
+              labels: Nombres, // EJE X
               datasets: [
                 {
                   label: "Total",
-                  data: total, //eje y
+                  data: total, // EJE Y
                   backgroundColor: [
                     "rgba(255, 99, 132, 0.6)",
                     "rgba(54, 162, 235, 0.6)",
@@ -662,13 +666,13 @@ export class OpinionComponent implements OnInit {
                     "rgba(75, 192, 192, 0.6)",
                     "rgba(153, 102, 255, 0.6)",
                     "rgba(255, 159, 64, 0.6)",
-                    ///////////////////////////F
+
                     "rgba(104, 210, 34, 0.6)",
                   ],
                 },
               ],
             },
-            //Se setea titulo asi como valores en grafico
+            // SE SETEA TITULO ASI COMO VALORES EN GRAFICO
             options: {
 
               plugins: {
@@ -690,16 +694,16 @@ export class OpinionComponent implements OnInit {
               responsive: true,
             },
           });
-          //Se crea segundo grafico
+          // SE CREA SEGUNDO GRAFICO
           this.chartBar = new Chart("canvas4", {
-            //Tipo de gráfico bar
+            // TIPO DE GRÁFICO BAR
             type: (this.tipo = "bar"),
             data: {
-              labels: Nombres, //eje x
+              labels: Nombres, // EJE X
               datasets: [
                 {
                   label: "Total",
-                  data: total, //eje y
+                  data: total, // EJE Y
                   backgroundColor: [
                     "rgba(255, 99, 132, 0.6)",
                     "rgba(54, 162, 235, 0.6)",
@@ -707,7 +711,7 @@ export class OpinionComponent implements OnInit {
                     "rgba(75, 192, 192, 0.6)",
                     "rgba(153, 102, 255, 0.6)",
                     "rgba(255, 159, 64, 0.6)",
-                    ///////////////////////////F
+
                     "rgba(104, 210, 34, 0.6)",
                   ],
                 },
@@ -738,13 +742,15 @@ export class OpinionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Por error 400 se vacia variable de consulta
+            // POR ERROR 400 SE VACIA VARIABLE DE CONSULTA
             this.servicio = null;
           }
         }
       );
     }
-    //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
+    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+     *  EVITANDO SUPERPOSISION DEL NUEVO CHART
+     **/
     if (this.chartPie != undefined || this.chartPie != null) {
       this.chartPie.destroy();
     }
@@ -771,12 +777,11 @@ export class OpinionComponent implements OnInit {
     return nombreSucursal;
   }
 
-  //---Excel
+  // EXCEL
   exportTOExcelOpiniones() {
-    // let cod = this.codSucursalAtM.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
-    let jsonServicio = [];
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesI || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioOpinion.length; step++) {
         jsonServicio.push({
@@ -801,12 +806,12 @@ export class OpinionComponent implements OnInit {
         });
       }
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioOpinion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -822,40 +827,39 @@ export class OpinionComponent implements OnInit {
   }
 
   exportTOExcelOpinionesIC() {
-    // let cod = this.codSucursalAtM.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
-    let jsonServicio = [];
-      if (this.todasSucursalesIC || this.seleccionMultiple) {
-        for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-          jsonServicio.push({
-            Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
-            Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-            Fecha: new Date(this.servicioOpinionIC[step].quejas_emi_fecha),
-            Hora: this.servicioOpinionIC[step].hora,
-            Caja: this.servicioOpinionIC[step].caja_caja_nombre,
-            Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
-          });
-        }
-      } else {
-        for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-          jsonServicio.push({
-            Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
-            Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-            Fecha: new Date(this.servicioOpinionIC[step].quejas_emi_fecha),
-            Hora: this.servicioOpinionIC[step].hora,
-            Caja: this.servicioOpinionIC[step].caja_caja_nombre,
-            Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
-          });
-        }
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
+    if (this.todasSucursalesIC || this.seleccionMultiple) {
+      for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+        jsonServicio.push({
+          Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
+          Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
+          Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
+          Fecha: new Date(this.servicioOpinionIC[step].quejas_emi_fecha),
+          Hora: this.servicioOpinionIC[step].hora,
+          Caja: this.servicioOpinionIC[step].caja_caja_nombre,
+          Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
+        });
       }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    } else {
+      for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+        jsonServicio.push({
+          Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
+          Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
+          Fecha: new Date(this.servicioOpinionIC[step].quejas_emi_fecha),
+          Hora: this.servicioOpinionIC[step].hora,
+          Caja: this.servicioOpinionIC[step].caja_caja_nombre,
+          Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
+        });
+      }
+    }
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioOpinionIC[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -871,11 +875,10 @@ export class OpinionComponent implements OnInit {
   }
 
   exportTOExcelOpinionesGrafico() {
-    // let cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
-    let jsonServicio = [];
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesG || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioocg.length; step++) {
         jsonServicio.push({
@@ -892,12 +895,12 @@ export class OpinionComponent implements OnInit {
         });
       }
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioocg[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -913,11 +916,10 @@ export class OpinionComponent implements OnInit {
   }
 
   exportTOExcelOpinionesGraficoIC() {
-    // let cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
-    let jsonServicio = [];
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesGIC || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioocgIC.length; step++) {
         jsonServicio.push({
@@ -936,12 +938,12 @@ export class OpinionComponent implements OnInit {
         });
       }
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioocgIC[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -958,21 +960,19 @@ export class OpinionComponent implements OnInit {
 
   //---PDF
   generarPdfOpiniones(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fD = this.fromDateAtM.nativeElement.value.toString().trim();
     var fH = this.toDateAtM.nativeElement.value.toString().trim();
 
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
+    let documentDefinition: any;
     if (pdf === 1) {
-      // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentOpiniones(fD, fH);
     } else if (pdf === 2) {
-      // var cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentOpinionesGraficos(fD, fH);
     }
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -990,16 +990,16 @@ export class OpinionComponent implements OnInit {
     }
   }
 
-  //Funcion delegada para seteo de información
-  getDocumentOpiniones(fD, fH) {
-    //Se obtiene la fecha actual
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
+  getDocumentOpiniones(fD: any, fH: any) {
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -1015,8 +1015,8 @@ export class OpinionComponent implements OnInit {
         opacity: 0.3,
       },
       pageOrientation: 'landscape',
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -1041,7 +1041,7 @@ export class OpinionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -1068,7 +1068,7 @@ export class OpinionComponent implements OnInit {
           style: "subtitulos",
           text: "Periodo  de " + fD + " hasta " + fH,
         },
-        this.opiniones(this.servicioOpinion), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.opiniones(this.servicioOpinion), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -1104,22 +1104,20 @@ export class OpinionComponent implements OnInit {
   }
 
   generarPdfOpinionesIC(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fD = this.fromDateIC.nativeElement.value.toString().trim();
     var fH = this.toDateIC.nativeElement.value.toString().trim();
 
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
+    let documentDefinition: any;
     if (pdf === 1) {
-      // var cod = this.codSucursalAtM.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentOpinionesIC(fD, fH);
     } else if (pdf === 2) {
-      // var cod = this.codSucursalOcupG.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentOpinionesGraficosIC(fD, fH);
     }
 
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -1137,16 +1135,16 @@ export class OpinionComponent implements OnInit {
     }
   }
 
-  //Funcion delegada para seteo de información
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
   getDocumentOpinionesIC(fD, fH) {
-    //Se obtiene la fecha actual
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -1162,8 +1160,8 @@ export class OpinionComponent implements OnInit {
         opacity: 0.3,
       },
       pageOrientation: 'landscape',
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -1188,7 +1186,7 @@ export class OpinionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -1215,7 +1213,7 @@ export class OpinionComponent implements OnInit {
           style: "subtitulos",
           text: "Periodo  de " + fD + " hasta " + fH,
         },
-        this.opinionesIC(this.servicioOpinionIC), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.opinionesIC(this.servicioOpinionIC), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -1250,22 +1248,22 @@ export class OpinionComponent implements OnInit {
     };
   }
 
-  //Funcion delegada para seteo de información
-  getDocumentOpinionesGraficos(fD, fH) {
-    //Selecciona de la interfaz el elemento que contiene la grafica
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
+  getDocumentOpinionesGraficos(fD: any, fH: any) {
+    // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
     var canvas2 = document.querySelector("#canvas2") as HTMLCanvasElement;
-    //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
     var canvasImg = canvas1.toDataURL("image/png");
     var canvasImg1 = canvas2.toDataURL("image/png");
-    //Se obtiene la fecha actual
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -1281,8 +1279,8 @@ export class OpinionComponent implements OnInit {
         opacity: 0.3,
       },
       pageOrientation: this.orientacion,
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -1307,7 +1305,7 @@ export class OpinionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -1336,7 +1334,7 @@ export class OpinionComponent implements OnInit {
         },
         this.opinionesGraficos(this.servicioocg),
         this.grafico(canvasImg),
-        this.grafico(canvasImg1), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.grafico(canvasImg1), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -1371,21 +1369,21 @@ export class OpinionComponent implements OnInit {
     };
   }
 
-  getDocumentOpinionesGraficosIC(fD, fH) {
-    //Selecciona de la interfaz el elemento que contiene la grafica
+  getDocumentOpinionesGraficosIC(fD: any, fH: any) {
+    // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
     var canvas1 = document.querySelector("#canvas3") as HTMLCanvasElement;
     var canvas2 = document.querySelector("#canvas4") as HTMLCanvasElement;
-    //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
     var canvasImg = canvas1.toDataURL("image/png");
     var canvasImg1 = canvas2.toDataURL("image/png");
-    //Se obtiene la fecha actual
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -1401,8 +1399,8 @@ export class OpinionComponent implements OnInit {
         opacity: 0.3,
       },
       pageOrientation: this.orientacion,
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -1427,7 +1425,7 @@ export class OpinionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -1456,7 +1454,7 @@ export class OpinionComponent implements OnInit {
         },
         this.opinionesGraficosIC(this.servicioocgIC),
         this.grafico(canvasImg),
-        this.grafico(canvasImg1), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.grafico(canvasImg1), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -1510,7 +1508,7 @@ export class OpinionComponent implements OnInit {
     }
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
   opiniones(servicio: any[]) {
     if (this.todasSucursalesI || this.seleccionMultiple) {
       return {
@@ -1544,7 +1542,7 @@ export class OpinionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1579,7 +1577,7 @@ export class OpinionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1620,7 +1618,7 @@ export class OpinionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1655,7 +1653,7 @@ export class OpinionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1663,7 +1661,7 @@ export class OpinionComponent implements OnInit {
     }
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
   opinionesGraficos(servicio: any[]) {
     if (this.todasSucursalesG || this.seleccionMultiple) {
       return {
@@ -1688,7 +1686,7 @@ export class OpinionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1714,7 +1712,7 @@ export class OpinionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1748,7 +1746,7 @@ export class OpinionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1776,7 +1774,7 @@ export class OpinionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },

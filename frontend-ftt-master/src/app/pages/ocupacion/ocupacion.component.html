@@ -4,15 +4,21 @@
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link active" id="ocservicios-tab" data-toggle="tab" href="#ocservicios" role="tab" aria-controls="ocservicios" aria-selected="true">OCUPACIÓN POR SERVICIOS</a>
+                    <a class="nav-link active" id="ocservicios-tab" data-toggle="tab" href="#ocservicios" role="tab"
+                        aria-controls="ocservicios" aria-selected="true">
+                        OCUPACIÓN POR SERVICIOS
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#ocserviciosgraf" role="tab" aria-controls="ocserviciosgraf" aria-selected="false">OCUPACIÓN POR SERVICIOS (GRÁFICO)</a>
+                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#ocserviciosgraf" role="tab"
+                        aria-controls="ocserviciosgraf" aria-selected="false">
+                        OCUPACIÓN POR SERVICIOS (GRÁFICO)
+                    </a>
                 </li>
             </ul>
-
             <div class="tab-content" id="myTabContent">
-                <div class="tab-pane fade show active" id="ocservicios" role="tabpanel" aria-labelledby="ocservicios-tab">
+                <div class="tab-pane fade show active" id="ocservicios" role="tabpanel"
+                    aria-labelledby="ocservicios-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
@@ -20,34 +26,37 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateOcupOS">Fecha desde:</label>
-                                        <input type="date" id="fromDateOcupOS" value="{{fromDate}}" [max]="toDate" name="fromDateOcupOS" #fromDateOcupOS>
+                                        <input type="date" id="fromDateOcupOS" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateOcupOS" #fromDateOcupOS>
                                         <br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateOcupOS">Fecha hasta: </label>
-                                        <input type="date" id="toDateOcupOS" value="{{toDate}}" [max]="toDate" name="toDateOcupOS" #toDateOcupOS>
+                                        <label for="toDateOcupOS">Fecha hasta:</label>
+                                        <input type="date" id="toDateOcupOS" value="{{toDate}}" [max]="toDate"
+                                            name="toDateOcupOS" #toDateOcupOS>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioOS>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinOS>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesO')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesO')">
                                         Todas las sucursales
                                     </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
-                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesO">
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesO">
                                         {{option.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
@@ -65,7 +74,9 @@
                         <table class="table table-striped" id="contentOcup" #contentOcup #tableOcup>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesO || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesO || seleccionMultiple">
+                                        Sucursal
+                                    </th>
                                     <th scope="col" class="text-center">Desde</th>
                                     <th scope="col" class="text-center">Hasta</th>
                                     <th scope="col" class="text-center">Servicio</th>
@@ -83,7 +94,8 @@
                                     <td>{{serviciooc.PORCENTAJE}} %</td>
                                 </tr>
                                 <tr *ngIf="mostrarTotal">
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesO || seleccionMultiple"> </th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesO || seleccionMultiple">
+                                    </th>
                                     <th scope="col" class="text-center"> </th>
                                     <th scope="col" class="text-center"> </th>
                                     <th scope="col" class="text-center">TOTAL</th>
@@ -92,19 +104,19 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <pagination-controls 
-                            *ngIf="!malRequestOcupOSPag" 
-                            id= "Ocupos"
-                            [previousLabel]="labels.previousLabel"
-                            [nextLabel]="labels.nextLabel"  
+                        <pagination-controls *ngIf="!malRequestOcupOSPag" id="Ocupos"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
                             (pageChange)="pageChangedOS($event)">
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelOcupServs()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOcupServs('hola',1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelOcupServs()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOcupServs('hola',1)">
+                        PDF
+                    </button>
                 </div>
-
                 <div class="tab-pane fade" id="ocserviciosgraf" role="tabpanel" aria-labelledby="ocserviciosgraf-tab">
                     <br><br>
                     <div class="container">
@@ -113,40 +125,44 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateOcupG">Fecha desde:</label>
-                                        <input type="date" id="fromDateOcupG" value="{{fromDate}}" [max]="toDate" name="fromDateOcupG" #fromDateOcupG>
+                                        <input type="date" id="fromDateOcupG" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateOcupG" #fromDateOcupG>
                                         <br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateOcupG">Fecha hasta: </label>
-                                        <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate" name="toDateOcupG" #toDateOcupG>
+                                        <label for="toDateOcupG">Fecha hasta:</label>
+                                        <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate"
+                                            name="toDateOcupG" #toDateOcupG>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioOG>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinOG>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesOG')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesOG')">
                                         Todas las sucursales
                                     </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
-                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesOG">
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesOG">
                                         {{option.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerGrafOcupacion()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                             <br><br>
@@ -161,19 +177,23 @@
                     <br>
                     <fieldset>
                         <div>
-                            <label>Orientación de página: </label>
+                            <label>Orientación de página:</label>
 
                             <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
                                 value="portrait" (click)="cambiarOrientacion('portrait')" checked>
-                            <label for="vertical">Vertical </label>
+                            <label for="vertical">Vertical</label>
 
                             <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
                                 value="landscape" (click)="cambiarOrientacion('landscape')">
-                            <label for="horizontal">Horizontal </label>
+                            <label for="horizontal">Horizontal</label>
                         </div>
                     </fieldset>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelOcupServsGrafico()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOcupServs('hola',2)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelOcupServsGrafico()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOcupServs('hola',2)">
+                        PDF
+                    </button>
                     <br>
                 </div>
             </div>

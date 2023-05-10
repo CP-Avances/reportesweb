@@ -28,11 +28,11 @@ router.get(
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
-    } 
-    
+    }
+
     if (serviciosArray.includes("-1")) {
       todosServicios = true
-    } 
+    }
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
@@ -146,7 +146,7 @@ router.get("/getallservicios/:sucursales", TokenValidation, (req: Request, res: 
     ${!todasSucursales ? `AND empr_codigo IN (${listaSucursales})` : ''}  
     ORDER BY serv_nombre ASC;
               `;
-  
+
   MySQL.ejecutarQuery(query, (err: any, servicios: Object[]) => {
     if (err) {
       res.status(400).json({
@@ -186,11 +186,11 @@ router.get(
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
-    } 
-    
+    }
+
     if (serviciosArray.includes("-1")) {
       todosServicios = true
-    } 
+    }
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
@@ -745,10 +745,9 @@ router.get(
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND usuarios.usua_codigo != 2
         ${!todosCajeros ? `AND cajero.caje_codigo IN (${listaCodigos})` : ""}
-        ${
-          !todasSucursales
-            ? `AND usuarios.empr_codigo IN (${listaSucursales})`
-            : ""
+        ${!todasSucursales
+          ? `AND usuarios.empr_codigo IN (${listaSucursales})`
+          : ""
         }
         ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
@@ -760,10 +759,9 @@ router.get(
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND usuarios.usua_codigo != 2
         ${!todosCajeros ? `AND cajero.caje_codigo IN (${listaCodigos})` : ""}
-        ${
-          !todasSucursales
-            ? `AND usuarios.empr_codigo IN (${listaSucursales})`
-            : ""
+        ${!todasSucursales
+          ? `AND usuarios.empr_codigo IN (${listaSucursales})`
+          : ""
         }
         ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
@@ -785,10 +783,9 @@ router.get(
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND usuarios.usua_codigo != 2
         ${!todosCajeros ? `AND cajero.caje_codigo IN (${listaCodigos})` : ""}
-        ${
-          !todasSucursales
-            ? `AND usuarios.empr_codigo IN (${listaSucursales})`
-            : ""
+        ${!todasSucursales
+          ? `AND usuarios.empr_codigo IN (${listaSucursales})`
+          : ""
         }
         ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY eval_califica)as tl),3) AS porcentaje
@@ -799,10 +796,9 @@ router.get(
         AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         AND usuarios.usua_codigo != 2
         ${!todosCajeros ? `AND cajero.caje_codigo IN (${listaCodigos})` : ""}
-        ${
-          !todasSucursales
-            ? `AND usuarios.empr_codigo IN (${listaSucursales})`
-            : ""
+        ${!todasSucursales
+          ? `AND usuarios.empr_codigo IN (${listaSucursales})`
+          : ""
         }
         ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY eval_califica, usua_nombre 
@@ -906,9 +902,8 @@ router.get(
           AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           AND eval_califica != 50
           AND t.caje_codigo != 0
-          ${
-            !todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ""
-          }
+          ${!todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ""
+        }
           ${!diaCompleto ? `AND e.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY e.eval_fecha , nombreEmpresa
         ORDER BY e.eval_fecha DESC;
@@ -933,9 +928,8 @@ router.get(
           AND S.empr_codigo = em.empr_codigo
           AND eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           AND t.caje_codigo !=0
-          ${
-            !todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ""
-          }
+          ${!todasSucursales ? `AND em.empr_codigo IN (${listaSucursales})` : ""
+        }
           ${!diaCompleto ? `AND e.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY e.eval_fecha , nombreEmpresa
         ORDER BY e.eval_fecha DESC;
@@ -1056,8 +1050,9 @@ router.get(
 );
 
 router.get("/opcionesEvaluacion", TokenValidation, (req: Request, res: Response) => {
-  const query = `
-    select gene_valor from general where gene_codigo = 7;
+  const query =
+    `
+    SELECT gene_valor FROM general WHERE gene_codigo = 7;
     `;
 
   MySQL.ejecutarQuery(query, (err: any, opcion: Object[]) => {

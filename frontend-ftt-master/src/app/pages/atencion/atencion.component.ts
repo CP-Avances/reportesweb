@@ -127,7 +127,7 @@ export class AtencionComponent implements OnInit {
   // IMAGEN LOGO
   urlImagen: string;
 
-  //OPCIONES MULTIPLES
+  // OPCIONES MULTIPLES
   allSelected = false;
   selectedItems: string[] = [];
   sucursalesSeleccionadas: string[] = [];
@@ -142,17 +142,17 @@ export class AtencionComponent implements OnInit {
   // ORIENTACION
   orientacion: string;
 
-  //Informacion
+  // INFORMACION
   marca: string = "Fulltime Tickets";
   horas: number[] = [];
 
   constructor(
+    private imagenesService: ImagenesService,
     private serviceService: ServiceService,
     private router: Router,
     private toastr: ToastrService,
     private auth: AuthenticationService,
     public datePipe: DatePipe,
-    private imagenesService: ImagenesService
   ) {
 
     // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
@@ -242,7 +242,7 @@ export class AtencionComponent implements OnInit {
     this.malRequestAtGPag = true;
 
     // CARGAR LOGO PARA LOS REPORTES
-    this.imagenesService.cargarImagen().then((result: string) => {
+    this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;
     }).catch((error) => {
       Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
@@ -482,6 +482,7 @@ export class AtencionComponent implements OnInit {
         );
     }
   }
+
   leerTiempoAtencion() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtTA.nativeElement.value.toString().trim();
@@ -764,11 +765,11 @@ export class AtencionComponent implements OnInit {
     return nombreSucursal;
   }
 
-  //---EXCEL
+  // EXCEL
   exportarAExcelTiempoComp() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio = [];
+    let jsonServicio: any = [];
     if (this.todasSucursalesTC || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioTiempoComp.length; step++) {
         jsonServicio.push({
@@ -793,12 +794,12 @@ export class AtencionComponent implements OnInit {
       }
     }
 
-    // INSTRUCCIÓN PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioTiempoComp[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -815,8 +816,8 @@ export class AtencionComponent implements OnInit {
 
   exportarAExcelPromAtencion() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio = [];
+    // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesPA || this.seleccionMultiple) {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
@@ -838,12 +839,12 @@ export class AtencionComponent implements OnInit {
         });
       }
     }
-    // INSTRUCCIÓN PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.serviciopa[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -860,8 +861,8 @@ export class AtencionComponent implements OnInit {
 
   exportarAExcelTiempoAtencion() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio = [];
+    // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesTA || this.seleccionMultiple) {
       for (let step = 0; step < this.serviciota.length; step++) {
         jsonServicio.push({
@@ -889,12 +890,12 @@ export class AtencionComponent implements OnInit {
         });
       }
     }
-    // INSTRUCCIÓN PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.serviciota[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -911,8 +912,8 @@ export class AtencionComponent implements OnInit {
 
   exportarAExcelMaxAtencion() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio = [];
+    // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesMA || this.seleccionMultiple) {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
@@ -937,7 +938,7 @@ export class AtencionComponent implements OnInit {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.serviciomax[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -954,8 +955,8 @@ export class AtencionComponent implements OnInit {
 
   exportarAExcelAtServ() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio = [];
+    // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesAS || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioatser.length; step++) {
         jsonServicio.push({
@@ -984,7 +985,7 @@ export class AtencionComponent implements OnInit {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioatser[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -1003,7 +1004,7 @@ export class AtencionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     
     // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio = [];
+    let jsonServicio: any = [];
     for (let step = 0; step < this.serviciograf.length; step++) {
       const item = {
         ...(this.todasSucursalesGS || this.seleccionMultiple
@@ -1022,7 +1023,7 @@ export class AtencionComponent implements OnInit {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.serviciograf[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -1095,7 +1096,7 @@ export class AtencionComponent implements OnInit {
         opacity: 0.3,
       },
       // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage, pageCount, fecha) {
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -1213,7 +1214,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1245,7 +1246,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1425,7 +1426,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1454,7 +1455,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1640,7 +1641,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1675,7 +1676,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1688,7 +1689,7 @@ export class AtencionComponent implements OnInit {
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
-    let documentDefinition;
+    let documentDefinition: any;
     if (pdf === 1) {
       documentDefinition = this.getDocumentMaxAtencion(fechaDesde, fechaHasta);
     }
@@ -1719,7 +1720,7 @@ export class AtencionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -1734,8 +1735,8 @@ export class AtencionComponent implements OnInit {
         fontSize: 9,
         opacity: 0.3,
       },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -1760,7 +1761,7 @@ export class AtencionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -1787,7 +1788,7 @@ export class AtencionComponent implements OnInit {
           style: "subtitulos",
           text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
         },
-        this.maxatencion(this.serviciomax), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.maxatencion(this.serviciomax), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -1848,7 +1849,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1876,7 +1877,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -1924,7 +1925,7 @@ export class AtencionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -1939,8 +1940,8 @@ export class AtencionComponent implements OnInit {
         fontSize: 9,
         opacity: 0.3,
       },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -1965,7 +1966,7 @@ export class AtencionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -1992,7 +1993,7 @@ export class AtencionComponent implements OnInit {
           style: "subtitulos",
           text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
         },
-        this.atencionservicio(this.servicioatser), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.atencionservicio(this.servicioatser), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -2057,7 +2058,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -2089,7 +2090,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -2103,14 +2104,12 @@ export class AtencionComponent implements OnInit {
     var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
 
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
-    let documentDefinition;
+    let documentDefinition: any;
     if (pdf === 1) {
       documentDefinition = this.getDocumentAtencionServicioGraf(
         fechaDesde,
         fechaHasta,
       );
-      //Generacion pdf del grafico
-      // this.generarPDFGrafico();
     }
 
     // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
@@ -2145,7 +2144,7 @@ export class AtencionComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -2161,8 +2160,8 @@ export class AtencionComponent implements OnInit {
         opacity: 0.3,
       },
       pageOrientation: this.orientacion,
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -2187,7 +2186,7 @@ export class AtencionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -2215,7 +2214,7 @@ export class AtencionComponent implements OnInit {
           text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
         },
         this.atenciongrafservicio(this.serviciograf),
-        this.grafico(canvasImg), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.grafico(canvasImg), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -2297,7 +2296,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -2326,7 +2325,7 @@ export class AtencionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },

@@ -3499,7 +3499,7 @@ THE SOFTWARE.
 
         /* Search for a selected row (that is before given row index) to up and returns it's index 
         *************************************************************************/
-        _findFirstSelectedRowIndexBeforeIndex: function (rowIndex) {
+        _findFirstSelectedRowIndexBeforeIndex: function (rowIndex: any) {
             for (var i = rowIndex - 1; i >= 0; --i) {
                 if (this._$tableRows[i].hasClass('jtable-row-selected')) {
                     return i;
@@ -3511,7 +3511,7 @@ THE SOFTWARE.
 
         /* Search for a selected row (that is after given row index) to down and returns it's index 
         *************************************************************************/
-        _findFirstSelectedRowIndexAfterIndex: function (rowIndex) {
+        _findFirstSelectedRowIndexAfterIndex: function (rowIndex: any) {
             for (var i = rowIndex + 1; i < this._$tableRows.length; ++i) {
                 if (this._$tableRows[i].hasClass('jtable-row-selected')) {
                     return i;

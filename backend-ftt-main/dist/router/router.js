@@ -77,7 +77,7 @@ const ImagenBase64LogosEmpresas = function (path_file) {
         return 0;
     }
 };
-//rutas prueba
+// RUTAS PRUEBA
 router.get('/heroes', (req, res) => {
     res.json({
         ok: true,
@@ -92,7 +92,7 @@ router.get('/heroes/:id', (req, res) => {
         id: id
     });
 });
-//querys
+// QUERYS
 router.get('/usuarios', verifivarToken_1.TokenValidation, (0, cors_1.default)(), (req, res) => {
     const query = `
         SELECT * FROM usuarios
@@ -134,7 +134,7 @@ router.get('/usuario/:id', verifivarToken_1.TokenValidation, (req, res) => {
         }
     });
 });
-//////getuser
+// GETUSER
 router.get('/username/:usua_login', verifivarToken_1.TokenValidation, (req, res) => {
     const username = req.params.usua_login;
     const escapeUsername = mysql_1.default.instance.cnn.escape(username);
@@ -175,7 +175,6 @@ router.post('/login/:usua_login/:usua_password', (req, res) => {
             res.json({
                 ok: true,
                 token
-                //usuario: usuario[0], token
             });
         }
     });
@@ -198,7 +197,6 @@ function ActualizarImagen(res, archivo) {
         else {
             res.json({
                 ok: true,
-                //usuario: usuario[0], token
             });
         }
     });
@@ -207,7 +205,6 @@ router.get('/nombreImagen', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 8;
       `;
-    ;
     let nombreImagen;
     mysql_1.default.ejecutarQuery(query, (err, imagen) => {
         if (err) {
@@ -226,7 +223,7 @@ router.get('/nombreImagen', verifivarToken_1.TokenValidation, (req, res) => {
         }
     });
 });
-//Guardar meta de turnos en la base de datos
+// GUARDAR META DE TURNOS EN LA BASE DE DATOS
 router.get('/setMeta/:valor', verifivarToken_1.TokenValidation, (req, res) => {
     const valor = req.params.valor;
     const query = `UPDATE general SET gene_valor = '${valor}' WHERE gene_codigo = 9;`;
@@ -263,7 +260,7 @@ router.get('/getMeta', verifivarToken_1.TokenValidation, (req, res) => {
         }
     });
 });
-//Guardar marca de agua
+// GUARDAR MARCA DE AGUA
 router.get('/setMarca/:marca', verifivarToken_1.TokenValidation, (req, res) => {
     let marca = req.params.marca;
     if (marca == "desactivar") {

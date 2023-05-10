@@ -14,18 +14,14 @@ class MySQL {
         });
         this.conectarDB();
     }
-    ///////
-    //obtener la isntancia
+    // OBTENER LA ISNTANCIA
     static get instance() {
         return this._instance || (this._instance = new this());
     }
-    ////
-    ////
-    //ejecutar query
+    // EJECUTAR QUERY
     static ejecutarQuery(query, callback) {
         this.instance.cnn.query(query, (err, results) => {
             if (err) {
-                console.log('error en query');
                 console.log(err);
                 return callback(err);
             }
@@ -36,7 +32,6 @@ class MySQL {
             callback(null, results);
         });
     }
-    ////
     conectarDB() {
         this.cnn.connect((err) => {
             if (err) {

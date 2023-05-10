@@ -5,31 +5,40 @@
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" id="ocservicios-tab" data-toggle="tab" href="#logoEmpresa" role="tab"
-                        aria-controls="logoEmpresa" aria-selected="true">LOGO DE EMPRESA</a>
+                        aria-controls="logoEmpresa" aria-selected="true">
+                        LOGO DE EMPRESA
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#turnos" role="tab"
-                        aria-controls="turnos" aria-selected="false">TURNOS</a>
+                        aria-controls="turnos" aria-selected="false">
+                        TURNOS
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="marca-tab" data-toggle="tab" href="#marca" role="tab"
-                        aria-controls="marca" aria-selected="false">MARCA DE AGUA</a>
+                    <a class="nav-link" id="marca-tab" data-toggle="tab" href="#marca" role="tab" aria-controls="marca"
+                        aria-selected="false">
+                        MARCA DE AGUA
+                    </a>
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="logoEmpresa" role="tabpanel"
                     aria-labelledby="logoEmpresa-tab">
                     <br><br>
-                    <p>Seleccione el logo de su empresa mediante el botón "Elegir archivo" y luego haga clic en
-                        "Guardar" para agregarlo.</p>
+                    <p>
+                        SELECCIONE EL LOGO DE SU EMPRESA MEDIANTE EL BOTÓN "ELEGIR ARCHIVO" Y LUEGO HAGA CLIC EN
+                        "GUARDAR" PARA AGREGARLO.
+                    </p>
                     <div class="input-group">
                         <div class="custom-file">
                             <input type="file" id="selectImagen" accept="image/*" class="my-button"
                                 (change)="onFileSelected($event)">
                         </div>
                         <div class="input-group-append mt-3">
-                            <button class="btn btn-outline-secondary ml-2" type="button"
-                                (click)="guardarImagen()">Guardar</button>
+                            <button class="btn btn-outline-secondary ml-2" type="button" (click)="guardarImagen()">
+                                Guardar
+                            </button>
                         </div>
                     </div>
                     <br><br>
@@ -46,37 +55,43 @@
                                 <mat-label>Meta</mat-label>
                                 <input matInput type="number" matInput name="valor" [(ngModel)]="valor" min="0">
                                 <mat-hint>Número de turnos</mat-hint>
-                            </mat-form-field>  
+                            </mat-form-field>
                         </p>
                         <div class="input-group-append mt-3">
-                            <button class="btn btn-outline-secondary ml-4" type="button"
-                               (click)="guardarMeta()">Guardar</button>
-                        </div>                    
+                            <button class="btn btn-outline-secondary ml-4" type="button" (click)="guardarMeta()">
+                                Guardar
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="tab-pane fade " id="marca" role="tabpanel" aria-labelledby="marca-tab">
                     <br><br>
-                    <p>Ingrese el texto que desea utilizar como marca de agua en los reportes. El texto debe tener un máximo de 30 caracteres.</p>
+                    <p>
+                        Ingrese el texto que desea utilizar como marca de agua en los reportes. El texto debe tener un
+                        máximo de 30 caracteres.
+                    </p>
                     <br>
                     <div class="input-group">
                         <p>
                             <mat-form-field appearance="outline">
                                 <mat-label>Marca de agua</mat-label>
-                                <input matInput matInput maxlength="30" name="marca" [(ngModel)]="marca" [disabled]="desactivarMarca" >
+                                <input matInput matInput maxlength="30" name="marca" [(ngModel)]="marca"
+                                    [disabled]="desactivarMarca">
                                 <mat-hint align="end">{{marca.length}} / 30 caracteres</mat-hint>
-                            </mat-form-field>  
+                            </mat-form-field>
                         </p>
                         <div class="input-group-append mt-3">
-                            <button class="btn btn-outline-secondary ml-4" type="button"
-                               (click)="guardarMarca()">Guardar</button>
-                        </div>         
+                            <button class="btn btn-outline-secondary ml-4" type="button" (click)="guardarMarca()">
+                                Guardar
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label class="mat-checkbox-label">
                             <mat-checkbox [(ngModel)]="desactivarMarca" color="primary"></mat-checkbox>
                             Desactivar marca de agua
-                        </label>                          
+                        </label>
                     </div>
                 </div>
             </div>

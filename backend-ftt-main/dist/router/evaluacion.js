@@ -971,7 +971,7 @@ router.get("/evaluaciongrupos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
 });
 router.get("/opcionesEvaluacion", verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
-    select gene_valor from general where gene_codigo = 7;
+    SELECT gene_valor FROM general WHERE gene_codigo = 7;
     `;
     mysql_1.default.ejecutarQuery(query, (err, opcion) => {
         if (err) {

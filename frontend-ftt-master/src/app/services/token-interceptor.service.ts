@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { AuthenticationService } from './authentication.service';
 import { HttpInterceptor } from '@angular/common/http';
+
+import { AuthenticationService } from './authentication.service';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class TokenInterceptorService implements HttpInterceptor {
 
   constructor(
@@ -12,8 +14,7 @@ export class TokenInterceptorService implements HttpInterceptor {
   ) { }
 
 
-  intercept(req, next) {
-
+  intercept(req: any, next: any) {
     const tokenizeReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${this.loginServices.leerToken()}`

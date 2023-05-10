@@ -1,34 +1,34 @@
 import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
+import { ToastrService } from "ngx-toastr";
+import { DatePipe } from "@angular/common";
+import { Router } from "@angular/router";
 import { Chart } from "chart.js";
+
 import { ServiceService } from "../../services/service.service";
 import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
-import { Router } from "@angular/router";
-import { DatePipe } from "@angular/common";
-import { ToastrService } from "ngx-toastr";
 
-//Complementos para PDF y Excel
+// COMPLEMENTOS PARA PDF Y EXCEL
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { Utils } from "../../utils/util";
-
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
-
 import * as XLSX from "xlsx";
-
 const EXCEL_EXTENSION = ".xlsx";
-import jsPDF from "jspdf";
 
 @Component({
   selector: "app-ocupacion",
   templateUrl: "./ocupacion.component.html",
   styleUrls: ["./ocupacion.component.scss"],
 })
+
 export class OcupacionComponent implements OnInit {
-  //Seteo de fechas primer dia del mes actual y dia actual
-  fromDate;
-  toDate;
-  //captura de elementos de la interfaz visual para tratarlos y capturar datos
+  // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
+  fromDate: any;
+  toDate: any;
+  chart: any = '';
+
+  // CAPTURA DE ELEMENTOS DE LA INTERFAZ VISUAL PARA TRATARLOS Y CAPTURAR DATOS
   @ViewChild("fromDateOcupOS") fromDateOcupOS: ElementRef;
   @ViewChild("toDateOcupOS") toDateOcupOS: ElementRef;
   @ViewChild("fromDateOcupG") fromDateOcupG: ElementRef;
@@ -41,79 +41,79 @@ export class OcupacionComponent implements OnInit {
   @ViewChild("horaInicioOG") horaInicioOG: ElementRef;
   @ViewChild("horaFinOG") horaFinOG: ElementRef;
 
-  //Variables de la grafica
+  // VARIABLES DE LA GRAFICA
   chartPie: any;
   chartBar: any;
   tipo: string;
 
-  //Servicios-Variables donde se almacenaran las consultas a la BD
+  // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   servicio: any;
   serviciooc: any = [];
   servicioocg: any = [];
   sucursales: any = [];
 
-  //Variable usada en exportacion a excel
+  // VARIABLE USADA EN EXPORTACION A EXCEL
   p_color: any;
 
-  //Banderas para mostrar la tabla correspondiente a las consultas
+  // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
   todasSucursalesO: boolean = false;
   todasSucursalesOG: boolean = false;
 
-  //Banderas para que no se quede en pantalla consultas anteriores
+  // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestOcupOS: boolean = false;
   malRequestOcupOSPag: boolean = false;
   malRequestOcupG: boolean = false;
 
-  //Usuario que ingreso al sistema
+  // USUARIO QUE INGRESO AL SISTEMA
   userDisplayName: any;
 
-  //Control paginacion
+  // CONTROL PAGINACION
   configOS: any;
   private MAX_PAGS = 10;
 
-  //Palabras de componente de paginacion
+  // PALABRAS DE COMPONENTE DE PAGINACION
   public labels: any = {
     previousLabel: "Anterior",
     nextLabel: "Siguiente",
   };
 
-  //Control de labels por ancho de pantalla
+  // CONTROL DE LABELS POR ANCHO DE PANTALLA
   legend: any;
 
-  //Obtiene fecha actual para colocarlo en cuadro de fecha
+  // OBTIENE FECHA ACTUAL para colocarlo en cuadro de fecha
   day = new Date().getDate();
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
 
-  //Imagen Logo
+  // IMAGEN LOGO
   urlImagen: string;
 
-  //OPCIONES MULTIPLES
+  // OPCIONES MULTIPLES
   sucursalesSeleccionadas: string[] = [];
   seleccionMultiple: boolean = false;
 
-  //Orientacion
+  // ORIENTACION
   orientacion: string;
 
-  //Totales
+  // TOTALES
   porcentajeTotal: number;
   turnosTotal: number;
   mostrarTotal: boolean = false;
 
-  //Información
+  // INFORMACION
   marca: string = "FullTime Tickets";
   horas: number[] = [];
 
   constructor(
+    private imagenesService: ImagenesService,
     private serviceService: ServiceService,
-    private auth: AuthenticationService,
     private router: Router,
-    public datePipe: DatePipe,
     private toastr: ToastrService,
-    private imagenesService: ImagenesService
+    private auth: AuthenticationService,
+    public datePipe: DatePipe,
   ) {
-    //Seteo de item de paginacion cuantos items por pagina, desde que pagina empieza, el total de items respectivamente
+    // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
     this.configOS = {
       id: "Ocupos",
       itemsPerPage: this.MAX_PAGS,
@@ -126,26 +126,26 @@ export class OcupacionComponent implements OnInit {
     }
 
   }
-  //Eventos para avanzar o retroceder en la paginacion
-  pageChangedOS(event) {
+  // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
+  pageChangedOS(event: any) {
     this.configOS.currentPage = event;
   }
 
   ngOnInit(): void {
-    //Cargamos tipo de grafico
+    // CARGAMOS TIPO DE GRAFICO
     this.tipo = "pie";
-    //seteo orientacion
+    // SETEO ORIENTACION
     this.orientacion = "portrait";
-    //Cargamos componentes selects HTML
+    // CARGAMOS COMPONENTES SELECTS HTML
     this.getlastday();
     this.getSucursales();
     this.getMarca();
-    //Cargamos nombre de usuario logueado
+    // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
-    //Seteo de banderas cuando el resultado de la peticion HTTP no es 200 OK
+    // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestOcupOSPag = true;
     // CARGAR LOGO PARA LOS REPORTES
-    this.imagenesService.cargarImagen().then((result: string) => {
+    this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;
     }).catch((error) => {
       Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
@@ -172,13 +172,13 @@ export class OcupacionComponent implements OnInit {
     }
   }
 
-  //Se desloguea de la aplicacion
+  // SE DESLOGUEA DE LA APLICACION
   salir() {
     this.auth.logout();
     this.router.navigateByUrl("/");
   }
 
-  //cambio orientacion
+  // CAMBIO ORIENTACION
   cambiarOrientacion(orientacion: string) {
     this.orientacion = orientacion;
   }
@@ -189,7 +189,7 @@ export class OcupacionComponent implements OnInit {
     });
   }
 
-  //Se obtiene la fecha actual
+  // SE OBTIENE LA FECHA ACTUAL
   getlastday() {
     this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
     let lastweek = new Date();
@@ -197,7 +197,7 @@ export class OcupacionComponent implements OnInit {
     this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
   }
 
-  //Consulata para llenar la lista de surcursales.
+  // CONSULATA PARA LLENAR LA LISTA DE SURCURSALES.
   getSucursales() {
     this.serviceService.getAllSucursales().subscribe((empresas: any) => {
       this.sucursales = empresas.empresas;
@@ -212,13 +212,13 @@ export class OcupacionComponent implements OnInit {
     this.sucursalesSeleccionadas = [];
   }
 
-  //Comprueba si se realizo una busqueda por sucursales
+  // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
   comprobarBusquedaSucursales(cod: string){
     return cod=="-1" ? true : false;
   }
 
   leerOcupacion() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateOcupOS.nativeElement.value.toString().trim();
     var fH = this.toDateOcupOS.nativeElement.value.toString().trim();
     
@@ -228,15 +228,14 @@ export class OcupacionComponent implements OnInit {
     if (this.sucursalesSeleccionadas.length!==0) {
       this.serviceService.getocupacionservicios(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (serviciooc: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.serviciooc = serviciooc.turnos;
           this.malRequestOcupOS = false;
           this.malRequestOcupOSPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configOS.currentPage > 1) {
             this.configOS.currentPage = 1;
           }
-          // this.todasSucursalesO = this.comprobarBusquedaSucursales(cod);
           let totalT = serviciooc.turnos.map((res) => res.total);
           let totalP = serviciooc.turnos.map((res) => res.PORCENTAJE);
           let totalTurnos = 0;
@@ -251,24 +250,25 @@ export class OcupacionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.serviciooc = null;
             this.malRequestOcupOS = true;
             this.malRequestOcupOSPag = true;
             this.mostrarTotal = false;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+             **/ 
             if (this.serviciooc == null) {
               this.configOS.totalItems = 0;
             } else {
               this.configOS.totalItems = this.serviciooc.length;
             }
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configOS = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -279,7 +279,7 @@ export class OcupacionComponent implements OnInit {
   }
 
   leerGrafOcupacion() {
-    //captura de fechas para proceder con la busqueda
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
    
@@ -291,11 +291,11 @@ export class OcupacionComponent implements OnInit {
     if (this.sucursalesSeleccionadas.length!==0) {
       this.serviceService.getocupacionservicios(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicioocg: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioocg = servicioocg.turnos;
           // this.malRequestOcupOS = false;
           this.malRequestOcupOSPag = false;
-          //Seteo de paginacion cuando se hace una nueva busqueda
+          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configOS.currentPage > 1) {
             this.configOS.currentPage = 1;
           }
@@ -312,23 +312,24 @@ export class OcupacionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Si hay error 400 se vacia variable y se setea banderas para que tablas no sean visisbles  de interfaz
+            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioocg = null;
             this.malRequestOcupOS = true;
             this.malRequestOcupOSPag = true;
-            //Comprobacion de que si variable esta vacia pues se setea la paginacion con 0 items
-            //caso contrario se setea la cantidad de elementos
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+             **/ 
             if (this.servicioocg == null) {
               this.configOS.totalItems = 0;
             } else {
               this.configOS.totalItems = this.servicioocg.length;
             }
-            //Por error 400 se setea elementos de paginacion
+            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
             this.configOS = {
               itemsPerPage: this.MAX_PAGS,
               currentPage: 1,
             };
-            //Se informa que no se encontraron registros
+            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
             });
@@ -337,15 +338,15 @@ export class OcupacionComponent implements OnInit {
       );
       this.serviceService.getgraficoocupacion(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicio: any) => {
-          //Si se consulta correctamente se guarda en variable y setea banderas de tablas
-          //Se verifica el ancho de pantalla para colocar o no labels
+          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+          // SE VERIFICA EL ANCHO DE PANTALLA PARA COLOCAR O NO LABELS
           this.legend = screen.width < 575 ? false : true;
-          //Mapeo de porcentajes para mostrar en pantalla
+          // MAPEO DE PORCENTAJES PARA MOSTRAR EN PANTALLA
           this.servicio = servicio.turnos;
-          let total = servicio.turnos.map((res) => res.total);
-          let servicios = servicio.turnos.map((res) => res.SERV_NOMBRE);
-          let codigo = servicio.turnos.map((res) => res.SERV_CODIGO);
-          let Nombres = [];
+          let total = servicio.turnos.map((res: any) => res.total);
+          let servicios = servicio.turnos.map((res: any) => res.SERV_NOMBRE);
+          let codigo = servicio.turnos.map((res: any) => res.SERV_CODIGO);
+          let Nombres: any = [];
           let totalPorc = 0;
           for (var i = 0; i < servicios.length; i++) {
             totalPorc = totalPorc + total[i];
@@ -359,16 +360,16 @@ export class OcupacionComponent implements OnInit {
             );
           }
   
-          //Se crea el grafico
+          // SE CREA EL GRAFICO
           this.chartPie = new Chart("canvas", {
-            //El tipo de grafico
+            // EL TIPO DE GRAFICO
             type: (this.tipo = "pie"),
             data: {
-              labels: Nombres, //eje x
+              labels: Nombres, // EJE X
               datasets: [
                 {
                   label: "Total",
-                  data: total, //eje y
+                  data: total, // EJE Y
                   backgroundColor: [
                     "rgba(255, 99, 132, 0.6)",
                     "rgba(54, 162, 235, 0.6)",
@@ -376,13 +377,13 @@ export class OcupacionComponent implements OnInit {
                     "rgba(75, 192, 192, 0.6)",
                     "rgba(153, 102, 255, 0.6)",
                     "rgba(255, 159, 64, 0.6)",
-                    ///////////////////////////F
+                    
                     "rgba(104, 210, 34, 0.6)",
                   ],
                 },
               ],
             },
-            //Se setea titulo asi como valores en grafico
+            // SE SETEA TITULO ASI COMO VALORES EN GRAFICO
             options: {
          
               plugins: {
@@ -404,16 +405,16 @@ export class OcupacionComponent implements OnInit {
               responsive: true,
             },
           });
-          //Se crea segundo grafico
+          // SE CREA SEGUNDO GRAFICO
           this.chartBar = new Chart("canvas2", {
-            //Tipo de gráfico bar
+            // TIPO DE GRÁFICO BAR
             type: (this.tipo = "bar"),
             data: {
-              labels: Nombres, //eje x
+              labels: Nombres, // EJE X
               datasets: [
                 {
                   label: "Total",
-                  data: total, //eje y
+                  data: total, // EJE Y
                   backgroundColor: [
                     "rgba(255, 99, 132, 0.6)",
                     "rgba(54, 162, 235, 0.6)",
@@ -421,7 +422,7 @@ export class OcupacionComponent implements OnInit {
                     "rgba(75, 192, 192, 0.6)",
                     "rgba(153, 102, 255, 0.6)",
                     "rgba(255, 159, 64, 0.6)",
-                    ///////////////////////////F
+                    
                     "rgba(104, 210, 34, 0.6)",
                   ],
                 },
@@ -451,14 +452,16 @@ export class OcupacionComponent implements OnInit {
         },
         (error) => {
           if (error.status == 400) {
-            //Por error 400 se vacia variable de consulta
+            // POR ERROR 400 SE VACIA VARIABLE DE CONSULTA
             this.servicio = null;
           }
         }
       );
     }
 
-    //Si chart es vacio no pase nada, caso contrario si tienen ya datos, se destruya para crear uno nuevo, evitando superposision del nuevo chart
+    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+     *  EVITANDO SUPERPOSISION DEL NUEVO CHART
+     **/
     if (this.chartPie != undefined || this.chartPie != null) {
       this.chartPie.destroy();
     }
@@ -485,12 +488,11 @@ export class OcupacionComponent implements OnInit {
     return nombreSucursal;
   }
 
-  //---Excel
+  // EXCEL
   exportarAExcelOcupServs() {
-    // let cod = this.codSucursalOCs.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
-    let jsonServicio = [];
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesO || this.seleccionMultiple) {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
@@ -513,12 +515,12 @@ export class OcupacionComponent implements OnInit {
         });
       }
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.serviciooc[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -534,10 +536,9 @@ export class OcupacionComponent implements OnInit {
   }
 
   exportarAExcelOcupServsGrafico() {
-    // let cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    //Mapeo de información de consulta a formato JSON para exportar a Excel
-    let jsonServicio = [];
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
     if (this.todasSucursalesOG || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioocg.length; step++) {
         jsonServicio.push({
@@ -560,12 +561,12 @@ export class OcupacionComponent implements OnInit {
         });
       }
     }
-    //Instrucción para generar excel a partir de JSON, y nombre del archivo con fecha actual
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
     const header = Object.keys(this.servicioocg[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols = [];
+    var wscols: any = [];
     for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
       wscols.push({ wpx: 150 })
     }
@@ -581,20 +582,20 @@ export class OcupacionComponent implements OnInit {
   }
 
   getDocumentAtencionServicioGraficos(fD, fH) {
-    //Selecciona de la interfaz el elemento que contiene la grafica
+    // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
     var canvas2 = document.querySelector("#canvas2") as HTMLCanvasElement;
-    //De imagen HTML, a mapa64 bits formato con el que trabaja PDFMake
+    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
     var canvasImg = canvas1.toDataURL("image/png");
     var canvasImg1 = canvas2.toDataURL("image/png");
-    //Se obtiene la fecha actual
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -610,8 +611,8 @@ export class OcupacionComponent implements OnInit {
         opacity: 0.3,
       },
       pageOrientation: this.orientacion,
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -636,7 +637,7 @@ export class OcupacionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -669,7 +670,7 @@ export class OcupacionComponent implements OnInit {
           text: "TOTAL: Turnos " + this.turnosTotal + ", Porcentaje de ocupación " + this.porcentajeTotal + " %",
         },
         this.grafico(canvasImg),
-        this.grafico(canvasImg1), //Definicion de funcion delegada para setear informacion de tabla del PDF
+        this.grafico(canvasImg1), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -724,20 +725,18 @@ export class OcupacionComponent implements OnInit {
   }
 
   generarPdfOcupServs(action = "open", pdf: number) {
-    //Seteo de rango de fechas de la consulta para impresión en PDF
+     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fD = this.fromDateOcupOS.nativeElement.value.toString().trim();
     var fH = this.toDateOcupOS.nativeElement.value.toString().trim();
-    //Definicion de funcion delegada para setear estructura del PDF
-    let documentDefinition;
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
+    let documentDefinition: any;
     if (pdf === 1) {
-      // var cod = this.codSucursalOCs.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentAtencionServicioGraf(fD, fH);
     } else if (pdf === 2) {
-      // var cod = this.codSucursalOCsG.nativeElement.value.toString().trim();
       documentDefinition = this.getDocumentAtencionServicioGraficos(fD, fH);
     }
 
-    //Opciones de PDF de las cuales se usara la de open, la cual abre en nueva pestaña el PDF creado
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -755,16 +754,16 @@ export class OcupacionComponent implements OnInit {
     }
   }
 
-  //Funcion delegada para seteo de información
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
   getDocumentAtencionServicioGraf(fD, fH) {
-    //Se obtiene la fecha actual
+    // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      //Seteo de marca de agua y encabezado con nombre de usuario logueado
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       watermark: {
         text: this.marca,
         color: "blue",
@@ -779,8 +778,8 @@ export class OcupacionComponent implements OnInit {
         fontSize: 9,
         opacity: 0.3,
       },
-      //Seteo de pie de pagina, fecha de generacion de PDF con numero de paginas
-      footer: function (currentPage, pageCount, fecha) {
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
         fecha = f.toJSON().split("T")[0];
         var timer = f.toJSON().split("T")[1].slice(0, 5);
         return [
@@ -805,7 +804,7 @@ export class OcupacionComponent implements OnInit {
           },
         ];
       },
-      //Contenido del PDF, logo, nombre del reporte, con el renago de fechas de los datos
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
       content: [
         {
           columns: [
@@ -838,7 +837,7 @@ export class OcupacionComponent implements OnInit {
           style: "subtitulos",
           text: "TOTAL: Turnos " + this.turnosTotal + ", Porcentaje de ocupación " + this.porcentajeTotal + " %",
         },
-         //Definicion de funcion delegada para setear informacion de tabla del PDF
+         // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -873,7 +872,7 @@ export class OcupacionComponent implements OnInit {
     };
   }
 
-  //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
   ocupacion(servicio: any[]) {
     if (this.todasSucursalesO || this.seleccionMultiple) {
       return {
@@ -903,7 +902,7 @@ export class OcupacionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -934,7 +933,7 @@ export class OcupacionComponent implements OnInit {
           ],
         },
         layout: {
-          fillColor: function (rowIndex) {
+          fillColor: function (rowIndex: any) {
             return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
         },
@@ -942,7 +941,7 @@ export class OcupacionComponent implements OnInit {
     }
   }
 
-    //Definicion de funcion delegada para setear informacion de tabla del PDF la estructura
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
     ocupacionGrafica(servicio: any[]) {
       if (this.todasSucursalesOG || this.seleccionMultiple) {
         return {
@@ -972,7 +971,7 @@ export class OcupacionComponent implements OnInit {
             ],
           },
           layout: {
-            fillColor: function (rowIndex) {
+            fillColor: function (rowIndex: any) {
               return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
           },
@@ -1003,7 +1002,7 @@ export class OcupacionComponent implements OnInit {
             ],
           },
           layout: {
-            fillColor: function (rowIndex) {
+            fillColor: function (rowIndex: any) {
               return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
           },

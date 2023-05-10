@@ -4,19 +4,30 @@
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link active" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab" aria-controls="opcategoria" aria-selected="true">INFORME QUEJAS Y RECLAMOS</a>
+                    <a class="nav-link active" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab"
+                        aria-controls="opcategoria" aria-selected="true">
+                        INFORME QUEJAS Y RECLAMOS
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="false">INFORME GENERAL</a>
+                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                        aria-selected="false">
+                        INFORME GENERAL
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="ocserviciosgrafIC-tab" data-toggle="tab" href="#opserviciosgrafIC" role="tab" aria-controls="ocserviciosgrafIC" aria-selected="false">GRÁFICOS QUEJAS Y RECLAMOS</a>
+                    <a class="nav-link" id="ocserviciosgrafIC-tab" data-toggle="tab" href="#opserviciosgrafIC"
+                        role="tab" aria-controls="ocserviciosgrafIC" aria-selected="false">
+                        GRÁFICOS QUEJAS Y RECLAMOS
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#opserviciosgraf" role="tab" aria-controls="ocserviciosgraf" aria-selected="false">GRÁFICOS GENERAL</a>
+                    <a class="nav-link" id="ocserviciosgraf-tab" data-toggle="tab" href="#opserviciosgraf" role="tab"
+                        aria-controls="ocserviciosgraf" aria-selected="false">
+                        GRÁFICOS GENERAL
+                    </a>
                 </li>
             </ul>
-
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <br><br>
@@ -31,7 +42,7 @@
                                         <br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateAtM">Fecha hasta: </label>
+                                        <label for="toDateAtM">Fecha hasta:</label>
                                         <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate"
                                             name="toDateAtM" #toDateAtM>
                                     </div>
@@ -39,12 +50,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioI>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinI>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -72,7 +83,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerOpiniones()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -85,7 +97,8 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesI || seleccionMultiple">
-                                        Sucursal</th>
+                                        Sucursal
+                                    </th>
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
@@ -112,11 +125,16 @@
                             (pageChange)="pageChangedAtM($event)">
                         </pagination-controls>
                     </div>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpiniones()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpiniones()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',1)">
+                        PDF
+                    </button>
                 </div>
 
-                <div class="tab-pane fade show active" id="opcategoria" role="tabpanel" aria-labelledby="opcategoria-tab">
+                <div class="tab-pane fade show active" id="opcategoria" role="tabpanel"
+                    aria-labelledby="opcategoria-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
@@ -129,7 +147,7 @@
                                         <br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateIC">Fecha hasta: </label>
+                                        <label for="toDateIC">Fecha hasta:</label>
                                         <input type="date" id="toDateIC" value="{{toDate}}" [max]="toDate"
                                             name="toDateIC" #toDateIC>
                                     </div>
@@ -137,12 +155,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioIC>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinIC>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -182,7 +200,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerOpinionesC()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -222,8 +241,12 @@
                             (pageChange)="pageChangedIC($event)">
                         </pagination-controls>
                     </div>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesIC()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOpinionesIC('hola',1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesIC()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOpinionesIC('hola',1)">
+                        PDF
+                    </button>
                 </div>
 
                 <div class="tab-pane fade" id="opserviciosgraf" role="tabpanel" aria-labelledby="ocserviciosgraf-tab">
@@ -239,7 +262,7 @@
                                         <br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateOcupG">Fecha hasta: </label>
+                                        <label for="toDateOcupG">Fecha hasta:</label>
                                         <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate"
                                             name="toDateOcupG" #toDateOcupG>
                                     </div>
@@ -247,12 +270,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioG>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinG>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -270,7 +293,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerGrafOpinion()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -288,20 +312,24 @@
 
                             <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
                                 value="portrait" (click)="cambiarOrientacion('portrait')" checked>
-                            <label for="vertical">Vertical </label>
+                            <label for="vertical">Vertical</label>
 
                             <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
                                 value="landscape" (click)="cambiarOrientacion('landscape')">
-                            <label for="horizontal">Horizontal </label>
+                            <label for="horizontal">Horizontal</label>
                         </div>
                     </fieldset>
-                    <button type="button" class="btn btn-info mx-2"
-                        (click)="exportTOExcelOpinionesGrafico()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',2)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGrafico()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',2)">
+                        PDF
+                    </button>
                     <br>
                 </div>
 
-                <div class="tab-pane fade" id="opserviciosgrafIC" role="tabpanel" aria-labelledby="ocserviciosgrafIC-tab">
+                <div class="tab-pane fade" id="opserviciosgrafIC" role="tabpanel"
+                    aria-labelledby="ocserviciosgrafIC-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
@@ -309,40 +337,44 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateOcupGIC">Fecha desde:</label>
-                                        <input type="date" id="fromDateOcupGIC" value="{{fromDate}}" [max]="toDate" name="fromDateOcupGIC" #fromDateOcupGIC>
+                                        <input type="date" id="fromDateOcupGIC" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateOcupGIC" #fromDateOcupGIC>
                                         <br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateOcupGIC">Fecha hasta: </label>
-                                        <input type="date" id="toDateOcupGIC" value="{{toDate}}" [max]="toDate" name="toDateOcupGIC" #toDateOcupGIC>
+                                        <label for="toDateOcupGIC">Fecha hasta:</label>
+                                        <input type="date" id="toDateOcupGIC" value="{{toDate}}" [max]="toDate"
+                                            name="toDateOcupGIC" #toDateOcupGIC>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioGIC>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinGIC>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesGIC')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesGIC')">
                                         Todas las sucursales
                                     </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo" 
-                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesGIC">
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesGIC">
                                         {{option.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <mat-select class="form-control" name="selectmake" [(value)]="tiposSeleccionados" placeholder="Tipos">
-                                    <mat-option [value]="1" >
+                                <mat-select class="form-control" name="selectmake" [(value)]="tiposSeleccionados"
+                                    placeholder="Tipos">
+                                    <mat-option [value]="1">
                                         Quejas
                                     </mat-option>
                                     <mat-option [value]="2">
@@ -351,7 +383,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerGrafOpinionIC()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -365,19 +398,23 @@
                     <br>
                     <fieldset>
                         <div>
-                            <label>Orientación de página: </label>
+                            <label>Orientación de página:</label>
 
                             <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
                                 value="portrait" (click)="cambiarOrientacion('portrait')" checked>
-                            <label for="vertical">Vertical </label>
+                            <label for="vertical">Vertical</label>
 
                             <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
                                 value="landscape" (click)="cambiarOrientacion('landscape')">
-                            <label for="horizontal">Horizontal </label>
+                            <label for="horizontal">Horizontal</label>
                         </div>
                     </fieldset>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGraficoIC()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOpinionesIC('hola',2)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGraficoIC()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfOpinionesIC('hola',2)">
+                        PDF
+                    </button>
                     <br>
                 </div>
             </div>

@@ -1,28 +1,27 @@
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { PagesComponent } from './pages.component';
-import { MenuComponent } from './menu/menu.component';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { UsuariosComponent } from './usuarios/usuarios.component';
-import { AtencionComponent } from './atencion/atencion.component';
-import { EvaluacionComponent } from './evaluacion/evaluacion.component';
-import { OcupacionComponent } from './ocupacion/ocupacion.component';
-import { DistestadoturnosComponent } from './distestadoturnos/distestadoturnos.component';
-import { IngresoclientesComponent } from './ingresoclientes/ingresoclientes.component';
-import { AtendidosmultiplesComponent } from './atendidosmultiples/atendidosmultiples.component';
-import { SharedModule } from '../shared/shared.module';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AppRoutingModule } from '../app-routing.module';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { CommonModule } from '@angular/common';
+import { SharedModule } from '../shared/shared.module';
+import { FormsModule } from '@angular/forms';
 
-
-import { NgxPaginationModule } from 'ngx-pagination';
-import { OpinionComponent } from './opinion/opinion.component';
+import { AtendidosmultiplesComponent } from './atendidosmultiples/atendidosmultiples.component';
+import { DistestadoturnosComponent } from './distestadoturnos/distestadoturnos.component';
+import { IngresoclientesComponent } from './ingresoclientes/ingresoclientes.component';
 import { ConfiguracionComponent } from './configuracion/configuracion.component';
+import { EvaluacionComponent } from './evaluacion/evaluacion.component';
+import { OcupacionComponent } from './ocupacion/ocupacion.component';
+import { UsuariosComponent } from './usuarios/usuarios.component';
+import { AtencionComponent } from './atencion/atencion.component';
+import { OpinionComponent } from './opinion/opinion.component';
+import { PagesComponent } from './pages.component';
+import { MenuComponent } from './menu/menu.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +62,7 @@ import { ConfiguracionComponent } from './configuracion/configuracion.component'
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
-  ]
+  ],
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class PagesModule { }

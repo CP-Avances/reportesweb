@@ -1,5 +1,3 @@
-import { Empresa } from './empresa';
-
 export interface Usuario{
     empr_codigo: number,
     usua_nombre: string,

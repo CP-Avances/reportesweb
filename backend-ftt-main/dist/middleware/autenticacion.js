@@ -6,7 +6,7 @@ let jwt = require('jsonwebtoken');
 //VERIFICAR TOKEN
 //==================
 let verificaToken = (req, res, next) => {
-    //nombre de headers
+    // NOMBRE DE HEADERS
     let token = req.get('token'); //authorization
     jwt.verify(token, 'peter', (err, decoded) => {
         if (err) {
@@ -15,8 +15,7 @@ let verificaToken = (req, res, next) => {
                 err: 'Token no valido'
             });
         }
-        //req.usuarios[0] = decoded.usuario;
-        next(); //srive para que continue con la ejecucion del programa
+        next(); // SIRVE PARA QUE CONTINUE CON LA EJECUCION DEL PROGRAMA
     });
 };
 exports.verificaToken = verificaToken;

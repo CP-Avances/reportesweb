@@ -5,34 +5,47 @@
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
-                        aria-controls="home" aria-selected="true">TURNOS POR FECHA</a>
+                        aria-controls="home" aria-selected="true">
+                        TURNOS POR FECHA
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="totalfecha-tab" data-toggle="tab" href="#totalfecha" role="tab"
-                        aria-controls="totalfecha" aria-selected="false">TURNOS TOTALES POR FECHA</a>
+                        aria-controls="totalfecha" aria-selected="false">
+                        TURNOS TOTALES POR FECHA
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="turnosmeta-tab" data-toggle="tab" href="#turnosmeta" role="tab"
-                        aria-controls="turnosmeta" aria-selected="false">TURNOS META</a>
+                        aria-controls="turnosmeta" aria-selected="false">
+                        TURNOS META
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
-                        aria-controls="profile" aria-selected="false">TIEMPO PROMEDIO DE ATENCIÓN</a>
+                        aria-controls="profile" aria-selected="false">
+                        TIEMPO PROMEDIO DE ATENCIÓN
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="tiempo-tab" data-toggle="tab" href="#tiempo" role="tab"
-                        aria-controls="tiempo" aria-selected="false">TIEMPO DE ATENCIÓN POR TURNOS</a>
+                        aria-controls="tiempo" aria-selected="false">
+                        TIEMPO DE ATENCIÓN POR TURNOS
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="atencionusuario-tab" data-toggle="tab" href="#atencionusuario" role="tab"
-                        aria-controls="atencionusuario" aria-selected="false">ATENCIÓN AL USUARIO</a>
+                        aria-controls="atencionusuario" aria-selected="false">
+                        ATENCIÓN AL USUARIO
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
-                        aria-controls="contact" aria-selected="false">ENTRADAS Y SALIDAS AL SISTEMA</a>
+                        aria-controls="contact" aria-selected="false">
+                        ENTRADAS Y SALIDAS AL SISTEMA
+                    </a>
                 </li>
             </ul>
-
             <!-- *********************************** TURNOS POR FECHA *************************************** -->
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
@@ -55,12 +68,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioTF>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinTF>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -89,7 +102,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosFecha()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -102,7 +116,8 @@
                             #tableTurnosFecha>
                             <thead>
                                 <tr>
-                                    <th class="text-center" *ngIf="todasSucursalesTF || seleccionMultiple">Sucursal
+                                    <th class="text-center" *ngIf="todasSucursalesTF || seleccionMultiple">
+                                        Sucursal
                                     </th>
                                     <th class="text-center">Cajero(a)</th>
                                     <th class="text-center">Servicio</th>
@@ -132,8 +147,12 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosFecha()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosFecha('hola', 1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosFecha()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosFecha('hola', 1)">
+                        PDF
+                    </button>
                 </div>
 
                 <!-- *********************************** TURNOS TOTALES POR FECHA *************************************** -->
@@ -158,12 +177,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioTTF>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinTTF>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -192,7 +211,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosTotalFecha()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -205,7 +225,8 @@
                             #tableTurnosTotalFecha>
                             <thead>
                                 <tr>
-                                    <th class="text-center" *ngIf="todasSucursalesTTF || seleccionMultiple">Sucursal
+                                    <th class="text-center" *ngIf="todasSucursalesTTF || seleccionMultiple">
+                                        Sucursal
                                     </th>
                                     <th class="text-center">Cajero(a)</th>
                                     <th class="text-center">Fecha</th>
@@ -233,10 +254,12 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2"
-                        (click)="ExportTOExcelTurnosTotalFecha()">EXCEL</button>
-                    <button type="button" class="btn btn-info"
-                        (click)="generarPdfTurnosTotalFecha('hola', 1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosTotalFecha()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosTotalFecha('hola', 1)">
+                        PDF
+                    </button>
                 </div>
 
                 <!-- *********************************** TURNOS META *************************************** -->
@@ -260,12 +283,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioTM>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinTM>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -294,7 +317,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosMeta()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -307,7 +331,8 @@
                         <table class="table table-striped" id="contentTurnosMeta" #contentTurnosMeta #tableTurnosMeta>
                             <thead>
                                 <tr>
-                                    <th class="text-center" *ngIf="todasSucursalesTM || seleccionMultiple">Sucursal
+                                    <th class="text-center" *ngIf="todasSucursalesTM || seleccionMultiple">
+                                        Sucursal
                                     </th>
                                     <th class="text-center">Cajero(a)</th>
                                     <th class="text-center">Fecha</th>
@@ -332,8 +357,12 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosMeta()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosMeta('hola', 1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosMeta()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosMeta('hola', 1)">
+                        PDF
+                    </button>
                 </div>
 
 
@@ -358,12 +387,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioTPA>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinTPA>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -392,7 +421,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarTiempoPromedioAtencion()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -406,7 +436,8 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTPA || seleccionMultiple">
-                                        Sucursal</th>
+                                        Sucursal
+                                    </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Tiempo</th>
@@ -430,9 +461,12 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2"
-                        (click)="exportarAExcelPromAtencion()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfPromAtencion('hola', 1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelPromAtencion()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfPromAtencion('hola', 1)">
+                        PDF
+                    </button>
                 </div>
 
                 <!-- *********************************** TIEMPO DE ATENCION POR TURNOS *************************************** -->
@@ -457,12 +491,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioTA>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinTA>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -491,7 +525,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarTiempoAtencion()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -518,7 +553,7 @@
                             <tbody *ngIf="!malRequestTPA">
                                 <tr *ngFor="let servicioTiempoAtencion of servicioTiempoAtencion | paginate:configTA">
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">
-                                    {{servicioTiempoAtencion.nombreEmpresa}}</td>
+                                        {{servicioTiempoAtencion.nombreEmpresa}}</td>
                                     <td>{{servicioTiempoAtencion.Nombre}}</td>
                                     <td>{{servicioTiempoAtencion.TURN_FECHA}}</td>
                                     <td>{{servicioTiempoAtencion.hora}}</td>
@@ -535,10 +570,12 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2"
-                        (click)="exportarAExcelTiempoAtencion()">EXCEL</button>
-                    <button type="button" class="btn btn-info"
-                        (click)="generarPdfTiempoAtencion('hola', 1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelTiempoAtencion()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfTiempoAtencion('hola', 1)">
+                        PDF
+                    </button>
                 </div>
 
                 <!-- *********************************** ENTRADAS Y SALIDAS AL SISTEMA *************************************** -->
@@ -563,12 +600,12 @@
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioES>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinES>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -586,7 +623,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerEntradasSalidasSistema()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -600,7 +638,8 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesES || seleccionMultiple">
-                                        Sucursal</th>
+                                        Sucursal
+                                    </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Hora</th>
@@ -624,9 +663,12 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2"
-                        (click)="exportarAExcelEntradaSalida()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfEntradaSalida('hola', 1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEntradaSalida()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfEntradaSalida('hola', 1)">
+                        PDF
+                    </button>
                 </div>
 
                 <!-- *********************************** ATENCION AL USUARIO *************************************** -->
@@ -645,18 +687,18 @@
                                     <div>
                                         <label for="toDateAtencionUsua">Fecha hasta:&nbsp;</label>
                                         <input type="date" id="toDateAtencionUsua" value="{{toDate}}" [max]="toDate"
-                                        name="toDateAtencionUsua" #toDateAtencionUsua>
+                                            name="toDateAtencionUsua" #toDateAtencionUsua>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioAU>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinAU>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
@@ -685,7 +727,8 @@
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="buscarAtencionUsuario()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
@@ -699,7 +742,8 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesAU || seleccionMultiple">
-                                        Sucursal</th>
+                                        Sucursal
+                                    </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Atendidos</th>
@@ -725,10 +769,12 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2"
-                        (click)="exportarAExcelAtencionUsuario()">EXCEL</button>
-                    <button type="button" class="btn btn-info"
-                        (click)="generarPdfAtencionUsuario('hola', 1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelAtencionUsuario()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfAtencionUsuario('hola', 1)">
+                        PDF
+                    </button>
                 </div>
             </div>
         </form>

@@ -1,21 +1,19 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { ToastrService } from "ngx-toastr";
-import { ServiceService } from "../services/service.service";
 import { Utils } from "../utils/util";
+
+import { ServiceService } from "../services/service.service";
 
 @Injectable({
   providedIn: "root",
 })
+
 export class ImagenesService {
   // IMAGEN LOGO
   urlImagen: string;
   nombreImagen: any[];
   constructor(
     private serviceService: ServiceService,
-    private toastr: ToastrService,
-    private http: HttpClient
-  ) {}
+  ) { }
 
   obtenerImagen() {
     return new Promise((resolve, reject) => {
@@ -48,7 +46,7 @@ export class ImagenesService {
         );
       };
       img.onerror = () => {
-        // OCURRIÓ UN ERROR AL CARGAR LA IMAGEN
+        // OCURRIO UN ERROR AL CARGAR LA IMAGEN
         reject("Error al cargar la imagen");
       };
       this.obtenerImagen()

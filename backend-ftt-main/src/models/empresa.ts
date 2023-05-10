@@ -1,4 +1,3 @@
-
 export interface Empresa{
     empr_codigo: number,
     empr_ruc: number,

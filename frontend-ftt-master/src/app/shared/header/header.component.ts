@@ -1,19 +1,19 @@
-import { Component, OnInit, HostListener, ElementRef, Renderer2, EventEmitter, Output } from '@angular/core';
-import { ServiceService } from '../../services/service.service';
-import { ImagenesService } from "../../shared/imagenes.service";
-import { AuthenticationService } from '../../services/authentication.service';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { ToastrService } from "ngx-toastr";
 import { Router } from '@angular/router';
 import { Utils } from "../../utils/util";
 
-declare function customSidebar();
+import { ImagenesService } from "../../shared/imagenes.service";
+import { AuthenticationService } from '../../services/authentication.service';
 
+declare function customSidebar();
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
+
 export class HeaderComponent implements OnInit {
 
   isMenuOpen = true;
@@ -23,20 +23,16 @@ export class HeaderComponent implements OnInit {
 
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
-
   constructor(
-    private serviceService: ServiceService,
     private auth: AuthenticationService,
     private router: Router,
-    private ele: ElementRef, 
-    private renderer: Renderer2,
     private toastr: ToastrService,
     private imagenesService: ImagenesService,
   ) { }
 
   ngOnInit(): void {
     customSidebar();
-    this.imagenesService.cargarImagen().then((result: string) => {
+    this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;
       this.mostrarLogo = true;
     }).catch((error) => {
@@ -45,7 +41,7 @@ export class HeaderComponent implements OnInit {
         timeOut: 6000,
       });
       Utils.getImageDataUrlFromLocalPath1("assets/logotickets.png").then(
-        (result) => (this.urlImagen = result,this.mostrarLogo = true)
+        (result) => (this.urlImagen = result, this.mostrarLogo = true)
       );
     });
   }

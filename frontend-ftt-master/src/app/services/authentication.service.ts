@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { usuario } from '../models/usuario';
-import { BehaviorSubject } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
+import { usuario } from '../models/usuario';
 
 @Injectable({
   providedIn: 'root'
@@ -19,10 +16,11 @@ export class AuthenticationService {
   password: '';
   us: '';
 
-  private URL = "http://192.168.0.145:3004";
+  private URL = "http://192.168.0.145:3005";
 
-  constructor(private http: HttpClient,
-    private router: Router) {
+  constructor(
+    private http: HttpClient
+  ) {
     this.leerToken();
     this.obtenerUsuario();
   }
@@ -65,7 +63,6 @@ export class AuthenticationService {
 
   isAuthenticated() {
     const token = localStorage.getItem('token');
-    // verificar si el token es válido y no ha expirado
     return !!token;
   }
 

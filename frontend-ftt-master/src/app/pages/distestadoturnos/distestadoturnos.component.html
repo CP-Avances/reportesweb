@@ -4,15 +4,21 @@
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link active" id="distribucion-tab" data-toggle="tab" href="#distribucion" role="tab" aria-controls="distribucion" aria-selected="true">DISTRIBUCIÓN Y ESTADO DE TURNOS</a>
+                    <a class="nav-link active" id="distribucion-tab" data-toggle="tab" href="#distribucion" role="tab"
+                        aria-controls="distribucion" aria-selected="true">
+                        DISTRIBUCIÓN Y ESTADO DE TURNOS
+                    </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="resumen-tab" data-toggle="tab" href="#resumen" role="tab" aria-controls="resumen" aria-selected="false">RESUMEN</a>
+                    <a class="nav-link" id="resumen-tab" data-toggle="tab" href="#resumen" role="tab"
+                        aria-controls="resumen" aria-selected="false">
+                        RESUMEN
+                    </a>
                 </li>
             </ul>
-
             <div class="tab-content" id="myTabContent">
-                <div class="tab-pane fade show active" id="distribucion" role="tabpanel" aria-labelledby="distribucion-tab">
+                <div class="tab-pane fade show active" id="distribucion" role="tabpanel"
+                    aria-labelledby="distribucion-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
@@ -20,52 +26,58 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateDist">Fecha desde:</label>
-                                        <input type="date" id="fromDateDist" value="{{fromDate}}" [max]="toDate" name="fromDateDist" #fromDateDist><br><br>
+                                        <input type="date" id="fromDateDist" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateDist" #fromDateDist><br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateDist">Fecha hasta: </label>
-                                        <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDist" #toDateDist>
+                                        <label for="toDateDist">Fecha hasta:</label>
+                                        <input type="date" id="toDateDist" value="{{toDate}}" [max]="toDate"
+                                            name="toDateDist" #toDateDist>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioD>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinD>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesD')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesD')">
                                         Todas las sucursales
                                     </mat-option>
                                     <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
-                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesD">
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesD">
                                         {{sucursal.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems" placeholder="Cajeros">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
+                                    placeholder="Cajeros">
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('')">
                                         Todos los cajeros
                                     </mat-option>
-                                    <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo" [disabled]="allSelected">
+                                    <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo"
+                                        [disabled]="allSelected">
                                         {{option.caje_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerDistribucionTurnos()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar 
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
                                 </button>
                             </div>
                         </div>
-                    </div>   
+                    </div>
                     <br>
                     <h3>DISTRIBUCIÓN Y ESTADO DE TURNOS</h3>
                     <hr>
@@ -73,7 +85,9 @@
                         <table class="table table-striped" id="contentDist" #contentDist #TABLEDist #table>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesD || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesD || seleccionMultiple">
+                                        Sucursal
+                                    </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
@@ -87,7 +101,8 @@
                             </thead>
                             <tbody *ngIf="!malRequestDist">
                                 <tr *ngFor="let servicioDist of servicioDist | paginate:configDE">
-                                    <td *ngIf="todasSucursalesD || seleccionMultiple">{{servicioDist.nombreEmpresa}}</td>
+                                    <td *ngIf="todasSucursalesD || seleccionMultiple">{{servicioDist.nombreEmpresa}}
+                                    </td>
                                     <td>{{servicioDist.Usuario}}</td>
                                     <td>{{servicioDist.SERV_NOMBRE}}</td>
                                     <td>{{servicioDist.fecha}}</td>
@@ -100,17 +115,18 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <pagination-controls 
-                            *ngIf="!malRequestDistPag" 
-                            id="disestde" 
-                            [previousLabel]="labels.previousLabel"
-                            [nextLabel]="labels.nextLabel"  
+                        <pagination-controls *ngIf="!malRequestDistPag" id="disestde"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
                             (pageChange)="pageChangedDE($event)">
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelDist()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfDist('hola',1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelDist()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfDist('hola',1)">
+                        PDF
+                    </button>
                 </div>
 
                 <div class="tab-pane fade show" id="resumen" role="tabpanel" aria-labelledby="servicio-tab">
@@ -121,52 +137,57 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateDistRes">Fecha desde:</label>
-                                        <input type="date" id="fromDateDistRes" value="{{fromDate}}" [max]="toDate" name="fromDateDistRes" #fromDateDistRes><br><br>
+                                        <input type="date" id="fromDateDistRes" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateDistRes" #fromDateDistRes><br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateDist">Fecha hasta: </label>
-                                        <input type="date"  id="toDateDist" value="{{toDate}}"  [max]="toDate" name="toDateDistRes" #toDateDistRes>
+                                        <label for="toDateDist">Fecha hasta:</label>
+                                        <input type="date" id="toDateDist" value="{{toDate}}" [max]="toDate"
+                                            name="toDateDistRes" #toDateDistRes>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
                                     <select class="form-control" name="selectmake" #horaInicioR>
                                         <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                     <select class="form-control ml-2" name="selectmake" #horaFinR>
                                         <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [Value]="hora">{{hora}}
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1"  (click)="selectAll('todasSucursalesR')" >
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesR')">
                                         Todas las sucursales
                                     </mat-option>
                                     <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
-                                    (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesR">
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesR">
                                         {{sucursal.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems" placeholder="Cajeros">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2"  (click)="selectAll()" >
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
+                                    placeholder="Cajeros">
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('')">
                                         Todos los cajeros
                                     </mat-option>
-                                    <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo" [disabled]="allSelected">
+                                    <mat-option *ngFor="let option of cajerosDist" [value]="option.caje_codigo"
+                                        [disabled]="allSelected">
                                         {{option.caje_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
                                 <button type="button" class="btn btn-search" (click)="leerDistribucionTurnosResumen()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar 
+                                    <span class="glyphicon glyphicon-filter"></span> Buscar
                                 </button>
                             </div>
                         </div>
-                    </div>   
+                    </div>
                     <br>
                     <h3>RESUMEN DE DISTRIBUCIÓN Y TURNOS</h3>
                     <hr>
@@ -174,7 +195,9 @@
                         <table class="table table-striped" id="contentDistRes" #contentDist #TABLEDistRes #table>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesR || seleccionMultiple">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesR || seleccionMultiple">
+                                        Sucursal
+                                    </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">En espera</th>
@@ -199,17 +222,18 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <pagination-controls 
-                            *ngIf="!malRequestDistPagRes" 
-                            id="disestderes" 
-                            [previousLabel]="labels.previousLabel"
-                            [nextLabel]="labels.nextLabel"  
+                        <pagination-controls *ngIf="!malRequestDistPagRes" id="disestderes"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
                             (pageChange)="pageChangedDERes($event)">
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelRes()">EXCEL</button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfRes('hola',1)">PDF</button>
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelRes()">
+                        EXCEL
+                    </button>
+                    <button type="button" class="btn btn-info" (click)="generarPdfRes('hola',1)">
+                        PDF
+                    </button>
                 </div>
             </div>
         </form>

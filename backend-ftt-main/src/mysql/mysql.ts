@@ -9,7 +9,6 @@ export default class MySQL {
     cnn: mysql.Connection;
     conectado: boolean = false;
 
-
     constructor() {
         console.log('clase inicializada');
 
@@ -24,36 +23,28 @@ export default class MySQL {
         this.conectarDB();
     }
 
-    ///////
-    //obtener la isntancia
+    // OBTENER LA ISNTANCIA
     public static get instance() {
         return this._instance || (this._instance = new this());
     }
 
-    ////
-    ////
-    //ejecutar query
+    // EJECUTAR QUERY
     static ejecutarQuery(query: string, callback: Function) {
 
         this.instance.cnn.query(query, (err: any, results: Object[]) => {
             if (err) {
-                console.log('error en query');
                 console.log(err);
-
                 return callback(err);
             }
 
             if (results.length === 0) {
                 callback('El registro solicitado no existe');
                 return;
-
             }
             callback(null, results);
         })
 
     }
-    ////
-
 
     private conectarDB() {
         this.cnn.connect((err) => {

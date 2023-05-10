@@ -1,6 +1,7 @@
 import { Router } from '@angular/router';
 import { Component } from "@angular/core";
 import { ToastrService } from "ngx-toastr";
+
 import { ServiceService } from "../../services/service.service";
 import { AuthenticationService } from '../../services/authentication.service';
 
@@ -20,18 +21,16 @@ export class ConfiguracionComponent {
   desactivarMarca = false;
 
   constructor(
+    private auth: AuthenticationService,
     private router: Router,
     private toastr: ToastrService,
-    private auth: AuthenticationService,
     private serviceService: ServiceService,
   ) { }
-
 
   ngOnInit(): void {
     this.getMeta();
     this.getMarca();
   }
-
 
   verificador: number = 0;
   onFileSelected(event: any) {

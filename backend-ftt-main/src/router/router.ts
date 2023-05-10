@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // GUARDAR NOMBRE IMAGEN EN LA BASE DE DATOS
-router.post('/uploadImage',TokenValidation, upload.single('image'), (req, res) => {
+router.post('/uploadImage', TokenValidation, upload.single('image'), (req, res) => {
 
     const filename = req.file?.originalname;
 
@@ -88,7 +88,7 @@ const ImagenBase64LogosEmpresas = function (path_file: string) {
 }
 
 
-//rutas prueba
+// RUTAS PRUEBA
 router.get('/heroes', (req: Request, res: Response) => {
     res.json({
         ok: true,
@@ -106,7 +106,7 @@ router.get('/heroes/:id', (req: Request, res: Response) => {
 });
 
 
-//querys
+// QUERYS
 router.get('/usuarios', TokenValidation, cors(), (req: Request, res: Response) => {
 
     const query =
@@ -153,7 +153,7 @@ router.get('/usuario/:id', TokenValidation, (req: Request, res: Response) => {
 });
 
 
-//////getuser
+// GETUSER
 router.get('/username/:usua_login', TokenValidation, (req: Request, res: Response) => {
 
     const username = req.params.usua_login;
@@ -198,7 +198,6 @@ router.post('/login/:usua_login/:usua_password', (req: Request, res: Response) =
             res.json({
                 ok: true,
                 token
-                //usuario: usuario[0], token
             })
         }
     })
@@ -223,7 +222,6 @@ function ActualizarImagen(res: any, archivo: any) {
         } else {
             res.json({
                 ok: true,
-                //usuario: usuario[0], token
             })
         }
     })
@@ -233,9 +231,6 @@ router.get('/nombreImagen', TokenValidation, (req: Request, res: Response) => {
     const query = `
       SELECT gene_valor FROM general WHERE gene_codigo = 8;
       `;
-
-    ;
-
     let nombreImagen: any[];
 
     MySQL.ejecutarQuery(query, (err: any, imagen: Object[]) => {
@@ -255,7 +250,7 @@ router.get('/nombreImagen', TokenValidation, (req: Request, res: Response) => {
     });
 });
 
-//Guardar meta de turnos en la base de datos
+// GUARDAR META DE TURNOS EN LA BASE DE DATOS
 router.get('/setMeta/:valor', TokenValidation, (req, res) => {
     const valor = req.params.valor;
 
@@ -298,11 +293,11 @@ router.get('/getMeta', TokenValidation, (req: Request, res: Response) => {
 });
 
 
-  //Guardar marca de agua
-router.get('/setMarca/:marca', TokenValidation, (req, res) =>{
+// GUARDAR MARCA DE AGUA
+router.get('/setMarca/:marca', TokenValidation, (req, res) => {
 
     let marca = req.params.marca;
-    if (marca=="desactivar") {
+    if (marca == "desactivar") {
         marca = " ";
     }
     const query = `UPDATE general SET gene_valor = '${marca}' WHERE gene_codigo = 10;`

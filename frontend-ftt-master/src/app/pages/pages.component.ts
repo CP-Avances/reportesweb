@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 declare function customInitFunctions();
 
@@ -8,8 +8,9 @@ declare function customInitFunctions();
   styles: [
   ]
 })
+
 export class PagesComponent implements OnInit {
-  mostrarMenu: boolean = true;
+  mostrarMenu: any = true;
 
   constructor() { }
 
@@ -26,7 +27,6 @@ export class PagesComponent implements OnInit {
       } else {
         document.getElementById("menu-lateral").style.display = "block";
       }
-
     }
   }
 

@@ -1,16 +1,15 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ServiceService } from '../../services/service.service';
-import { AuthenticationService } from '../../services/authentication.service';
-
 import { DatePickerDirective } from 'ng2-date-picker';
 import { Router } from '@angular/router';
 import { Utils } from '../../utils/util';
 
-///pdf
+import { ServiceService } from '../../services/service.service';
+import { AuthenticationService } from '../../services/authentication.service';
+
+// PDF
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import moment from 'moment';
-
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
@@ -18,6 +17,7 @@ import moment from 'moment';
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss']
 })
+
 export class MenuComponent implements OnInit {
   chart: any;
   tipo: string;
@@ -28,7 +28,7 @@ export class MenuComponent implements OnInit {
   serviciosearch1: any;
   serviciosearch2: any;
   serviciosearch3: any;
-  ////////////
+
   servgraf1: any;
   servgraf2: any;
   servgraf3: any;
@@ -42,10 +42,9 @@ export class MenuComponent implements OnInit {
   month = new Date().getMonth() + 1;
   year = new Date().getFullYear();
 
- // date = this.year + "-" + this.month + "-" + this.day;
- date: any;
+  date: any;
 
-  // items de paginacion de la tabla
+  // ITEMS DE PAGINACION DE LA TABLA
   tamanio_pagina: number = 5;
   numero_pagina: number = 1;
   pageSizeOptions = [5, 10, 20, 50];
@@ -53,10 +52,10 @@ export class MenuComponent implements OnInit {
   urlImagen: string;
 
   public canvas: any;
-  public ctx;
-  public chartColor;
-  public chartEmail;
-  public chartHours;
+  public ctx: any;
+  public chartColor: any;
+  public chartEmail: any;
+  public chartHours: any;
 
   progreso: number = 27.88;
   excelente: number = 0;
@@ -67,30 +66,32 @@ export class MenuComponent implements OnInit {
   altoMA: any;
   altoPr: any;
 
-  //Control de opciones de evaluacion
+  // CONTROL DE OPCIONES DE EVALUACION
   opcionCuatro: boolean = false;
-  opciones: any [];
+  opciones: any[];
 
 
   @ViewChild('dateDirectivePicker')
   datePickerDirective: DatePickerDirective;
 
-  constructor(private serviceService: ServiceService,
+  constructor(
+    private serviceService: ServiceService,
+    private router: Router,
     private auth: AuthenticationService,
-    private router: Router) { }
+  ) { }
 
   ngOnInit(): void {
     var f = moment();
     this.date = f.format('YYYY-MM-DD');
     this.tipo = 'pie';
-    ///////
+
     this.getOpcionesEvaluacion();
     this.gettotaltickets();
     this.gettotalatendidos();
     this.getsinatender();
     this.getpromedioatencion();
     this.getgrafeva();
-    /////
+
     this.getevaluacionsucursal();
     this.getserviciosmasatendidos();
 
@@ -104,18 +105,17 @@ export class MenuComponent implements OnInit {
     this.router.navigateByUrl('/');
   }
 
-  //Obtinene el numero de opciones de evaluación
-  getOpcionesEvaluacion(){  
+  // OBTINENE EL NUMERO DE OPCIONES DE EVALUACION
+  getOpcionesEvaluacion() {
     this.serviceService.getOpcionesEvaluacion().subscribe((opcion: any) => {
-      this.opciones=opcion.opcion;
-      if (this.opciones[0].gene_valor=="0") {
-        this.opcionCuatro=true;
+      this.opciones = opcion.opcion;
+      if (this.opciones[0].gene_valor == "0") {
+        this.opcionCuatro = true;
       }
       this.getevaluacionsucursal();
     });
   }
 
-  ///////////////////////////////////////////////////
   gettotaltickets() {
     this.serviceService.gettotaltickets(this.date).subscribe((servgraf1: any) => {
       this.servgraf1 = servgraf1.turnos;
@@ -128,13 +128,11 @@ export class MenuComponent implements OnInit {
     });
   }
 
-
   getsinatender() {
     this.serviceService.gettotalsinatender(this.date).subscribe((servgraf3: any) => {
       this.servgraf3 = servgraf3.turnos;
     });
   }
-
 
   getpromedioatencion() {
     this.serviceService.getpromedioatencion(this.date).subscribe((servgraf4: any) => {
@@ -148,7 +146,6 @@ export class MenuComponent implements OnInit {
     });
   }
 
-  /////////////////////////////////////
   get getProcentaje() {
     return `${this.progreso}%`;
   }
@@ -168,7 +165,7 @@ export class MenuComponent implements OnInit {
     });
   }
 
-  /////////////////PDFMAKE
+  // PDFMAKE
   openPdf() {
     const documentDefinition = { content: 'This is an sample PDF printed with pdfMake' };
     pdfMake.createPdf(documentDefinition).open();

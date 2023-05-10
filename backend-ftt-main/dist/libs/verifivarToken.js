@@ -30,18 +30,18 @@ const TokenValidation = (req, res, next) => {
     if (!req.headers.authorization) {
         return res.status(401).send('Permiso denegado.');
     }
-    // Verificar si el token JWT está presente en la solicitud
+    // VERIFICAR SI EL TOKEN JWT ESTÁ PRESENTE EN LA SOLICITUD
     const token = req.headers.authorization.split(' ')[1];
     if (token === 'null') {
-        // Si no se proporciona un token, responder con un error 401 (no autorizado)
+        // SI NO SE PROPORCIONA UN TOKEN, RESPONDER CON UN ERROR 401 (NO AUTORIZADO)
         console.log("validacion");
         return res.status(401).json({ message: 'No contienen token de autenticación.' });
     }
     try {
-        // Verificar la validez del token JWT
+        // VERIFICAR LA VALIDEZ DEL TOKEN JWT
         const decodedToken = jwt.verify(token, 'llaveSecreta');
-        // Agregar los datos decodificados del token a la solicitud para su posterior uso
-        // Permitir que la solicitud continúe
+        // AGREGAR LOS DATOS DECODIFICADOS DEL TOKEN A LA SOLICITUD PARA SU POSTERIOR USO
+        // PERMITIR QUE LA SOLICITUD CONTINUE
         next();
     }
     catch (error) {
