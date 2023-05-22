@@ -38,9 +38,9 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, usua_nombre AS Usuario,
             serv_nombre AS Servicio, date_format(turn_fecha, '%Y-%m-%d') AS Fecha,
-            sec_to_time(avg(IFNULL(time_to_sec(turn_tiempoespera),0))) AS Tiempo_Espera,
+            TIME_FORMAT(SEC_TO_TIME(avg(IFNULL(time_to_sec(turn_tiempoespera),0))), '%H:%i:%s') AS Tiempo_Espera,
             AVG(IFNULL(time_to_sec(turn_tiempoespera),0)) AS Espera,
-            sec_to_Time(AVG(IFNULL(turn_duracionatencion,0))) AS Tiempo_Atencion,
+            TIME_FORMAT(sec_to_Time(AVG(IFNULL(turn_duracionatencion,0))), '%H:%i:%s') AS Tiempo_Atencion,
             AVG(IFNULL(turn_duracionatencion,0)) AS Atencion
         FROM turno t, servicio s, usuarios u, cajero c, empresa e
         WHERE t.serv_codigo = s.serv_codigo 
@@ -100,9 +100,9 @@ router.get('/promediosatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:ser
     }
     const query = `
         SELECT e.empr_nombre AS nombreEmpresa, t.SERV_CODIGO, s.SERV_NOMBRE,
-            sec_to_time(avg(time_to_sec(turn_tiempoespera))) AS PromedioEspera,
+            TIME_FORMAT(sec_to_time(avg(time_to_sec(turn_tiempoespera))), '%H:%i:%s') AS PromedioEspera,
             AVG(time_to_sec(STR_TO_DATE(turn_tiempoespera, ' %T '))) AS Espera,
-            SEC_TO_TIME(AVG(turn_duracionatencion)) AS PromedioAtencion,
+            TIME_FORMAT(SEC_TO_TIME(AVG(turn_duracionatencion)), '%H:%i:%s') AS PromedioAtencion,
             AVG(turn_duracionatencion) AS Atencion,
             date_format(t.TURN_FECHA, '%Y-%m-%d') AS TURN_FECHA, 
             (SELECT max(turn_fecha) FROM turno) AS fechamaxima,
