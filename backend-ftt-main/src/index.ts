@@ -13,6 +13,7 @@ import opinion from './router/opinion';
 
 import express = require('express');
 
+// PUERTO 3004 -- DESARROLLO -- 3005 -- PRODUCCION
 const server = Server.init(process.env.PORT || 3004);
 
 const port = process.env.PORT || 3004;

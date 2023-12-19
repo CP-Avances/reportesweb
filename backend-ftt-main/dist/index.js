@@ -15,6 +15,7 @@ const ingresoclientes_1 = __importDefault(require("./router/ingresoclientes"));
 const atendidosmultiples_1 = __importDefault(require("./router/atendidosmultiples"));
 const opinion_1 = __importDefault(require("./router/opinion"));
 const express = require("express");
+// PUERTO 3004 -- DESARROLLO -- 3005 -- PRODUCCION
 const server = server_1.default.init(process.env.PORT || 3004);
 const port = process.env.PORT || 3004;
 // LLAMAR RUTAS
