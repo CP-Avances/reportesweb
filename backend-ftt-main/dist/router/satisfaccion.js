@@ -119,7 +119,7 @@ router.get('/promedioatencion/:fecha', verifivarToken_1.TokenValidation, (req, r
     let fechas = req.params.fecha;
     const query = `
         SELECT turn_fecha, 
-            SEC_TO_TIME(AVG(turn_duracionatencion)) AS PromedioAtencion 
+        TIME_FORMAT(sec_to_time(AVG(turn_duracionatencion)), '%H:%i:%s') AS PromedioAtencion 
         FROM turno 
         WHERE turn_fecha = '${fechas}'
         `;

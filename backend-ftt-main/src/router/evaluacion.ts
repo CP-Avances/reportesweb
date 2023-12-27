@@ -64,7 +64,7 @@ router.get(
         ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
         AND a.usua_codigo != 2
-        GROUP BY f.eval_fecha, f.usua_codigo
+        GROUP BY Servicio, f.eval_fecha, f.usua_codigo
         ORDER BY f.eval_fecha DESC;
       `;
     } else {
@@ -90,7 +90,7 @@ router.get(
         ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND a.usua_codigo != 2
-        GROUP BY f.eval_fecha, f.usua_codigo
+        GROUP BY Servicio, f.eval_fecha, f.usua_codigo
         ORDER BY f.eval_fecha DESC;
       `;
     }
@@ -141,8 +141,9 @@ router.get("/getallservicios/:sucursales", TokenValidation, (req: Request, res: 
   }
 
   const query = `
-  SELECT * FROM servicio
-  WHERE Serv_codigo != 1 
+  SELECT s.*, e.empr_nombre AS empresa FROM servicio s
+  JOIN empresa e ON s.empr_codigo = e.empr_codigo
+  WHERE Serv_codigo != 1
     ${!todasSucursales ? `AND empr_codigo IN (${listaSucursales})` : ''}  
     ORDER BY serv_nombre ASC;
               `;
@@ -239,7 +240,7 @@ router.get(
         ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
         AND a.usua_codigo != 2
-      GROUP BY f.eval_fecha, f.usua_codigo
+      GROUP BY Servicio, f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
       `;
     } else {
@@ -291,7 +292,7 @@ router.get(
         ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND a.usua_codigo != 2
-      GROUP BY f.eval_fecha, f.usua_codigo
+      GROUP BY Servicio, f.eval_fecha, f.usua_codigo
       ORDER BY f.eval_fecha DESC;
       `;
     }
@@ -765,7 +766,7 @@ router.get(
         }
         ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         AND eval_califica != 50
-      GROUP BY eval_califica, usua_nombre 
+      GROUP BY eval_califica, usua_nombre, nombreEmpresa
       ORDER BY eval_califica DESC;
       `;
     } else {
@@ -801,7 +802,7 @@ router.get(
           : ""
         }
         ${!diaCompleto ? `AND evaluacion.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-      GROUP BY eval_califica, usua_nombre 
+      GROUP BY eval_califica, usua_nombre, nombreEmpresa
       ORDER BY eval_califica DESC;
       `;
     }

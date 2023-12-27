@@ -56,7 +56,7 @@ router.get('/tiemposcompletos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:list
             ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
             ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
             ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-        GROUP BY Servicio, Usuario, Fecha
+        GROUP BY nombreEmpresa, Servicio, Usuario, Fecha
         ORDER BY Fecha DESC;
         `;
 

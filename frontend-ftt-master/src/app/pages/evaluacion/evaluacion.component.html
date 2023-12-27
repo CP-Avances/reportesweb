@@ -92,7 +92,7 @@
                                     </mat-option>
                                     <mat-option *ngFor="let serviciosServs of serviciosServs"
                                         [value]="serviciosServs.serv_codigo" [disabled]="allSelected">
-                                        {{serviciosServs.serv_nombre}}
+                                        {{serviciosServs.serv_nombre}} - {{serviciosServs.empresa}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
@@ -733,7 +733,7 @@
                                         <td>{{servicioGra.usuario}}</td>
                                         <td>{{servicioGra.evaluacion}}</td>
                                         <td>{{servicioGra.total}}</td>
-                                        <td>{{servicioGra.porcentaje}}</td>
+                                        <td>{{servicioGra.porcentaje}} %</td>
                                     </tr>
 
                                 </tbody>
