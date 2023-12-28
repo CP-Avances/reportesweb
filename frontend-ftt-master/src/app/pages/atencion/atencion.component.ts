@@ -913,23 +913,25 @@ export class AtencionComponent implements OnInit {
     if (this.todasSucursalesC || this.seleccionMultiple) {
       for (let step = 0; step < this.clientes.length; step++) {
         jsonServicio.push({
+          "N": step+1,
           Sucursal: this.clientes[step].empresa,
           "Cajero(a)": this.clientes[step].usuario,
           Cliente: this.identificacionCliente == 'nombre' ? this.clientes[step].nombre : this.clientes[step].cedula,
           Fecha: new Date(this.clientes[step].fecha),
           Servicio: this.clientes[step].servicio,
-          Turno: this.clientes[step].numero,
+          Turno: this.clientes[step].siglas+this.clientes[step].numero,
         });
       }
     }
     else {
       for (let step = 0; step < this.clientes.length; step++) {
         jsonServicio.push({
+          "N": step+1,
           "Cajero(a)": this.clientes[step].usuario,
           Cliente: this.identificacionCliente == 'nombre' ? this.clientes[step].nombre : this.clientes[step].cedula,
           Fecha: new Date(this.clientes[step].fecha),
           Servicio: this.clientes[step].servicio,
-          Turno: this.clientes[step].numero,
+          Turno: this.clientes[step].siglas+this.clientes[step].numero,
         });
       }
     }
@@ -1548,9 +1550,10 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto"],
+          widths: ["auto","*", "*", "auto", "auto", "auto", "auto"],
           body: [
             [
+              { text: "N°", style: "tableHeader" },
               { text: "Sucursal", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Cliente", style: "tableHeader" },
@@ -1560,12 +1563,13 @@ export class AtencionComponent implements OnInit {
             ],
             ...servicio.map((res) => {
               return [
+                { style: "itemsTable", text: servicio.indexOf(res)+1 },
                 { style: "itemsTable", text: res.empresa },
                 { style: "itemsTable", text: res.usuario },
                 { style: "itemsTable", text: this.identificacionCliente=='nombre'?res.nombre:res.cedula },
                 { style: "itemsTable", text: res.fecha },
                 { style: "itemsTable", text: res.servicio },
-                { style: "itemsTable", text: res.numero },
+                { style: "itemsTable", text: res.siglas+res.numero },
               ];
             }),
           ],
@@ -1582,9 +1586,10 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto"],
+          widths: ["auto","*", "auto", "auto", "auto", "auto"],
           body: [
             [
+              { text: "N°", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Cliente", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
@@ -1593,11 +1598,12 @@ export class AtencionComponent implements OnInit {
             ],
             ...servicio.map((res) => {
               return [
+                { style: "itemsTable", text: servicio.indexOf(res)+1 },
                 { style: "itemsTable", text: res.usuario },
                 { style: "itemsTable", text: res.cedula },
                 { style: "itemsTable", text: res.fecha },
                 { style: "itemsTable", text: res.servicio },
-                { style: "itemsTable", text: res.numero },
+                { style: "itemsTable", text: res.siglas+res.numero },
               ];
             }),
           ],

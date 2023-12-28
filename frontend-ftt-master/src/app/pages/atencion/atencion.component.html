@@ -624,6 +624,7 @@
                         <table class="table table-striped" id="contentC" #contentTC #tableTC>
                             <thead class="thead-dark">
                                 <tr>
+                                    <th scope="col" class="text-center">N°</th>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesC || seleccionMultiple">
                                         Sucursal
                                     </th>
@@ -636,13 +637,14 @@
                             </thead>
                             <tbody *ngIf="!malRequestAtTC">
                                 <tr *ngFor="let cliente of clientes | paginate:configC">
+                                    <td>{{clientes.indexOf(cliente)+1}}</td>
                                     <td *ngIf="todasSucursalesC || seleccionMultiple">
                                         {{cliente.empresa}}</td>
                                     <td>{{cliente.usuario}}</td>
                                     <td>{{identificacionCliente=='nombre'?cliente.nombre:cliente.cedula}}</td>
                                     <td>{{cliente.fecha}}</td>
                                     <td>{{cliente.servicio}}</td>
-                                    <td>{{cliente.numero}}</td>
+                                    <td>{{cliente.siglas}}{{cliente.numero}}</td>
                                 </tr>
                             </tbody>
                         </table>
