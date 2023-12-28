@@ -28,6 +28,12 @@
                     </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
+                    <a class="nav-link" id="cliente-tab" data-toggle="tab" href="#cliente"
+                        role="tab" aria-controls="cliente" aria-selected="false">
+                        CLIENTE
+                    </a>
+                </li>
+                <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link" id="graficoservicio-tab" data-toggle="tab" href="#graficoservicio" role="tab"
                         aria-controls="graficoservicio" aria-selected="false">
                         GRÁFICO SERVICIO
@@ -548,6 +554,113 @@
                     <button type="button" class="btn btn-info" (click)="generarPdfAtServ('hola', 1)">
                         PDF
                     </button>
+                </div>
+
+                <div class="tab-pane fade" id="cliente" role="tabpanel"
+                    aria-labelledby="cliente-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="fromDateAtC">Fecha desde:</label>
+                                        <input type="date" id="fromDateAtC" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDate" #fromDateAtC><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="toDateAtTC">Fecha hasta: </label>
+                                        <input type="date" id="toDateAtC" value="{{toDate}}" [max]="toDate"
+                                            name="toDate" #toDateAtC>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioC>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinC>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesC')">
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesC">
+                                        {{sucursal.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
+                                    placeholder="Cajeros">
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('')">
+                                        Todos los cajeros
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosAtencion" [value]="option.caje_codigo"
+                                        [disabled]="allSelected">
+                                        {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <button type="button" class="btn btn-search" (click)="leerCliente()">
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h3>CLIENTE</h3>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="contentC" #contentTC #tableTC>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesC || seleccionMultiple">
+                                        Sucursal
+                                    </th>
+                                    <th scope="col" class="text-center">Cajero(a)</th>
+                                    <th scope="col" class="text-center">Cliente</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Turno</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestAtTC">
+                                <tr *ngFor="let cliente of clientes | paginate:configC">
+                                    <td *ngIf="todasSucursalesC || seleccionMultiple">
+                                        {{cliente.empresa}}</td>
+                                    <td>{{cliente.usuario}}</td>
+                                    <td>{{identificacionCliente=='nombre'?cliente.nombre:cliente.cedula}}</td>
+                                    <td>{{cliente.fecha}}</td>
+                                    <td>{{cliente.servicio}}</td>
+                                    <td>{{cliente.numero}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestAtCPag" id="Atencionc"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            (pageChange)="pageChangedC($event)">
+                        </pagination-controls>
+                    </div>
+                    <div>
+                        <br>
+                        <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelCliente()">
+                            EXCEL
+                        </button>
+                        <button type="button" class="btn btn-info" (click)="generarPdfCliente('hola', 1)">
+                            PDF
+                        </button>
+                        <br><br>
+                    </div>
                 </div>
 
                 <div class="tab-pane fade" id="graficoservicio" role="tabpanel" aria-labelledby="graficoservicio-tab">

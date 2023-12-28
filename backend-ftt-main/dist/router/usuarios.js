@@ -139,7 +139,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
     let query = `
     SELECT e.empr_nombre AS nombreEmpresa, serv_nombre AS Servicio, caje_nombre AS Nombre, 
     COUNT(turn_codigo) AS Turnos, 
-    TIME_FORMAT(sec_to_time(AVG(IFNUll(turn_duracionatencion, 0))), '%H:%i:%s') AS Promedio 
+    TIME_FORMAT(sec_to_time(AVG(turn_duracionatencion)), '%H:%i:%s') AS Promedio 
     FROM cajero c, turno t, servicio s, empresa e, usuarios u
     WHERE t.caje_codigo = c.caje_codigo 
     AND t.serv_codigo = s.serv_codigo 

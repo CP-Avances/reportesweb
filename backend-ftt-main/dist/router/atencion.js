@@ -373,6 +373,72 @@ router.get('/graficoservicio/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
         }
     });
 });
+/** ********************************************************************************************************** **
+ ** **                                             CLIENTE                                                  ** **
+ ** ********************************************************************************************************** **/
+router.get('/cliente/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales', verifivarToken_1.TokenValidation, (req, res) => {
+    const fDesde = req.params.fechaDesde;
+    const fHasta = req.params.fechaHasta;
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    let todosCajeros = false;
+    let todasSucursales = false;
+    let diaCompleto = false;
+    let hFinAux = 0;
+    if (codigosArray.includes("-2")) {
+        todosCajeros = true;
+    }
+    if (sucursalesArray.includes("-1")) {
+        todasSucursales = true;
+    }
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
+        diaCompleto = true;
+    }
+    else {
+        hFinAux = parseInt(hFin) - 1;
+    }
+    const query = `
+        SELECT e.empr_nombre AS empresa, 
+	        u.usua_nombre AS usuario,
+	        s.serv_nombre AS servicio, 
+	        DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS fecha,
+	        ct.nombre AS nombre, 
+	        ct.cedula AS cedula, 
+	        s.serv_descripcion AS siglas,
+	        t.turn_numero AS numero  
+        FROM turno t
+        JOIN servicio s ON t.serv_codigo = s.serv_codigo 
+        JOIN cajero c ON t.caje_codigo = c.caje_codigo
+        JOIN usuarios u ON u.usua_codigo = c.usua_codigo
+        JOIN empresa e ON u.empr_codigo = e.empr_codigo
+        JOIN cliente_turno ct ON t.turn_codigo = ct.turn_codigo
+        WHERE t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
+            AND u.usua_codigo != 2
+            ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+            ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+            ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+        GROUP BY empresa, servicio, usuario, fecha, nombre, cedula, siglas, numero
+        ORDER BY fecha DESC, numero ASC;
+        `;
+    mysql_1.default.ejecutarQuery(query, (err, turnos) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err
+            });
+        }
+        else {
+            res.json({
+                ok: true,
+                turnos
+            });
+        }
+    });
+});
 /** ************************************************************************************************************* **
  ** **                                               MENU                                                      ** **
  ** ************************************************************************************************************* **/
@@ -403,6 +469,25 @@ router.get('/promediosatencionmenu/:fecha', verifivarToken_1.TokenValidation, (r
             res.json({
                 ok: true,
                 turnos
+            });
+        }
+    });
+});
+router.get("/identificacionCliente", verifivarToken_1.TokenValidation, (req, res) => {
+    const query = `
+      SELECT gene_valor FROM general WHERE gene_codigo = 11;
+      `;
+    mysql_1.default.ejecutarQuery(query, (err, identificacion) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err,
+            });
+        }
+        else {
+            res.json({
+                ok: true,
+                valor: identificacion,
             });
         }
     });

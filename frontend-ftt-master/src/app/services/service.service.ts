@@ -167,6 +167,10 @@ export class ServiceService {
     return this.http.get<servicio[]>(this.URL + "/tiemposcompletos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales);
   }
 
+  getclientes(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/cliente/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales);
+  }
+
   getpromatencion(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/promediosatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales);
   }
@@ -300,6 +304,10 @@ export class ServiceService {
 
   getOpcionesEvaluacion(): Observable<any> {
     return this.http.get<any>(this.URL + "/opcionesEvaluacion");
+  }
+
+  getIdentificacionCliente(): Observable<any> {
+    return this.http.get<any>(this.URL + "/identificacionCliente");
   }
 
   getturnos(): Observable<servicio[]> {

@@ -14,6 +14,7 @@ import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
+import { servicio } from '../../models/servicio';
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 const EXCEL_EXTENSION = ".xlsx";
 
@@ -32,6 +33,8 @@ export class AtencionComponent implements OnInit {
   // CAPTURA DE ELEMENTOS DE LA INTERFAZ VISUAL PARA TRATARLOS Y CAPTURAR DATOS
   @ViewChild("fromDateAtTC") fromDateAtTC: ElementRef;
   @ViewChild("toDateAtTC") toDateAtTC: ElementRef;
+  @ViewChild("fromDateAtC") fromDateAtC: ElementRef;
+  @ViewChild("toDateAtC") toDateAtC: ElementRef;
   @ViewChild("fromDateAtPA") fromDateAtPA: ElementRef;
   @ViewChild("toDateAtPA") toDateAtPA: ElementRef;
   @ViewChild("fromDateAtTA") fromDateAtTA: ElementRef;
@@ -45,6 +48,8 @@ export class AtencionComponent implements OnInit {
 
   @ViewChild("horaInicioTC") horaInicioTC: ElementRef;
   @ViewChild("horaFinTC") horaFinTC: ElementRef;
+  @ViewChild("horaInicioC") horaInicioC: ElementRef;
+  @ViewChild("horaFinC") horaFinC: ElementRef;
   @ViewChild("horaInicioPA") horaInicioPA: ElementRef;
   @ViewChild("horaFinPA") horaFinPA: ElementRef;
   @ViewChild("horaInicioTA") horaInicioTA: ElementRef;
@@ -65,14 +70,17 @@ export class AtencionComponent implements OnInit {
   servicioatser: any = [];
   serviciograf: any = [];
   serviciosAtPA: any = [];
+  clientes: any = [];
   cajerosAtencion: any = [];
   sucursales: any[];
+  opciones: any[];
 
   // VARIABLE USADA EN EXPORTACION A EXCEL
   p_color: any;
 
   // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
   todasSucursalesTC: boolean = false;
+  todasSucursalesC: boolean = false;
   todasSucursalesPA: boolean = false;
   todasSucursalesTA: boolean = false;
   todasSucursalesMA: boolean = false;
@@ -82,6 +90,8 @@ export class AtencionComponent implements OnInit {
   // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestAtTC: boolean = false;
   malRequestAtTCPag: boolean = false;
+  malRequestAtC: boolean = false;
+  malRequestAtCPag: boolean = false;
   malRequestAtPA: boolean = false;
   malRequestAtPAPag: boolean = false;
   malRequestAtTA: boolean = false;
@@ -112,6 +122,7 @@ export class AtencionComponent implements OnInit {
 
   // CONTROL PAGINACION
   configTC: any;
+  configC: any;
   configPA: any;
   configTA: any;
   configMA: any;
@@ -146,6 +157,8 @@ export class AtencionComponent implements OnInit {
   marca: string = "Fulltime Tickets";
   horas: number[] = [];
 
+  identificacionCliente: string = 'nombre';
+
   constructor(
     private imagenesService: ImagenesService,
     private serviceService: ServiceService,
@@ -161,6 +174,12 @@ export class AtencionComponent implements OnInit {
       itemsPerPage: this.MAX_PAGS,
       currentPage: 1,
       totalItems: this.servicioTiempoComp.length,
+    };
+    this.configC = {
+      id: "Atencionc",
+      itemsPerPage: this.MAX_PAGS,
+      currentPage: 1,
+      totalItems: this.clientes.length,
     };
     this.configPA = {
       id: "Atencionpa",
@@ -202,6 +221,9 @@ export class AtencionComponent implements OnInit {
   pageChangedTC(event: any) {
     this.configTC.currentPage = event;
   }
+  pageChangedC(event: any) {
+    this.configC.currentPage = event;
+  }
   pageChangedPA(event1: any) {
     this.configPA.currentPage = event1;
   }
@@ -224,6 +246,8 @@ export class AtencionComponent implements OnInit {
     this.getSucursales();
     this.getMarca();
 
+    this.getIdentificacionCliente();
+
     // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
 
@@ -235,6 +259,7 @@ export class AtencionComponent implements OnInit {
 
     // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestAtTCPag = true;
+    this.malRequestAtCPag = true;
     this.malRequestAtPAPag = true;
     this.malRequestAtTAPag = true;
     this.malRequestAtMAPag = true;
@@ -262,6 +287,10 @@ export class AtencionComponent implements OnInit {
         case 'todasSucursalesTC':
           this.todasSucursalesTC = !this.todasSucursalesTC;
           this.todasSucursalesTC ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+          break;
+        case 'todasSucursalesC':
+          this.todasSucursalesC = !this.todasSucursalesC;
+          this.todasSucursalesC ? this.getCajeros(this.sucursalesSeleccionadas) : null;
           break;
         case 'todasSucursalesAS':
           this.todasSucursalesAS = !this.todasSucursalesAS;
@@ -333,6 +362,15 @@ export class AtencionComponent implements OnInit {
     });
   }
 
+  // OBTINENE EL PARAMETRO DE IDENTIFICACION DEL CLIENTE
+  getIdentificacionCliente() {
+    this.serviceService.getIdentificacionCliente().subscribe((identificacion: any) => {
+      this.identificacionCliente = identificacion.valor[0].gene_valor;
+      console.log( this.identificacionCliente)
+
+    });
+  }
+
   limpiar() {
     this.serviciosAtPA=[]
     this.selectedItems = [];
@@ -341,6 +379,7 @@ export class AtencionComponent implements OnInit {
     this.mostrarServicios = false;
     this.allSelected = false;
     this.todasSucursalesTC = false;
+    this.todasSucursalesC = false;
     this.todasSucursalesPA = false;
     this.todasSucursalesTA = false;
     this.todasSucursalesMA = false;
@@ -420,6 +459,56 @@ export class AtencionComponent implements OnInit {
               }
               // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
               this.configTC = {
+                itemsPerPage: this.MAX_PAGS,
+                currentPage: 1,
+              };
+              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+                timeOut: 6000,
+              });
+            }
+          }
+        );
+    }
+  }
+
+  leerCliente() {
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
+    var fechaDesde = this.fromDateAtC.nativeElement.value.toString().trim();
+    var fechaHasta = this.toDateAtC.nativeElement.value.toString().trim();
+
+    let horaInicio = this.horaInicioC.nativeElement.value;
+    let horaFin = this.horaFinC.nativeElement.value;
+
+    if (this.selectedItems.length!==0) {
+      this.serviceService
+        .getclientes(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
+        .subscribe(
+          (servicio: any) => {
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.clientes = servicio.turnos;
+            this.malRequestAtC = false;
+            this.malRequestAtCPag = false;
+            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+            if (this.configC.currentPage > 1) {
+              this.configC.currentPage = 1;
+            }
+          },
+          (error) => {
+            if (error.status == 400) {
+              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
+              this.clientes = null;
+              this.malRequestAtC = true;
+              this.malRequestAtCPag = true;
+              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+              if (this.clientes == null) {
+                this.configC.totalItems = 0;
+              } else {
+                this.configC.totalItems = this.clientes.length;
+              }
+              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+              this.configC = {
                 itemsPerPage: this.MAX_PAGS,
                 currentPage: 1,
               };
@@ -765,8 +854,11 @@ export class AtencionComponent implements OnInit {
     return nombreSucursal;
   }
 
-  // EXCEL
-  exportarAExcelTiempoComp() {
+  /** ***************************************************************************************************** **
+   ** **                                               EXCEL                                             ** ** 
+   ** ***************************************************************************************************** **/
+ 
+   exportarAExcelTiempoComp() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
@@ -808,6 +900,54 @@ export class AtencionComponent implements OnInit {
     XLSX.writeFile(
       wb,
       "At-tiempocompleto - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
+    );
+  }
+
+  exportarAExcelCliente() {
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
+    if (this.todasSucursalesC || this.seleccionMultiple) {
+      for (let step = 0; step < this.clientes.length; step++) {
+        jsonServicio.push({
+          Sucursal: this.clientes[step].empresa,
+          "Cajero(a)": this.clientes[step].usuario,
+          Cliente: this.identificacionCliente == 'nombre' ? this.clientes[step].nombre : this.clientes[step].cedula,
+          Fecha: new Date(this.clientes[step].fecha),
+          Servicio: this.clientes[step].servicio,
+          Turno: this.clientes[step].numero,
+        });
+      }
+    }
+    else {
+      for (let step = 0; step < this.clientes.length; step++) {
+        jsonServicio.push({
+          "Cajero(a)": this.clientes[step].usuario,
+          Cliente: this.identificacionCliente == 'nombre' ? this.clientes[step].nombre : this.clientes[step].cedula,
+          Fecha: new Date(this.clientes[step].fecha),
+          Servicio: this.clientes[step].servicio,
+          Turno: this.clientes[step].numero,
+        });
+      }
+    }
+
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.clientes[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols: any = [];
+    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 })
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Cliente");
+    XLSX.writeFile(
+      wb,
+      "At-cliente - " + nombreSucursal +
       " - " +
       new Date().toLocaleString() +
       EXCEL_EXTENSION
@@ -1039,7 +1179,10 @@ export class AtencionComponent implements OnInit {
     );
   }
 
-  // PDF'S
+  /** ***************************************************************************************************** **
+   ** **                                                 PDF                                             ** ** 
+   ** ***************************************************************************************************** **/
+ 
   generarPdfTiempoComp(action = "open", pdf: number) {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
@@ -1241,6 +1384,220 @@ export class AtencionComponent implements OnInit {
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Tiempo_Espera },
                 { style: "itemsTable", text: res.Tiempo_Atencion },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex: any) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+  }
+
+  generarPdfCliente(action = "open", pdf: number) {
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
+    var fechaDesde = this.fromDateAtC.nativeElement.value.toString().trim();
+    var fechaHasta = this.toDateAtC.nativeElement.value.toString().trim();
+    let documentDefinition;
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
+    if (pdf === 1) {
+      documentDefinition = this.getDocumentCliente(
+        fechaDesde,
+        fechaHasta,
+      );
+    }
+
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
+    switch (action) {
+      case "open":
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+      case "print":
+        pdfMake.createPdf(documentDefinition).print();
+        break;
+      case "download":
+        pdfMake.createPdf(documentDefinition).download();
+        break;
+
+      default:
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+    }
+  }
+
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
+  getDocumentCliente(fechaDesde: any, fechaHasta: any) {
+    // SE OBTIENE LA FECHA ACTUAL
+    let f = new Date();
+    f.setUTCHours(f.getHours());
+    this.date = f.toJSON();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+
+    return {
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
+      watermark: {
+        text: this.marca,
+        color: "blue",
+        opacity: 0.1,
+        bold: true,
+        italics: false,
+        fontSize: 52,
+      },
+      header: {
+        text: "Impreso por:  " + this.userDisplayName,
+        margin: 10,
+        fontSize: 9,
+        opacity: 0.3,
+      },
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
+        fecha = f.toJSON().split("T")[0];
+        var timer = f.toJSON().split("T")[1].slice(0, 5);
+        return [
+          {
+            margin: [10, 20, 10, 0],
+            columns: [
+              "Fecha: " + fecha + " Hora: " + timer,
+              {
+                text: [
+                  {
+                    text:
+                      "© Pag " + currentPage.toString() + " of " + pageCount,
+                    alignment: "right",
+                    color: "blue",
+                    opacity: 0.5,
+                  },
+                ],
+              },
+            ],
+            fontSize: 9,
+            color: "#A4B8FF",
+          },
+        ];
+      },
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
+      content: [
+        {
+          columns: [
+            {
+              image: this.urlImagen,
+              width: 90,
+              height: 45,
+            },
+            {
+              width: "*",
+              alignment: "center",
+              text: "Reporte - Atención Cliente",
+              bold: true,
+              fontSize: 15,
+              margin: [-90, 20, 0, 0],
+            },
+          ],
+        },
+        {
+          style: "subtitulos",
+          text: nombreSucursal,
+        },
+        {
+          style: "subtitulos",
+          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+        },
+        // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
+        this.cliente(this.clientes),
+      ],
+      styles: {
+        tableTotal: {
+          fontSize: 30,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        tableHeader: {
+          fontSize: 9,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+        subtitulos: {
+          fontSize: 16,
+          alignment: "center",
+          margin: [0, 5, 0, 10],
+        },
+        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+        CabeceraTabla: {
+          fontSize: 12,
+          alignment: "center",
+          margin: [0, 8, 0, 8],
+          fillColor: this.p_color,
+        },
+        quote: { margin: [5, -2, 0, -2], italics: true },
+        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+      },
+    };
+  }
+
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
+  cliente(servicio: any[]) {
+    if (this.todasSucursalesC || this.seleccionMultiple) {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "*", "auto", "auto", "auto", "auto"],
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
+              { text: "Cliente", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Turno", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.empresa },
+                { style: "itemsTable", text: res.usuario },
+                { style: "itemsTable", text: this.identificacionCliente=='nombre'?res.nombre:res.cedula },
+                { style: "itemsTable", text: res.fecha },
+                { style: "itemsTable", text: res.servicio },
+                { style: "itemsTable", text: res.numero },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex: any) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+    else {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto", "auto", "auto"],
+          body: [
+            [
+              { text: "Cajero(a)", style: "tableHeader" },
+              { text: "Cliente", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Turno", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.usuario },
+                { style: "itemsTable", text: res.cedula },
+                { style: "itemsTable", text: res.fecha },
+                { style: "itemsTable", text: res.servicio },
+                { style: "itemsTable", text: res.numero },
               ];
             }),
           ],
