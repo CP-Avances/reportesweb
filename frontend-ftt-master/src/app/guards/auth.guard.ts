@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
 
   constructor(
     private auth: AuthenticationService,
-    private router: Router
+    private router: Router,
   ) { }
 
   canActivate(): boolean {
@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
     else {
-      this.router.navigateByUrl('/');
+      this.router.navigate(['/']);
       return false;
     }
   }

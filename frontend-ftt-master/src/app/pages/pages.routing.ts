@@ -27,7 +27,6 @@ const routes: Routes = [
       { path: 'atencion', component: AtencionComponent, canActivate: [AuthGuard] },
       { path: 'ocupacion', component: OcupacionComponent, canActivate: [AuthGuard] },
       { path: 'evaluacion', component: EvaluacionComponent, canActivate: [AuthGuard] },
-      //AQUI VA SATISFACCIONES
       { path: 'atendidosmultiples', component: AtendidosmultiplesComponent, canActivate: [AuthGuard] },
       { path: 'distestadoturnos', component: DistestadoturnosComponent, canActivate: [AuthGuard] },
       { path: 'ingresoclientes', component: IngresoclientesComponent, canActivate: [AuthGuard] },

@@ -12,7 +12,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { NgChartsModule } from 'ng2-charts';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
+import { CommonModule, HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
 import { PagesModule } from './pages/pages.module';
@@ -28,7 +28,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 Chart.register(ChartDataLabels);
 
 // SEGURIDAD
-import { AuthGuard } from "./guards/auth.guard";
+import { AuthGuard } from './guards/auth.guard';
 import { TokenInterceptorService } from './services/token-interceptor.service'
 
 @NgModule({
@@ -59,7 +59,8 @@ import { TokenInterceptorService } from './services/token-interceptor.service'
   providers: [
     AuthGuard,
     DatePipe,
-    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptorService, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptorService, multi: true },
+    { provide: LocationStrategy, useClass: HashLocationStrategy},
   ],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]

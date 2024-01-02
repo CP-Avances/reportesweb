@@ -366,8 +366,6 @@ export class AtencionComponent implements OnInit {
   getIdentificacionCliente() {
     this.serviceService.getIdentificacionCliente().subscribe((identificacion: any) => {
       this.identificacionCliente = identificacion.valor[0].gene_valor;
-      console.log( this.identificacionCliente)
-
     });
   }
 
