@@ -463,6 +463,8 @@ export class EvaluacionComponent implements OnInit {
           this.mostrarServicios = false;
         }
       });
+
+      console.log('servicios',this.serviciosServs)
   }
 
   buscarServicios() {

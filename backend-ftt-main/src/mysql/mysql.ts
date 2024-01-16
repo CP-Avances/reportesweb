@@ -13,13 +13,14 @@ export default class MySQL {
         console.log('clase inicializada');
 
         this.cnn = mysql.createConnection({
-            host: '127.0.0.1.',
-            port: 3306,
+            host: '186.4.226.49', 
+            port: 9191,
             user: 'ftt',
             password: 'admin123',
             database: 'fiscalia'
         });
 
+        
         this.conectarDB();
     }
 

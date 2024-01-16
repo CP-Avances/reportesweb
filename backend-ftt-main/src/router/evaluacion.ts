@@ -144,7 +144,7 @@ router.get("/getallservicios/:sucursales", TokenValidation, (req: Request, res: 
   SELECT s.*, e.empr_nombre AS empresa FROM servicio s
   JOIN empresa e ON s.empr_codigo = e.empr_codigo
   WHERE Serv_codigo != 1
-    ${!todasSucursales ? `AND empr_codigo IN (${listaSucursales})` : ''}  
+    ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}  
     ORDER BY serv_nombre ASC;
               `;
 
