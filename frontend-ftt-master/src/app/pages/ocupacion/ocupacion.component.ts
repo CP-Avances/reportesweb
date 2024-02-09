@@ -97,7 +97,7 @@ export class OcupacionComponent implements OnInit {
   orientacion: string;
 
   // TOTALES
-  porcentajeTotal: number;
+  porcentajeTotal: any;
   turnosTotal: number;
   mostrarTotal: boolean = false;
 
@@ -156,19 +156,19 @@ export class OcupacionComponent implements OnInit {
 
   selectAll(opcion: string) {
     switch (opcion) {
-        case 'todasSucursalesO':
-            this.todasSucursalesO = !this.todasSucursalesO;
-            break;
-        case 'todasSucursalesOG':
-            this.todasSucursalesOG = !this.todasSucursalesOG;
-            break;
-        case 'sucursalesSeleccionadas':
-            this.sucursalesSeleccionadas.length > 1 
-            ? this.seleccionMultiple = true 
-            : this.seleccionMultiple = false;
-            break;
-        default:
-            break;
+      case 'todasSucursalesO':
+        this.todasSucursalesO = !this.todasSucursalesO;
+        break;
+      case 'todasSucursalesOG':
+        this.todasSucursalesOG = !this.todasSucursalesOG;
+        break;
+      case 'sucursalesSeleccionadas':
+        this.sucursalesSeleccionadas.length > 1
+          ? this.seleccionMultiple = true
+          : this.seleccionMultiple = false;
+        break;
+      default:
+        break;
     }
   }
 
@@ -213,19 +213,19 @@ export class OcupacionComponent implements OnInit {
   }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
-  comprobarBusquedaSucursales(cod: string){
-    return cod=="-1" ? true : false;
+  comprobarBusquedaSucursales(cod: string) {
+    return cod == "-1" ? true : false;
   }
 
   leerOcupacion() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateOcupOS.nativeElement.value.toString().trim();
     var fH = this.toDateOcupOS.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioOS.nativeElement.value;
     let horaFin = this.horaFinOS.nativeElement.value;
 
-    if (this.sucursalesSeleccionadas.length!==0) {
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getocupacionservicios(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (serviciooc: any) => {
           // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -257,7 +257,7 @@ export class OcupacionComponent implements OnInit {
             this.mostrarTotal = false;
             /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-             **/ 
+             **/
             if (this.serviciooc == null) {
               this.configOS.totalItems = 0;
             } else {
@@ -282,13 +282,13 @@ export class OcupacionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
     var fH = this.toDateOcupG.nativeElement.value.toString().trim();
-   
+
     let horaInicio = this.horaInicioOG.nativeElement.value;
     let horaFin = this.horaFinOG.nativeElement.value;
 
     this.malRequestOcupOS = false;
 
-    if (this.sucursalesSeleccionadas.length!==0) {
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getocupacionservicios(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (servicioocg: any) => {
           // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -301,11 +301,11 @@ export class OcupacionComponent implements OnInit {
           }
           let totalT = servicioocg.turnos.map((res) => res.total);
           let totalP = servicioocg.turnos.map((res) => res.PORCENTAJE);
-          let totalTurnos = 0;
-          let totalPorc = 0;
+          let totalTurnos: number = 0;
+          let totalPorc: number = 0;
           for (var i = 0; i < totalT.length; i++) {
-            totalTurnos = totalTurnos + totalT[i];
-            totalPorc = totalPorc + totalP[i];
+            totalTurnos = totalTurnos + Number(totalT[i]);
+            totalPorc = totalPorc + Number(totalP[i]);
           }
           this.turnosTotal = totalTurnos;
           this.porcentajeTotal = Math.round(totalPorc);
@@ -318,7 +318,7 @@ export class OcupacionComponent implements OnInit {
             this.malRequestOcupOSPag = true;
             /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-             **/ 
+             **/
             if (this.servicioocg == null) {
               this.configOS.totalItems = 0;
             } else {
@@ -354,12 +354,12 @@ export class OcupacionComponent implements OnInit {
           for (var i = 0; i < servicios.length; i++) {
             Nombres.push(
               servicios[i] +
-                "\n" +
-                Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
-                "%"
+              "\n" +
+              Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
+              "%"
             );
           }
-  
+
           // SE CREA EL GRAFICO
           this.chartPie = new Chart("canvas", {
             // EL TIPO DE GRAFICO
@@ -377,7 +377,7 @@ export class OcupacionComponent implements OnInit {
                     "rgba(75, 192, 192, 0.6)",
                     "rgba(153, 102, 255, 0.6)",
                     "rgba(255, 159, 64, 0.6)",
-                    
+
                     "rgba(104, 210, 34, 0.6)",
                   ],
                 },
@@ -385,7 +385,7 @@ export class OcupacionComponent implements OnInit {
             },
             // SE SETEA TITULO ASI COMO VALORES EN GRAFICO
             options: {
-         
+
               plugins: {
                 title: {
                   display: true,
@@ -422,7 +422,7 @@ export class OcupacionComponent implements OnInit {
                     "rgba(75, 192, 192, 0.6)",
                     "rgba(153, 102, 255, 0.6)",
                     "rgba(255, 159, 64, 0.6)",
-                    
+
                     "rgba(104, 210, 34, 0.6)",
                   ],
                 },
@@ -438,7 +438,7 @@ export class OcupacionComponent implements OnInit {
                   },
                 ],*/
               },
-              plugins:{
+              plugins: {
                 title: {
                   display: true,
                 },
@@ -473,10 +473,10 @@ export class OcupacionComponent implements OnInit {
   obtenerNombreSucursal(sucursales: any) {
     const listaSucursales = sucursales;
     let nombreSucursal = "";
-    
+
     listaSucursales.forEach(elemento => {
       const cod = elemento;
-      if (cod=="-1") {
+      if (cod == "-1") {
         nombreSucursal = "Todas las sucursales";
         return;
       }
@@ -501,7 +501,7 @@ export class OcupacionComponent implements OnInit {
           Hasta: new Date(this.serviciooc[step].fechamaxima),
           Servicio: this.serviciooc[step].SERV_NOMBRE,
           "T. Turno": this.serviciooc[step].total,
-          "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE+ "%",
+          "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE + "%",
         });
       }
     } else {
@@ -511,7 +511,7 @@ export class OcupacionComponent implements OnInit {
           Hasta: new Date(this.serviciooc[step].fechamaxima),
           Servicio: this.serviciooc[step].SERV_NOMBRE,
           "T. Turno": this.serviciooc[step].total,
-          "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE+ "%",
+          "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE + "%",
         });
       }
     }
@@ -528,10 +528,10 @@ export class OcupacionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Servicios");
     XLSX.writeFile(
       wb,
-      "ocupacionservicios - "+ nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "ocupacionservicios - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -574,10 +574,10 @@ export class OcupacionComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, "Servicios");
     XLSX.writeFile(
       wb,
-      "ocupacionserviciosGrafico - "+ nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION
+      "ocupacionserviciosGrafico - " + nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
     );
   }
 
@@ -725,7 +725,7 @@ export class OcupacionComponent implements OnInit {
   }
 
   generarPdfOcupServs(action = "open", pdf: number) {
-     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fD = this.fromDateOcupOS.nativeElement.value.toString().trim();
     var fH = this.toDateOcupOS.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
@@ -837,7 +837,7 @@ export class OcupacionComponent implements OnInit {
           style: "subtitulos",
           text: "TOTAL: Turnos " + this.turnosTotal + ", Porcentaje de ocupación " + this.porcentajeTotal + " %",
         },
-         // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
+        // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
         tableTotal: {
@@ -879,7 +879,7 @@ export class OcupacionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto","auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -927,7 +927,7 @@ export class OcupacionComponent implements OnInit {
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
                 { style: "itemsTable", text: res.total },
-                { style: "itemsTable", text: res.PORCENTAJE + " %"},
+                { style: "itemsTable", text: res.PORCENTAJE + " %" },
               ];
             }),
           ],
@@ -941,72 +941,72 @@ export class OcupacionComponent implements OnInit {
     }
   }
 
-    // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
-    ocupacionGrafica(servicio: any[]) {
-      if (this.todasSucursalesOG || this.seleccionMultiple) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "auto", "auto", "auto", "auto","auto"],
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Desde", style: "tableHeader" },
-                { text: "Hasta", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "T. Turno", style: "tableHeader" },
-                { text: "Porcentaje Ocupacion", style: "tableHeader" },
-              ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.fechaminima },
-                  { style: "itemsTable", text: res.fechamaxima },
-                  { style: "itemsTable", text: res.SERV_NOMBRE },
-                  { style: "itemsTable", text: res.total },
-                  { style: "itemsTable", text: res.PORCENTAJE + " %"},
-                ];
-              }),
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
+  ocupacionGrafica(servicio: any[]) {
+    if (this.todasSucursalesOG || this.seleccionMultiple) {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Desde", style: "tableHeader" },
+              { text: "Hasta", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "T. Turno", style: "tableHeader" },
+              { text: "Porcentaje Ocupacion", style: "tableHeader" },
             ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.fechaminima },
+                { style: "itemsTable", text: res.fechamaxima },
+                { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.total },
+                { style: "itemsTable", text: res.PORCENTAJE + " %" },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex: any) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-            },
-          },
-        };
-      } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "*", "*", "*"],
-            body: [
-              [
-                { text: "Desde", style: "tableHeader" },
-                { text: "Hasta", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "T. Turno", style: "tableHeader" },
-                { text: "Porcentaje Ocupacion", style: "tableHeader" },
-              ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.fechaminima },
-                  { style: "itemsTable", text: res.fechamaxima },
-                  { style: "itemsTable", text: res.SERV_NOMBRE },
-                  { style: "itemsTable", text: res.total },
-                  { style: "itemsTable", text: res.PORCENTAJE + " %" },
-                ];
-              }),
+        },
+      };
+    } else {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "*", "*", "*", "*"],
+          body: [
+            [
+              { text: "Desde", style: "tableHeader" },
+              { text: "Hasta", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "T. Turno", style: "tableHeader" },
+              { text: "Porcentaje Ocupacion", style: "tableHeader" },
             ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.fechaminima },
+                { style: "itemsTable", text: res.fechamaxima },
+                { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.total },
+                { style: "itemsTable", text: res.PORCENTAJE + " %" },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex: any) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-            },
-          },
-        };
-      }
+        },
+      };
     }
+  }
 }
