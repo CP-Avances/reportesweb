@@ -1,5 +1,5 @@
 
-import mysql = require('mysql');
+import mysql = require('mysql2');
 
 
 export default class MySQL {
@@ -13,14 +13,13 @@ export default class MySQL {
         console.log('clase inicializada');
 
         this.cnn = mysql.createConnection({
-            host: '186.4.226.49', 
-            port: 9191,
-            user: 'ftt',
+            host: '192.168.0.145',
+            port: 3307,
+            user: 'fte',
             password: 'admin123',
-            database: 'fiscalia'
+            database: 'fiscalia2'
         });
 
-        
         this.conectarDB();
     }
 
