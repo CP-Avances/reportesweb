@@ -238,11 +238,11 @@ export class OcupacionComponent implements OnInit {
           }
           let totalT = serviciooc.turnos.map((res) => res.total);
           let totalP = serviciooc.turnos.map((res) => res.PORCENTAJE);
-          let totalTurnos = 0;
-          let totalPorc = 0;
+          let totalTurnos: number = 0;
+          let totalPorc: number = 0;
           for (var i = 0; i < totalT.length; i++) {
-            totalTurnos = totalTurnos + totalT[i];
-            totalPorc = totalPorc + totalP[i];
+            totalTurnos = totalTurnos + Number(totalT[i]);
+            totalPorc = totalPorc + Number(totalP[i]);
           }
           this.turnosTotal = totalTurnos;
           this.porcentajeTotal = Math.round(totalPorc);
