@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { usuario } from '../models/usuario';
 import { BehaviorSubject } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable({
@@ -19,7 +20,8 @@ export class AuthenticationService {
   password: '';
   us: '';
 
-  private URL = "http://192.168.0.145:3004";
+  private URL = environment.url;
+  private backendUrl = '';
 
   constructor(private http: HttpClient,
     private router: Router) {
@@ -31,12 +33,27 @@ export class AuthenticationService {
     localStorage.removeItem('token');
   }
 
+  consultarIp(sucursal: string) {
+    return this.http.get<any>(`${this.URL}/service-ip/${sucursal}`)
+      .pipe(
+        map(resp => {
+          this.backendUrl = `http://${resp['ip']}`;
+          this.guardarIp(this.backendUrl);
+          return resp;
+        }),
+        catchError(error => {
+          console.error('Error al consultar IP:', error);
+          return throwError(error);
+        })
+      );
+  }
+
   loginUsuario(username: any, password: any) {
-    return this.http.post<any>(`${this.URL}/login/${username}/${password}`, {})
+    return this.http.post<any>(`${this.backendUrl}/login/${username}/${password}`, {})
   }
 
   login(username: any, password: any) {
-    return this.http.post<any>(`${this.URL}/login/${username}/${password}`, {})
+    return this.http.post<any>(`${this.backendUrl}/login/${username}/${password}`, {})
       .pipe(
         map(resp => {
           this.guardaToken(resp['token']);
@@ -55,6 +72,10 @@ export class AuthenticationService {
     localStorage.setItem('token', token);
   }
 
+  private guardarIp(ip: string) {
+    localStorage.setItem('ip', ip);
+  }
+
   leerToken() {
     if (localStorage.getItem('token')) {
       this.userToken = localStorage.getItem('token')
@@ -62,6 +83,15 @@ export class AuthenticationService {
       this.userToken = '';
     }
     return this.userToken;
+  }
+
+  leerIp() {
+    if (localStorage.getItem('ip')) {
+      console.log("ip: ",localStorage.getItem('ip'));
+      return localStorage.getItem('ip');
+    } else {
+      return '';
+    }
   }
 
   estaAutenticado(): boolean {

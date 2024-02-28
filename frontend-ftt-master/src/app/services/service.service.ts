@@ -9,6 +9,8 @@ import { turno } from '../models/turno';
 import { servicio } from '../models/servicio';
 import { evaluacion } from '../models/evaluacion';
 import { empresa } from '../models/empresa';
+import { environment } from '../../environments/environment';
+import { AuthenticationService } from './authentication.service';
 
 
 
@@ -17,10 +19,15 @@ import { empresa } from '../models/empresa';
 })
 export class ServiceService {
 
-  private URL = "http://192.168.0.145:3004";
+  private URL = "";
 
-  constructor(private http: HttpClient,
-    private router: Router) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private authenticationService: AuthenticationService,
+    ) {
+      this.URL =this.authenticationService.leerIp();
+    }
 
 
   /*   USUARIOS  */

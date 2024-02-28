@@ -19,6 +19,7 @@ export class LoginComponent implements OnInit {
 
   usua_login: "";
   usua_password: "";
+  sucursal: "";
   mostrar = true;
 
 
@@ -78,7 +79,7 @@ export class LoginComponent implements OnInit {
       })
   }
 
-  login2(form: NgForm, username, password) {
+  login2(form: NgForm, username, password, sucursal) {
     if (form.invalid) { return; }
 
     Swal.fire({
@@ -87,18 +88,35 @@ export class LoginComponent implements OnInit {
     });
     Swal.showLoading();
 
-    this.authenticationService.login(username, password)
-      .subscribe(resp => {
+    this.authenticationService.consultarIp(sucursal).subscribe((a) => {
+      this.authenticationService.login(username, password).subscribe((a) => {
         Swal.close();
         this.router.navigateByUrl('/menu');
-      }, (err) => {
+      }, (err) =>
         Swal.fire({
           title: 'Error!',
           text: 'Usuario o password incorrecto',
           icon: 'error'
         })
-      })
-
+      );
+    }, (err) => {
+      console.log(err);
+    }
+    );
   }
+
+  //   this.authenticationService.login(username, password)
+  //     .subscribe(resp => {
+  //       Swal.close();
+  //       this.router.navigateByUrl('/menu');
+  //     }, (err) => {
+  //       Swal.fire({
+  //         title: 'Error!',
+  //         text: 'Usuario o password incorrecto',
+  //         icon: 'error'
+  //       })
+  //     })
+
+  // }
 
 }
