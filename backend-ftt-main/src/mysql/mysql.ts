@@ -6,18 +6,19 @@ export default class MySQL {
 
     private static _instance: MySQL;
 
-    cnn: mysql.Connection;
+    cnn: any;
     conectado: boolean = false;
 
     constructor() {
         console.log('clase inicializada');
 
-        this.cnn = mysql.createConnection({
+        this.cnn = mysql.createPool({
             host: '192.168.0.145',
             port: 3307,
             user: 'fte',
             password: 'admin123',
-            database: 'fiscalia2'
+            database: 'fiscalia2',
+            connectionLimit: 10,
         });
 
         this.conectarDB();
@@ -47,14 +48,14 @@ export default class MySQL {
     }
 
     private conectarDB() {
-        this.cnn.connect((err) => {
+        this.cnn.query('SELECT 1', (err: any, results: any) => {
             if (err) {
                 console.log('Base de datos no conecta!! : ' + JSON.stringify(err, undefined, 2));
                 return;
             }
             this.conectado = true;
             console.log('Base de datos online!!');
-        })
+        });
     }
 
 

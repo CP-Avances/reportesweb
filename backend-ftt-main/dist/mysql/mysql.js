@@ -5,12 +5,13 @@ class MySQL {
     constructor() {
         this.conectado = false;
         console.log('clase inicializada');
-        this.cnn = mysql.createConnection({
+        this.cnn = mysql.createPool({
             host: '192.168.0.145',
             port: 3307,
             user: 'fte',
             password: 'admin123',
-            database: 'fiscalia2'
+            database: 'fiscalia2',
+            connectionLimit: 10,
         });
         this.conectarDB();
     }
@@ -33,7 +34,7 @@ class MySQL {
         });
     }
     conectarDB() {
-        this.cnn.connect((err) => {
+        this.cnn.query('SELECT 1', (err, results) => {
             if (err) {
                 console.log('Base de datos no conecta!! : ' + JSON.stringify(err, undefined, 2));
                 return;
