@@ -14,7 +14,10 @@ export class LoginComponent implements OnInit {
 
   usua_login: "";
   usua_password: "";
+  sucursal: "";
   mostrar = true;
+
+  servicios: any;
 
   constructor(
     // INYECCION DE DEPENDENCIAS
@@ -22,9 +25,16 @@ export class LoginComponent implements OnInit {
     public router: Router) { }
 
   ngOnInit(): void {
+    this.obtenerServicios();
   }
 
-  login2(form: NgForm, username: any, password: any) {
+  obtenerServicios() {
+    this.authenticationService.consultarNombresServicios().subscribe((a) => {
+      this.servicios = a.services;
+    });
+  }
+
+  login2(form: NgForm, username: any, password: any, sucursal: any) {
     if (form.invalid) { return; }
 
     Swal.fire({
@@ -34,17 +44,23 @@ export class LoginComponent implements OnInit {
     Swal.showLoading();
 
 
-    this.authenticationService.login(username, password)
-      .subscribe(resp => {
+    this.authenticationService.consultarHost(sucursal).subscribe((a) => {
+      console.log(a);
+      this.authenticationService.login(username, password).subscribe((a) => {
         Swal.close();
-        this.router.navigate(['/menu']);
-      }, (err) => {
+        this.router.navigateByUrl('/menu');
+      }, (err) =>
         Swal.fire({
           title: 'Error!',
           text: 'Usuario o password incorrecto',
           icon: 'error'
         })
-      })
+      );
+    }, (err) => {
+      console.log(err);
+      Swal.close();
+    }
+    );
   }
 
 }
