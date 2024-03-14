@@ -10,7 +10,7 @@ class MySQL {
             port: 3307,
             user: 'fte',
             password: 'admin123',
-            database: 'fiscalia2',
+            database: 'fiscalia_quevedo',
             connectionLimit: 10,
         });
         this.conectarDB();

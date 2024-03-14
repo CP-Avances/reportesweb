@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
       allowOutsideClick: false,
       text: 'Espere por favor...'
     });
-    Swal.showLoading();
+    Swal.showLoading(null);
 
 
     this.authenticationService.consultarHost(sucursal).subscribe((a) => {
