@@ -144,6 +144,10 @@ export class OcupacionComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestOcupOSPag = true;
+
+    // ACTUALIZAR CABECERA
+    this.serviceService.actualizarCabecera();
+
     // CARGAR LOGO PARA LOS REPORTES
     this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;
@@ -175,8 +179,10 @@ export class OcupacionComponent implements OnInit {
   // SE DESLOGUEA DE LA APLICACION
   salir() {
     this.auth.logout();
-    this.router.navigateByUrl("/");
-  }
+    this.router.navigateByUrl("/").then(() => {
+      window.location.reload();
+    });
+}
 
   // CAMBIO ORIENTACION
   cambiarOrientacion(orientacion: string) {
@@ -255,7 +261,7 @@ export class OcupacionComponent implements OnInit {
             this.malRequestOcupOS = true;
             this.malRequestOcupOSPag = true;
             this.mostrarTotal = false;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
              **/
             if (this.serviciooc == null) {
@@ -316,7 +322,7 @@ export class OcupacionComponent implements OnInit {
             this.servicioocg = null;
             this.malRequestOcupOS = true;
             this.malRequestOcupOSPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
              **/
             if (this.servicioocg == null) {
@@ -459,7 +465,7 @@ export class OcupacionComponent implements OnInit {
       );
     }
 
-    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
      *  EVITANDO SUPERPOSISION DEL NUEVO CHART
      **/
     if (this.chartPie != undefined || this.chartPie != null) {

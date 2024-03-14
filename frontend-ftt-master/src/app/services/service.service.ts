@@ -28,22 +28,26 @@ export class ServiceService {
 
   leerToken() {
     if (localStorage.getItem('token')) {
-      console.log("leerToken: ",localStorage.getItem('token'));
       return localStorage.getItem('token')
     } else {
-      console.log("leerToken: ",'');
       return '';
     }
   }
 
   leerHost() {
     if (localStorage.getItem('host')) {
-      console.log("host: ",localStorage.getItem('host'));
       return localStorage.getItem('host');
     } else {
-      console.log("host: ",'');
       return '';
     }
+  }
+
+  actualizarCabecera() {
+    this.URL = this.leerHost();
+    this.token = this.leerToken();
+    this.headers = new HttpHeaders({
+      'Authorization': 'Bearer ' + this.token
+    });
   }
 
   /** ****************************************************************************************************************** **
@@ -90,6 +94,7 @@ export class ServiceService {
   }
 
   getAllSucursales(): Observable<empresa[]> {
+    console.log(this.URL + "/getallsucursales")
     return this.http.get<empresa[]>(this.URL + "/getallsucursales", { headers: this.headers });
   }
 

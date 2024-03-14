@@ -139,6 +139,10 @@ export class DistestadoturnosComponent implements OnInit {
     // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestDistPag = true;
     this.malRequestDistPagRes = true;
+
+    // ACTUALIZAR CABECERA
+    this.serviceService.actualizarCabecera();
+
     // CARGAR LOGO PARA LOS REPORTES
     this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;

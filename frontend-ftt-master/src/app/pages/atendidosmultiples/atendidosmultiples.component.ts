@@ -111,6 +111,10 @@ export class AtendidosmultiplesComponent implements OnInit {
     this.userDisplayName = sessionStorage.getItem('loggedUser');
     // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestAtMPag = true;
+
+    // ACTUALIZAR CABECERA
+    this.serviceService.actualizarCabecera();
+
     // CARGAR LOGO PARA LOS REPORTES
     this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;

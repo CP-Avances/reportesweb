@@ -30,6 +30,9 @@ export class ConfiguracionComponent {
   ngOnInit(): void {
     this.getMeta();
     this.getMarca();
+
+    // ACTUALIZAR CABECERA
+    this.serviceService.actualizarCabecera();
   }
 
   verificador: number = 0;
@@ -73,7 +76,7 @@ export class ConfiguracionComponent {
         (res) => {
           // SE INFORMA QUE SE PUDO GUARDO LA IMAGEN
           this.toastr.success(
-            `Para asegurar la correcta implementación de los cambios, se procederá a cerrar la sesión. 
+            `Para asegurar la correcta implementación de los cambios, se procederá a cerrar la sesión.
             Será necesario volver a acceder al sistema.`,
             "La imagen se ha guardado correctamente",
             {

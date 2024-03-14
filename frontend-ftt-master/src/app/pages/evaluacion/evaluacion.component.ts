@@ -287,6 +287,10 @@ export class EvaluacionComponent implements OnInit {
     this.tipo = "bar";
     // SETEO ORIENTACION
     this.orientacion = "portrait";
+
+    // ACTUALIZAR CABECERA
+    this.serviceService.actualizarCabecera();
+
     // CARGAR LOGO PARA LOS REPORTES
     this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;
@@ -363,8 +367,10 @@ export class EvaluacionComponent implements OnInit {
   // SE DESLOGUEA DE LA APLICACION
   salir() {
     this.auth.logout();
-    this.router.navigateByUrl("/");
-  }
+    this.router.navigateByUrl("/").then(() => {
+      window.location.reload();
+    });
+}
 
   // CONSULTA PARA LLENAR SELECT DE INTERFAZ
   getCajeros(sucursal: any) {
@@ -463,8 +469,6 @@ export class EvaluacionComponent implements OnInit {
           this.mostrarServicios = false;
         }
       });
-
-      console.log('servicios',this.serviciosServs)
   }
 
   buscarServicios() {
@@ -883,7 +887,7 @@ export class EvaluacionComponent implements OnInit {
               porcts = [0, 0, 0, 0, 0];
             }
 
-            /** EMPATE PARA OBTENER PORCENTAJES DE NOMBRES QUE NO POSEA LA CONSULTA 
+            /** EMPATE PARA OBTENER PORCENTAJES DE NOMBRES QUE NO POSEA LA CONSULTA
              * (SI UNA CONSULTA NO TIENE MALOS, AQUI SE COMPLETA PARA MOSTRAR MEJOR LOS DATOS AL USUARIO)
              **/
             for (var i = 0; i < Nombres.length; i++) {
@@ -1012,7 +1016,7 @@ export class EvaluacionComponent implements OnInit {
             }
           }
         );
-      /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+      /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
        *  EVITANDO SUPERPOSISION DEL NUEVO CHART
        **/
       if (this.chart != undefined || this.chart != null) {

@@ -24,8 +24,8 @@ export class AuthenticationService {
   constructor(
     private http: HttpClient
   ) {
-    // this.leerToken();
-    // this.obtenerUsuario();
+    this.leerToken();
+    this.obtenerUsuario();
   }
 
   logout() {
@@ -95,11 +95,6 @@ export class AuthenticationService {
       this.userToken = '';
     }
     return this.userToken;
-  }
-
-  isAuthenticated() {
-    const token = localStorage.getItem('token');
-    return !!token;
   }
 
   estaAutenticado(): boolean {

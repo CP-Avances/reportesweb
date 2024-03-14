@@ -264,6 +264,9 @@ export class UsuariosComponent implements OnInit {
     this.malRequestESPag = true;
     this.malRequestAUPag = true;
 
+    // ACTUALIZAR CABECERA
+    this.serviceService.actualizarCabecera();
+
     // CARGAR LOGO PARA LOS REPORTES
     this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;
@@ -354,7 +357,10 @@ export class UsuariosComponent implements OnInit {
   // CONSULATA PARA LLENAR LA LISTA DE SURCURSALES.
   getSucursales() {
     this.serviceService.getAllSucursales().subscribe((empresas: any) => {
+
       this.sucursales = empresas.empresas;
+      console.log('sucursales',this.sucursales);
+      console.log('host actual',localStorage.getItem('host'));
     });
   }
 
@@ -383,8 +389,10 @@ export class UsuariosComponent implements OnInit {
   // SE DESLOGUEA DE LA APLICACION
   salir() {
     this.auth.logout();
-    this.router.navigateByUrl("/");
-  }
+    this.router.navigateByUrl("/").then(() => {
+      window.location.reload();
+    });
+}
 
   /** ********************************************************************************************************** **
    ** **                                     TURNOS POR FECHA                                                 ** **
@@ -772,7 +780,7 @@ export class UsuariosComponent implements OnInit {
           }
         );
     } else {
-      /** SI SE SELECCIONA EL ELEMENTO POR DEFECTO DE SELECT SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE 
+      /** SI SE SELECCIONA EL ELEMENTO POR DEFECTO DE SELECT SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE
        *  INTERFAZ SE VACIA VARIABLE DE CONSULTA
        **/
       this.servicioAtencionUsua = null;
@@ -1223,7 +1231,7 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
-  // GENERACION DE PDF'S 
+  // GENERACION DE PDF'S
   generarPdfTurnosFecha(action = "open", pdf: number) {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateTurnosFecha.nativeElement.value

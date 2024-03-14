@@ -95,6 +95,9 @@ export class MenuComponent implements OnInit {
     this.getevaluacionsucursal();
     this.getserviciosmasatendidos();
 
+    // ACTUALIZAR CABECERA
+    this.serviceService.actualizarCabecera();
+
     Utils.getImageDataUrlFromLocalPath1('assets/logotickets.png').then(
       result => this.urlImagen = result
     );
