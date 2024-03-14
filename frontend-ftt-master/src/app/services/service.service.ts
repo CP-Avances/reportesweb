@@ -19,11 +19,7 @@ export class ServiceService {
   constructor(
     private http: HttpClient
   ) {
-      this.URL =this.leerHost();
-      this.token = this.leerToken();
-      this.headers = new HttpHeaders({
-        'Authorization': 'Bearer ' + this.token
-      });
+      this.actualizarCabecera();
     }
 
   leerToken() {
