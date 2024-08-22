@@ -316,7 +316,7 @@ export class OpinionComponent implements OnInit {
             this.servicioOpinion = null;
             this.malRequestAtM = true;
             this.malRequestAtMPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
              **/
             if (this.servicioOpinion == null) {
@@ -370,7 +370,7 @@ export class OpinionComponent implements OnInit {
             this.servicioOpinionIC = null;
             this.malRequestIC = true;
             this.malRequestICPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
              **/
             if (this.servicioOpinionIC == null) {
@@ -422,7 +422,7 @@ export class OpinionComponent implements OnInit {
             this.servicioocg = null;
             this.malRequestAtM = true;
             this.malRequestAtMPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
              **/
             if (this.servicioocg == null) {
@@ -566,7 +566,7 @@ export class OpinionComponent implements OnInit {
         }
       );
     }
-    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
      *  EVITANDO SUPERPOSISION DEL NUEVO CHART
      **/
     if (this.chartPie != undefined || this.chartPie != null) {
@@ -604,7 +604,7 @@ export class OpinionComponent implements OnInit {
             this.servicioocgIC = null;
             this.malRequestAtMIC = true;
             this.malRequestAtMICPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
              **/
             if (this.servicioocgIC == null) {
@@ -748,7 +748,7 @@ export class OpinionComponent implements OnInit {
         }
       );
     }
-    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
      *  EVITANDO SUPERPOSISION DEL NUEVO CHART
      **/
     if (this.chartPie != undefined || this.chartPie != null) {
@@ -778,6 +778,13 @@ export class OpinionComponent implements OnInit {
   }
 
   // EXCEL
+
+  // Función para sumar un día a la fecha
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
+
   exportTOExcelOpiniones() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -788,7 +795,7 @@ export class OpinionComponent implements OnInit {
           Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
           Tipo: this.servicioOpinion[step].quejas_emi_tipo,
           Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-          Fecha: new Date(this.servicioOpinion[step].quejas_emi_fecha),
+          Fecha: this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
           Hora: this.servicioOpinion[step].hora,
           Caja: this.servicioOpinion[step].caja_caja_nombre,
           Opinión: this.servicioOpinion[step].quejas_emi_queja,
@@ -799,7 +806,7 @@ export class OpinionComponent implements OnInit {
         jsonServicio.push({
           Tipo: this.servicioOpinion[step].quejas_emi_tipo,
           Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-          Fecha: new Date(this.servicioOpinion[step].quejas_emi_fecha),
+          Fecha: this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
           Hora: this.servicioOpinion[step].hora,
           Caja: this.servicioOpinion[step].caja_caja_nombre,
           Opinión: this.servicioOpinion[step].quejas_emi_queja,
@@ -836,7 +843,7 @@ export class OpinionComponent implements OnInit {
           Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
           Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
           Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-          Fecha: new Date(this.servicioOpinionIC[step].quejas_emi_fecha),
+          Fecha: this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
           Hora: this.servicioOpinionIC[step].hora,
           Caja: this.servicioOpinionIC[step].caja_caja_nombre,
           Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
@@ -847,7 +854,7 @@ export class OpinionComponent implements OnInit {
         jsonServicio.push({
           Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
           Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-          Fecha: new Date(this.servicioOpinionIC[step].quejas_emi_fecha),
+          Fecha: this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
           Hora: this.servicioOpinionIC[step].hora,
           Caja: this.servicioOpinionIC[step].caja_caja_nombre,
           Opinión: this.servicioOpinionIC[step].quejas_emi_queja,

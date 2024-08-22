@@ -80,7 +80,7 @@ export class IngresoclientesComponent implements OnInit {
   horas: number[] = [];
 
   constructor(
-    private imagenesService: ImagenesService, 
+    private imagenesService: ImagenesService,
     private serviceService: ServiceService,
     private router: Router, public datePipe: DatePipe,
     private toastr: ToastrService,
@@ -128,8 +128,8 @@ export class IngresoclientesComponent implements OnInit {
             this.todasSucursales = !this.todasSucursales;
             break;
         case 'sucursalesSeleccionadas':
-            this.sucursalesSeleccionadas.length > 1 
-            ? this.seleccionMultiple = true 
+            this.sucursalesSeleccionadas.length > 1
+            ? this.seleccionMultiple = true
             : this.seleccionMultiple = false;
             break;
         default:
@@ -173,7 +173,7 @@ export class IngresoclientesComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fD = this.fromDateIng.nativeElement.value.toString().trim();
     var fH = this.toDateIng.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioI.nativeElement.value;
     let horaFin = this.horaFinI.nativeElement.value;
 
@@ -194,9 +194,9 @@ export class IngresoclientesComponent implements OnInit {
             this.servicioIngrClientes = null;
             this.malRequestIng = true;
             this.malRequestIngPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-             **/ 
+             **/
             if (this.servicioIngrClientes == null) {
               this.configTE.totalItems = 0;
             } else {
@@ -220,7 +220,7 @@ export class IngresoclientesComponent implements OnInit {
   obtenerNombreSucursal(sucursales: any) {
     const listaSucursales = sucursales;
     let nombreSucursal = "";
-    
+
     listaSucursales.forEach(elemento => {
       const cod = elemento;
       if (cod=="-1") {
@@ -236,6 +236,13 @@ export class IngresoclientesComponent implements OnInit {
   }
 
   // EXCEL
+
+  // Función para sumar un día a la fecha
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
+
   exportTOExcelIngrClientes() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -244,14 +251,14 @@ export class IngresoclientesComponent implements OnInit {
       for (let step = 0; step < this.servicioIngrClientes.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioIngrClientes[step].nombreEmpresa,
-          Fecha: new Date(this.servicioIngrClientes[step].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioIngrClientes[step].Fecha)),
           "Total Clientes": this.servicioIngrClientes[step].clientes
         });
       }
     } else {
       for (let step = 0; step < this.servicioIngrClientes.length; step++) {
         jsonServicio.push({
-          Fecha: new Date(this.servicioIngrClientes[step].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioIngrClientes[step].Fecha)),
           "Total Clientes": this.servicioIngrClientes[step].clientes
         });
       }

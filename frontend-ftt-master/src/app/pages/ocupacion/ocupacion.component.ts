@@ -255,7 +255,7 @@ export class OcupacionComponent implements OnInit {
             this.malRequestOcupOS = true;
             this.malRequestOcupOSPag = true;
             this.mostrarTotal = false;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
              **/
             if (this.serviciooc == null) {
@@ -316,7 +316,7 @@ export class OcupacionComponent implements OnInit {
             this.servicioocg = null;
             this.malRequestOcupOS = true;
             this.malRequestOcupOSPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS 
+            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
              **/
             if (this.servicioocg == null) {
@@ -459,7 +459,7 @@ export class OcupacionComponent implements OnInit {
       );
     }
 
-    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
      *  EVITANDO SUPERPOSISION DEL NUEVO CHART
      **/
     if (this.chartPie != undefined || this.chartPie != null) {
@@ -489,6 +489,13 @@ export class OcupacionComponent implements OnInit {
   }
 
   // EXCEL
+
+  // Función para sumar un día a la fecha
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
+
   exportarAExcelOcupServs() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -497,8 +504,8 @@ export class OcupacionComponent implements OnInit {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciooc[step].nombreEmpresa,
-          Desde: new Date(this.serviciooc[step].fechaminima),
-          Hasta: new Date(this.serviciooc[step].fechamaxima),
+          Desde: this.addOneDay(new Date(this.serviciooc[step].fechaminima)),
+          Hasta: this.addOneDay(new Date(this.serviciooc[step].fechamaxima)),
           Servicio: this.serviciooc[step].SERV_NOMBRE,
           "T. Turno": this.serviciooc[step].total,
           "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE + "%",
@@ -507,8 +514,8 @@ export class OcupacionComponent implements OnInit {
     } else {
       for (let step = 0; step < this.serviciooc.length; step++) {
         jsonServicio.push({
-          Desde: new Date(this.serviciooc[step].fechaminima),
-          Hasta: new Date(this.serviciooc[step].fechamaxima),
+          Desde: this.addOneDay(new Date(this.serviciooc[step].fechaminima)),
+          Hasta: this.addOneDay(new Date(this.serviciooc[step].fechamaxima)),
           Servicio: this.serviciooc[step].SERV_NOMBRE,
           "T. Turno": this.serviciooc[step].total,
           "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE + "%",
@@ -543,8 +550,8 @@ export class OcupacionComponent implements OnInit {
       for (let step = 0; step < this.servicioocg.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioocg[step].nombreEmpresa,
-          Desde: new Date(this.servicioocg[step].fechaminima),
-          Hasta: new Date(this.servicioocg[step].fechamaxima),
+          Desde: this.addOneDay(new Date(this.servicioocg[step].fechaminima)),
+          Hasta: this.addOneDay(new Date(this.servicioocg[step].fechamaxima)),
           Servicio: this.servicioocg[step].SERV_NOMBRE,
           "T. Turno": this.servicioocg[step].total,
           "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE + "%",
@@ -553,8 +560,8 @@ export class OcupacionComponent implements OnInit {
     } else {
       for (let step = 0; step < this.servicioocg.length; step++) {
         jsonServicio.push({
-          Desde: new Date(this.servicioocg[step].fechaminima),
-          Hasta: new Date(this.servicioocg[step].fechamaxima),
+          Desde: this.addOneDay(new Date(this.servicioocg[step].fechaminima)),
+          Hasta: this.addOneDay(new Date(this.servicioocg[step].fechamaxima)),
           Servicio: this.servicioocg[step].SERV_NOMBRE,
           "T. Turno": this.servicioocg[step].total,
           "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE + "%",
