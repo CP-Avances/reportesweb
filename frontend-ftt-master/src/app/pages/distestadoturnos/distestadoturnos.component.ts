@@ -343,6 +343,13 @@ export class DistestadoturnosComponent implements OnInit {
   }
 
   // EXCEL
+
+  // Función para sumar un día a la fecha
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
+
   exportTOExcelDist() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -353,7 +360,7 @@ export class DistestadoturnosComponent implements OnInit {
           Sucursal: this.servicioDist[step].nombreEmpresa,
           "Cajero(a)": this.servicioDist[step].Usuario,
           Servicio: this.servicioDist[step].SERV_NOMBRE,
-          Fecha: new Date(this.servicioDist[step].fecha),
+          Fecha: this.addOneDay(new Date(this.servicioDist[step].fecha)),
           "En espera": this.servicioDist[step].PENDIENTES,
           "En atención": this.servicioDist[step].EN_ATENCION,
           "En pausa": this.servicioDist[step].EN_PAUSA,
@@ -367,7 +374,7 @@ export class DistestadoturnosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioDist[step].Usuario,
           Servicio: this.servicioDist[step].SERV_NOMBRE,
-          Fecha: new Date(this.servicioDist[step].fecha),
+          Fecha: this.addOneDay(new Date(this.servicioDist[step].fecha)),
           "En espera": this.servicioDist[step].PENDIENTES,
           "En atención": this.servicioDist[step].EN_ATENCION,
           "En pausa": this.servicioDist[step].EN_PAUSA,

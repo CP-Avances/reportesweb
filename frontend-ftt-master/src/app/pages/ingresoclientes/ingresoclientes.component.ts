@@ -240,6 +240,13 @@ export class IngresoclientesComponent implements OnInit {
   }
 
   // EXCEL
+
+  // Función para sumar un día a la fecha
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
+
   exportTOExcelIngrClientes() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -248,14 +255,14 @@ export class IngresoclientesComponent implements OnInit {
       for (let step = 0; step < this.servicioIngrClientes.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioIngrClientes[step].nombreEmpresa,
-          Fecha: new Date(this.servicioIngrClientes[step].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioIngrClientes[step].Fecha)),
           "Total Clientes": this.servicioIngrClientes[step].clientes
         });
       }
     } else {
       for (let step = 0; step < this.servicioIngrClientes.length; step++) {
         jsonServicio.push({
-          Fecha: new Date(this.servicioIngrClientes[step].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioIngrClientes[step].Fecha)),
           "Total Clientes": this.servicioIngrClientes[step].clientes
         });
       }

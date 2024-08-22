@@ -784,6 +784,13 @@ export class OpinionComponent implements OnInit {
   }
 
   // EXCEL
+
+  // Función para sumar un día a la fecha
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
+
   exportTOExcelOpiniones() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -794,7 +801,7 @@ export class OpinionComponent implements OnInit {
           Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
           Tipo: this.servicioOpinion[step].quejas_emi_tipo,
           Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-          Fecha: new Date(this.servicioOpinion[step].quejas_emi_fecha),
+          Fecha: this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
           Hora: this.servicioOpinion[step].hora,
           Caja: this.servicioOpinion[step].caja_caja_nombre,
           Opinión: this.servicioOpinion[step].quejas_emi_queja,
@@ -805,7 +812,7 @@ export class OpinionComponent implements OnInit {
         jsonServicio.push({
           Tipo: this.servicioOpinion[step].quejas_emi_tipo,
           Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-          Fecha: new Date(this.servicioOpinion[step].quejas_emi_fecha),
+          Fecha: this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
           Hora: this.servicioOpinion[step].hora,
           Caja: this.servicioOpinion[step].caja_caja_nombre,
           Opinión: this.servicioOpinion[step].quejas_emi_queja,
@@ -842,7 +849,7 @@ export class OpinionComponent implements OnInit {
           Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
           Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
           Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-          Fecha: new Date(this.servicioOpinionIC[step].quejas_emi_fecha),
+          Fecha: this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
           Hora: this.servicioOpinionIC[step].hora,
           Caja: this.servicioOpinionIC[step].caja_caja_nombre,
           Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
@@ -853,7 +860,7 @@ export class OpinionComponent implements OnInit {
         jsonServicio.push({
           Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
           Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-          Fecha: new Date(this.servicioOpinionIC[step].quejas_emi_fecha),
+          Fecha: this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
           Hora: this.servicioOpinionIC[step].hora,
           Caja: this.servicioOpinionIC[step].caja_caja_nombre,
           Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
