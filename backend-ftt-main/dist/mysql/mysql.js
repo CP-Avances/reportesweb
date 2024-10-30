@@ -6,11 +6,11 @@ class MySQL {
         this.conectado = false;
         console.log('clase inicializada');
         this.cnn = mysql.createPool({
-            host: '192.168.0.145',
-            port: 3307,
-            user: 'fte',
-            password: 'admin123',
-            database: 'fiscalia2',
+            host: '192.188.60.250',
+            port: 3306,
+            user: 'root',
+            password: '*-1Y22T3..A250C00P',
+            database: 'fulltimetickets',
             connectionLimit: 10,
         });
         this.conectarDB();
