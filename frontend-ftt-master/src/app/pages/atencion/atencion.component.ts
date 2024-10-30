@@ -524,11 +524,11 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtPA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtPA.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioPA.nativeElement.value;
     let horaFin = this.horaFinPA.nativeElement.value;
 
-    if (this.selectedItems.length!==0) {  
+    if (this.selectedItems.length!==0) {
       this.serviceService
         .getpromatencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
@@ -574,11 +574,11 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtTA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtTA.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioTA.nativeElement.value;
     let horaFin = this.horaFinTA.nativeElement.value;
 
-    if (this.selectedItems.length!==0) {  
+    if (this.selectedItems.length!==0) {
       this.serviceService
         .gettiempoatencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
@@ -624,7 +624,7 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtMA.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtMA.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioTM.nativeElement.value;
     let horaFin = this.horaFinTM.nativeElement.value;
 
@@ -674,7 +674,7 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtAS.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtAS.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioAS.nativeElement.value;
     let horaFin = this.horaFinAS.nativeElement.value;
 
@@ -724,7 +724,7 @@ export class AtencionComponent implements OnInit {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtG.nativeElement.value.toString().trim();
     var fechaHasta = this.toDateAtG.nativeElement.value.toString().trim();
-    
+
     let horaInicio = this.horaInicioGS.nativeElement.value;
     let horaFin = this.horaFinGS.nativeElement.value;
 
@@ -748,7 +748,7 @@ export class AtencionComponent implements OnInit {
           let totales = serviciograf.turnos.map((res) => res.Total);
           let atendidos = serviciograf.turnos.map((res) => res.Atendidos);
           let noAtendidos = serviciograf.turnos.map((res) => res.No_Atendidos);
-  
+
           // SETEO DE CADA GRUPO DE DATOS
           var atendidosData = {
             label: "Atendidos",
@@ -770,7 +770,7 @@ export class AtencionComponent implements OnInit {
             labels: Nombres,
             datasets: [atendidosData, noAtendidosData, totalesData],
           };
-  
+
           // CREACION DEL GRAFICO
           this.chart = new Chart("canvas", {
             type: "bar",
@@ -827,7 +827,7 @@ export class AtencionComponent implements OnInit {
         }
       );
     }
-    // SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO, 
+    // SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
     // EVITANDO SUPERPOSISION DEL NUEVO CHART
     if (this.chart != undefined || this.chart != null) {
       this.chart.destroy();
@@ -837,7 +837,7 @@ export class AtencionComponent implements OnInit {
   obtenerNombreSucursal(sucursales: any) {
     const listaSucursales = sucursales;
     let nombreSucursal = "";
-    
+
     listaSucursales.forEach(elemento => {
       const cod = elemento;
       if (cod=="-1") {
@@ -853,9 +853,15 @@ export class AtencionComponent implements OnInit {
   }
 
   /** ***************************************************************************************************** **
-   ** **                                               EXCEL                                             ** ** 
+   ** **                                               EXCEL                                             ** **
    ** ***************************************************************************************************** **/
- 
+
+   // Función para sumar un día a la fecha
+    addOneDay(date: Date): Date {
+      date.setDate(date.getDate() + 1);
+      return date;
+    }
+
    exportarAExcelTiempoComp() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -866,7 +872,7 @@ export class AtencionComponent implements OnInit {
           Sucursal: this.servicioTiempoComp[step].nombreEmpresa,
           "Cajero(a)": this.servicioTiempoComp[step].Usuario,
           Servicio: this.servicioTiempoComp[step].Servicio,
-          Fecha: new Date(this.servicioTiempoComp[step].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioTiempoComp[step].Fecha)),
           "Tiempo Espera": this.servicioTiempoComp[step].Tiempo_Espera,
           "Tiempo Atención": this.servicioTiempoComp[step].Tiempo_Atencion,
         });
@@ -877,7 +883,7 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioTiempoComp[step].Usuario,
           Servicio: this.servicioTiempoComp[step].Servicio,
-          Fecha: new Date(this.servicioTiempoComp[step].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioTiempoComp[step].Fecha)),
           "Tiempo Espera": this.servicioTiempoComp[step].Tiempo_Espera,
           "Tiempo Atención": this.servicioTiempoComp[step].Tiempo_Atencion,
         });
@@ -915,7 +921,7 @@ export class AtencionComponent implements OnInit {
           Sucursal: this.clientes[step].empresa,
           "Cajero(a)": this.clientes[step].usuario,
           Cliente: this.identificacionCliente == 'nombre' ? this.clientes[step].nombre : this.clientes[step].cedula,
-          Fecha: new Date(this.clientes[step].fecha),
+          Fecha: this.addOneDay(new Date(this.clientes[step].fecha)),
           Servicio: this.clientes[step].servicio,
           Turno: this.clientes[step].siglas+this.clientes[step].numero,
         });
@@ -927,7 +933,7 @@ export class AtencionComponent implements OnInit {
           "N": step+1,
           "Cajero(a)": this.clientes[step].usuario,
           Cliente: this.identificacionCliente == 'nombre' ? this.clientes[step].nombre : this.clientes[step].cedula,
-          Fecha: new Date(this.clientes[step].fecha),
+          Fecha: this.addOneDay(new Date(this.clientes[step].fecha)),
           Servicio: this.clientes[step].servicio,
           Turno: this.clientes[step].siglas+this.clientes[step].numero,
         });
@@ -963,7 +969,7 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.serviciopa[step].nombreEmpresa,
           Servicios: this.serviciopa[step].SERV_NOMBRE,
-          Fecha: new Date(this.serviciopa[step].TURN_FECHA),
+          Fecha: this.addOneDay(new Date(this.serviciopa[step].TURN_FECHA)),
           "T. Promedio de Espera": this.serviciopa[step].PromedioEspera,
           "T. Promedio de Atención": this.serviciopa[step].PromedioAtencion,
         });
@@ -973,7 +979,7 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
           Servicios: this.serviciopa[step].SERV_NOMBRE,
-          Fecha: new Date(this.serviciopa[step].TURN_FECHA),
+          Fecha: this.addOneDay(new Date(this.serviciopa[step].TURN_FECHA)),
           "T. Promedio de Espera": this.serviciopa[step].PromedioEspera,
           "T. Promedio de Atención": this.serviciopa[step].PromedioAtencion,
         });
@@ -1008,7 +1014,7 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.serviciota[step].nombreEmpresa,
           "Cajero(a)": this.serviciota[step].cajero,
-          Fecha: new Date(this.serviciota[step].TURN_FECHA),
+          Fecha: this.addOneDay(new Date(this.serviciota[step].TURN_FECHA)),
           Hora: this.serviciota[step].hora,
           Servicio: this.serviciota[step].SERV_NOMBRE,
           Turno: this.serviciota[step].turno,
@@ -1021,7 +1027,7 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciota.length; step++) {
         jsonServicio.push({
           "Cajero(a)": this.serviciota[step].cajero,
-          Fecha: new Date(this.serviciota[step].TURN_FECHA),
+          Fecha: this.addOneDay(new Date(this.serviciota[step].TURN_FECHA)),
           Hora: this.serviciota[step].hora,
           Servicio: this.serviciota[step].SERV_NOMBRE,
           Turno: this.serviciota[step].turno,
@@ -1059,7 +1065,7 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.serviciomax[step].nombreEmpresa,
           Servicio: this.serviciomax[step].SERV_NOMBRE,
-          Fecha: new Date(this.serviciomax[step].Fecha),
+          Fecha: this.addOneDay(new Date(this.serviciomax[step].Fecha)),
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
         });
       }
@@ -1068,7 +1074,7 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
           Servicio: this.serviciomax[step].SERV_NOMBRE,
-          Fecha: new Date(this.serviciomax[step].Fecha),
+          Fecha: this.addOneDay(new Date(this.serviciomax[step].Fecha)),
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
         });
       }
@@ -1142,7 +1148,7 @@ export class AtencionComponent implements OnInit {
 
   exportarAExcelGraServ() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    
+
     // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     for (let step = 0; step < this.serviciograf.length; step++) {
@@ -1157,7 +1163,7 @@ export class AtencionComponent implements OnInit {
       };
       jsonServicio.push(item);
     }
-    
+
     // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -1180,9 +1186,9 @@ export class AtencionComponent implements OnInit {
   }
 
   /** ***************************************************************************************************** **
-   ** **                                                 PDF                                             ** ** 
+   ** **                                                 PDF                                             ** **
    ** ***************************************************************************************************** **/
- 
+
   generarPdfTiempoComp(action = "open", pdf: number) {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
     var fechaDesde = this.fromDateAtTC.nativeElement.value.toString().trim();
@@ -1823,7 +1829,7 @@ export class AtencionComponent implements OnInit {
       };
     }
   }
-  
+
   generarPdfTiempoAtencion(action = "open", pdf: number) {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtTA.nativeElement.value.toString().trim();

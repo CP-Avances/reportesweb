@@ -772,7 +772,7 @@ export class UsuariosComponent implements OnInit {
           }
         );
     } else {
-      /** SI SE SELECCIONA EL ELEMENTO POR DEFECTO DE SELECT SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE 
+      /** SI SE SELECCIONA EL ELEMENTO POR DEFECTO DE SELECT SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE
        *  INTERFAZ SE VACIA VARIABLE DE CONSULTA
        **/
       this.servicioAtencionUsua = null;
@@ -865,6 +865,12 @@ export class UsuariosComponent implements OnInit {
     return objeto.toString();
   };
 
+  // Función para sumar un día a la fecha
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
+
   exportarAExcelEntradaSalida() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -874,7 +880,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioEntradaSalida[i].nombreEmpresa,
           "Cajero(a)": this.servicioEntradaSalida[i].Usuario,
-          Fecha: new Date(this.servicioEntradaSalida[i].fecha),
+          Fecha: this.addOneDay(new Date(this.servicioEntradaSalida[i].fecha)),
           Hora: this.servicioEntradaSalida[i].hora,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
@@ -883,7 +889,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioEntradaSalida.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioEntradaSalida[i].Usuario,
-          Fecha: new Date(this.servicioEntradaSalida[i].fecha),
+          Fecha: this.addOneDay(new Date(this.servicioEntradaSalida[i].fecha)),
           Hora: this.servicioEntradaSalida[i].hora,
           Razón: this.servicioEntradaSalida[i].Razon,
         });
@@ -921,7 +927,7 @@ export class UsuariosComponent implements OnInit {
           Sucursal: this.servicioTurnosFecha[i].nombreEmpresa,
           "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
-          Fecha: new Date(this.servicioTurnosFecha[i].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioTurnosFecha[i].Fecha)),
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosFecha[i].No_Atendidos,
           Total: this.servicioTurnosFecha[i].Total,
@@ -932,7 +938,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
-          Fecha: new Date(this.servicioTurnosFecha[i].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioTurnosFecha[i].Fecha)),
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosFecha[i].No_Atendidos,
           Total: this.servicioTurnosFecha[i].Total,
@@ -970,7 +976,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioTurnosTotalFecha[i].nombreEmpresa,
           "Cajero(a)": this.servicioTurnosTotalFecha[i].Usuario,
-          Fecha: new Date(this.servicioTurnosTotalFecha[i].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
           Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
           Total: this.servicioTurnosTotalFecha[i].Total,
@@ -980,7 +986,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioTurnosTotalFecha[i].Usuario,
-          Fecha: new Date(this.servicioTurnosTotalFecha[i].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
           Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
           Total: this.servicioTurnosTotalFecha[i].Total,
@@ -1019,7 +1025,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioTurnosMeta[i].nombreEmpresa,
           "Cajero(a)": this.servicioTurnosMeta[i].Usuario,
-          Fecha: new Date(this.servicioTurnosMeta[i].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
           Atendidos: this.servicioTurnosMeta[i].Atendidos,
           "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
         });
@@ -1028,7 +1034,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioTurnosMeta[i].Usuario,
-          Fecha: new Date(this.servicioTurnosMeta[i].Fecha),
+          Fecha: this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
           Atendidos: this.servicioTurnosMeta[i].Atendidos,
           "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
         });
@@ -1114,7 +1120,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioTiempoAtencion[i].nombreEmpresa,
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
-          Fecha: new Date(this.servicioTiempoAtencion[i].TURN_FECHA),
+          Fecha: this.addOneDay(new Date(this.servicioTiempoAtencion[i].TURN_FECHA)),
           Hora: this.servicioTiempoAtencion[i].hora,
           Servicio: this.servicioTiempoAtencion[i].Servicio,
           Turno: this.servicioTiempoAtencion[i].turno,
@@ -1127,7 +1133,7 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
-          Fecha: new Date(this.servicioTiempoAtencion[i].TURN_FECHA),
+          Fecha: this.addOneDay(new Date(this.servicioTiempoAtencion[i].TURN_FECHA)),
           Hora: this.servicioTiempoAtencion[i].hora,
           Servicio: this.servicioTiempoAtencion[i].Servicio,
           Turno: this.servicioTiempoAtencion[i].turno,
@@ -1223,7 +1229,7 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
-  // GENERACION DE PDF'S 
+  // GENERACION DE PDF'S
   generarPdfTurnosFecha(action = "open", pdf: number) {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateTurnosFecha.nativeElement.value
