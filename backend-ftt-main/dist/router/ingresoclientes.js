@@ -30,21 +30,29 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
         hFinAux = parseInt(hFin) - 1;
     }
     const query = `
-            SELECT e.empr_nombre AS nombreEmpresa, date_format(turn_fecha, '%Y-%m-%d') AS Fecha, 
-            COUNT(turn_codigo) AS clientes,
-            (SELECT MAX(turn_fecha) FROM turno
-                WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}') AS fechamaxima,
-            (SELECT MIN(turn_fecha) FROM turno
-                WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}') AS fechaminima
-            FROM turno turno, servicio s, empresa e
-            WHERE turno.serv_codigo=s.serv_codigo
-                AND s.empr_codigo = e.empr_codigo 
-                AND turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
-                AND turno.caje_codigo != 0
-                ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
-                ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-            GROUP BY turn_fecha, nombreEmpresa
-            ORDER BY turno.turn_fecha DESC;
+                SELECT 
+                    e.empr_nombre AS nombreEmpresa, 
+                    DATE_FORMAT(turn_fecha, '%Y-%m-%d') AS Fecha, 
+                    COUNT(turn_codigo) AS clientes,
+                    MAX(turn_fecha) AS fechamaxima,  -- Fecha máxima dentro del rango
+                    MIN(turn_fecha) AS fechaminima  -- Fecha mínima dentro del rango
+                FROM 
+                    turno t
+                INNER JOIN 
+                    servicio s ON t.serv_codigo = s.serv_codigo
+                INNER JOIN 
+                    empresa e ON s.empr_codigo = e.empr_codigo
+                INNER JOIN 
+                    sub_servicio ss ON t.id_sub_serv = ss.id
+                WHERE 
+                    t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'  
+                    AND t.caje_codigo != 0  
+                    ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}  
+                    ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}'` : ''}  
+                GROUP BY 
+                    e.empr_nombre, Fecha  
+                ORDER BY 
+                    Fecha DESC;  
             `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -64,12 +72,21 @@ router.get('/ingresoclientes/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucur
 router.get('/ingresoclientesmenu/:fecha', verifivarToken_1.TokenValidation, (req, res) => {
     let fechas = req.params.fecha;
     const query = `
-        SELECT turn_fecha, count(turn_codigo) AS clientes, (SELECT MAX(turn_fecha) FROM turno) AS fechamaxima, 
-            (SELECT MIN(turn_fecha) FROM turno) AS fechaminima 
-        FROM turno turno, servicio s 
-        WHERE turno.serv_codigo = s.serv_codigo
-        AND turno.TURN_FECHA = ${fechas} 
-        GROUP BY turn_fecha;
+            SELECT 
+                turn_fecha,
+                COUNT(turn_codigo) AS clientes, 
+                (SELECT MAX(turn_fecha) FROM turno WHERE TURN_FECHA = ${fechas}) AS fechamaxima, 
+                (SELECT MIN(turn_fecha) FROM turno WHERE TURN_FECHA = ${fechas}) AS fechaminima
+            FROM 
+                turno
+            INNER JOIN 
+                servicio s ON turno.serv_codigo = s.serv_codigo
+            INNER JOIN 
+                sub_servicio ss ON turno.id_sub_serv = ss.id
+            WHERE 
+                turno.TURN_FECHA = '${fechas}'
+            GROUP BY 
+                turn_fecha;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

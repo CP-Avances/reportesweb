@@ -344,7 +344,7 @@ export class OcupacionComponent implements OnInit {
           // MAPEO DE PORCENTAJES PARA MOSTRAR EN PANTALLA
           this.servicio = servicio.turnos;
           let total = servicio.turnos.map((res: any) => res.total);
-          let servicios = servicio.turnos.map((res: any) => res.SERV_NOMBRE);
+          let servicios = servicio.turnos.map((res: any) => `${res.SERV_NOMBRE} - ${res.subservicio}`);
           let codigo = servicio.turnos.map((res: any) => res.SERV_CODIGO);
           let Nombres: any = [];
           let totalPorc = 0;
@@ -507,6 +507,7 @@ export class OcupacionComponent implements OnInit {
           Desde: this.addOneDay(new Date(this.serviciooc[step].fechaminima)),
           Hasta: this.addOneDay(new Date(this.serviciooc[step].fechamaxima)),
           Servicio: this.serviciooc[step].SERV_NOMBRE,
+          Subservicio: this.serviciooc[step].subservicio,
           "T. Turno": this.serviciooc[step].total,
           "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE + "%",
         });
@@ -517,6 +518,7 @@ export class OcupacionComponent implements OnInit {
           Desde: this.addOneDay(new Date(this.serviciooc[step].fechaminima)),
           Hasta: this.addOneDay(new Date(this.serviciooc[step].fechamaxima)),
           Servicio: this.serviciooc[step].SERV_NOMBRE,
+          Subservicio: this.serviciooc[step].subservicio,
           "T. Turno": this.serviciooc[step].total,
           "Porcentaje de ocupación": this.serviciooc[step].PORCENTAJE + "%",
         });
@@ -553,6 +555,7 @@ export class OcupacionComponent implements OnInit {
           Desde: this.addOneDay(new Date(this.servicioocg[step].fechaminima)),
           Hasta: this.addOneDay(new Date(this.servicioocg[step].fechamaxima)),
           Servicio: this.servicioocg[step].SERV_NOMBRE,
+          Subservico: this.servicioocg[step].subservicio,
           "T. Turno": this.servicioocg[step].total,
           "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE + "%",
         });
@@ -563,6 +566,7 @@ export class OcupacionComponent implements OnInit {
           Desde: this.addOneDay(new Date(this.servicioocg[step].fechaminima)),
           Hasta: this.addOneDay(new Date(this.servicioocg[step].fechamaxima)),
           Servicio: this.servicioocg[step].SERV_NOMBRE,
+          Subservicio: this.servicioocg[step].subservicio,
           "T. Turno": this.servicioocg[step].total,
           "Porcentaje Ocupación": this.servicioocg[step].PORCENTAJE + "%",
         });
@@ -886,13 +890,14 @@ export class OcupacionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Desde", style: "tableHeader" },
               { text: "Hasta", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "T. Turno", style: "tableHeader" },
               { text: "Porcentaje Ocupacion", style: "tableHeader" },
             ],
@@ -902,6 +907,7 @@ export class OcupacionComponent implements OnInit {
                 { style: "itemsTable", text: res.fechaminima },
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.total },
                 { style: "itemsTable", text: res.PORCENTAJE + " %" },
               ];
@@ -919,12 +925,13 @@ export class OcupacionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "*", "*", "*"],
+          widths: ["*", "*", "*", "*", "*", "*"],
           body: [
             [
               { text: "Desde", style: "tableHeader" },
               { text: "Hasta", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "T. Turno", style: "tableHeader" },
               { text: "Porcentaje Ocupacion", style: "tableHeader" },
             ],
@@ -933,6 +940,7 @@ export class OcupacionComponent implements OnInit {
                 { style: "itemsTable", text: res.fechaminima },
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.total },
                 { style: "itemsTable", text: res.PORCENTAJE + " %" },
               ];
@@ -955,13 +963,14 @@ export class OcupacionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Desde", style: "tableHeader" },
               { text: "Hasta", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "T. Turno", style: "tableHeader" },
               { text: "Porcentaje Ocupacion", style: "tableHeader" },
             ],
@@ -971,6 +980,7 @@ export class OcupacionComponent implements OnInit {
                 { style: "itemsTable", text: res.fechaminima },
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.total },
                 { style: "itemsTable", text: res.PORCENTAJE + " %" },
               ];
@@ -988,12 +998,13 @@ export class OcupacionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "*", "*", "*"],
+          widths: ["*", "*", "*", "*", "*", "*"],
           body: [
             [
               { text: "Desde", style: "tableHeader" },
               { text: "Hasta", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "T. Turno", style: "tableHeader" },
               { text: "Porcentaje Ocupacion", style: "tableHeader" },
             ],
@@ -1002,6 +1013,7 @@ export class OcupacionComponent implements OnInit {
                 { style: "itemsTable", text: res.fechaminima },
                 { style: "itemsTable", text: res.fechamaxima },
                 { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.total },
                 { style: "itemsTable", text: res.PORCENTAJE + " %" },
               ];

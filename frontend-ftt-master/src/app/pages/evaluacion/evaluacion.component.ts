@@ -454,7 +454,11 @@ export class EvaluacionComponent implements OnInit {
   // OBTIENE LOS SERVICIOS QUE EXISTEN
   getServicios(sucursal: any) {
     this.serviceService.getAllServiciosS(sucursal).subscribe((servicios: any) => {
-      this.serviciosServs = servicios.servicios;
+      //this.serviciosServs = servicios.servicios;
+      this.serviciosServs = servicios.servicios.filter(
+        (valor: any, indice: any, self: any) =>
+          self.findIndex((v: any) => v.serv_codigo === valor.serv_codigo) === indice
+      );
       this.mostrarServicios = true;
     },
       (error) => {
@@ -464,7 +468,7 @@ export class EvaluacionComponent implements OnInit {
         }
       });
 
-      console.log('servicios',this.serviciosServs)
+    console.log('servicios', this.serviciosServs)
   }
 
   buscarServicios() {
@@ -1064,6 +1068,8 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesS || this.seleccionMultiple
           ? { Sucursal: this.servicioServs[i].nombreEmpresa }
           : {}),
+        "Servicio": this.servicioServs[i].Servicio,
+        "Subservicio": this.servicioServs[i].subservicio,
         "Cajero(a)": this.servicioServs[i].Usuario,
         Fecha: this.addOneDay(new Date(this.servicioServs[i].Fecha)),
         Excelente: this.servicioServs[i].Excelente,
@@ -1102,6 +1108,8 @@ export class EvaluacionComponent implements OnInit {
         ...(this.todasSucursalesS
           ? { Sucursal: this.servicioServsMaxMin[i].nombreEmpresa }
           : {}),
+        "Servicio": this.servicioServsMaxMin[i].Servicio,
+        "Subservicio": this.servicioServsMaxMin[i].subservicio,
         "Cajero(a)": this.servicioServsMaxMin[i].Usuario,
         Fecha: this.addOneDay(new Date(this.servicioServsMaxMin[i].Fecha)),
         Excelente: this.servicioServsMaxMin[i].Excelente,
@@ -1456,6 +1464,8 @@ export class EvaluacionComponent implements OnInit {
 
     return {
       // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
+      pageSize: 'A4',
+      pageOrientation: 'landscape',
       watermark: {
         text: this.marca,
         color: "blue",
@@ -1582,10 +1592,14 @@ export class EvaluacionComponent implements OnInit {
             "auto",
             "auto",
             "auto",
+            "auto",
+            "auto",
           ],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Excelente", style: "tableHeader" },
@@ -1599,6 +1613,8 @@ export class EvaluacionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Usuario },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Excelente },
@@ -1633,9 +1649,13 @@ export class EvaluacionComponent implements OnInit {
             "auto",
             "auto",
             "auto",
+            "auto",
+            "auto",
           ],
           body: [
             [
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Excelente", style: "tableHeader" },
@@ -1648,6 +1668,8 @@ export class EvaluacionComponent implements OnInit {
             ],
             ...servicio.map((res) => {
               return [
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Usuario },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Excelente },
@@ -1690,10 +1712,14 @@ export class EvaluacionComponent implements OnInit {
             "auto",
             "auto",
             "auto",
+            "auto",
+            "auto",
           ],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Excelente", style: "tableHeader" },
@@ -1708,6 +1734,8 @@ export class EvaluacionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Usuario },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Excelente },
@@ -3060,7 +3088,7 @@ export class EvaluacionComponent implements OnInit {
   }
 
   generarPdfEvalGr(action = "open", pdf: number) {
-     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateDesdeEvalGr.nativeElement.value
       .toString()
       .trim();
@@ -3281,7 +3309,7 @@ export class EvaluacionComponent implements OnInit {
 
   // PDF DE GRAFICOS
   generarPdfGra(action = "open", pdf: number) {
-     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateDesdeEvalGra.nativeElement.value
       .toString()
       .trim();

@@ -30,32 +30,38 @@ router.get("/ocupacionservicios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:su
         hFinAux = parseInt(hFin) - 1;
     }
     const query = `
-            SELECT empresa.empr_nombre AS nombreEmpresa, COUNT(turno.TURN_ESTADO) AS total,
-                servicio.SERV_NOMBRE, servicio.SERV_CODIGO,
-                ROUND((COUNT(turno.TURN_ESTADO)*100)/
-                (SELECT SUM(c) 
-                    FROM (SELECT COUNT(turn_estado) AS c 
-                        FROM turno
-                        WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-                        AND turno.caje_codigo != 0
-                        GROUP BY serv_codigo) as tl),2) AS PORCENTAJE,
-                                DATE_FORMAT((SELECT MAX(turn_fecha) 
-                                FROM turno
-                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0), '%Y-%m-%d') AS fechamaxima,
-                                DATE_FORMAT((SELECT MIN(turn_fecha) 
-                                FROM turno
-                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0), '%Y-%m-%d') AS fechaminima
-            FROM servicio 
-            INNER JOIN turno
-                ON servicio.SERV_CODIGO = turno.SERV_CODIGO
-            INNER JOIN empresa ON servicio.empr_codigo = empresa.empr_codigo
-            WHERE turno.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
-            AND turno.caje_codigo != 0
-            ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-            GROUP BY servicio.SERV_CODIGO;
-            `;
+        SELECT 
+          e.empr_nombre AS nombreEmpresa, 
+          COUNT(t.turn_estado) AS total,
+          s.serv_nombre AS SERV_NOMBRE, 
+          s.serv_codigo AS SERV_CODIGO, 
+          ss.id AS id_subservicio, 
+          ss.nombre AS subservicio, 
+          ROUND((COUNT(t.turn_estado) * 100) / (SELECT SUM(c) 
+                                                FROM (SELECT COUNT(turn_estado) AS c 
+                                                      FROM turno 
+                                                      WHERE caje_codigo != 0
+                                                        AND turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+                                                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+                                                      GROUP BY serv_codigo) AS tl), 2) AS PORCENTAJE,
+          DATE_FORMAT(MAX(t.turn_fecha), '%Y-%m-%d') AS fechamaxima,
+          DATE_FORMAT(MIN(t.turn_fecha), '%Y-%m-%d') AS fechaminima
+        FROM 
+          servicio s
+        INNER JOIN 
+          turno t ON s.serv_codigo = t.serv_codigo
+        INNER JOIN 
+          empresa e ON s.empr_codigo = e.empr_codigo
+        INNER JOIN 
+          sub_servicio ss ON t.id_sub_serv = ss.id
+        WHERE 
+          t.caje_codigo != 0
+          AND t.TURN_FECHA BETWEEN ' ${fDesde}' AND '${fHasta}'
+          ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
+          ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+        GROUP BY 
+          s.serv_codigo, ss.id, ss.nombre, e.empr_nombre; 
+      `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({
@@ -94,31 +100,38 @@ router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
         hFinAux = parseInt(hFin) - 1;
     }
     const query = `
-            SELECT empresa.empr_nombre AS nombreEmpresa, COUNT(turno.TURN_ESTADO) AS total,
-                servicio.SERV_NOMBRE, servicio.SERV_CODIGO,
-                ROUND((COUNT(turno.TURN_ESTADO)*100) / (SELECT SUM(c) 
-                    FROM (SELECT COUNT(turn_estado) as c
-                        FROM turno
-                        WHERE turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-                        ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-                        AND turno.caje_codigo != 0
-                        GROUP BY serv_codigo) as tl),2)AS PORCENTAJE, 
-                            (SELECT MAX(turn_fecha) 
-                            FROM turno
-                            WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0) AS fechamaxima,
-                                (SELECT MIN(turn_fecha)
-                                FROM turno
-                                WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}' AND turno.caje_codigo != 0) as fechaminima
-            FROM servicio 
-            INNER JOIN turno
-                ON servicio.SERV_CODIGO = turno.SERV_CODIGO
-            INNER JOIN empresa ON servicio.empr_codigo = empresa.empr_codigo
-            WHERE turno.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
-            AND turno.caje_codigo != 0
-            ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
-            ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-            GROUP BY servicio.SERV_CODIGO;
-            `;
+        SELECT 
+          e.empr_nombre AS nombreEmpresa, 
+          COUNT(t.turn_estado) AS total,
+          s.serv_nombre AS SERV_NOMBRE, 
+          s.serv_codigo AS SERV_CODIGO, 
+          ss.id AS id_subservicio, 
+          ss.nombre AS subservicio, 
+          ROUND((COUNT(t.turn_estado) * 100) / (SELECT SUM(c) 
+                                              FROM (SELECT COUNT(turn_estado) AS c 
+                                                    FROM turno 
+                                                    WHERE caje_codigo != 0
+                                                      AND turno.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+                                                      ${!diaCompleto ? `AND turno.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
+                                                    GROUP BY serv_codigo) AS tl), 2) AS PORCENTAJE,
+          DATE_FORMAT(MAX(t.turn_fecha), '%Y-%m-%d') AS fechamaxima,
+          DATE_FORMAT(MIN(t.turn_fecha), '%Y-%m-%d') AS fechaminima
+        FROM 
+          servicio s
+        INNER JOIN 
+          turno t ON s.serv_codigo = t.serv_codigo
+        INNER JOIN 
+          empresa e ON s.empr_codigo = e.empr_codigo
+        INNER JOIN 
+          sub_servicio ss ON t.id_sub_serv = ss.id
+        WHERE 
+          t.caje_codigo != 0
+          ${!todasSucursales ? `AND servicio.empr_codigo IN (${listaSucursales})` : ''}
+          ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+          AND t.TURN_FECHA BETWEEN '${fDesde}' AND '${fHasta}'
+        GROUP BY 
+          s.serv_codigo, ss.id, ss.nombre, e.empr_nombre;
+      `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({
@@ -137,24 +150,44 @@ router.get("/graficoocupacion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
 router.get("/graficoocupacion/:fecha", verifivarToken_1.TokenValidation, (req, res) => {
     let fechas = req.params.fecha;
     const query = `
-        SELECT COUNT(turno.TURN_ESTADO) AS total, servicio.SERV_NOMBRE, servicio.SERV_CODIGO, 
-            ROUND((COUNT(turno.TURN_ESTADO)*100) / (SELECT SUM(c) 
-                FROM (SELECT COUNT(turn_estado) as c FROM turno GROUP BY serv_codigo) AS tl),2) AS PORCENTAJE, 
-                    (SELECT MAX(turn_fecha) 
-                    FROM turno 
-                    WHERE turno.TURN_FECHA = '${fechas}' AND turno.TURN_FECHA = '${fechas}' ) AS fechamaxima, 
-                        (SELECT MIN(turn_fecha) 
-                        FROM turno 
-                        WHERE turno.TURN_FECHA = '${fechas}' AND turno.TURN_FECHA = '${fechas}' ) AS fechaminima 
-        FROM servicio 
-        INNER JOIN turno 
-            ON servicio.SERV_CODIGO = turno.SERV_CODIGO 
-        WHERE turno.TURN_FECHA = '${fechas}' 
-            AND turno.TURN_FECHA = '${fechas}' 
-            AND servicio.empr_codigo 
-            AND servicio.serv_codigo  
-        GROUP BY servicio.SERV_CODIGO;
-        `;
+      SELECT 
+        s.serv_nombre, 
+        s.serv_codigo, 
+        ss.id AS id_subservicio, 
+        ss.nombre AS subservicio, 
+        COUNT(t.turn_estado) AS total_turnos,
+        ROUND(
+          (COUNT(t.turn_estado) * 100) / total_turnos_servicio.total_turnos_servicio, 2
+          ) AS porcentaje_turnos,
+    -- Fecha máxima de turnos por subservicio
+        DATE_FORMAT(MAX(t.turn_fecha), '%Y-%m-%d') AS fechamaxima,
+    -- Fecha mínima de turnos por subservicio
+        DATE_FORMAT(MIN(t.turn_fecha), '%Y-%m-%d') AS fechaminima
+      FROM 
+        servicio s
+      INNER JOIN 
+        turno t ON s.serv_codigo = t.serv_codigo
+      INNER JOIN 
+        sub_servicio ss ON ss.id = t.id_sub_serv
+-- Subconsulta para calcular el total de turnos por servicio
+      INNER JOIN (
+        SELECT 
+          serv_codigo, 
+          COUNT(turn_estado) AS total_turnos_servicio
+          FROM 
+            turno
+  -- Aquí puedes ajustar la fecha si es necesario
+          WHERE turno.TURN_FECHA = '${fechas}'
+          GROUP BY 
+            serv_codigo
+            ) total_turnos_servicio ON total_turnos_servicio.serv_codigo = s.serv_codigo
+  -- Filtra por fecha
+      WHERE t.TURN_FECHA = '${fechas}'
+      GROUP BY 
+        s.serv_codigo, ss.id, ss.nombre
+      ORDER BY 
+        s.serv_codigo, ss.id;
+    `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({

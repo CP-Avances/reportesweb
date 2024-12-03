@@ -53,7 +53,8 @@
                         <p>
                             <mat-form-field appearance="outline">
                                 <mat-label>Meta</mat-label>
-                                <input matInput type="number" matInput name="valor" [(ngModel)]="valor" min="0">
+                                <input matInput type="number" matInput name="valor" [(ngModel)]="valor" min="0"
+                                    [ngModelOptions]="{standalone: true}">
                                 <mat-hint>Número de turnos</mat-hint>
                             </mat-form-field>
                         </p>
@@ -77,7 +78,7 @@
                             <mat-form-field appearance="outline">
                                 <mat-label>Marca de agua</mat-label>
                                 <input matInput matInput maxlength="30" name="marca" [(ngModel)]="marca"
-                                    [disabled]="desactivarMarca">
+                                    [disabled]="desactivarMarca" [ngModelOptions]="{standalone: true}">
                                 <mat-hint align="end">{{marca.length}} / 30 caracteres</mat-hint>
                             </mat-form-field>
                         </p>
@@ -89,7 +90,8 @@
                     </div>
                     <div>
                         <label class="mat-checkbox-label">
-                            <mat-checkbox [(ngModel)]="desactivarMarca" color="primary"></mat-checkbox>
+                            <mat-checkbox [(ngModel)]="desactivarMarca" [ngModelOptions]="{standalone: true}"
+                                color="primary"></mat-checkbox>
                             Desactivar marca de agua
                         </label>
                     </div>

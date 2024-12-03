@@ -38,12 +38,25 @@ router.get('/totaltickets/:fecha', verifivarToken_1.TokenValidation, (req, res) 
  ** ************************************************************************************************************ **/
 router.get('/promedioatencionporservicio', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
-        SELECT turn_codigo, serv_nombre, 
-            date_format(SEC_TO_TIME(AVG(turn_duracionatencion)),'%H:%i:%s') AS PromedioAtencion
-        FROM turno, servicio
-        WHERE turno.serv_codigo = servicio.serv_codigo
-        AND caje_codigo !=0
-        GROUP BY turn_codigo, serv_nombre;
+            SELECT 
+                t.turn_codigo, 
+                s.serv_nombre, 
+                ss.id AS id_subservicio, 
+                ss.nombre AS subservicio,
+                DATE_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS PromedioAtencion
+            FROM 
+                turno t
+            INNER JOIN 
+                servicio s ON t.serv_codigo = s.serv_codigo
+            INNER JOIN 
+                sub_servicio ss ON t.id_sub_serv = ss.id
+            WHERE 
+                t.caje_codigo != 0
+            GROUP BY 
+                t.turn_codigo, 
+                s.serv_nombre, 
+                ss.id, 
+                ss.nombre;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -204,9 +217,20 @@ router.get('/evagraf', verifivarToken_1.TokenValidation, (req, res) => {
  ** ************************************************************************************************************ **/
 router.get('/turnate', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
-        SELECT serv_nombre FROM servicio, turno
-        WHERE servicio.serv_codigo = turno.serv_codigo
-        GROUP BY serv_nombre;
+            SELECT 
+                s.serv_nombre, 
+                ss.id AS id_subservicio, 
+                ss.nombre AS subservicio
+            FROM 
+                servicio s
+            INNER JOIN 
+                turno t ON s.serv_codigo = t.serv_codigo
+            INNER JOIN 
+                sub_servicio ss ON t.id_sub_serv = ss.id
+            GROUP BY 
+                s.serv_nombre, 
+                ss.id, 
+                ss.nombre;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -228,16 +252,28 @@ router.get('/turnate', verifivarToken_1.TokenValidation, (req, res) => {
  ** ************************************************************************************************************ **/
 router.get('/servsoli', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
-        SELECT  serv_nombre as Servicio,
-            SUM( turn_estado = 1 ) as Atendidos,
-            SUM( turn_estado != 1 AND turn_estado != 0 ) as No_Atendidos,
-            SUM(turn_estado != 0) AS Total 
-        FROM turno t, servicio s, usuarios u, cajero c
-        WHERE t.serv_codigo = s.serv_codigo 
-            AND t.caje_codigo = c.caje_codigo 
-            AND u.usua_codigo = c.usua_codigo
-        GROUP BY  Servicio
-        ORDER BY Total desc
+            SELECT  
+                s.serv_codigo AS id_servicio,
+                s.serv_nombre AS Servicio, 
+                ss.id AS id_subservicio, 
+                ss.nombre AS subservicio,
+                SUM(t.turn_estado = 1) AS Atendidos,
+                SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos,
+                SUM(t.turn_estado != 0) AS Total 
+            FROM 
+                turno t
+            INNER JOIN 
+                servicio s ON t.serv_codigo = s.serv_codigo
+            INNER JOIN 
+                cajero c ON t.caje_codigo = c.caje_codigo
+            INNER JOIN 
+                usuarios u ON u.usua_codigo = c.usua_codigo
+            INNER JOIN 
+                sub_servicio ss ON ss.id = t.id_sub_serv
+            GROUP BY  
+                s.serv_nombre, ss.id, ss.nombre, s.serv_codigo 
+            ORDER BY 
+                s.serv_nombre, Total DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

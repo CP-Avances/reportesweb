@@ -4,21 +4,15 @@ import MySQL from '../mysql/mysql';
 import multer from 'multer';
 import cors from 'cors';
 import fs from 'fs';
+import path from 'path';
 let jwt = require('jsonwebtoken');
 const router = Router();
 
 const ObtenerRuta = function () {
-    var ruta = '';
-    for (var i = 0; i < __dirname.split('\\').length - 2; i++) {
-        if (ruta === '') {
-            ruta = __dirname.split('\\')[i];
-        }
-        else {
-            ruta = ruta + "\\" + __dirname.split('\\')[i];
-        }
-    }
-
-    return ruta + '\\imagenesReportes';
+    let ruta = '';
+    let separador = path.sep;
+    ruta = path.join(__dirname, `..${separador}..`);
+    return ruta + separador + 'imagenesReportes';
 }
 
 const storage = multer.diskStorage({
@@ -37,6 +31,7 @@ const upload = multer({ storage: storage });
 router.post('/uploadImage', TokenValidation, upload.single('image'), (req, res) => {
 
     const filename = req.file?.originalname;
+    let separador = path.sep;
 
     // BUSQUEDA DE LOGO
     const logo =
@@ -62,7 +57,7 @@ router.post('/uploadImage', TokenValidation, upload.single('image'), (req, res) 
                     ActualizarImagen(res, filename);
                 }
                 else {
-                    var direccion = ObtenerRuta() + '\\' + nombreImagen[0].gene_valor
+                    var direccion = ObtenerRuta() + separador + nombreImagen[0].gene_valor
                     // ELIMINAR REGISTRO DEL SERVIDOR
                     fs.unlinkSync(direccion);
                     ActualizarImagen(res, filename);
@@ -78,8 +73,9 @@ router.post('/uploadImage', TokenValidation, upload.single('image'), (req, res) 
 );
 
 const ImagenBase64LogosEmpresas = function (path_file: string) {
+    let separador = path.sep;
     try {
-        var ruta = ObtenerRuta() + '\\' + path_file;
+        var ruta = ObtenerRuta() + separador + path_file;
         let data = fs.readFileSync(ruta);
         return data.toString('base64');
     } catch (error) {
@@ -228,9 +224,10 @@ function ActualizarImagen(res: any, archivo: any) {
 }
 
 router.get('/nombreImagen', TokenValidation, (req: Request, res: Response) => {
-    const query = `
-      SELECT gene_valor FROM general WHERE gene_codigo = 8;
-      `;
+    const query =
+        `
+        SELECT gene_valor FROM general WHERE gene_codigo = 8;
+        `;
     let nombreImagen: any[];
 
     MySQL.ejecutarQuery(query, (err: any, imagen: Object[]) => {
@@ -273,9 +270,10 @@ router.get('/setMeta/:valor', TokenValidation, (req, res) => {
 );
 
 router.get('/getMeta', TokenValidation, (req: Request, res: Response) => {
-    const query = `
-      SELECT gene_valor FROM general WHERE gene_codigo = 9;
-      `;
+    const query =
+        `
+        SELECT gene_valor FROM general WHERE gene_codigo = 9;
+        `;
 
     MySQL.ejecutarQuery(query, (err: any, valor: any) => {
         if (err) {
@@ -320,9 +318,10 @@ router.get('/setMarca/:marca', TokenValidation, (req, res) => {
 
 
 router.get('/getMarca', TokenValidation, (req: Request, res: Response) => {
-    const query = `
-      SELECT gene_valor FROM general WHERE gene_codigo = 10;
-      `;
+    const query =
+        `
+        SELECT gene_valor FROM general WHERE gene_codigo = 10;
+        `;
 
     MySQL.ejecutarQuery(query, (err: any, marca: any) => {
         if (err) {

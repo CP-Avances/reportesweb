@@ -115,6 +115,7 @@
                                     </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
                                     <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
@@ -131,6 +132,7 @@
                                     </td>
                                     <td>{{servicioServs.Usuario}}</td>
                                     <td>{{servicioServs.Servicio}}</td>
+                                    <td>{{servicioServs.subservicio}}</td>
                                     <td>{{servicioServs.Fecha}}</td>
                                     <td>{{servicioServs.Excelente}}</td>
                                     <td *ngIf="!opcionCuatro">{{servicioServs.Muy_Bueno}}</td>
@@ -156,6 +158,7 @@
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesS">Sucursal</th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
                                     <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
@@ -172,6 +175,7 @@
                                     <td *ngIf="todasSucursalesS">{{servicioServsMaxMin.nombreEmpresa}}</td>
                                     <td>{{servicioServsMaxMin.Usuario}}</td>
                                     <td>{{servicioServsMaxMin.Servicio}}</td>
+                                    <td>{{servicioServsMaxMin.subservicio}}</td>
                                     <td>{{servicioServsMaxMin.Fecha}}</td>
                                     <td>{{servicioServsMaxMin.Excelente}}</td>
                                     <td *ngIf="!opcionCuatro">{{servicioServsMaxMin.Muy_Bueno}}</td>

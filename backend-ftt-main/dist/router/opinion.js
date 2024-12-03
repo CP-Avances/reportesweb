@@ -47,12 +47,15 @@ router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:t
           empresa.empr_nombre AS empresa_empr_nombre, 
           quejas.caja_codigo AS caja_caja_nombre, 
           quejas.emi_queja AS quejas_emi_queja 
-        FROM empresa 
-        INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo 
-        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-        ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
-        ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+        FROM 
+          empresa 
+        INNER JOIN 
+          quejas ON empresa.empr_codigo = quejas.empr_codigo 
+        WHERE 
+          emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+          ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
+          ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
+          ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -116,14 +119,17 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
           empresa.empr_nombre AS empresa_empr_nombre, 
           quejas.caja_codigo AS caja_caja_nombre, 
           quejas.emi_queja AS quejas_emi_queja 
-        FROM empresa 
-        INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo 
-        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-        AND (quejas.emi_tipo = 1 OR quejas.emi_tipo = 2)
-        ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
-        ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
-        ${!todasCategorias ? `AND quejas.emi_categoria IN (${resultado})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+        FROM 
+          empresa 
+        INNER JOIN 
+          quejas ON empresa.empr_codigo = quejas.empr_codigo 
+        WHERE 
+          emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+          AND (quejas.emi_tipo = 1 OR quejas.emi_tipo = 2)
+          ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
+          ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
+          ${!todasCategorias ? `AND quejas.emi_categoria IN (${resultado})` : ''}
+          ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -170,11 +176,14 @@ router.get("/graficoopinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucurs
           IF((quejas.emi_tipo = 3), 'Sugerencia',
           IF((quejas.emi_tipo = 4), 'Felicitaciones', 'No Existe')))) AS quejas_emi_tipo,
         empresa.empr_nombre AS empresa_empr_nombre
-        FROM empresa 
-        INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo
-        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+        FROM 
+          empresa 
+        INNER JOIN 
+          quejas ON empresa.empr_codigo = quejas.empr_codigo
+        WHERE 
+          emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
+          ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY emi_tipo, empresa.empr_nombre;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -218,20 +227,25 @@ router.get("/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
         hFinAux = parseInt(hFin) - 1;
     }
     const query = `
-        SELECT COUNT(quejas.emi_categoria) AS queja_cantidad,
-        IF((quejas.emi_tipo = 1), 'Queja', 
+        SELECT 
+          COUNT(quejas.emi_categoria) AS queja_cantidad,
+          IF((quejas.emi_tipo = 1), 'Queja', 
           IF((quejas.emi_tipo = 2), 'Reclamo',
           IF((quejas.emi_tipo = 3), 'Sugerencia',
           IF((quejas.emi_tipo = 4), 'Felicitaciones', 'No Existe')))) AS quejas_emi_tipo,
-        quejas.emi_categoria AS quejas_emi_categoria,
-        empresa.empr_nombre AS empresa_empr_nombre
-        FROM empresa 
-        INNER JOIN quejas ON empresa.empr_codigo = quejas.empr_codigo
-        WHERE emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
-        ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
-        ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-        GROUP BY quejas.emi_categoria, empresa.empr_nombre;
+          quejas.emi_categoria AS quejas_emi_categoria,
+          empresa.empr_nombre AS empresa_empr_nombre
+        FROM 
+          empresa 
+        INNER JOIN 
+          quejas ON empresa.empr_codigo = quejas.empr_codigo
+        WHERE 
+          emi_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
+          ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
+          ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+        GROUP BY 
+          quejas.emi_categoria, empresa.empr_nombre;
         `;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -252,7 +266,7 @@ router.get("/graficoopinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucu
 router.get("/categorias/:tipo", verifivarToken_1.TokenValidation, (req, res) => {
     const tipo = req.params.tipo;
     const query = `
-  SELECT DISTINCT emi_categoria FROM quejas WHERE emi_tipo = ${tipo} ORDER BY emi_categoria ASC;
+      SELECT DISTINCT emi_categoria FROM quejas WHERE emi_tipo = ${tipo} ORDER BY emi_categoria ASC;
     `;
     mysql_1.default.ejecutarQuery(query, (err, categoria) => {
         if (err) {

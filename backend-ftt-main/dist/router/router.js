@@ -9,19 +9,14 @@ const mysql_1 = __importDefault(require("../mysql/mysql"));
 const multer_1 = __importDefault(require("multer"));
 const cors_1 = __importDefault(require("cors"));
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 let jwt = require('jsonwebtoken');
 const router = (0, express_1.Router)();
 const ObtenerRuta = function () {
-    var ruta = '';
-    for (var i = 0; i < __dirname.split('\\').length - 2; i++) {
-        if (ruta === '') {
-            ruta = __dirname.split('\\')[i];
-        }
-        else {
-            ruta = ruta + "\\" + __dirname.split('\\')[i];
-        }
-    }
-    return ruta + '\\imagenesReportes';
+    let ruta = '';
+    let separador = path_1.default.sep;
+    ruta = path_1.default.join(__dirname, `..${separador}..`);
+    return ruta + separador + 'imagenesReportes';
 };
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
@@ -36,6 +31,7 @@ const upload = (0, multer_1.default)({ storage: storage });
 router.post('/uploadImage', verifivarToken_1.TokenValidation, upload.single('image'), (req, res) => {
     var _a;
     const filename = (_a = req.file) === null || _a === void 0 ? void 0 : _a.originalname;
+    let separador = path_1.default.sep;
     // BUSQUEDA DE LOGO
     const logo = `
         SELECT gene_valor FROM general WHERE gene_codigo = 8;
@@ -55,7 +51,7 @@ router.post('/uploadImage', verifivarToken_1.TokenValidation, upload.single('ima
                     ActualizarImagen(res, filename);
                 }
                 else {
-                    var direccion = ObtenerRuta() + '\\' + nombreImagen[0].gene_valor;
+                    var direccion = ObtenerRuta() + separador + nombreImagen[0].gene_valor;
                     // ELIMINAR REGISTRO DEL SERVIDOR
                     fs_1.default.unlinkSync(direccion);
                     ActualizarImagen(res, filename);
@@ -68,8 +64,9 @@ router.post('/uploadImage', verifivarToken_1.TokenValidation, upload.single('ima
     });
 });
 const ImagenBase64LogosEmpresas = function (path_file) {
+    let separador = path_1.default.sep;
     try {
-        var ruta = ObtenerRuta() + '\\' + path_file;
+        var ruta = ObtenerRuta() + separador + path_file;
         let data = fs_1.default.readFileSync(ruta);
         return data.toString('base64');
     }
@@ -203,8 +200,8 @@ function ActualizarImagen(res, archivo) {
 }
 router.get('/nombreImagen', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
-      SELECT gene_valor FROM general WHERE gene_codigo = 8;
-      `;
+        SELECT gene_valor FROM general WHERE gene_codigo = 8;
+        `;
     let nombreImagen;
     mysql_1.default.ejecutarQuery(query, (err, imagen) => {
         if (err) {
@@ -243,8 +240,8 @@ router.get('/setMeta/:valor', verifivarToken_1.TokenValidation, (req, res) => {
 });
 router.get('/getMeta', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
-      SELECT gene_valor FROM general WHERE gene_codigo = 9;
-      `;
+        SELECT gene_valor FROM general WHERE gene_codigo = 9;
+        `;
     mysql_1.default.ejecutarQuery(query, (err, valor) => {
         if (err) {
             res.status(400).json({
@@ -283,8 +280,8 @@ router.get('/setMarca/:marca', verifivarToken_1.TokenValidation, (req, res) => {
 });
 router.get('/getMarca', verifivarToken_1.TokenValidation, (req, res) => {
     const query = `
-      SELECT gene_valor FROM general WHERE gene_codigo = 10;
-      `;
+        SELECT gene_valor FROM general WHERE gene_codigo = 10;
+        `;
     mysql_1.default.ejecutarQuery(query, (err, marca) => {
         if (err) {
             res.status(400).json({

@@ -278,46 +278,46 @@ export class AtencionComponent implements OnInit {
 
   selectAll(opcion: string) {
     switch (opcion) {
-        case 'allSelected':
-            this.allSelected = !this.allSelected;
-            break;
-        case 'todasSucursalesGS':
-            this.todasSucursalesGS = !this.todasSucursalesGS;
-            break;
-        case 'todasSucursalesTC':
-          this.todasSucursalesTC = !this.todasSucursalesTC;
-          this.todasSucursalesTC ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-          break;
-        case 'todasSucursalesC':
-          this.todasSucursalesC = !this.todasSucursalesC;
-          this.todasSucursalesC ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-          break;
-        case 'todasSucursalesAS':
-          this.todasSucursalesAS = !this.todasSucursalesAS;
-          this.todasSucursalesAS ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-          break;
-        case 'todasSucursalesPA':
-          this.todasSucursalesPA = !this.todasSucursalesPA;
-          this.todasSucursalesPA ? this.getServicios(this.sucursalesSeleccionadas) : null;
-          break;
-        case 'todasSucursalesTA':
-          this.todasSucursalesTA = !this.todasSucursalesTA;
-          this.todasSucursalesTA ? this.getServicios(this.sucursalesSeleccionadas) : null;
-          break;
-        case 'todasSucursalesMA':
-          this.todasSucursalesMA = !this.todasSucursalesMA;
-          this.todasSucursalesMA ? this.getServicios(this.sucursalesSeleccionadas) : null;
-          break;
-        case 'sucursalesSeleccionadas':
-          this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-          this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-          break;
-        case 'sucursalesSeleccionadasS':
-          this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-          this.sucursalesSeleccionadas.length > 0 ? this.getServicios(this.sucursalesSeleccionadas) : null;
-          break;
-        default:
-            break;
+      case 'allSelected':
+        this.allSelected = !this.allSelected;
+        break;
+      case 'todasSucursalesGS':
+        this.todasSucursalesGS = !this.todasSucursalesGS;
+        break;
+      case 'todasSucursalesTC':
+        this.todasSucursalesTC = !this.todasSucursalesTC;
+        this.todasSucursalesTC ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'todasSucursalesC':
+        this.todasSucursalesC = !this.todasSucursalesC;
+        this.todasSucursalesC ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'todasSucursalesAS':
+        this.todasSucursalesAS = !this.todasSucursalesAS;
+        this.todasSucursalesAS ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'todasSucursalesPA':
+        this.todasSucursalesPA = !this.todasSucursalesPA;
+        this.todasSucursalesPA ? this.getServicios(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'todasSucursalesTA':
+        this.todasSucursalesTA = !this.todasSucursalesTA;
+        this.todasSucursalesTA ? this.getServicios(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'todasSucursalesMA':
+        this.todasSucursalesMA = !this.todasSucursalesMA;
+        this.todasSucursalesMA ? this.getServicios(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'sucursalesSeleccionadas':
+        this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+        this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'sucursalesSeleccionadasS':
+        this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+        this.sucursalesSeleccionadas.length > 0 ? this.getServicios(this.sucursalesSeleccionadas) : null;
+        break;
+      default:
+        break;
     }
   }
 
@@ -370,9 +370,9 @@ export class AtencionComponent implements OnInit {
   }
 
   limpiar() {
-    this.serviciosAtPA=[]
+    this.serviciosAtPA = []
     this.selectedItems = [];
-    this.cajerosAtencion=[];
+    this.cajerosAtencion = [];
     this.mostrarCajeros = false;
     this.mostrarServicios = false;
     this.allSelected = false;
@@ -409,7 +409,11 @@ export class AtencionComponent implements OnInit {
   // CONSULTA PARA LLENAR SELECT DE INTERFAZ
   getServicios(sucursal: any) {
     this.serviceService.getAllServiciosS(sucursal).subscribe((serviciosAtPA: any) => {
-      this.serviciosAtPA = serviciosAtPA.servicios;
+      //this.serviciosAtPA = serviciosAtPA.servicios;
+      this.serviciosAtPA = serviciosAtPA.servicios.filter(
+        (valor: any, indice: any, self: any) =>
+          self.findIndex((v: any) => v.serv_codigo === valor.serv_codigo) === indice
+      );
       this.mostrarServicios = true;
     },
       (error) => {
@@ -428,7 +432,7 @@ export class AtencionComponent implements OnInit {
     let horaInicio = this.horaInicioTC.nativeElement.value;
     let horaFin = this.horaFinTC.nativeElement.value;
 
-    if (this.selectedItems.length!==0) {
+    if (this.selectedItems.length !== 0) {
       this.serviceService
         .gettiemposcompletos(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
@@ -478,7 +482,7 @@ export class AtencionComponent implements OnInit {
     let horaInicio = this.horaInicioC.nativeElement.value;
     let horaFin = this.horaFinC.nativeElement.value;
 
-    if (this.selectedItems.length!==0) {
+    if (this.selectedItems.length !== 0) {
       this.serviceService
         .getclientes(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
@@ -528,7 +532,7 @@ export class AtencionComponent implements OnInit {
     let horaInicio = this.horaInicioPA.nativeElement.value;
     let horaFin = this.horaFinPA.nativeElement.value;
 
-    if (this.selectedItems.length!==0) {
+    if (this.selectedItems.length !== 0) {
       this.serviceService
         .getpromatencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
@@ -578,7 +582,7 @@ export class AtencionComponent implements OnInit {
     let horaInicio = this.horaInicioTA.nativeElement.value;
     let horaFin = this.horaFinTA.nativeElement.value;
 
-    if (this.selectedItems.length!==0) {
+    if (this.selectedItems.length !== 0) {
       this.serviceService
         .gettiempoatencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
@@ -628,7 +632,7 @@ export class AtencionComponent implements OnInit {
     let horaInicio = this.horaInicioTM.nativeElement.value;
     let horaFin = this.horaFinTM.nativeElement.value;
 
-    if (this.selectedItems.length!==0) {
+    if (this.selectedItems.length !== 0) {
       this.serviceService
         .getmaxatencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
@@ -678,7 +682,7 @@ export class AtencionComponent implements OnInit {
     let horaInicio = this.horaInicioAS.nativeElement.value;
     let horaFin = this.horaFinAS.nativeElement.value;
 
-    if (this.selectedItems.length!==0) {
+    if (this.selectedItems.length !== 0) {
       this.serviceService
         .getatencionservicio(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
         .subscribe(
@@ -730,21 +734,24 @@ export class AtencionComponent implements OnInit {
 
     this.malRequestAtG = false;
 
-    if (this.sucursalesSeleccionadas.length!==0) {
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService.getatenciongrafico(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas).subscribe(
         (serviciograf: any) => {
+          console.log('datos ', serviciograf.turnos)
           // VERIFICACION DE ANCHO DE PANTALLA PARA MOSTRAR O NO LABELS
           this.legend = screen.width < 575 ? false : true;
           // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.serviciograf = serviciograf.turnos;
+
           // this.malRequestAtG = false;
           this.malRequestAtGPag = false;
           // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configGS.currentPage > 1) {
             this.configGS.currentPage = 1;
           }
+
           // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
-          let Nombres = serviciograf.turnos.map((res) => res.Servicio);
+          let Nombres = serviciograf.turnos.map((res) => `${res.Servicio} - ${res.subservicio}`);
           let totales = serviciograf.turnos.map((res) => res.Total);
           let atendidos = serviciograf.turnos.map((res) => res.Atendidos);
           let noAtendidos = serviciograf.turnos.map((res) => res.No_Atendidos);
@@ -840,7 +847,7 @@ export class AtencionComponent implements OnInit {
 
     listaSucursales.forEach(elemento => {
       const cod = elemento;
-      if (cod=="-1") {
+      if (cod == "-1") {
         nombreSucursal = "Todas las sucursales";
         return;
       }
@@ -856,13 +863,13 @@ export class AtencionComponent implements OnInit {
    ** **                                               EXCEL                                             ** **
    ** ***************************************************************************************************** **/
 
-   // Función para sumar un día a la fecha
-    addOneDay(date: Date): Date {
-      date.setDate(date.getDate() + 1);
-      return date;
-    }
+  // Función para sumar un día a la fecha
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
 
-   exportarAExcelTiempoComp() {
+  exportarAExcelTiempoComp() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
@@ -870,11 +877,12 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.servicioTiempoComp.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioTiempoComp[step].nombreEmpresa,
-          "Cajero(a)": this.servicioTiempoComp[step].Usuario,
-          Servicio: this.servicioTiempoComp[step].Servicio,
-          Fecha: this.addOneDay(new Date(this.servicioTiempoComp[step].Fecha)),
-          "Tiempo Espera": this.servicioTiempoComp[step].Tiempo_Espera,
-          "Tiempo Atención": this.servicioTiempoComp[step].Tiempo_Atencion,
+          "Cajero(a)": this.servicioTiempoComp[step].usuario,
+          Servicio: this.servicioTiempoComp[step].servicio,
+          Subservicio: this.servicioTiempoComp[step].subservicio,
+          Fecha: this.addOneDay(new Date(this.servicioTiempoComp[step].fecha)),
+          "Tiempo Espera": this.servicioTiempoComp[step].tiempo_espera,
+          "Tiempo Atención": this.servicioTiempoComp[step].tiempo_atencion,
         });
       }
     }
@@ -917,25 +925,27 @@ export class AtencionComponent implements OnInit {
     if (this.todasSucursalesC || this.seleccionMultiple) {
       for (let step = 0; step < this.clientes.length; step++) {
         jsonServicio.push({
-          "N": step+1,
+          "N": step + 1,
           Sucursal: this.clientes[step].empresa,
           "Cajero(a)": this.clientes[step].usuario,
           Cliente: this.identificacionCliente == 'nombre' ? this.clientes[step].nombre : this.clientes[step].cedula,
           Fecha: this.addOneDay(new Date(this.clientes[step].fecha)),
           Servicio: this.clientes[step].servicio,
-          Turno: this.clientes[step].siglas+this.clientes[step].numero,
+          Subservicio: this.clientes[step].subservicio,
+          Turno: this.clientes[step].siglas + this.clientes[step].numero,
         });
       }
     }
     else {
       for (let step = 0; step < this.clientes.length; step++) {
         jsonServicio.push({
-          "N": step+1,
+          "N": step + 1,
           "Cajero(a)": this.clientes[step].usuario,
           Cliente: this.identificacionCliente == 'nombre' ? this.clientes[step].nombre : this.clientes[step].cedula,
           Fecha: this.addOneDay(new Date(this.clientes[step].fecha)),
           Servicio: this.clientes[step].servicio,
-          Turno: this.clientes[step].siglas+this.clientes[step].numero,
+          Subservicio: this.clientes[step].subservicio,
+          Turno: this.clientes[step].siglas + this.clientes[step].numero,
         });
       }
     }
@@ -968,20 +978,22 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciopa[step].nombreEmpresa,
-          Servicios: this.serviciopa[step].SERV_NOMBRE,
-          Fecha: this.addOneDay(new Date(this.serviciopa[step].TURN_FECHA)),
-          "T. Promedio de Espera": this.serviciopa[step].PromedioEspera,
-          "T. Promedio de Atención": this.serviciopa[step].PromedioAtencion,
+          Servicios: this.serviciopa[step].serv_nombre,
+          Subservicio: this.serviciopa[step].subservicio,
+          Fecha: this.addOneDay(new Date(this.serviciopa[step].turn_fecha)),
+          "T. Promedio de Espera": this.serviciopa[step].promedio_espera,
+          "T. Promedio de Atención": this.serviciopa[step].promedio_atencion,
         });
       }
     }
     else {
       for (let step = 0; step < this.serviciopa.length; step++) {
         jsonServicio.push({
-          Servicios: this.serviciopa[step].SERV_NOMBRE,
-          Fecha: this.addOneDay(new Date(this.serviciopa[step].TURN_FECHA)),
-          "T. Promedio de Espera": this.serviciopa[step].PromedioEspera,
-          "T. Promedio de Atención": this.serviciopa[step].PromedioAtencion,
+          Servicios: this.serviciopa[step].serv_nombre,
+          Subservicio: this.serviciopa[step].subservicio,
+          Fecha: this.addOneDay(new Date(this.serviciopa[step].turn_fecha)),
+          "T. Promedio de Espera": this.serviciopa[step].promedio_espera,
+          "T. Promedio de Atención": this.serviciopa[step].promedio_atencion,
         });
       }
     }
@@ -1014,9 +1026,10 @@ export class AtencionComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.serviciota[step].nombreEmpresa,
           "Cajero(a)": this.serviciota[step].cajero,
-          Fecha: this.addOneDay(new Date(this.serviciota[step].TURN_FECHA)),
+          Fecha: this.addOneDay(new Date(this.serviciota[step].turn_fecha)),
           Hora: this.serviciota[step].hora,
-          Servicio: this.serviciota[step].SERV_NOMBRE,
+          Servicio: this.serviciota[step].serv_nombre,
+          Subservicio: this.serviciota[step].subservicio,
           Turno: this.serviciota[step].turno,
           "Tiempo de espera": this.serviciota[step].espera,
           "Tiempo de atención": this.serviciota[step].atencion,
@@ -1027,9 +1040,10 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciota.length; step++) {
         jsonServicio.push({
           "Cajero(a)": this.serviciota[step].cajero,
-          Fecha: this.addOneDay(new Date(this.serviciota[step].TURN_FECHA)),
+          Fecha: this.addOneDay(new Date(this.serviciota[step].turn_fecha)),
           Hora: this.serviciota[step].hora,
-          Servicio: this.serviciota[step].SERV_NOMBRE,
+          Servicio: this.serviciota[step].serv_nombre,
+          Subservicio: this.serviciota[step].subservicio,
           Turno: this.serviciota[step].turno,
           "Tiempo de espera": this.serviciota[step].espera,
           "Tiempo de atención": this.serviciota[step].atencion,
@@ -1064,7 +1078,8 @@ export class AtencionComponent implements OnInit {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
           Sucursal: this.serviciomax[step].nombreEmpresa,
-          Servicio: this.serviciomax[step].SERV_NOMBRE,
+          Servicio: this.serviciomax[step].serv_nombre,
+          Subservicio: this.serviciomax[step].subservicio,
           Fecha: this.addOneDay(new Date(this.serviciomax[step].Fecha)),
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
         });
@@ -1073,7 +1088,8 @@ export class AtencionComponent implements OnInit {
     else {
       for (let step = 0; step < this.serviciomax.length; step++) {
         jsonServicio.push({
-          Servicio: this.serviciomax[step].SERV_NOMBRE,
+          Servicio: this.serviciomax[step].serv_nombre,
+          Subservicio: this.serviciomax[step].subservicio,
           Fecha: this.addOneDay(new Date(this.serviciomax[step].Fecha)),
           "T. Máximo de Atención": this.serviciomax[step].Maximo,
         });
@@ -1154,12 +1170,13 @@ export class AtencionComponent implements OnInit {
     for (let step = 0; step < this.serviciograf.length; step++) {
       const item = {
         ...(this.todasSucursalesGS || this.seleccionMultiple
-          ? {Sucursal: this.serviciograf[step].nombreEmpresa}
+          ? { Sucursal: this.serviciograf[step].nombreEmpresa }
           : {}),
-          Servicio: this.serviciograf[step].Servicio,
-          Atendidos: this.serviciograf[step].Atendidos,
-          "No atendidos": this.serviciograf[step].No_Atendidos,
-          Total: this.serviciograf[step].Total,
+        Servicio: this.serviciograf[step].Servicio,
+        Subservicio: this.serviciograf[step].subservicio,
+        Atendidos: this.serviciograf[step].Atendidos,
+        "No atendidos": this.serviciograf[step].No_Atendidos,
+        Total: this.serviciograf[step].Total,
       };
       jsonServicio.push(item);
     }
@@ -1340,12 +1357,13 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Tiempo Espera", style: "tableHeader" },
               { text: "Tiempo Atención", style: "tableHeader" },
@@ -1353,11 +1371,12 @@ export class AtencionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Tiempo_Espera },
-                { style: "itemsTable", text: res.Tiempo_Atencion },
+                { style: "itemsTable", text: res.usuario },
+                { style: "itemsTable", text: res.servicio },
+                { style: "itemsTable", text: res.subservicio },
+                { style: "itemsTable", text: res.fecha },
+                { style: "itemsTable", text: res.tiempo_espera },
+                { style: "itemsTable", text: res.tiempo_atencion },
               ];
             }),
           ],
@@ -1374,22 +1393,24 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Tiempo Espera", style: "tableHeader" },
               { text: "Tiempo Atención", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Tiempo_Espera },
-                { style: "itemsTable", text: res.Tiempo_Atencion },
+                { style: "itemsTable", text: res.usuario },
+                { style: "itemsTable", text: res.servicio },
+                { style: "itemsTable", text: res.subservicio },
+                { style: "itemsTable", text: res.fecha },
+                { style: "itemsTable", text: res.tiempo_espera },
+                { style: "itemsTable", text: res.tiempo_atencion },
               ];
             }),
           ],
@@ -1554,7 +1575,7 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["auto","*", "*", "auto", "auto", "auto", "auto"],
+          widths: ["auto", "*", "*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "N°", style: "tableHeader" },
@@ -1563,17 +1584,19 @@ export class AtencionComponent implements OnInit {
               { text: "Cliente", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
-                { style: "itemsTable", text: servicio.indexOf(res)+1 },
+                { style: "itemsTable", text: servicio.indexOf(res) + 1 },
                 { style: "itemsTable", text: res.empresa },
                 { style: "itemsTable", text: res.usuario },
-                { style: "itemsTable", text: this.identificacionCliente=='nombre'?res.nombre:res.cedula },
+                { style: "itemsTable", text: this.identificacionCliente == 'nombre' ? res.nombre : res.cedula },
                 { style: "itemsTable", text: res.fecha },
                 { style: "itemsTable", text: res.servicio },
-                { style: "itemsTable", text: res.siglas+res.numero },
+                { style: "itemsTable", text: res.subservicio },
+                { style: "itemsTable", text: res.siglas + res.numero },
               ];
             }),
           ],
@@ -1590,7 +1613,7 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["auto","*", "auto", "auto", "auto", "auto"],
+          widths: ["auto", "*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "N°", style: "tableHeader" },
@@ -1598,16 +1621,18 @@ export class AtencionComponent implements OnInit {
               { text: "Cliente", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
-                { style: "itemsTable", text: servicio.indexOf(res)+1 },
+                { style: "itemsTable", text: servicio.indexOf(res) + 1 },
                 { style: "itemsTable", text: res.usuario },
                 { style: "itemsTable", text: res.cedula },
                 { style: "itemsTable", text: res.fecha },
                 { style: "itemsTable", text: res.servicio },
-                { style: "itemsTable", text: res.siglas+res.numero },
+                { style: "itemsTable", text: res.subservicio },
+                { style: "itemsTable", text: res.siglas + res.numero },
               ];
             }),
           ],
@@ -1772,11 +1797,12 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "T. Promedio de Espera", style: "tableHeader" },
               { text: "T. Promedio de Atención", style: "tableHeader" },
@@ -1784,10 +1810,11 @@ export class AtencionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.SERV_NOMBRE },
-                { style: "itemsTable", text: res.TURN_FECHA },
-                { style: "itemsTable", text: res.PromedioEspera },
-                { style: "itemsTable", text: res.PromedioAtencion },
+                { style: "itemsTable", text: res.serv_nombre },
+                { style: "itemsTable", text: res.subservicio },
+                { style: "itemsTable", text: res.turn_fecha },
+                { style: "itemsTable", text: res.promedio_espera },
+                { style: "itemsTable", text: res.promedio_atencion },
               ];
             }),
           ],
@@ -1981,7 +2008,7 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -1989,6 +2016,7 @@ export class AtencionComponent implements OnInit {
               { text: "Fecha", style: "tableHeader" },
               { text: "Hora", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
               { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
@@ -1997,9 +2025,10 @@ export class AtencionComponent implements OnInit {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
                 { style: "itemsTable", text: res.cajero },
-                { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.turn_fecha },
                 { style: "itemsTable", text: res.hora },
-                { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.serv_nombre },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
@@ -2018,13 +2047,14 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto" ,"auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Hora", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
               { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
@@ -2032,9 +2062,10 @@ export class AtencionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.cajero },
-                { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.turn_fecha },
                 { style: "itemsTable", text: res.hora },
-                { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.serv_nombre },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
@@ -2197,18 +2228,20 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "T. Promedio de Espera", style: "tableHeader" },
               { text: "T. Promedio de Atención", style: "tableHeader" },
             ],
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.SERV_NOMBRE },
+                { style: "itemsTable", text: res.serv_nombre },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Maximo },
               ];
@@ -2642,11 +2675,12 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "No atendidos", style: "tableHeader" },
               { text: "Total", style: "tableHeader" },
@@ -2655,6 +2689,7 @@ export class AtencionComponent implements OnInit {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.No_Atendidos },
                 { style: "itemsTable", text: res.Total },
@@ -2673,7 +2708,7 @@ export class AtencionComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Servicio.", style: "tableHeader" },
@@ -2684,6 +2719,7 @@ export class AtencionComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.No_Atendidos },
                 { style: "itemsTable", text: res.Total },

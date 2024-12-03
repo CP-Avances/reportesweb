@@ -60,10 +60,11 @@ export class MenuComponent implements OnInit {
   progreso: number = 27.88;
   excelente: number = 0;
 
-  servicio5: any;
-  servicio6: any;
+  servicio5: any = [];
+  servicio6: any = [];
 
   altoMA: any;
+  altoMAS: any;
   altoPr: any;
 
   // CONTROL DE OPCIONES DE EVALUACION
@@ -159,9 +160,47 @@ export class MenuComponent implements OnInit {
   }
 
   getserviciosmasatendidos() {
-    this.serviceService.getserviciossolicitados().subscribe((servicio6: any) => {
-      this.servicio6 = servicio6.turnos;
-      this.altoMA = Math.max.apply(null, servicio6.turnos.map(res => res.Total));
+    this.serviceService.getserviciossolicitados().subscribe((res: any) => {
+      //this.servicio6 = servicio6.turnos;
+      console.log('servicios ', this.servicio6)
+
+      const servicio = res.turnos;
+
+      let lista = res.turnos.filter(
+        (valor: any, indice: any, self: any) =>
+          self.findIndex((v: any) => v.id_servicio === valor.id_servicio) === indice
+      );
+
+      //console.log('lista ', lista)
+
+      lista.forEach((ser: any) => {
+        let nuevo: any = [];
+        let total_general = 0;
+        servicio.forEach((sub: any) => {
+          if (ser.id_servicio === sub.id_servicio) {
+            let data = {
+              Atendidos: sub.Atendidos,
+              No_Atendidos: sub.No_Atendidos,
+              Total: sub.Total,
+              id_subservicio: sub.id_subservicio,
+              subservicio: sub.subservicio,
+            }
+            total_general = total_general + parseInt(sub.Total);
+            nuevo.push(data);
+          }
+        })
+        ser.subservicios = nuevo;
+        ser.total_general = total_general;
+      })
+
+      this.servicio6 = lista;
+      //console.log('lista completa ', this.servicio6)
+
+      this.altoMA = Math.max.apply(null, this.servicio6.map((tot: any) => tot.total_general));
+      
+      this.altoMAS = Math.max.apply(null, this.servicio6.
+        flatMap((servicio: any) => servicio.subservicios.map((sub: any) => sub.Total))
+      );
     });
   }
 

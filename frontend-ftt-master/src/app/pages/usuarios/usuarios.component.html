@@ -121,6 +121,7 @@
                                     </th>
                                     <th class="text-center">Cajero(a)</th>
                                     <th class="text-center">Servicio</th>
+                                    <th class="text-center">Subservicio</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">No atendidos</th>
@@ -134,6 +135,7 @@
                                         {{servicioTurnosFecha.nombreEmpresa}}</td>
                                     <td> {{servicioTurnosFecha.Usuario}}</td>
                                     <td> {{servicioTurnosFecha.Servicio}}</td>
+                                    <td> {{servicioTurnosFecha.subservicio}}</td>
                                     <td> {{servicioTurnosFecha.Fecha}}</td>
                                     <td> {{servicioTurnosFecha.Atendidos}} </td>
                                     <td> {{servicioTurnosFecha.No_Atendidos}}</td>
@@ -440,6 +442,7 @@
                                     </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Tiempo</th>
                                     <th scope="col" class="text-center">Turnos totales</th>
                                 </tr>
@@ -450,6 +453,7 @@
                                         {{servicioPromAtencion.nombreEmpresa}}</td>
                                     <td>{{servicioPromAtencion.Nombre}}</td>
                                     <td>{{servicioPromAtencion.Servicio}}</td>
+                                    <td>{{servicioPromAtencion.subservicio}}</td>
                                     <td>{{servicioPromAtencion.Promedio}}</td>
                                     <td>{{servicioPromAtencion.Turnos}}</td>
                                 </tr>
@@ -545,6 +549,7 @@
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Turno</th>
                                     <th scope="col" class="text-center">Tiempo de espera</th>
                                     <th scope="col" class="text-center">Tiempo de atención</th>
@@ -555,9 +560,10 @@
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">
                                         {{servicioTiempoAtencion.nombreEmpresa}}</td>
                                     <td>{{servicioTiempoAtencion.Nombre}}</td>
-                                    <td>{{servicioTiempoAtencion.TURN_FECHA}}</td>
+                                    <td>{{servicioTiempoAtencion.turn_fecha}}</td>
                                     <td>{{servicioTiempoAtencion.hora}}</td>
                                     <td>{{servicioTiempoAtencion.Servicio}}</td>
+                                    <td>{{servicioTiempoAtencion.subservicio}}</td>
                                     <td>{{servicioTiempoAtencion.turno}}</td>
                                     <td>{{servicioTiempoAtencion.espera}}</td>
                                     <td>{{servicioTiempoAtencion.atencion}}</td>
@@ -746,6 +752,7 @@
                                     </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Atendidos</th>
                                     <th scope="col" class="text-center">No atendidos</th>
                                     <th scope="col" class="text-center">Total</th>
@@ -757,6 +764,7 @@
                                         {{servicioAtencionUsua.nombreEmpresa}}</td>
                                     <td>{{servicioAtencionUsua.Nombre}}</td>
                                     <td>{{servicioAtencionUsua.Servicio}}</td>
+                                    <td>{{servicioAtencionUsua.subservicio}}</td>
                                     <td>{{servicioAtencionUsua.Atendidos}}</td>
                                     <td>{{servicioAtencionUsua.No_Atendidos}}</td>
                                     <td>{{servicioAtencionUsua.Total}}</td>

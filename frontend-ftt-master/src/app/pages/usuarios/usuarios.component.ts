@@ -927,6 +927,7 @@ export class UsuariosComponent implements OnInit {
           Sucursal: this.servicioTurnosFecha[i].nombreEmpresa,
           "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
+          Subservicio: this.servicioTurnosFecha[i].subservicio,
           Fecha: this.addOneDay(new Date(this.servicioTurnosFecha[i].Fecha)),
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosFecha[i].No_Atendidos,
@@ -938,6 +939,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
           Servicio: this.servicioTurnosFecha[i].Servicio,
+          Subservicio: this.servicioTurnosFecha[i].subservicio,
           Fecha: this.addOneDay(new Date(this.servicioTurnosFecha[i].Fecha)),
           Atendidos: this.servicioTurnosFecha[i].Atendidos,
           "No atendidos": this.servicioTurnosFecha[i].No_Atendidos,
@@ -1073,6 +1075,7 @@ export class UsuariosComponent implements OnInit {
           Sucursal: this.servicioPromAtencion[i].nombreEmpresa,
           "Cajero(a)": this.servicioPromAtencion[i].Nombre,
           Servicio: this.servicioPromAtencion[i].Servicio,
+          Subservicio: this.servicioPromAtencion[i].subservicio,
           Tiempo: this.servicioPromAtencion[i].Promedio,
           Turnos: this.servicioPromAtencion[i].Turnos,
         });
@@ -1083,6 +1086,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioPromAtencion[i].Nombre,
           Servicio: this.servicioPromAtencion[i].Servicio,
+          Subservicio: this.servicioPromAtencion[i].subservicio,
           Tiempo: this.servicioPromAtencion[i].Promedio,
           Turnos: this.servicioPromAtencion[i].Turnos,
         });
@@ -1120,9 +1124,10 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioTiempoAtencion[i].nombreEmpresa,
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
-          Fecha: this.addOneDay(new Date(this.servicioTiempoAtencion[i].TURN_FECHA)),
+          Fecha: this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
           Hora: this.servicioTiempoAtencion[i].hora,
           Servicio: this.servicioTiempoAtencion[i].Servicio,
+          Subservicio: this.servicioTiempoAtencion[i].subservicio,
           Turno: this.servicioTiempoAtencion[i].turno,
           "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
           "Tiempo de atención": this.servicioTiempoAtencion[i].atencion,
@@ -1133,9 +1138,10 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
-          Fecha: this.addOneDay(new Date(this.servicioTiempoAtencion[i].TURN_FECHA)),
+          Fecha: this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
           Hora: this.servicioTiempoAtencion[i].hora,
           Servicio: this.servicioTiempoAtencion[i].Servicio,
+          Subservicio: this.servicioTiempoAtencion[i].subservicio,
           Turno: this.servicioTiempoAtencion[i].turno,
           "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
           "Tiempo de atención": this.servicioTiempoAtencion[i].atencion,
@@ -1174,6 +1180,7 @@ export class UsuariosComponent implements OnInit {
           Sucursal: this.servicioAtencionUsua[i].nombreEmpresa,
           "Cajero(a)": this.servicioAtencionUsua[i].Nombre,
           Servicio: this.servicioAtencionUsua[i].Servicio,
+          Subservicio: this.servicioAtencionUsua[i].subservicio,
           Atendidos: this.servicioAtencionUsua[i].Atendidos,
           "No atendidos": this.servicioAtencionUsua[i].No_Atendidos,
           Total: this.servicioAtencionUsua[i].Total,
@@ -1184,6 +1191,7 @@ export class UsuariosComponent implements OnInit {
         jsonServicio.push({
           "Cajero(a)": this.servicioAtencionUsua[i].Nombre,
           Servicio: this.servicioAtencionUsua[i].Servicio,
+          Subservicio: this.servicioAtencionUsua[i].subservicio,
           Atendidos: this.servicioAtencionUsua[i].Atendidos,
           "No atendidos": this.servicioAtencionUsua[i].No_Atendidos,
           Total: this.servicioAtencionUsua[i].Total,
@@ -1388,13 +1396,14 @@ export class UsuariosComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
 
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "No atendidos", style: "tableHeader" },
@@ -1405,6 +1414,7 @@ export class UsuariosComponent implements OnInit {
                 { style: "itemsTable", text: res.nombreEmpresa },
                 { style: "itemsTable", text: res.Usuario },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.No_Atendidos },
@@ -1424,12 +1434,13 @@ export class UsuariosComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
 
           body: [
             [
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "No atendidos", style: "tableHeader" },
@@ -1439,6 +1450,7 @@ export class UsuariosComponent implements OnInit {
               return [
                 { style: "itemsTable", text: res.Usuario },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.No_Atendidos },
@@ -2044,12 +2056,13 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "*", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Tiempo", style: "tableHeader" },
               { text: "Turnos", style: "tableHeader" },
             ],
@@ -2058,6 +2071,7 @@ export class UsuariosComponent implements OnInit {
                 { style: "itemsTable", text: res.nombreEmpresa },
                 { style: "itemsTable", text: res.Nombre },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Promedio },
                 { style: "itemsTable", text: res.Turnos },
               ];
@@ -2076,11 +2090,12 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Tiempo", style: "tableHeader" },
               { text: "Turnos", style: "tableHeader" },
             ],
@@ -2088,6 +2103,7 @@ export class UsuariosComponent implements OnInit {
               return [
                 { style: "itemsTable", text: res.Nombre },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Promedio },
                 { style: "itemsTable", text: res.Turnos },
               ];
@@ -2259,7 +2275,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -2267,6 +2283,7 @@ export class UsuariosComponent implements OnInit {
               { text: "Fecha", style: "tableHeader" },
               { text: "Hora", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
               { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
@@ -2275,9 +2292,10 @@ export class UsuariosComponent implements OnInit {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
                 { style: "itemsTable", text: res.Nombre },
-                { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.turn_fecha },
                 { style: "itemsTable", text: res.hora },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
@@ -2297,13 +2315,14 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Hora", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
               { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
@@ -2311,9 +2330,10 @@ export class UsuariosComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.Nombre },
-                { style: "itemsTable", text: res.TURN_FECHA },
+                { style: "itemsTable", text: res.turn_fecha },
                 { style: "itemsTable", text: res.hora },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subervicio },
                 { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
@@ -2695,12 +2715,13 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "*", "auto", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto","auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "No atendidos", style: "tableHeader" },
               { text: "Total", style: "tableHeader" },
@@ -2710,6 +2731,7 @@ export class UsuariosComponent implements OnInit {
                 { style: "itemsTable", text: res.nombreEmpresa },
                 { style: "itemsTable", text: res.Nombre },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subervicio },
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.No_Atendidos },
                 { style: "itemsTable", text: res.Total },
@@ -2729,11 +2751,12 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Cajero(a)", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "No atendidos", style: "tableHeader" },
               { text: "Total", style: "tableHeader" },
@@ -2742,6 +2765,7 @@ export class UsuariosComponent implements OnInit {
               return [
                 { style: "itemsTable", text: res.Nombre },
                 { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subervicio },
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.No_Atendidos },
                 { style: "itemsTable", text: res.Total },

@@ -355,13 +355,14 @@ export class DistestadoturnosComponent implements OnInit {
         jsonServicio.push({
           Sucursal: this.servicioDist[step].nombreEmpresa,
           "Cajero(a)": this.servicioDist[step].Usuario,
-          Servicio: this.servicioDist[step].SERV_NOMBRE,
+          Servicio: this.servicioDist[step].servicio,
+          Subservicio: this.servicioDist[step].subservicio,
           Fecha: this.addOneDay(new Date(this.servicioDist[step].fecha)),
-          "En espera": this.servicioDist[step].PENDIENTES,
-          "En atención": this.servicioDist[step].EN_ATENCION,
-          "En pausa": this.servicioDist[step].EN_PAUSA,
-          Atendidos: this.servicioDist[step].ATENDIDOS,
-          "No atendidos": this.servicioDist[step].NOATENDIDOS,
+          "En espera": this.servicioDist[step].pendientes,
+          "En atención": this.servicioDist[step].en_atencion,
+          "En pausa": this.servicioDist[step].en_pausa,
+          Atendidos: this.servicioDist[step].atendidos,
+          "No atendidos": this.servicioDist[step].no_atendidos,
           "Total turnos": this.servicioDist[step].turnos,
         });
       }
@@ -369,13 +370,14 @@ export class DistestadoturnosComponent implements OnInit {
       for (let step = 0; step < this.servicioDist.length; step++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioDist[step].Usuario,
-          Servicio: this.servicioDist[step].SERV_NOMBRE,
+          Servicio: this.servicioDist[step].servicio,
+          Subservicio: this.servicioDist[step].subservicio,
           Fecha: this.addOneDay(new Date(this.servicioDist[step].fecha)),
-          "En espera": this.servicioDist[step].PENDIENTES,
-          "En atención": this.servicioDist[step].EN_ATENCION,
-          "En pausa": this.servicioDist[step].EN_PAUSA,
-          Atendidos: this.servicioDist[step].ATENDIDOS,
-          "No atendidos": this.servicioDist[step].NOATENDIDOS,
+          "En espera": this.servicioDist[step].pendientes,
+          "En atención": this.servicioDist[step].en_atencion,
+          "En pausa": this.servicioDist[step].en_pausa,
+          Atendidos: this.servicioDist[step].atendidos,
+          "No atendidos": this.servicioDist[step].no_atendidos,
           "Total turnos": this.servicioDist[step].turnos,
         });
       }
@@ -402,13 +404,14 @@ export class DistestadoturnosComponent implements OnInit {
       for (let step = 0; step < this.servicioRes.length; step++) {
         jsonServicio.push({
           Sucursal: this.servicioRes[step].nombreEmpresa,
-          "Cajero(a)": this.servicioRes[step].Usuario,
-          Servicio: this.servicioRes[step].SERV_NOMBRE,
-          "En espera": this.servicioRes[step].PENDIENTES,
-          "En atención": this.servicioRes[step].EN_ATENCION,
-          "En pausa": this.servicioRes[step].EN_PAUSA,
-          Atendidos: this.servicioRes[step].ATENDIDOS,
-          "No atendidos": this.servicioRes[step].NOATENDIDOS,
+          "Cajero(a)": this.servicioRes[step].usuario,
+          Servicio: this.servicioRes[step].servicio,
+          Subservicio: this.servicioRes[step].subservicio,
+          "En espera": this.servicioRes[step].pendientes,
+          "En atención": this.servicioRes[step].en_atencion,
+          "En pausa": this.servicioRes[step].en_pausa,
+          Atendidos: this.servicioRes[step].atendidos,
+          "No atendidos": this.servicioRes[step].no_atendidos,
           "Total turnos": this.servicioRes[step].turnos,
         });
       }
@@ -416,12 +419,13 @@ export class DistestadoturnosComponent implements OnInit {
       for (let step = 0; step < this.servicioRes.length; step++) {
         jsonServicio.push({
           "Cajero(a)": this.servicioRes[step].Usuario,
-          Servicio: this.servicioRes[step].SERV_NOMBRE,
-          "En espera": this.servicioRes[step].PENDIENTES,
-          "En atención": this.servicioRes[step].EN_ATENCION,
-          "En pausa": this.servicioRes[step].EN_PAUSA,
-          Atendidos: this.servicioRes[step].ATENDIDOS,
-          "No atendidos": this.servicioRes[step].NOATENDIDOS,
+          Servicio: this.servicioRes[step].servicio,
+          Subservicio: this.servicioRes[step].subservicio,
+          "En espera": this.servicioRes[step].pendientes,
+          "En atención": this.servicioRes[step].en_atencion,
+          "En pausa": this.servicioRes[step].en_pausa,
+          Atendidos: this.servicioRes[step].atendidos,
+          "No atendidos": this.servicioRes[step].no_atendidos,
           "Total turnos": this.servicioRes[step].turnos,
         });
       }
@@ -469,6 +473,7 @@ export class DistestadoturnosComponent implements OnInit {
 
     return {
       // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
+      pageOrientation: 'landscape',
       watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false, fontSize: 52 },
       header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3 },
       // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
@@ -542,12 +547,13 @@ export class DistestadoturnosComponent implements OnInit {
         style: 'tableMargin',
         table: {
           headerRows: 1,
-          widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Sucursal', style: 'tableHeader' },
               { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
+              { text: 'Subservicio', style: 'tableHeader' },
               { text: 'Fecha', style: 'tableHeader' },
               { text: 'En espera', style: 'tableHeader' },
               { text: 'En atención', style: 'tableHeader' },
@@ -560,13 +566,14 @@ export class DistestadoturnosComponent implements OnInit {
               return [
                 { style: 'itemsTable', text: res.nombreEmpresa },
                 { style: 'itemsTable', text: res.Usuario },
-                { style: 'itemsTable', text: res.SERV_NOMBRE },
+                { style: 'itemsTable', text: res.servicio },
+                { style: 'itemsTable', text: res.subservicio },
                 { style: 'itemsTable', text: res.fecha },
-                { style: 'itemsTable', text: res.PENDIENTES },
-                { style: 'itemsTable', text: res.EN_ATENCION },
-                { style: 'itemsTable', text: res.EN_PAUSA },
-                { style: 'itemsTable', text: res.ATENDIDOS },
-                { style: 'itemsTable', text: res.NOATENDIDOS },
+                { style: 'itemsTable', text: res.pendientes },
+                { style: 'itemsTable', text: res.en_atencion },
+                { style: 'itemsTable', text: res.en_pausa },
+                { style: 'itemsTable', text: res.atendidos },
+                { style: 'itemsTable', text: res.no_atendidos },
                 { style: 'itemsTable', text: res.turnos },
               ]
             })
@@ -583,11 +590,12 @@ export class DistestadoturnosComponent implements OnInit {
         style: 'tableMargin',
         table: {
           headerRows: 1,
-          widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
+              { text: 'Subservicio', style: 'tableHeader' },
               { text: 'Fecha', style: 'tableHeader' },
               { text: 'En espera', style: 'tableHeader' },
               { text: 'En atención', style: 'tableHeader' },
@@ -599,13 +607,14 @@ export class DistestadoturnosComponent implements OnInit {
             ...servicio.map(res => {
               return [
                 { style: 'itemsTable', text: res.Usuario },
-                { style: 'itemsTable', text: res.SERV_NOMBRE },
+                { style: 'itemsTable', text: res.servicio },
+                { style: 'itemsTable', text: res.subservicio },
                 { style: 'itemsTable', text: res.fecha },
-                { style: 'itemsTable', text: res.PENDIENTES },
-                { style: 'itemsTable', text: res.EN_ATENCION },
-                { style: 'itemsTable', text: res.EN_PAUSA },
-                { style: 'itemsTable', text: res.ATENDIDOS },
-                { style: 'itemsTable', text: res.NOATENDIDOS },
+                { style: 'itemsTable', text: res.pendientes },
+                { style: 'itemsTable', text: res.en_atencion },
+                { style: 'itemsTable', text: res.en_pausa },
+                { style: 'itemsTable', text: res.atendidos },
+                { style: 'itemsTable', text: res.no_atendidos },
                 { style: 'itemsTable', text: res.turnos },
               ]
             })
@@ -722,12 +731,13 @@ export class DistestadoturnosComponent implements OnInit {
         style: 'tableMargin',
         table: {
           headerRows: 1,
-          widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Sucursal', style: 'tableHeader' },
               { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
+              { text: 'Subservicio', style: 'tableHeader' },
               { text: 'En espera', style: 'tableHeader' },
               { text: 'En atención', style: 'tableHeader' },
               { text: 'En pausa', style: 'tableHeader' },
@@ -738,13 +748,14 @@ export class DistestadoturnosComponent implements OnInit {
             ...servicio.map(res => {
               return [
                 { style: 'itemsTable', text: res.nombreEmpresa },
-                { style: 'itemsTable', text: res.Usuario },
-                { style: 'itemsTable', text: res.SERV_NOMBRE },
-                { style: 'itemsTable', text: res.PENDIENTES },
-                { style: 'itemsTable', text: res.EN_ATENCION },
-                { style: 'itemsTable', text: res.EN_PAUSA },
-                { style: 'itemsTable', text: res.ATENDIDOS },
-                { style: 'itemsTable', text: res.NOATENDIDOS },
+                { style: 'itemsTable', text: res.usuario },
+                { style: 'itemsTable', text: res.servicio },
+                { style: 'itemsTable', text: res.subservicio },
+                { style: 'itemsTable', text: res.pendientes },
+                { style: 'itemsTable', text: res.en_atencion },
+                { style: 'itemsTable', text: res.en_pausa },
+                { style: 'itemsTable', text: res.atendidos },
+                { style: 'itemsTable', text: res.no_atendidos },
                 { style: 'itemsTable', text: res.turnos }
               ]
             })
@@ -761,11 +772,12 @@ export class DistestadoturnosComponent implements OnInit {
         style: 'tableMargin',
         table: {
           headerRows: 1,
-          widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Cajero(a)', style: 'tableHeader' },
               { text: 'Servicio', style: 'tableHeader' },
+              { text: 'Subservicio', style: 'tableHeader' },
               { text: 'En espera', style: 'tableHeader' },
               { text: 'En atención', style: 'tableHeader' },
               { text: 'En pausa', style: 'tableHeader' },
@@ -775,13 +787,14 @@ export class DistestadoturnosComponent implements OnInit {
             ],
             ...servicio.map(res => {
               return [
-                { style: 'itemsTable', text: res.Usuario },
-                { style: 'itemsTable', text: res.SERV_NOMBRE },
-                { style: 'itemsTable', text: res.PENDIENTES },
-                { style: 'itemsTable', text: res.EN_ATENCION },
-                { style: 'itemsTable', text: res.EN_PAUSA },
-                { style: 'itemsTable', text: res.ATENDIDOS },
-                { style: 'itemsTable', text: res.NOATENDIDOS },
+                { style: 'itemsTable', text: res.usuario },
+                { style: 'itemsTable', text: res.servicio },
+                { style: 'itemsTable', text: res.subservicio },
+                { style: 'itemsTable', text: res.pendientes },
+                { style: 'itemsTable', text: res.en_atencion },
+                { style: 'itemsTable', text: res.en_pausa },
+                { style: 'itemsTable', text: res.atendidos },
+                { style: 'itemsTable', text: res.no_atendidos },
                 { style: 'itemsTable', text: res.turnos }
               ]
             })

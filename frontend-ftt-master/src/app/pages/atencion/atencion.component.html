@@ -114,6 +114,7 @@
                                     </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Tiempo Espera</th>
                                     <th scope="col" class="text-center">Tiempo Atención</th>
@@ -123,11 +124,12 @@
                                 <tr *ngFor="let servicioTiempoComp of servicioTiempoComp | paginate:configTC">
                                     <td *ngIf="todasSucursalesTC || seleccionMultiple">
                                         {{servicioTiempoComp.nombreEmpresa}}</td>
-                                    <td>{{servicioTiempoComp.Usuario}}</td>
-                                    <td>{{servicioTiempoComp.Servicio}}</td>
-                                    <td>{{servicioTiempoComp.Fecha}}</td>
-                                    <td>{{servicioTiempoComp.Tiempo_Espera}}</td>
-                                    <td>{{servicioTiempoComp.Tiempo_Atencion}}</td>
+                                    <td>{{servicioTiempoComp.usuario}}</td>
+                                    <td>{{servicioTiempoComp.servicio}}</td>
+                                    <td>{{servicioTiempoComp.subservicio}}</td>
+                                    <td>{{servicioTiempoComp.fecha}}</td>
+                                    <td>{{servicioTiempoComp.tiempo_espera}}</td>
+                                    <td>{{servicioTiempoComp.tiempo_atencion}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -218,6 +220,7 @@
                                         Sucursal
                                     </th>
                                     <th scope="col" class="text-center">Servicios</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">T. Promedio de Espera </th>
                                     <th scope="col" class="text-center">T. Promedio de Atención</th>
@@ -226,10 +229,11 @@
                             <tbody *ngIf="!malRequestAtPA">
                                 <tr *ngFor="let serviciopa of serviciopa | paginate:configPA">
                                     <td *ngIf="todasSucursalesPA || seleccionMultiple">{{serviciopa.nombreEmpresa}}</td>
-                                    <td>{{serviciopa.SERV_NOMBRE}}</td>
-                                    <td>{{serviciopa.TURN_FECHA}}</td>
-                                    <td>{{serviciopa.PromedioEspera}}</td>
-                                    <td>{{serviciopa.PromedioAtencion}}</td>
+                                    <td>{{serviciopa.serv_nombre}}</td>
+                                    <td>{{serviciopa.subservicio}}</td>
+                                    <td>{{serviciopa.turn_fecha}}</td>
+                                    <td>{{serviciopa.promedio_espera}}</td>
+                                    <td>{{serviciopa.promedio_atencion}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -322,6 +326,7 @@
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Turno</th>
                                     <th scope="col" class="text-center">Tiempo de espera </th>
                                     <th scope="col" class="text-center">Tiempo de atención</th>
@@ -331,9 +336,10 @@
                                 <tr *ngFor="let serviciota of serviciota | paginate:configTA">
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">{{serviciota.nombreEmpresa}}</td>
                                     <td>{{serviciota.cajero}}</td>
-                                    <td>{{serviciota.TURN_FECHA}}</td>
+                                    <td>{{serviciota.turn_fecha}}</td>
                                     <td>{{serviciota.hora}}</td>
-                                    <td>{{serviciota.SERV_NOMBRE}}</td>
+                                    <td>{{serviciota.serv_nombre}}</td>
+                                    <td>{{serviciota.subservicio}}</td>
                                     <td>{{serviciota.turno}}</td>
                                     <td>{{serviciota.espera}}</td>
                                     <td>{{serviciota.atencion}}</td>
@@ -426,6 +432,7 @@
                                         Sucursal
                                     </th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">T. Máximo de Atención</th>
                                 </tr>
@@ -434,7 +441,8 @@
                                 <tr *ngFor="let serviciomax of serviciomax | paginate:configMA">
                                     <td *ngIf="todasSucursalesMA || seleccionMultiple">{{serviciomax.nombreEmpresa}}
                                     </td>
-                                    <td>{{serviciomax.SERV_NOMBRE}}</td>
+                                    <td>{{serviciomax.serv_nombre}}</td>
+                                    <td>{{serviciomax.subservicio}}</td>
                                     <td>{{serviciomax.Fecha}}</td>
                                     <td>{{serviciomax.Maximo}}</td>
                                 </tr>
@@ -525,6 +533,7 @@
                                         Sucursal</th>
                                     <th scope="col" class="text-center">Nombre</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Atendidos</th>
                                     <th scope="col" class="text-center">No Atendidos</th>
                                     <th scope="col" class="text-center">Total</th>
@@ -536,6 +545,7 @@
                                     </td>
                                     <td>{{servicioatser.Nombre}}</td>
                                     <td>{{servicioatser.Servicio}}</td>
+                                    <td>{{servicioatser.subservicio}}</td>
                                     <td>{{servicioatser.Atendidos}}</td>
                                     <td>{{servicioatser.NoAtendidos}}</td>
                                     <td>{{servicioatser.total}}</td>
@@ -632,6 +642,7 @@
                                     <th scope="col" class="text-center">Cliente</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Servicio</th>
+                                    <th scope="col" class="text-center">Subservicio</th>
                                     <th scope="col" class="text-center">Turno</th>
                                 </tr>
                             </thead>
@@ -644,6 +655,7 @@
                                     <td>{{identificacionCliente=='nombre'?cliente.nombre:cliente.cedula}}</td>
                                     <td>{{cliente.fecha}}</td>
                                     <td>{{cliente.servicio}}</td>
+                                    <td>{{cliente.subservicio}}</td>
                                     <td>{{cliente.siglas}}{{cliente.numero}}</td>
                                 </tr>
                             </tbody>
@@ -727,6 +739,7 @@
                                             Sucursal
                                         </th>
                                         <th scope="col" class="text-center">Servicio</th>
+                                        <th scope="col" class="text-center">Subservicio</th>
                                         <th scope="col" class="text-center">Atendidos</th>
                                         <th scope="col" class="text-center">No Atendidos</th>
                                         <th scope="col" class="text-center">Total</th>
@@ -737,6 +750,7 @@
                                         <td *ngIf="todasSucursalesGS || seleccionMultiple">
                                             {{serviciograf.nombreEmpresa}}</td>
                                         <td>{{serviciograf.Servicio}}</td>
+                                        <td>{{serviciograf.subservicio}}</td>
                                         <td>{{serviciograf.Atendidos}}</td>
                                         <td>{{serviciograf.No_Atendidos}}</td>
                                         <td>{{serviciograf.Total}}</td>

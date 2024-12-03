@@ -81,15 +81,28 @@
                     </div>
                 </div>
                 <br>
-                <div id="sales-overview2" class="p-relative" *ngFor="let servicio6 of servicio6">
+                <div id="sales-overview2" class="p-relative" *ngFor="let ser of servicio6">
                     <div id="ct-sales3-chart" class="p-relative">
-                        <h5 class="m-t-30">{{servicio6.Servicio}}<span class="pull-right">{{servicio6.Total}}</span>
+                        <h5 class="m-t-30">{{ser.Servicio}}<span class="pull-right">{{ser.total_general}}</span>
                         </h5>
                         <div class="progress">
                             <div class="progress-bar bg-danger" role="progressBar"
                                 style="height: 15px; padding-left: 5px;"
-                                [ngStyle]="{ 'width': ((servicio6.Total*100)/altoMA)+'%' }" aria-valuenow="10"
+                                [ngStyle]="{ 'width': ((ser.total_general*100)/altoMA)+'%' }" aria-valuenow="10"
                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="sales-overview2" class="p-relative" *ngFor="let sub of ser.subservicios">
+                        <div id="ct-sales3-chart" class="p-relative">
+                            <h6 class="m-t-30">{{sub.subservicio}}<span class="pull-right">{{sub.Total}}</span>
+                            </h6>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressBar"
+                                    style="height: 10px; padding-left: 5px;"
+                                    [ngStyle]="{ 'width': ((sub.Total*100)/altoMA)+'%' }" aria-valuenow="10"
+                                    aria-valuemin="0" aria-valuemax="100">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -97,7 +110,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-6 col-md-12">
+    <div class="col-lg-6 col-md-12" *ngIf="servicio5.length">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex">
