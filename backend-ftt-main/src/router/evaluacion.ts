@@ -205,6 +205,46 @@ router.get("/getallservicios/:sucursales", TokenValidation, (req: Request, res: 
   });
 });
 
+
+router.get("/getallsub_servicios/:servicios", TokenValidation, (req: Request, res: Response) => {
+  const listaServicios = req.params.servicios;
+  const serviciosArray = listaServicios.split(",");
+
+  let todasServicios = false;
+
+  if (serviciosArray.includes("-1")) {
+    todasServicios = true;
+  }
+
+  const query =
+    `
+      SELECT 
+        s.*
+      FROM 
+        sub_servicio s
+      WHERE 
+      s.estado = 1
+        ${!todasServicios ? `AND  s.id_servicio IN (${listaServicios})` : ''}
+      ORDER BY 
+        s.id_servicio ASC;
+    `;
+
+  MySQL.ejecutarQuery(query, (err: any, sub_servicios: Object[]) => {
+    if (err) {
+      res.status(400).json({
+        ok: false,
+        error: err,
+      });
+    } else {
+      res.json({
+        ok: true,
+        sub_servicios,
+      });
+    }
+  });
+});
+
+
 /** ************************************************************************************************************ **
  ** **                                      MAXIMOS Y MINIMOS                                                 ** **
  ** ************************************************************************************************************ **/

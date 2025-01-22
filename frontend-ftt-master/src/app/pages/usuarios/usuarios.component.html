@@ -48,7 +48,7 @@
             </ul>
             <!-- *********************************** TURNOS POR FECHA *************************************** -->
             <div class="tab-content" id="myTabContent">
-                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">0
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
@@ -102,26 +102,31 @@
                                 </mat-select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Servicios">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesTF')">
-                                        Todas las servicios
+                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios">
+                                    <mat-option *ngIf="mostrarServicios" [value]="-1"
+                                        (click)="selectAll('todasServiciosTF')">
+                                        Todos los servicios
                                     </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesTF">
-                                        {{option.empr_nombre}}
+                                    <mat-option *ngFor="let serviciosServs of serviciosServs"
+                                        [value]="serviciosServs.serv_codigo"
+                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
+                                        {{serviciosServs.serv_nombre}} - {{serviciosServs.empresa}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
+
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Subservicios">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesTF')">
+                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios">
+                                    <mat-option *ngIf="mostrarSubservicios" [value]="-1"
+                                        (click)="selectAll('todasSubServiciosTF')">
                                         Todas las subservicios
                                     </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesTF">
-                                        {{option.empr_nombre}}
+                                    <mat-option *ngFor="let option of subservicios" [value]="option.id"
+                                        [disabled]="seleccionMultipleSubServicios">
+                                        {{option.nombre}}
                                     </mat-option>
                                 </mat-select>
+
                                 <br><br>
 
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosFecha()">

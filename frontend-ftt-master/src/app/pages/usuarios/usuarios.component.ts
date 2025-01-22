@@ -66,6 +66,12 @@ export class UsuariosComponent implements OnInit {
   turno: turno[];
   cajero: cajero[];
   sucursales: any[];
+  serviciosServs: any = [];
+  subservicios: any[];
+
+  mostrarServicios: boolean = false;
+  mostrarSubservicios: boolean = false;
+
   cajerosUsuarios: any = [];
   servicioTurnosFecha: any = [];
   servicioTurnosTotalFecha: any = [];
@@ -79,6 +85,9 @@ export class UsuariosComponent implements OnInit {
   todasSucursalesTPA: boolean = false;
   todasSucursalesTA: boolean = false;
   todasSucursalesTF: boolean = false;
+  todasServiciosTF: boolean = false;
+  todasSub_serviciosTF: boolean = false;
+
   todasSucursalesTTF: boolean = false;
   todasSucursalesTM: boolean = false;
   todasSucursalesES: boolean = false;
@@ -135,7 +144,12 @@ export class UsuariosComponent implements OnInit {
   allSelected: boolean = false;
   selectedItems: string[] = [];
   sucursalesSeleccionadas: string[] = [];
+  serviciosSeleccionadas: string[] = [];
+  sub_serviciosSeleccionadas: string[] = [];
+
   seleccionMultiple: boolean = false;
+  seleccionMultipleServicios: boolean = false;
+  seleccionMultipleSubServicios: boolean = false;
 
   //MOSTRAR CAJEROS
   mostrarCajeros: boolean = false;
@@ -281,7 +295,7 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'todasSucursalesTF':
         this.todasSucursalesTF = !this.todasSucursalesTF;
-        this.todasSucursalesTF ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        this.todasSucursalesTF ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : null;
         break;
       case 'todasSucursalesTTF':
         this.todasSucursalesTTF = !this.todasSucursalesTTF;
@@ -308,8 +322,22 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'sucursalesSeleccionadas':
         this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-        this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        this.sucursalesSeleccionadas.length > 0 ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : null;
         break;
+      case 'todasServiciosTF':
+        this.todasServiciosTF = !this.todasServiciosTF;
+        this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : null;
+        break;
+      case 'serviciosSeleccionadas':
+        this.seleccionMultipleServicios = this.serviciosSeleccionadas.length > 1;
+        this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : null;
+        break;
+
+      case 'todasSubServiciosTF':
+        this.seleccionMultipleSubServicios = !this.seleccionMultipleSubServicios;
+        break;
+      
+
       default:
         break;
     }
@@ -358,6 +386,49 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
+  getServicios(sucursal: any) {
+    console.log("ver sucuales seleccionadas: ", sucursal)
+    this.serviceService.getAllServiciosS(sucursal).subscribe((servicios: any) => {
+      //this.serviciosServs = servicios.servicios;
+      this.serviciosServs = servicios.servicios.filter(
+        (valor: any, indice: any, self: any) =>
+          self.findIndex((v: any) => v.serv_codigo === valor.serv_codigo) === indice
+      );
+      console.log("ver servicios: ", this.serviciosServs)
+      this.mostrarServicios = true;
+    },
+      (error) => {
+        if (error.status == 400) {
+          this.serviciosServs = [];
+          this.mostrarServicios = false;
+        }
+      });
+
+    console.log('servicios', this.serviciosServs)
+  }
+
+
+  getSub_servicios(servicio: any) {
+    console.log("ver servicios seleccionados: ", servicio)
+
+    this.serviceService.getAllSub_serviciosS(servicio).subscribe((subservicio: any) => {
+      //this.serviciosServs = servicios.servicios;
+      this.subservicios = subservicio.sub_servicios.filter(
+        (valor: any, indice: any, self: any) =>
+          self.findIndex((v: any) => v.id === valor.id) === indice
+      );
+      console.log("ver subservicios: ", this.subservicios)
+      this.mostrarSubservicios = true;
+    },
+      (error) => {
+        if (error.status == 400) {
+          this.subservicios = [];
+          this.mostrarSubservicios = false;
+        }
+      });
+
+  }
+
   // METODO PARA LLAMAR CONSULTA DE DATOS
   limpiar() {
     this.cajerosUsuarios = [];
@@ -404,11 +475,12 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getfiltroturnosfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems)
+        .getfiltroturnosfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosFecha = servicio.turnos;
+            console.log("ver TURNOS: "+this.servicioTurnosFecha  )
             this.malRequestTF = false;
             this.malRequestTFPag = false;
 
@@ -2715,7 +2787,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "*", "auto","auto", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },

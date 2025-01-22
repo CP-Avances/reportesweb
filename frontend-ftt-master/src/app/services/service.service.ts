@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { servicio } from '../models/servicio';
+import { servicio, subservicio } from '../models/servicio';
 import { empresa } from '../models/empresa';
 import { cajero } from '../models/cajero';
 
@@ -12,7 +12,7 @@ import { cajero } from '../models/cajero';
 
 export class ServiceService {
 
-  private URL = "http://192.168.0.145:3004";
+  private URL = "http://10.1.0.21:3004";
 
   constructor(
     private http: HttpClient
@@ -22,8 +22,8 @@ export class ServiceService {
    ** **                                        TURNOS POR FECHAS                                                     ** **
    ** ****************************************************************************************************************** **/
 
-  getfiltroturnosfechas(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, sucursales: any, cajeros: any): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros);
+  getfiltroturnosfechas(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, sucursales: any, cajeros: any, servicios: any, subservicios: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios);
   }
 
 
@@ -83,6 +83,10 @@ export class ServiceService {
 
   getAllServiciosS(sucursales: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/getallservicios" + "/" + sucursales);
+  }
+
+  getAllSub_serviciosS(servicios: any): Observable<subservicio[]> {
+    return this.http.get<subservicio[]>(this.URL + "/getallsub_servicios" + "/" + servicios);
   }
 
 
