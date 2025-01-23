@@ -545,15 +545,21 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
     const hInicio = req.params.horaInicio;
     const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
+    console.log("ver listaSucursales: ", listaSucursales);
     const sucursalesArray = listaSucursales.split(",");
     const listaCajeros = req.params.cajeros;
+    console.log("ver listaCajeros: ", listaCajeros);
     const cajerosArray = listaCajeros.split(",");
     const listaServicios = req.params.servicios;
-    const Serviciosarray = listaCajeros.split(",");
+    console.log("ver listaServicios", listaServicios);
+    const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    const subServiciosarray = listaCajeros.split(",");
+    console.log("ver listaSubservicios", listaSubservicios);
+    const subServiciosarray = listaSubservicios.split(",");
     let todasSucursales = false;
     let todasCajeros = false;
+    let todosServicios = false;
+    let todosSubservicio = false;
     let diaCompleto = false;
     let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
@@ -562,6 +568,12 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
     if (cajerosArray.includes("-2")) {
         todasCajeros = true;
     }
+    if (Serviciosarray.includes("-1")) {
+        todosServicios = true;
+    }
+    if (subServiciosarray.includes("-1")) {
+        todosSubservicio = true;
+    }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
     }
@@ -569,7 +581,8 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
         hFinAux = parseInt(hFin) - 1;
     }
     let query = '';
-    if (listaServicios.length != 0 && listaSubservicios.length != 0) {
+    if (listaServicios != '0' && listaSubservicios != '0') {
+        console.log("entra a listaServicios != '0' && listaSubservicios != '0'");
         query =
             `
         SELECT 
@@ -599,8 +612,8 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
           AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
           ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
           ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
-          AND s.serv_codigo IN (${listaServicios})
-          AND ss.id IN (${listaSubservicios})
+          ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
+          ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY 
           e.empr_nombre, 
@@ -615,7 +628,8 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
           Servicio ASC;
       `;
     }
-    else if (listaSubservicios.length == 0) {
+    else if (listaSubservicios == '0' && listaServicios != '0') {
+        console.log("listaSubservicios == '0' && listaServicios != '0'");
         query =
             `
       SELECT 
@@ -645,7 +659,7 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
         AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
-        AND s.serv_codigo IN (${listaServicios})
+        ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY 
         e.empr_nombre, 
@@ -660,7 +674,8 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
         Servicio ASC;
     `;
     }
-    else if (listaServicios.length == 0) {
+    else if (listaServicios == '0' && listaSubservicios == '0') {
+        console.log("listaServicios == '0' && listaSubservicios == '0'");
         query =
             `
       SELECT 
@@ -719,7 +734,7 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
         }
     });
 });
-router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros", verifivarToken_1.TokenValidation, (req, res) => {
+router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros/:servicios/:subservicios", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -728,15 +743,29 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
     const sucursalesArray = listaSucursales.split(",");
     const listaCajeros = req.params.cajeros;
     const cajerosArray = listaCajeros.split(",");
+    const listaServicios = req.params.servicios;
+    console.log("ver listaServicios", listaServicios);
+    const Serviciosarray = listaServicios.split(",");
+    const listaSubservicios = req.params.subservicios;
+    console.log("ver listaSubservicios", listaSubservicios);
+    const subServiciosarray = listaSubservicios.split(",");
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
     let hFinAux = 0;
+    let todosServicios = false;
+    let todosSubservicio = false;
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
     if (cajerosArray.includes("-2")) {
         todasCajeros = true;
+    }
+    if (Serviciosarray.includes("-1")) {
+        todosServicios = true;
+    }
+    if (subServiciosarray.includes("-1")) {
+        todosSubservicio = true;
     }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
@@ -744,12 +773,17 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
     else {
         hFinAux = parseInt(hFin) - 1;
     }
-    const query = `
+    let query = '';
+    if (listaServicios != '0' && listaSubservicios != '0') {
+        query =
+            `
         SELECT 
           e.empr_nombre AS nombreEmpresa,
           u.usua_nombre AS Usuario, 
           ss.id AS id_subservicio, 
           ss.nombre AS subservicio,
+          s.serv_nombre AS Servicio, 
+
           DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha, 
           SUM(t.turn_estado = 1) AS Atendidos, 
           SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
@@ -763,7 +797,89 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
         INNER JOIN 
           empresa e ON u.empr_codigo = e.empr_codigo
         INNER JOIN 
+          servicio s ON t.serv_codigo = s.serv_codigo
+        INNER JOIN 
           sub_servicio ss ON ss.id = t.id_sub_serv
+        WHERE 
+          u.usua_codigo != 2
+          AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+          ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
+          ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
+          ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
+          ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
+        GROUP BY 
+          e.empr_nombre, 
+          DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
+          u.usua_nombre, 
+          ss.id, 
+          ss.nombre,
+          s.serv_nombre
+
+        ORDER BY 
+          Fecha DESC, 
+          Usuario ASC;
+      `;
+    }
+    else if (listaSubservicios == '0' && listaServicios != '0') {
+        query =
+            `
+      SELECT 
+        e.empr_nombre AS nombreEmpresa,
+        u.usua_nombre AS Usuario, 
+        s.serv_nombre AS Servicio, 
+        DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha, 
+        SUM(t.turn_estado = 1) AS Atendidos, 
+        SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
+        SUM(t.turn_estado != 0) AS Total
+      FROM 
+        turno t
+      INNER JOIN 
+        cajero c ON t.caje_codigo = c.caje_codigo
+      INNER JOIN 
+        usuarios u ON u.usua_codigo = c.usua_codigo
+      INNER JOIN 
+        empresa e ON u.empr_codigo = e.empr_codigo
+      INNER JOIN 
+        servicio s ON t.serv_codigo = s.serv_codigo
+    
+      WHERE 
+        u.usua_codigo != 2
+        AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros})` : ''}
+        ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
+        ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
+      GROUP BY 
+        e.empr_nombre, 
+        DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
+        u.usua_nombre, 
+        s.serv_nombre
+
+      ORDER BY 
+        Fecha DESC, 
+        Usuario ASC;
+    `;
+    }
+    else if (listaServicios == '0' && listaSubservicios == '0') {
+        query =
+            `
+        SELECT 
+          e.empr_nombre AS nombreEmpresa,
+          u.usua_nombre AS Usuario, 
+          DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha, 
+          SUM(t.turn_estado = 1) AS Atendidos, 
+          SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
+          SUM(t.turn_estado != 0) AS Total
+        FROM 
+          turno t
+        INNER JOIN 
+          cajero c ON t.caje_codigo = c.caje_codigo
+        INNER JOIN 
+          usuarios u ON u.usua_codigo = c.usua_codigo
+        INNER JOIN 
+          empresa e ON u.empr_codigo = e.empr_codigo
+    
         WHERE 
           u.usua_codigo != 2
           AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
@@ -773,13 +889,13 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
         GROUP BY 
           e.empr_nombre, 
           DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
-          u.usua_nombre, 
-          ss.id, 
-          ss.nombre
+          u.usua_nombre 
+      
         ORDER BY 
           Fecha DESC, 
           Usuario ASC;
       `;
+    }
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({

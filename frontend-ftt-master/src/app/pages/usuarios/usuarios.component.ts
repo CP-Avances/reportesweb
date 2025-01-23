@@ -86,7 +86,6 @@ export class UsuariosComponent implements OnInit {
   todasSucursalesTA: boolean = false;
   todasSucursalesTF: boolean = false;
   todasServiciosTF: boolean = false;
-  todasSub_serviciosTF: boolean = false;
 
   todasSucursalesTTF: boolean = false;
   todasSucursalesTM: boolean = false;
@@ -299,7 +298,7 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'todasSucursalesTTF':
         this.todasSucursalesTTF = !this.todasSucursalesTTF;
-        this.todasSucursalesTTF ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        this.todasSucursalesTTF ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : null;
         break;
       case 'todasSucursalesTM':
         this.todasSucursalesTM = !this.todasSucursalesTM;
@@ -336,7 +335,7 @@ export class UsuariosComponent implements OnInit {
       case 'todasSubServiciosTF':
         this.seleccionMultipleSubServicios = !this.seleccionMultipleSubServicios;
         break;
-      
+
 
       default:
         break;
@@ -443,7 +442,12 @@ export class UsuariosComponent implements OnInit {
     this.todasSucursalesES = false;
     this.todasSucursalesAU = false;
     this.seleccionMultiple = false;
+    this.todasServiciosTF = false;
+    this.seleccionMultipleServicios = false;
+    this.seleccionMultipleSubServicios = false;
     this.sucursalesSeleccionadas = [];
+    this.serviciosSeleccionadas = [];
+    this.sub_serviciosSeleccionadas = []
   }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
@@ -480,7 +484,7 @@ export class UsuariosComponent implements OnInit {
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosFecha = servicio.turnos;
-            console.log("ver TURNOS: "+this.servicioTurnosFecha  )
+            console.log("ver TURNOS: " + this.servicioTurnosFecha)
             this.malRequestTF = false;
             this.malRequestTFPag = false;
 
@@ -538,7 +542,7 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems)
+        .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems,  this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS

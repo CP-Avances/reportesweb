@@ -126,7 +126,6 @@
                                         {{option.nombre}}
                                     </mat-option>
                                 </mat-select>
-
                                 <br><br>
 
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosFecha()">
@@ -240,6 +239,35 @@
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios">
+                                    <mat-option *ngIf="mostrarServicios" [value]="-1"
+                                        (click)="selectAll('todasServiciosTF')">
+                                        Todos los servicios
+                                    </mat-option>
+                                    <mat-option *ngFor="let serviciosServs of serviciosServs"
+                                        [value]="serviciosServs.serv_codigo"
+                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
+                                        {{serviciosServs.serv_nombre}} - {{serviciosServs.empresa}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios">
+                                    <mat-option *ngIf="mostrarSubservicios" [value]="-1"
+                                        (click)="selectAll('todasSubServiciosTF')">
+                                        Todas las subservicios
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of subservicios" [value]="option.id"
+                                        [disabled]="seleccionMultipleSubServicios">
+                                        {{option.nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+
+
+
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosTotalFecha()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
@@ -259,6 +287,8 @@
                                         Sucursal
                                     </th>
                                     <th class="text-center">Cajero(a)</th>
+                                    <th class="text-center"*ngIf="todasServiciosTF || seleccionMultipleServicios">Servicio</th>
+                                    <th class="text-center"*ngIf="seleccionMultipleSubServicios">Subservicio</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">No atendidos</th>
@@ -271,6 +301,8 @@
                                     <td *ngIf="todasSucursalesTTF || seleccionMultiple">
                                         {{servicioTurnosTotalFecha.nombreEmpresa}}</td>
                                     <td> {{servicioTurnosTotalFecha.Usuario}}</td>
+                                    <td *ngIf="todasServiciosTF || seleccionMultipleServicios"> {{servicioTurnosTotalFecha.Servicio}}</td>
+                                    <td *ngIf="seleccionMultipleSubServicios"> {{servicioTurnosTotalFecha.subservicio}}</td>
                                     <td> {{servicioTurnosTotalFecha.Fecha}}</td>
                                     <td> {{servicioTurnosTotalFecha.Atendidos}} </td>
                                     <td> {{servicioTurnosTotalFecha.No_Atendidos}}</td>
