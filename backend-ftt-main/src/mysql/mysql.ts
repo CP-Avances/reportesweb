@@ -11,7 +11,6 @@ export default class MySQL {
 
     constructor() {
         console.log('clase inicializada');
-
         this.cnn = mysql.createPool({
             host: '192.168.0.145',
             port: 3307,
@@ -20,7 +19,6 @@ export default class MySQL {
             database: 'superintendencia_tickets',
             connectionLimit: 10,
         });
-
         this.conectarDB();
     }
 

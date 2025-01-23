@@ -10,118 +10,219 @@ const router = (0, express_1.Router)();
 /** ************************************************************************************************************ **
  ** **                                      SERVICIO                                                          ** **
  ** ************************************************************************************************************ **/
-router.get("/promedios/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales/:opcion", verifivarToken_1.TokenValidation, (req, res) => {
+// METODO DE BUSQUEDA DE EVALUACIONES POR CAJERO - POR SERVICIO - POR SUBSERVICIO
+router.get("/promedios/fechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales/:subservicio/:cajero/:opcion/:estado", verifivarToken_1.TokenValidation, (req, res) => {
+    // VARIABLES DE FECHAS
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
+    // VARIABLES DE HORAS
     const hInicio = req.params.horaInicio;
     const hFin = req.params.horaFin;
-    const opcion = req.params.opcion;
-    const listaServicios = req.params.servicios;
-    const serviciosArray = listaServicios.split(",");
-    const listaSucursales = req.params.sucursales;
-    const sucursalesArray = listaSucursales.split(",");
-    let todosServicios = false;
-    let todasSucursales = false;
     let diaCompleto = false;
     let hFinAux = 0;
+    // VARIBALE DE OPCIONES DE BOTONES (TRUE -> 4 -- FALSE -> 5)
+    const opcion = req.params.opcion;
+    let opciones = false;
+    // VARIABLE DE ESTADO DEL USUARIO
+    const estado = req.params.estado;
+    let estadoUsuario = false;
+    // FILTROS DE SUCURSALES
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    let todasSucursales = false;
+    // FILTROS DE SERVICIOS
+    const listaServicios = req.params.servicios;
+    const serviciosArray = listaServicios.split(",");
+    let todosServicios = false;
+    // FILTROS DE CAJEROS
+    const listaCajeros = req.params.cajero;
+    const cajerosArray = listaCajeros.split(",");
+    let todosCajeros = false;
+    // FILTROS DE SUBSERVICIOS
+    const listaSubservicios = req.params.subservicio;
+    const subserviciosArray = listaSubservicios.split(",");
+    let todosSubservicios = false;
+    // VALIDACION DE SUCURSALES
     if (sucursalesArray.includes("-1")) {
         todasSucursales = true;
     }
+    // VALIDACION DE SERVICIOS
     if (serviciosArray.includes("-1")) {
         todosServicios = true;
     }
+    // VALIDACION DE CAJEROS
+    if (cajerosArray.includes("-1")) {
+        todosCajeros = true;
+    }
+    // VALIDACION DE SUBSERVICIOS
+    if (subserviciosArray.includes("-1")) {
+        todosSubservicios = true;
+    }
+    // VALIDACION DE HORAS
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
     }
     else {
         hFinAux = parseInt(hFin) - 1;
     }
-    let query;
+    // VALIDACION DE OPCIONES
     if (opcion == "true") {
-        query =
+        opciones = true;
+    }
+    console.log('ver opciones.... ', opciones, ' cajeros ', listaCajeros, ' boolean ', todosCajeros, ' subservicios ', listaSubservicios, ' sub ', todosSubservicios);
+    let query;
+    // CREAR SQL DE ACUERDO A LAS VALIDACIONES
+    let columnas = `
+      e.empr_nombre AS nombreEmpresa,
+      DATE_FORMAT(f.eval_fecha, '%Y-%m-%d') AS Fecha,
+      `;
+    if (listaServicios != '0N') {
+        columnas += `s.serv_nombre AS Servicio,`;
+    }
+    if (listaSubservicios != '0N') {
+        columnas += `ss.nombre AS subservicio,`;
+    }
+    if (listaCajeros != '0N') {
+        columnas += `a.usua_nombre AS Usuario,`;
+        estadoUsuario = true;
+    }
+    if (!opciones) {
+        columnas += `SUM(eval_califica = 50) AS Excelente,`;
+        columnas += `SUM(eval_califica = 40) AS Muy_Bueno,`;
+    }
+    else {
+        columnas += `SUM(eval_califica = 40) AS Excelente,`;
+    }
+    columnas +=
+        `
+      SUM(eval_califica = 30) AS Bueno,
+      SUM(eval_califica = 20) AS Regular,
+      SUM(eval_califica = 10) AS Malo,
+      COUNT(eval_califica) AS Total
+      `;
+    let promedio = ``;
+    if (!opciones) {
+        promedio += `IF(AVG(eval_califica) >= 42, 'Excelente', `;
+        promedio += `IF(AVG(eval_califica) >= 34, 'Muy Bueno', `;
+        promedio +=
             `
-          SELECT 
-            e.empr_nombre AS nombreEmpresa, 
-            a.usua_nombre AS Usuario, 
-            s.serv_nombre AS Servicio, 
-            ss.nombre AS subservicio,
-            DATE_FORMAT(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
-            SUM(eval_califica = 40) AS Excelente, 
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-            IF(AVG(eval_califica) >= 34, 'Excelente',
-              IF(AVG(eval_califica) >= 26, 'Bueno',
-                IF(AVG(eval_califica) >= 18, 'Regular',
-                  IF(AVG(eval_califica) >= 10, 'Malo', 'No existe')
-                )
-              )
-            ) AS Promedio
-          FROM 
-            usuarios a
-          INNER JOIN evaluacion f ON a.usua_codigo = f.usua_codigo
-          INNER JOIN empresa e ON e.empr_codigo = a.empr_codigo
-          INNER JOIN turno t ON t.turn_codigo = f.turn_codigo
-          INNER JOIN servicio s ON s.serv_codigo = t.serv_codigo
-          INNER JOIN sub_servicio ss ON ss.id = t.id_sub_serv
-          WHERE 
-            f.eval_califica != 50
-            AND a.usua_codigo != 2
-            ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
-            ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
-            ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-            AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+        IF(AVG(eval_califica) >= 26, 'Bueno',
+          IF(AVG(eval_califica) >= 18, 'Regular',
+            IF(AVG(eval_califica) >= 10, 'Malo', 'No existe')
+            )
+          )
+        )
+        ) AS Promedio
+        `;
+    }
+    else {
+        promedio += `IF(AVG(eval_califica) >= 34, 'Excelente', `;
+        promedio +=
+            `
+        IF(AVG(eval_califica) >= 26, 'Bueno',
+          IF(AVG(eval_califica) >= 18, 'Regular',
+            IF(AVG(eval_califica) >= 10, 'Malo', 'No existe')
+            )
+          )
+        ) AS Promedio
+        `;
+    }
+    let filtros = `
+        WHERE a.usua_codigo != 2
+      `;
+    if (!estadoUsuario)
+        filtros += ` AND c.caje_estado = ${estado} `;
+    if (opciones)
+        filtros += ` AND f.eval_califica != 50 `;
+    if (!todasSucursales)
+        filtros += ` AND a.empr_codigo IN (${listaSucursales}) `;
+    if (listaServicios != '0N') {
+        if (!todosServicios)
+            filtros += ` AND s.serv_codigo IN (${listaServicios}) `;
+    }
+    if (listaSubservicios != '0N') {
+        if (!todosSubservicios)
+            filtros += ` AND ss.id IN (${listaSubservicios}) `;
+    }
+    if (listaCajeros != '0N') {
+        if (!todosCajeros)
+            filtros += ` AND a.usua_codigo IN (${listaCajeros}) `;
+    }
+    if (!diaCompleto)
+        filtros += ` AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' `;
+    filtros += ` AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' `;
+    let grupo_order = ``;
+    if (listaServicios != '0N' && listaSubservicios != '0N' && listaCajeros != '0N') {
+        grupo_order +=
+            `      
           GROUP BY 
             s.serv_nombre, f.eval_fecha, a.usua_codigo, ss.nombre
           ORDER BY 
             s.serv_nombre, f.eval_fecha DESC;
         `;
     }
-    else {
-        query =
-            `
-          SELECT 
-            e.empr_nombre AS nombreEmpresa, 
-            a.usua_nombre AS Usuario, 
-            s.serv_nombre AS Servicio, 
-            ss.id AS id_subservicio, 
-            ss.nombre AS subservicio,
-            DATE_FORMAT(f.eval_fecha, '%Y-%m-%d') AS Fecha, 
-            SUM(eval_califica = 50) AS Excelente, 
-            SUM(eval_califica = 40) AS Muy_Bueno,
-            SUM(eval_califica = 30) AS Bueno,
-            SUM(eval_califica = 20) AS Regular,
-            SUM(eval_califica = 10) AS Malo,
-            COUNT(eval_califica) AS Total,
-            IF(AVG(eval_califica) >= 42, 'Excelente',
-              IF(AVG(eval_califica) >= 34, 'Muy Bueno',
-                IF(AVG(eval_califica) >= 26, 'Bueno',
-                  IF(AVG(eval_califica) >= 18, 'Regular',
-                    IF(AVG(eval_califica) >= 10, 'Malo', 'No existe')
-                  )
-                )
-              )
-            ) AS Promedio 
-          FROM 
-            usuarios a
-          INNER JOIN evaluacion f ON a.usua_codigo = f.usua_codigo
-          INNER JOIN empresa e ON e.empr_codigo = a.empr_codigo
-          INNER JOIN turno t ON t.turn_codigo = f.turn_codigo
-          INNER JOIN servicio s ON s.serv_codigo = t.serv_codigo
-          INNER JOIN sub_servicio ss ON ss.id = t.id_sub_serv
-        WHERE 
-          a.usua_codigo != 2
-          ${!todasSucursales ? `AND a.empr_codigo IN (${listaSucursales})` : ''}
-          ${!todosServicios ? `AND S.serv_codigo IN (${listaServicios})` : ''}
-          ${!diaCompleto ? `AND f.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-          AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-        GROUP BY 
-          s.serv_nombre, f.eval_fecha, a.usua_codigo, ss.nombre, ss.id
-        ORDER BY 
-          s.serv_nombre, f.eval_fecha DESC;
-      `;
+    if (listaServicios != '0N' && listaSubservicios != '0N' && listaCajeros === '0N') {
+        grupo_order +=
+            `      
+          GROUP BY 
+            e.empr_nombre, s.serv_nombre, f.eval_fecha, ss.nombre
+          ORDER BY 
+            s.serv_nombre, f.eval_fecha DESC;
+        `;
     }
+    if (listaServicios != '0N' && listaSubservicios === '0N' && listaCajeros != '0N') {
+        grupo_order +=
+            `      
+          GROUP BY 
+            s.serv_nombre, f.eval_fecha, a.usua_codigo
+          ORDER BY 
+            s.serv_nombre, f.eval_fecha DESC;
+        `;
+    }
+    if (listaServicios != '0N' && listaSubservicios === '0N' && listaCajeros === '0N') {
+        grupo_order +=
+            `      
+          GROUP BY 
+            e.empr_nombre, s.serv_nombre, f.eval_fecha
+          ORDER BY 
+            s.serv_nombre, f.eval_fecha DESC;
+        `;
+    }
+    if (listaServicios === '0N' && listaSubservicios === '0N' && listaCajeros != '0N') {
+        grupo_order +=
+            `      
+          GROUP BY 
+             e.empr_nombre, f.eval_fecha, a.usua_codigo
+          ORDER BY 
+            f.eval_fecha DESC;
+        `;
+    }
+    if (listaServicios === '0N' && listaSubservicios === '0N' && listaCajeros === '0N') {
+        grupo_order +=
+            `      
+          GROUP BY 
+            e.empr_nombre, f.eval_fecha
+          ORDER BY 
+            f.eval_fecha DESC;
+        `;
+    }
+    let consulta = `
+      SELECT 
+        ${columnas},
+        ${promedio}
+      FROM 
+        usuarios a
+      INNER JOIN evaluacion f ON a.usua_codigo = f.usua_codigo
+      ${!estadoUsuario ? `INNER JOIN cajero c ON c.usua_codigo = a.usua_codigo` : ''}
+      INNER JOIN empresa e ON e.empr_codigo = a.empr_codigo
+      INNER JOIN turno t ON t.turn_codigo = f.turn_codigo
+      INNER JOIN servicio s ON s.serv_codigo = t.serv_codigo
+      INNER JOIN sub_servicio ss ON ss.id = t.id_sub_serv
+      ${filtros}
+      ${grupo_order}
+      `;
+    console.log('consulta ', consulta);
+    query = consulta;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({
@@ -175,6 +276,43 @@ router.get("/getallservicios/:sucursales", verifivarToken_1.TokenValidation, (re
       WHERE 
         s.serv_codigo != 1
         ${!todasSucursales ? `AND s.empr_codigo IN (${listaSucursales})` : ''}
+      ORDER BY 
+        s.serv_nombre ASC;
+    `;
+    mysql_1.default.ejecutarQuery(query, (err, servicios) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                error: err,
+            });
+        }
+        else {
+            res.json({
+                ok: true,
+                servicios,
+            });
+        }
+    });
+});
+// METODO PARA BUSCAR SUBSERVICIOS DE ACUERDO AL SERVICIO SELECCIONADO
+router.get("/getallSubservicios/:servicio", verifivarToken_1.TokenValidation, (req, res) => {
+    // FILTRO SERVICIOS
+    const listaServicios = req.params.servicio;
+    const serviciosArray = listaServicios.split(",");
+    let todosServicios = false;
+    // VALIDACION SERVICIOS
+    if (serviciosArray.includes("-1")) {
+        todosServicios = true;
+    }
+    const query = `
+      SELECT 
+        s.serv_codigo, s.serv_nombre, ss.id, ss.nombre
+      FROM 
+        servicio AS s
+      INNER JOIN sub_servicio AS ss ON ss.id_servicio = s.serv_codigo
+      WHERE 
+        s.serv_codigo != 1
+        ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
       ORDER BY 
         s.serv_nombre ASC;
     `;

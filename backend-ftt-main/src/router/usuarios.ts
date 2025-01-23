@@ -74,7 +74,37 @@ router.get("/getallsucursales", TokenValidation, (req: Request, res: Response) =
 router.get("/getallcajeros", TokenValidation, (req: Request, res: Response) => {
   const query =
     `
-      SELECT * FROM cajero usua_codigo != 2 ORDER BY caje_nombre ASC;
+      SELECT * FROM cajero 
+      WHERE usua_codigo != 2 AND caje_estado = 2 
+      ORDER BY caje_nombre ASC;
+    `;
+  MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
+    if (err) {
+      res.status(400).json({
+        ok: false,
+        error: err,
+      });
+    } else {
+      res.json({
+        ok: true,
+        cajeros,
+      });
+    }
+  });
+});
+
+// METODO DE CAJEROS CON ESTADO
+router.get("/cajerosEstado/estado", TokenValidation, (req: Request, res: Response) => {
+  const estado_usuario = req.params.estado;
+  // 1 --> INACTIVOS
+  // 2 --> ACTIVOS
+  // 3 --> TODOS
+
+  const query =
+    `
+      SELECT * FROM cajero 
+      WHERE usua_codigo != 2 AND caje_estado = ${estado_usuario}
+      ORDER BY caje_nombre ASC;
     `;
   MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
     if (err) {
@@ -108,6 +138,54 @@ router.get("/getallcajeros/:sucursales", TokenValidation, (req: Request, res: Re
       WHERE u.usua_codigo = c.usua_codigo
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         AND u.usua_codigo != 2
+      ORDER BY c.caje_nombre ASC;
+    `;
+
+  MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
+    if (err) {
+      res.status(400).json({
+        ok: false,
+        error: err,
+      });
+      console.log(err);
+    } else {
+      res.json({
+        ok: true,
+        cajeros,
+      });
+    }
+  });
+});
+
+
+// METODO DE BUSQUEDA DE CAJEROS DE ACUERDO A LA SUCURSAL Y ESTADO
+router.get("/getallcajeros/:sucursales/:estado", TokenValidation, (req: Request, res: Response) => {
+  // 1 --> INACTIVOS
+  // 2 --> ACTIVOS
+  // 3 --> TODOS
+  // FILTROS SUCURSALES
+  const listaSucursales = req.params.sucursales;
+  const sucursalesArray = listaSucursales.split(",");
+  let todasSucursales = false;
+  // VALIDACIONES SUCURSALES
+  if (sucursalesArray.includes("-1")) {
+    todasSucursales = true
+  }
+  // FILTROS ESTADO
+  const estado_usuario: any = req.params.estado;
+  let estado = ``;
+  if (estado_usuario != 3) {
+    estado = `AND c.caje_estado = ${estado_usuario}`
+  }
+
+  const query =
+    `
+      SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado 
+      FROM cajero c, usuarios u 
+      WHERE u.usua_codigo = c.usua_codigo
+        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        AND u.usua_codigo != 2
+        ${estado}
       ORDER BY c.caje_nombre ASC;
     `;
 

@@ -73,8 +73,18 @@ export class ServiceService {
     return this.http.get<cajero[]>(this.URL + "/getallcajeros");
   }
 
+  // METODO PARA BUSCAR CAJEROS SEGUN SU ESTADO
+  getAllCajerosEstado(estado: any): Observable<cajero[]> {
+    return this.http.get<cajero[]>(this.URL + "/cajerosEstado/" + estado);
+  }
+
   getAllCajerosS(sucursales: any): Observable<cajero[]> {
     return this.http.get<cajero[]>(this.URL + "/getallcajeros/" + sucursales);
+  }
+
+  // METODO PARA BUSCAR CAJEROS SEGUN SUCURSALES Y ESTADO
+  getCajerosSucursalEstado(sucursales: any, estado: any): Observable<cajero[]> {
+    return this.http.get<cajero[]>(this.URL + "/getallcajeros/" + sucursales + "/" + estado);
   }
 
   getAllServicios(): Observable<servicio[]> {
@@ -83,6 +93,11 @@ export class ServiceService {
 
   getAllServiciosS(sucursales: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/getallservicios" + "/" + sucursales);
+  }
+
+  // METODO PARA BUSCAR SUBSERVICIOS DE ACUERDO AL SERVICIO
+  getAllSubservicios(servicio: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/getallSubservicios" + "/" + servicio);
   }
 
 
@@ -118,8 +133,8 @@ export class ServiceService {
    ** **                                          EVALUACION                                                          ** **
    ** ****************************************************************************************************************** **/
 
-  getprmediosservicios(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, opcion: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/promedios/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + opcion);
+  getPromediosEvaluacionFechas(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/promedios/fechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + subservicio + "/" + cajero + "/" + opcion + "/" + estado);
   }
 
   getmaxminservicios(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, opcion: string): Observable<servicio[]> {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef, TrackByFunction } from "@angular/core";
 import { ToastrService } from "ngx-toastr";
 import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
@@ -26,6 +26,18 @@ const EXCEL_EXTENSION = ".xlsx";
 })
 
 export class EvaluacionComponent implements OnInit {
+
+  // ARRAY DE DATOS VACIO
+  arrayVacio: any[] = [];
+
+
+  // VARIABLES DE FECHAS
+  @ViewChild("fromDateServicios") fromDateServicios: ElementRef;
+  @ViewChild("toDateServicios") toDateServicios: ElementRef;
+  // VARIABLES DE HORAS
+  @ViewChild("horaInicioS") horaInicioS: ElementRef;
+  @ViewChild("horaFinS") horaFinS: ElementRef;
+
   // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
   fromDate: any;
   toDate: any;
@@ -39,16 +51,11 @@ export class EvaluacionComponent implements OnInit {
   @ViewChild("contentEvalMMEmpl") contentEvalMMEmpl: ElementRef;
   @ViewChild("TABLEEvalMMEmpl", { static: false }) TABLEEvalMMEmpl: ElementRef;
 
-  @ViewChild("fromDateEstb") fromDateEstb: ElementRef;
-  @ViewChild("toDateEstb") toDateEstb: ElementRef;
-  @ViewChild("fromDateServicios") fromDateServicios: ElementRef;
-  @ViewChild("toDateServicios") toDateServicios: ElementRef;
+
   @ViewChild("fromDateDesdeEvalEmpl") fromDateDesdeEvalEmpl: ElementRef;
   @ViewChild("toDateHastaEvalEmpl") toDateHastaEvalEmpl: ElementRef;
   @ViewChild("fromDateDesdeEvalOmitidas") fromDateDesdeEvalOmitidas: ElementRef;
   @ViewChild("toDateHastaEvalOmitidas") toDateHastaEvalOmitidas: ElementRef;
-  @ViewChild("fromDateDesdeEvalGr") fromDateDesdeEvalGr: ElementRef;
-  @ViewChild("toDateHastaEvalGr") toDateHastaEvalGr: ElementRef;
   @ViewChild("fromDateDesdeEvalGra") fromDateDesdeEvalGra: ElementRef;
   @ViewChild("toDateHastaEvalGra") toDateHastaEvalGra: ElementRef;
   @ViewChild("codServicioServs") codServicioServs: ElementRef;
@@ -63,24 +70,25 @@ export class EvaluacionComponent implements OnInit {
   @ViewChild('codSucursalEst') codSucursalEst: ElementRef;
   @ViewChild('codSucursal') codSucursal: ElementRef;
 
-  @ViewChild("horaInicioS") horaInicioS: ElementRef;
-  @ViewChild("horaFinS") horaFinS: ElementRef;
+
   @ViewChild("horaInicioC") horaInicioC: ElementRef;
   @ViewChild("horaFinC") horaFinC: ElementRef;
-  @ViewChild("horaInicioA") horaInicioA: ElementRef;
-  @ViewChild("horaFinA") horaFinA: ElementRef;
-  @ViewChild("horaInicioAG") horaInicioAG: ElementRef;
-  @ViewChild("horaFinAG") horaFinAG: ElementRef;
   @ViewChild("horaInicioO") horaInicioO: ElementRef;
   @ViewChild("horaFinO") horaFinO: ElementRef;
   @ViewChild("horaInicioG") horaInicioG: ElementRef;
   @ViewChild("horaFinG") horaFinG: ElementRef;
 
 
+
+
   // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   servicioServs: any = [];
-  servicioServsMaxMin: any = [];
+
+
+
+
   serviciosServs: any = [];
+  subservicios: any = [];
   servicio2: any;
   servicio3: any;
   servicioEstb: any = [];
@@ -89,7 +97,6 @@ export class EvaluacionComponent implements OnInit {
   servicioEvalEmpl: any = [];
   servicioEvalOmitidas: any = [];
   servicioEvalMMEmpl: any = [];
-  servicioG: any = [];
   servicioGra: any = [];
   cajerosEval: any = [];
   cajerosEvalOmitidas: any = [];
@@ -103,8 +110,12 @@ export class EvaluacionComponent implements OnInit {
   // PARAMETRO PARA EXCEL
   p_color: any;
   // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
+  todasSucursales: boolean = false;
+  todosServicios: boolean = false;
+  todosSubservicios: boolean = false;
+  todosCajeros: boolean = false;
+
   todasSucursalesS: boolean = false;
-  todasSucursalesE: boolean = false;
   todasSucursalesEG: boolean = false;
   todasSucursalesG: boolean = false;
   todasSucursalesEST: boolean = false;
@@ -112,18 +123,13 @@ export class EvaluacionComponent implements OnInit {
   // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestS: boolean = false;
   malRequestSPag: boolean = false;
-  malRequestMaxMin: boolean = false;
-  malRequestMaxMinPag: boolean = false;
   malRequestE: boolean = false;
   malRequestEPag: boolean = false;
   malRequestEOmitidas: boolean = false;
   malRequestEOmitidasPag: boolean = false;
-  malRequestG: boolean = false;
-  malRequestGPag: boolean = false;
   malRequestGra: boolean = false;
   malRequestGraPag: boolean = false;
-  malRequestEstb: boolean = false;
-  malRequestEstbPag: boolean = false;
+
   // CONTROL DE OPCIONES DE EVALUACION
   opcionCuatro: boolean = false;
   // CONTROL PAGINACION
@@ -132,9 +138,7 @@ export class EvaluacionComponent implements OnInit {
   configE: any;
   configEOmitidas: any;
   configEMM: any;
-  configEG: any;
   configG: any;
-  configEstb: any;
 
   // MAXIMO DE ITEMS MOSTRADO DE TABLA EN PANTALLA
   private MAX_PAGS = 10;
@@ -158,6 +162,8 @@ export class EvaluacionComponent implements OnInit {
   allSelected: boolean = false;
   selectedItems: string[] = [];
   sucursalesSeleccionadas: string[] = [];
+  cajerosSeleccionados: string[] = [];
+  serviciosSeleccionados: string[] = [];
   seleccionMultiple: boolean = false;
 
   // MOSTRAR CAJEROS
@@ -166,8 +172,16 @@ export class EvaluacionComponent implements OnInit {
   // MOSTRAR SERVICIOS
   mostrarServicios: boolean = false;
 
+  // MOSTRAR SUBSERVCIOS
+  mostrarSubservicios: boolean = false;
+
   // ORIENTACION
   orientacion: string;
+
+  // VARIABLES PARA VER DATOS
+  verServicio: boolean = false;
+  verSubservicio: boolean = false;
+  verCajero: boolean = false;
 
   // INFORMACION
   marca: string = "FullTime Tickets";
@@ -180,20 +194,17 @@ export class EvaluacionComponent implements OnInit {
     private toastr: ToastrService,
     private auth: AuthenticationService,
     public datePipe: DatePipe,
+    private detectarCambios: ChangeDetectorRef,
   ) {
     // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
+
     this.configS = {
       id: "Evals",
       itemsPerPage: this.MAX_PAGS,
       currentPage: 1,
       totalItems: this.servicioServs.length,
     };
-    this.configSMM = {
-      id: "Evalsmm",
-      itemsPerPage: this.MAX_PAGS,
-      currentPage: 1,
-      totalItems: this.servicioServsMaxMin.length,
-    };
+
     this.configE = {
       id: "Evale",
       itemsPerPage: this.MAX_PAGS,
@@ -214,23 +225,11 @@ export class EvaluacionComponent implements OnInit {
       currentPage: 1,
       totalItems: this.servicioEvalMMEmpl.length,
     };
-    this.configEG = {
-      id: "Evaleg",
-      itemsPerPage: this.MAX_PAGS,
-      currentPage: 1,
-      totalItems: this.servicioG.length,
-    };
     this.configG = {
       id: "Evalg",
       itemsPerPage: this.MAX_PAGS,
       currentPage: 1,
       totalItems: this.servicioGra.length,
-    };
-    this.configEstb = {
-      id: "EvalEstb",
-      itemsPerPage: this.MAX_PAGS,
-      currentPage: 1,
-      totalItems: this.servicioEstb.length,
     };
 
     for (let i = 0; i <= 24; i++) {
@@ -238,9 +237,6 @@ export class EvaluacionComponent implements OnInit {
     }
   }
   // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
-  pageChangedS(event: any) {
-    this.configS.currentPage = event;
-  }
   pageChangedSMM(event: any) {
     this.configSMM.currentPage = event;
   }
@@ -255,34 +251,24 @@ export class EvaluacionComponent implements OnInit {
   pageChangedEMM(event: any) {
     this.configEMM.currentPage = event;
   }
-  pageChangedEG(event: any) {
-    this.configEG.currentPage = event;
-  }
+
   pageChangedG(event: any) {
     this.configG.currentPage = event;
   }
-  pageChangedEstb(event: any) {
-    this.configEstb.currentPage = event;
-  }
+
 
   ngOnInit(): void {
-    // CARGAMOS LAS OPCIONES DE EVALUACION
-    this.getOpcionesEvaluacion();
-    // CARGAMOS COMPONENTES SELECTS HTML
-    this.getlastday();
-    this.getSucursales();
+    this.ObtenerOpcionesEvaluacion();
+    this.ObtenerFechaActual();
+    this.ObtenerSucursales();
     this.getMarca();
     // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestSPag = true;
-    this.malRequestMaxMinPag = true;
     this.malRequestEPag = true;
     this.malRequestEOmitidasPag = true;
-    this.malRequestGPag = true;
     this.malRequestGraPag = true;
-    this.malRequestEstb = true;
-    this.malRequestEstbPag = true;
     // SETEO DE GRAFICO POR DEFECTO
     this.tipo = "bar";
     // SETEO ORIENTACION
@@ -297,18 +283,161 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
+  // SE OBTIENE FECHA ACTUAL
+  ObtenerFechaActual() {
+    this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
+    let lastweek = new Date();
+    var firstDay = new Date(lastweek.getFullYear(), lastweek.getMonth(), 1);
+    this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
+  }
+
+  // OBTINENE EL NUMERO DE OPCIONES DE EVALUACION
+  ObtenerOpcionesEvaluacion() {
+    this.serviceService.getOpcionesEvaluacion().subscribe((opcion: any) => {
+      this.opciones = opcion.opcion;
+      if (this.opciones[0].gene_valor == "0") {
+        this.opcionCuatro = true;
+      }
+    });
+  }
+
+  // CONSULATA PARA LLENAR LA LISTA DE SURCURSALES
+  ObtenerSucursales() {
+    this.serviceService.getAllSucursales().subscribe((empresas: any) => {
+      this.sucursales = empresas.empresas;
+    });
+  }
+
+  // CONSULTA DE MARCA DE AGUA DE REPORTES
+  getMarca() {
+    this.serviceService.getMarca().subscribe((marca: any) => {
+      this.marca = marca.marca;
+    });
+  }
+
+  // CONSULTA PARA OBTENER CAJEROS
+  getCajeros(sucursal: any) {
+    this.serviceService.getCajerosSucursalEstado(sucursal, this.estadoUsuario).subscribe((cajeros: any) => {
+      this.cajerosEval = cajeros.cajeros;
+      this.mostrarCajeros = true;
+    },
+      (error) => {
+        if (error.status == 400) {
+          this.cajerosEval = [];
+          this.mostrarCajeros = false;
+        }
+      });
+  }
+
+  // OBTIENE LOS SERVICIOS QUE EXISTEN
+  getServicios(sucursal: any) {
+    this.serviceService.getAllServiciosS(sucursal).subscribe((servicios: any) => {
+      this.serviciosServs = servicios.servicios.filter(
+        (valor: any, indice: any, self: any) =>
+          self.findIndex((v: any) => v.serv_codigo === valor.serv_codigo) === indice
+      );
+      this.mostrarServicios = true;
+    },
+      (error) => {
+        if (error.status == 400) {
+          this.serviciosServs = [];
+          this.mostrarServicios = false;
+        }
+      });
+  }
+
+  // OBTIENE LOS SUBSERVICIOS QUE EXISTEN
+  getSubservicios(servicio: any) {
+    this.serviceService.getAllSubservicios(servicio).subscribe((subservicios: any) => {
+      this.subservicios = subservicios.servicios;
+      this.mostrarSubservicios = true;
+    },
+      (error) => {
+        if (error.status == 400) {
+          this.serviciosServs = [];
+          this.mostrarSubservicios = false;
+        }
+      });
+  }
+
+  // METODO DE CONTROL DE SELECCION DE FILTROS
   selectAll(opcion: string) {
     switch (opcion) {
+
+      case 'todasSucursales':
+        this.todasSucursales = !this.todasSucursales;
+        this.todasSucursales ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        this.todasSucursales ? this.getServicios(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'sucursalesSeleccionadas':
+        this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
+        this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        break;
+      case 'todosCajeros':
+        this.todosCajeros = !this.todosCajeros;
+        this.verCajero = false;
+        if (this.todosCajeros) {
+          this.verCajero = true;
+        }
+        if (this.cajerosSeleccionados.length > 0) {
+          this.verCajero = true;
+        }
+        break;
+      case 'cajerosSeleccionados':
+        this.verCajero = false;
+        if (this.cajerosSeleccionados.length > 0) {
+          this.verCajero = true;
+        }
+        break;
+      case 'todosServicios':
+        this.todosServicios = !this.todosServicios;
+        this.todosServicios ? this.getSubservicios(this.serviciosSeleccionados) : null;
+        this.verServicio = false;
+        if (this.todosServicios) {
+          this.verServicio = true;
+        }
+        if (this.serviciosSeleccionados.length > 0) {
+          this.verServicio = true;
+        }
+        break;
+      case 'serviciosSeleccionados':
+        this.verServicio = this.serviciosSeleccionados.length > 0;
+        this.serviciosSeleccionados.length > 0 ? this.getSubservicios(this.serviciosSeleccionados) : null;
+        break;
+      case 'todosSubservicios':
+        this.todosSubservicios = !this.todosSubservicios;
+        this.verSubservicio = false;
+        if (this.todosSubservicios) {
+          this.verSubservicio = true;
+        }
+        if (this.selectedItems.length > 0) {
+          this.verSubservicio = true;
+        }
+        break;
+      case 'subserviciosSeleccionados':
+        this.verSubservicio = false;
+        if (this.selectedItems.length > 0) {
+          this.verSubservicio = true;
+        }
+        break;
+
+
+
+
+
+
+
+
       case 'allSelected':
         this.allSelected = !this.allSelected;
         break;
       case 'todasSucursalesEST':
         this.todasSucursalesEST = !this.todasSucursalesEST;
         break;
-      case 'todasSucursalesE':
-        this.todasSucursalesE = !this.todasSucursalesE;
-        this.todasSucursalesE ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-        break;
+
+
+
+
       case 'todasSucursalesEG':
         this.todasSucursalesEG = !this.todasSucursalesEG;
         this.todasSucursalesEG ? this.getCajerosG(this.sucursalesSeleccionadas) : null;
@@ -325,10 +454,9 @@ export class EvaluacionComponent implements OnInit {
         this.todasSucursalesS = !this.todasSucursalesS;
         this.todasSucursalesS ? this.getServicios(this.sucursalesSeleccionadas) : null;
         break;
-      case 'sucursalesSeleccionadas':
-        this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-        this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-        break;
+
+
+
       case 'sucursalesSeleccionadasG':
         this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
         this.sucursalesSeleccionadas.length > 0 ? this.getCajerosG(this.sucursalesSeleccionadas) : null;
@@ -346,132 +474,23 @@ export class EvaluacionComponent implements OnInit {
     }
   }
 
-  getMarca() {
-    this.serviceService.getMarca().subscribe((marca: any) => {
-      this.marca = marca.marca;
-    });
+  /** ** *************************************************************************************************** **
+   ** **                           METODO DE BUSQUEDA DE EVALAUCION POR FECHAS                            ** **
+   ** ** *************************************************************************************************** **/
+  // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
+  paginacionEvaluacionFechas(event: any) {
+    this.configS.currentPage = event;
   }
 
-  // SE OBTIENE FECHA ACTUAL
-  getlastday() {
-    this.toDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
-    let lastweek = new Date();
-    var firstDay = new Date(lastweek.getFullYear(), lastweek.getMonth(), 1);
-    this.fromDate = this.datePipe.transform(firstDay, "yyyy-MM-dd");
+  // METODO PARA SELCCIONAR ESTADO DE USUARIOS
+  estadoUsuario: number = 2;
+  CambiarEstado(estado: number) {
+    this.estadoUsuario = estado;
+    this.Limpiar();
   }
 
-  // SE DESLOGUEA DE LA APLICACION
-  salir() {
-    this.auth.logout();
-    this.router.navigateByUrl("/");
-  }
-
-  // CONSULTA PARA LLENAR SELECT DE INTERFAZ
-  getCajeros(sucursal: any) {
-    this.serviceService.getAllCajerosS(sucursal).subscribe((cajeros: any) => {
-      this.cajerosEval = cajeros.cajeros;
-      this.mostrarCajeros = true;
-    },
-      (error) => {
-        if (error.status == 400) {
-          this.cajerosEval = [];
-          this.mostrarCajeros = false;
-        }
-      });
-  }
-
-  // CONSULATA PARA LLENAR LA LISTA DE SURCURSALES.
-  getSucursales() {
-    this.serviceService.getAllSucursales().subscribe((empresas: any) => {
-      this.sucursales = empresas.empresas;
-    });
-  }
-
-  getCajerosOmitidas(sucursal: any) {
-    this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosO: any) => {
-      this.cajerosEvalOmitidas = cajerosO.cajeros;
-      this.mostrarCajeros = true;
-    },
-      (error) => {
-        if (error.status == 400) {
-          this.cajerosEvalOmitidas = [];
-          this.mostrarCajeros = false;
-        }
-      });
-  }
-
-  getCajerosG(sucursal: any) {
-    this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosG: any) => {
-      this.cajerosG = cajerosG.cajeros;
-      this.mostrarCajeros = true;
-    },
-      (error) => {
-        if (error.status == 400) {
-          this.cajerosG = [];
-          this.mostrarCajeros = false;
-        }
-      });
-  }
-
-  // OBTINENE EL NUMERO DE OPCIONES DE EVALUACION
-  getOpcionesEvaluacion() {
-    this.serviceService.getOpcionesEvaluacion().subscribe((opcion: any) => {
-      this.opciones = opcion.opcion;
-      if (this.opciones[0].gene_valor == "0") {
-        this.opcionCuatro = true;
-      }
-    });
-  }
-
-  limpiar() {
-    this.cajerosEval = [];
-    this.selectedItems = [];
-    this.serviciosServs = [];
-    this.cajerosEvalOmitidas = [];
-    this.allSelected = false;
-    this.mostrarCajeros = false;
-    this.mostrarServicios = false;
-    this.todasSucursalesS = false;
-    this.todasSucursalesE = false;
-    this.todasSucursalesEG = false;
-    this.todasSucursalesG = false;
-    this.todasSucursalesEST = false;
-    this.todasSucursalesEO = false;
-    this.seleccionMultiple = false;
-    this.sucursalesSeleccionadas = [];
-  }
-
-  // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
-  comprobarBusquedaSucursales(cod: string) {
-    return cod == "-1" ? true : false;
-  }
-
-  // CAMBIO ORIENTACION
-  cambiarOrientacion(orientacion: string) {
-    this.orientacion = orientacion;
-  }
-
-  // OBTIENE LOS SERVICIOS QUE EXISTEN
-  getServicios(sucursal: any) {
-    this.serviceService.getAllServiciosS(sucursal).subscribe((servicios: any) => {
-      //this.serviciosServs = servicios.servicios;
-      this.serviciosServs = servicios.servicios.filter(
-        (valor: any, indice: any, self: any) =>
-          self.findIndex((v: any) => v.serv_codigo === valor.serv_codigo) === indice
-      );
-      this.mostrarServicios = true;
-    },
-      (error) => {
-        if (error.status == 400) {
-          this.serviciosServs = [];
-          this.mostrarServicios = false;
-        }
-      });
-
-    console.log('servicios', this.serviciosServs)
-  }
-
-  buscarServicios() {
+  // METODO PARA BUSCAR EVALUACIONES DE ACUERDO A LOS FILTROS SELECCIONADOS
+  BuscarEvaluacionFechas() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateServicios.nativeElement.value
       .toString()
@@ -481,14 +500,37 @@ export class EvaluacionComponent implements OnInit {
     let horaInicio = this.horaInicioS.nativeElement.value;
     let horaFin = this.horaFinS.nativeElement.value;
 
-    if (this.selectedItems.length !== 0) {
+    var datoServicio: any = '0N';
+    var datoSubservicio: any = '0N';
+    var datoCajero: any = '0N';
+
+    /*    console.log('ingresa ver sucursales ', this.sucursalesSeleccionadas);
+        console.log('ingresa ver servicios', this.serviciosSeleccionados)
+        console.log('ingresa ver subservicios', this.selectedItems)
+        console.log('ingresa ver cajeros', this.cajerosSeleccionados)*/
+
+    if (this.sucursalesSeleccionadas.length !== 0) {
+
+      if (this.serviciosSeleccionados.length != 0) {
+        datoServicio = this.serviciosSeleccionados;
+      }
+
+      if (this.selectedItems.length != 0) {
+        datoSubservicio = this.selectedItems;
+      }
+
+      if (this.cajerosSeleccionados.length != 0) {
+        datoCajero = this.cajerosSeleccionados;
+      }
+
       // SERVICIOS
       this.serviceService
-        .getprmediosservicios(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
+        .getPromediosEvaluacionFechas(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, this.sucursalesSeleccionadas, datoSubservicio, datoCajero, this.opcionCuatro.toString(), this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioServs = servicio.turnos;
+            console.log('ver res ', this.servicioServs)
             this.malRequestS = false;
             this.malRequestSPag = false;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
@@ -522,54 +564,551 @@ export class EvaluacionComponent implements OnInit {
             }
           }
         );
-
-      // MAX MINS
-      this.serviceService
-        .getmaxminservicios(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
-        .subscribe(
-          (servicio: any) => {
-            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-            this.servicioServsMaxMin = servicio.turnos;
-            this.malRequestMaxMin = false;
-            this.malRequestMaxMinPag = false;
-            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-            if (this.configSMM.currentPage > 1) {
-              this.configSMM.currentPage = 1;
-            }
-          },
-          (error) => {
-            if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-              this.servicioServsMaxMin = null;
-              this.malRequestMaxMin = true;
-              this.malRequestMaxMinPag = true;
-              /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-                  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-              **/
-              if (this.servicioServsMaxMin == null) {
-                this.configSMM.totalItems = 0;
-              } else {
-                this.configSMM.totalItems = this.servicioServsMaxMin.length;
-              }
-              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-              this.configSMM = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
-            }
-          }
-        );
     } else {
       // SI SE SELECCIONA OPCION POR DEFECTO SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
       this.servicioServs = null;
       this.malRequestS = true;
       this.malRequestSPag = true;
-
-      this.servicioServsMaxMin = null;
-      this.malRequestMaxMin = true;
-      this.malRequestMaxMinPag = true;
     }
   }
+
+  exportarExcelEvalaucionFechas() {
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // SERVICIOS
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
+    for (let i = 0; i < this.servicioServs.length; i++) {
+      const item = {
+        ...(this.todasSucursalesS || this.seleccionMultiple
+          ? { Sucursal: this.servicioServs[i].nombreEmpresa }
+          : {}),
+        "Servicio": this.servicioServs[i].Servicio,
+        "Subservicio": this.servicioServs[i].subservicio,
+        "Cajero(a)": this.servicioServs[i].Usuario,
+        Fecha: this.addOneDay(new Date(this.servicioServs[i].Fecha)),
+        Excelente: this.servicioServs[i].Excelente,
+        ...(!this.opcionCuatro
+          ? { "Muy Bueno": this.servicioServs[i].Muy_Bueno }
+          : {}),
+        Bueno: this.servicioServs[i].Bueno,
+        Regular: this.servicioServs[i].Regular,
+        Malo: this.servicioServs[i].Malo,
+        Total: this.servicioServs[i].Total,
+        Promedio: this.servicioServs[i].Promedio,
+      };
+
+      jsonServicio.push(item);
+    }
+
+    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+    const header = Object.keys(this.servicioServs[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+    var wscols: any = [];
+    for (var i = 0; i < header.length; i++) {
+      // CABECERAS AÑADIDAS CON ESPACIOS
+      wscols.push({ wpx: 150 });
+    }
+    ws["!cols"] = wscols;
+    XLSX.utils.book_append_sheet(wb, ws, "Servicios");
+    XLSX.writeFile(
+      wb,
+      "Servicios - " +
+      nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION
+    );
+  }
+
+  // GENERACION DE PDF'S
+  GenerarPDFEvaluacionFechas(action = "open", pdf: number) {
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
+    var fechaDesde = this.fromDateServicios.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
+    let documentDefinition: any;
+    if (pdf === 1) {
+      documentDefinition = this.DocumentarEvalaucionFechas(
+        fechaDesde,
+        fechaHasta,
+      );
+    }
+
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
+    switch (action) {
+      case "open":
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+      case "print":
+        pdfMake.createPdf(documentDefinition).print();
+        break;
+      case "download":
+        pdfMake.createPdf(documentDefinition).download();
+        break;
+
+      default:
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+    }
+  }
+
+  // FUNCION DELEGADA PARA SETEO DE INFORMACIÓN EN ESTRUCTURA
+  DocumentarEvalaucionFechas(fechaDesde: any, fechaHasta: any) {
+    // SE OBTIENE LA FECHA ACTUAL
+    let f = new Date();
+    f.setUTCHours(f.getHours());
+    this.date = f.toJSON();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    return {
+      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
+      pageSize: 'A4',
+      pageOrientation: 'landscape',
+      watermark: {
+        text: this.marca,
+        color: "blue",
+        opacity: 0.1,
+        bold: true,
+        italics: false,
+        fontSize: 52,
+      },
+      header: {
+        text: "Impreso por:  " + this.userDisplayName,
+        margin: 10,
+        fontSize: 9,
+        opacity: 0.3,
+      },
+      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
+      footer: function (currentPage: any, pageCount: any, fecha: any) {
+        fecha = f.toJSON().split("T")[0];
+        var timer = f.toJSON().split("T")[1].slice(0, 5);
+        return [
+          {
+            margin: [10, 20, 10, 0],
+            columns: [
+              "Fecha: " + fecha + " Hora: " + timer,
+              {
+                text: [
+                  {
+                    text:
+                      "© Pag " + currentPage.toString() + " of " + pageCount,
+                    alignment: "right",
+                    color: "blue",
+                    opacity: 0.5,
+                  },
+                ],
+              },
+            ],
+            fontSize: 9,
+            color: "#A4B8FF",
+          },
+        ];
+      },
+      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
+      content: [
+        {
+          columns: [
+            {
+              image: this.urlImagen,
+              width: 75,
+              height: 45,
+            },
+            {
+              width: "*",
+              alignment: "center",
+              text: "Reporte - Evaluación por servicio",
+              bold: true,
+              fontSize: 15,
+              margin: [-75, 20, 0, 0],
+            },
+          ],
+        },
+        {
+          style: "subtitulos",
+          text: nombreSucursal,
+        },
+        {
+          style: "subtitulos",
+          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
+        },
+        // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA
+        this.opcionCuatro
+          ? this.serviciosC(this.servicioServs)
+          : this.servicios(this.servicioServs),
+      ],
+      styles: {
+        tableTotal: {
+          fontSize: 30,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        tableHeader: {
+          fontSize: 9,
+          bold: true,
+          alignment: "center",
+          fillColor: this.p_color,
+        },
+        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
+        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
+        subtitulos: {
+          fontSize: 16,
+          alignment: "center",
+          margin: [0, 5, 0, 10],
+        },
+        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+        CabeceraTabla: {
+          fontSize: 12,
+          alignment: "center",
+          margin: [0, 8, 0, 8],
+          fillColor: this.p_color,
+        },
+        quote: { margin: [5, -2, 0, -2], italics: true },
+        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+      },
+    };
+  }
+
+  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND SERVICIOS
+  servicios(servicio: any[]) {
+    if (this.todasSucursalesS || this.seleccionMultiple) {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: [
+            "*",
+            "*",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+          ],
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Excelente", style: "tableHeader" },
+              { text: "Muy Bueno", style: "tableHeader" },
+              { text: "Bueno", style: "tableHeader" },
+              { text: "Regular", style: "tableHeader" },
+              { text: "Malo", style: "tableHeader" },
+              { text: "Total", style: "tableHeader" },
+              { text: "Promedio", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
+                { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Fecha },
+                { style: "itemsTable", text: res.Excelente },
+                { style: "itemsTable", text: res.Muy_Bueno },
+                { style: "itemsTable", text: res.Bueno },
+                { style: "itemsTable", text: res.Regular },
+                { style: "itemsTable", text: res.Malo },
+                { style: "itemsTable", text: res.Total },
+                { style: "itemsTable", text: res.Promedio },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex: any) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    } else {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: [
+            "*",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+          ],
+          body: [
+            [
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Excelente", style: "tableHeader" },
+              { text: "Muy Bueno", style: "tableHeader" },
+              { text: "Bueno", style: "tableHeader" },
+              { text: "Regular", style: "tableHeader" },
+              { text: "Malo", style: "tableHeader" },
+              { text: "Total", style: "tableHeader" },
+              { text: "Promedio", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
+                { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Fecha },
+                { style: "itemsTable", text: res.Excelente },
+                { style: "itemsTable", text: res.Muy_Bueno },
+                { style: "itemsTable", text: res.Bueno },
+                { style: "itemsTable", text: res.Regular },
+                { style: "itemsTable", text: res.Malo },
+                { style: "itemsTable", text: res.Total },
+                { style: "itemsTable", text: res.Promedio },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex: any) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+  }
+
+  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND SERVICIOS
+  serviciosC(servicio: any[]) {
+    if (this.todasSucursalesS || this.seleccionMultiple) {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: [
+            "*",
+            "*",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+          ],
+          body: [
+            [
+              { text: "Sucursal", style: "tableHeader" },
+              { text: "Cajero(a)", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Excelente", style: "tableHeader" },
+              { text: "Bueno", style: "tableHeader" },
+              { text: "Regular", style: "tableHeader" },
+              { text: "Malo", style: "tableHeader" },
+              { text: "Total", style: "tableHeader" },
+              { text: "Promedio", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.nombreEmpresa },
+                { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Fecha },
+                { style: "itemsTable", text: res.Excelente },
+                { style: "itemsTable", text: res.Bueno },
+                { style: "itemsTable", text: res.Regular },
+                { style: "itemsTable", text: res.Malo },
+                { style: "itemsTable", text: res.Total },
+                { style: "itemsTable", text: res.Promedio },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex: any) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    } else {
+      return {
+        style: "tableMargin",
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+          body: [
+            [
+              { text: "Cajero(a)", style: "tableHeader" },
+              { text: "Fecha", style: "tableHeader" },
+              { text: "Excelente", style: "tableHeader" },
+              { text: "Bueno", style: "tableHeader" },
+              { text: "Regular", style: "tableHeader" },
+              { text: "Malo", style: "tableHeader" },
+              { text: "Total", style: "tableHeader" },
+              { text: "Promedio", style: "tableHeader" },
+            ],
+            ...servicio.map((res) => {
+              return [
+                { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Fecha },
+                { style: "itemsTable", text: res.Excelente },
+                { style: "itemsTable", text: res.Bueno },
+                { style: "itemsTable", text: res.Regular },
+                { style: "itemsTable", text: res.Malo },
+                { style: "itemsTable", text: res.Total },
+                { style: "itemsTable", text: res.Promedio },
+              ];
+            }),
+          ],
+        },
+        layout: {
+          fillColor: function (rowIndex: any) {
+            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+          },
+        },
+      };
+    }
+  }
+
+
+  /** ** *************************************************************************************************** **
+   ** **                       METODO DE BUSQUEDA DE EVALAUCION POR RANGO DE FECHAS                       ** **
+   ** ** *************************************************************************************************** **/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // SE DESLOGUEA DE LA APLICACION
+  salir() {
+    this.auth.logout();
+    this.router.navigateByUrl("/");
+  }
+
+
+
+  getCajerosOmitidas(sucursal: any) {
+    this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosO: any) => {
+      this.cajerosEvalOmitidas = cajerosO.cajeros;
+      this.mostrarCajeros = true;
+    },
+      (error) => {
+        if (error.status == 400) {
+          this.cajerosEvalOmitidas = [];
+          this.mostrarCajeros = false;
+        }
+      });
+  }
+
+  getCajerosG(sucursal: any) {
+    this.serviceService.getAllCajerosS(sucursal).subscribe((cajerosG: any) => {
+      this.cajerosG = cajerosG.cajeros;
+      this.mostrarCajeros = true;
+    },
+      (error) => {
+        if (error.status == 400) {
+          this.cajerosG = [];
+          this.mostrarCajeros = false;
+        }
+      });
+  }
+
+
+
+  Limpiar() {
+    // FORMULARIO DE EVALUACIONES POR FECHA
+    this.todosSubservicios = false;
+    this.todasSucursales = false;
+    this.todosServicios = false;
+    this.todosCajeros = false;
+    this.sucursalesSeleccionadas = [];
+    this.serviciosSeleccionados = [];
+    this.cajerosSeleccionados = [];
+    this.servicioServs = this.arrayVacio;
+    this.detectarCambios.detectChanges();
+    this.selectedItems = [];
+    this.mostrarCajeros = false;
+    this.mostrarServicios = false;
+    this.mostrarSubservicios = false;
+    this.verCajero = false;
+    this.verServicio = false;
+    this.verSubservicio = false;
+
+
+
+    this.cajerosEval = [];
+    this.cajerosEvalOmitidas = [];
+    this.allSelected = false;
+    this.todasSucursalesS = false;
+    this.todasSucursalesEG = false;
+    this.todasSucursalesG = false;
+    this.todasSucursalesEST = false;
+    this.todasSucursalesEO = false;
+    this.seleccionMultiple = false;
+  }
+
+  // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
+  comprobarBusquedaSucursales(cod: string) {
+    return cod == "-1" ? true : false;
+  }
+
+  // CAMBIO ORIENTACION
+  cambiarOrientacion(orientacion: string) {
+    this.orientacion = orientacion;
+  }
+
+
+
+
+
+
 
   buscarEvalEmpl() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
@@ -728,115 +1267,6 @@ export class EvaluacionComponent implements OnInit {
 
       this.malRequestEOmitidas = true;
       this.malRequestEOmitidasPag = true;
-    }
-  }
-
-  buscarEvalGr() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fechaDesde = this.fromDateDesdeEvalGr.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
-      .toString()
-      .trim();
-
-    let horaInicio = this.horaInicioAG.nativeElement.value;
-    let horaFin = this.horaFinAG.nativeElement.value;
-
-    if (this.selectedItems.length !== 0) {
-      this.serviceService
-        .getevalgrupo(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
-        .subscribe(
-          (servicioG: any) => {
-            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-            this.servicioG = servicioG.turnos;
-            this.malRequestG = false;
-            this.malRequestGPag = false;
-            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-            if (this.configEG.currentPage > 1) {
-              this.configEG.currentPage = 1;
-            }
-          },
-          (error) => {
-            if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-              this.servicioG = null;
-              this.malRequestG = true;
-              this.malRequestGPag = true;
-              /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-                  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-              **/
-              if (this.servicioG == null) {
-                this.configEG.totalItems = 0;
-              } else {
-                this.configEG.totalItems = this.servicioG.length;
-              }
-              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-              this.configEG = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
-              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-                timeOut: 6000,
-              });
-            }
-          }
-        );
-    } else {
-      // SI SE SELECCIONA OPCION POR DEFECTO SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-      this.servicioG = null;
-      this.malRequestG = true;
-      this.malRequestGPag = true;
-    }
-  }
-
-  leerEstablecimientos() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
-    var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
-
-    let horaInicio = this.horaInicioA.nativeElement.value;
-    let horaFin = this.horaFinA.nativeElement.value;
-
-    if (this.sucursalesSeleccionadas.length !== 0) {
-      this.serviceService.getestablecimiento(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.opcionCuatro.toString()).subscribe(
-        (servicio: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.servicioEstb = servicio.turnos;
-          this.malRequestEstb = false;
-          this.malRequestEstbPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configEstb.currentPage > 1) {
-            this.configEstb.currentPage = 1;
-          }
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.servicioEstb = null;
-            this.malRequestEstb = true;
-            this.malRequestEstbPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-                CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-            **/
-            if (this.servicioEstb == null) {
-              this.configEstb.totalItems = 0;
-            } else {
-              this.configEstb.totalItems = this.servicioEstb.length;
-            }
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configEstb = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
-          }
-        }
-      );
     }
   }
 
@@ -1058,93 +1488,7 @@ export class EvaluacionComponent implements OnInit {
     return date;
   }
 
-  exportarAExcelServicios() {
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // SERVICIOS
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    for (let i = 0; i < this.servicioServs.length; i++) {
-      const item = {
-        ...(this.todasSucursalesS || this.seleccionMultiple
-          ? { Sucursal: this.servicioServs[i].nombreEmpresa }
-          : {}),
-        "Servicio": this.servicioServs[i].Servicio,
-        "Subservicio": this.servicioServs[i].subservicio,
-        "Cajero(a)": this.servicioServs[i].Usuario,
-        Fecha: this.addOneDay(new Date(this.servicioServs[i].Fecha)),
-        Excelente: this.servicioServs[i].Excelente,
-        ...(!this.opcionCuatro
-          ? { "Muy Bueno": this.servicioServs[i].Muy_Bueno }
-          : {}),
-        Bueno: this.servicioServs[i].Bueno,
-        Regular: this.servicioServs[i].Regular,
-        Malo: this.servicioServs[i].Malo,
-        Total: this.servicioServs[i].Total,
-        Promedio: this.servicioServs[i].Promedio,
-      };
 
-      jsonServicio.push(item);
-    }
-
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioServs[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Servicios");
-
-    // MAX MIN
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicioAux: any = [];
-
-    for (let i = 0; i < this.servicioServsMaxMin.length; i++) {
-      const item = {
-        ...(this.todasSucursalesS
-          ? { Sucursal: this.servicioServsMaxMin[i].nombreEmpresa }
-          : {}),
-        "Servicio": this.servicioServsMaxMin[i].Servicio,
-        "Subservicio": this.servicioServsMaxMin[i].subservicio,
-        "Cajero(a)": this.servicioServsMaxMin[i].Usuario,
-        Fecha: this.addOneDay(new Date(this.servicioServsMaxMin[i].Fecha)),
-        Excelente: this.servicioServsMaxMin[i].Excelente,
-        ...(!this.opcionCuatro
-          ? { "Muy Bueno": this.servicioServsMaxMin[i].Muy_Bueno }
-          : {}),
-        Bueno: this.servicioServsMaxMin[i].Bueno,
-        Regular: this.servicioServsMaxMin[i].Regular,
-        Malo: this.servicioServsMaxMin[i].Malo,
-        Total: this.servicioServsMaxMin[i].Total,
-        Máx: this.servicioServsMaxMin[i].max,
-        Mín: this.servicioServsMaxMin[i].min,
-      };
-      jsonServicioAux.push(item);
-    }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicioAux);
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header1 = Object.keys(this.servicioServsMaxMin[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols1: any = [];
-    for (var i = 0; i < header1.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols1.push({ wpx: 150 });
-    }
-    ws1["!cols"] = wscols1;
-    XLSX.utils.book_append_sheet(wb, ws1, "Máximos y Mínimos");
-    XLSX.writeFile(
-      wb,
-      "Servicios - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
-  }
 
   exportarAExcelEvalEmpl() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
@@ -1152,7 +1496,7 @@ export class EvaluacionComponent implements OnInit {
     let jsonServicio: any = [];
     for (let i = 0; i < this.servicioEvalEmpl.length; i++) {
       const item = {
-        ...(this.todasSucursalesE || this.seleccionMultiple
+        ...(this.todasSucursales || this.seleccionMultiple
           ? { Sucursal: this.servicioEvalEmpl[i].nombreEmpresa }
           : {}),
         "Cajero(a)": this.servicioEvalEmpl[i].usua_nombre,
@@ -1187,7 +1531,7 @@ export class EvaluacionComponent implements OnInit {
     let jsonServicioAux: any = [];
     for (let i = 0; i < this.servicioEvalMMEmpl.length; i++) {
       const item = {
-        ...(this.todasSucursalesE
+        ...(this.todasSucursales
           ? { Sucursal: this.servicioEvalMMEmpl[i].nombreEmpresa }
           : {}),
         "Cajero(a)": this.servicioEvalMMEmpl[i].usua_nombre,
@@ -1265,88 +1609,6 @@ export class EvaluacionComponent implements OnInit {
     );
   }
 
-  exportarAExcelEstb() {
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    for (let i = 0; i < this.servicioEstb.length; i++) {
-      const item = {
-        ...(this.todasSucursalesEST || this.seleccionMultiple
-          ? { Sucursal: this.servicioEstb[i].nombreEmpresa }
-          : {}),
-        Fecha: this.addOneDay(new Date(this.servicioEstb[i].fecha)),
-        Excelente: this.servicioEstb[i].Excelente,
-        "Muy Bueno": this.servicioEstb[i].Muy_Bueno,
-        Bueno: this.servicioEstb[i].Bueno,
-        Regular: this.servicioEstb[i].Regular,
-        Malo: this.servicioEstb[i].Malo,
-        Total: this.servicioEstb[i].Total,
-      };
-      jsonServicio.push(item);
-    }
-
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioEstb[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Agencia");
-    XLSX.writeFile(
-      wb,
-      "Evaluacion-Agencia - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
-  }
-
-  exportarAExcelEvalGr() {
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    for (let i = 0; i < this.servicioG.length; i++) {
-      const item = {
-        ...(this.todasSucursalesEG || this.seleccionMultiple
-          ? { Sucursal: this.servicioG[i].nombreEmpresa }
-          : {}),
-        "Cajero(a)": this.servicioG[i].usua_nombre,
-        Fecha: this.addOneDay(new Date(this.servicioG[i].fecha)),
-        Bueno: this.servicioG[i].Bueno,
-        Malo: this.servicioG[i].Malo,
-        Total: this.servicioG[i].Total,
-        Promedio: this.servicioG[i].Promedio,
-      };
-      jsonServicio.push(item);
-    }
-
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioG[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Grupos");
-    XLSX.writeFile(
-      wb,
-      "Evaluacion-Agrupada - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
-  }
 
   generarImagen() {
     // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
@@ -1420,488 +1682,7 @@ export class EvaluacionComponent implements OnInit {
     );
   }
 
-  // GENERACION DE PDF'S
-  generarPdfServicios(action = "open", pdf: number) {
-    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
-    var fechaDesde = this.fromDateServicios.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateServicios.nativeElement.value.toString().trim();
-    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
-    let documentDefinition: any;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentServicios(
-        fechaDesde,
-        fechaHasta,
-      );
-    }
 
-    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  // FUNCION DELEGADA PARA SETEO DE INFORMACIÓN EN ESTRUCTURA
-  getDocumentServicios(fechaDesde: any, fechaHasta: any) {
-    // SE OBTIENE LA FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
-    return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      pageSize: 'A4',
-      pageOrientation: 'landscape',
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 75,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Evaluación por servicio",
-              bold: true,
-              fontSize: 15,
-              margin: [-75, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF SERVICIO Y MAX MIN
-        this.opcionCuatro
-          ? this.serviciosC(this.servicioServs)
-          : this.servicios(this.servicioServs),
-        this.opcionCuatro
-          ? this.maxminC(this.servicioServsMaxMin)
-          : this.maxmin(this.servicioServsMaxMin),
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND SERVICIOS
-  servicios(servicio: any[]) {
-    if (this.todasSucursalesS || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subservicio },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subservicio },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND MAX MINS
-  maxmin(servicio: any[]) {
-    if (this.todasSucursalesS || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          Label: "Maximos y minimos",
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Max.", style: "tableHeader" },
-              { text: "Min.", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subservicio },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.max },
-                { style: "itemsTable", text: res.min },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          Label: "Maximos y minimos",
-          headerRows: 1,
-          widths: [
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Max.", style: "tableHeader" },
-              { text: "Min.", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.max },
-                { style: "itemsTable", text: res.min },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND SERVICIOS
-  serviciosC(servicio: any[]) {
-    if (this.todasSucursalesS || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
 
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND MAX MINS
   maxminC(servicio: any[]) {
@@ -2167,7 +1948,7 @@ export class EvaluacionComponent implements OnInit {
 
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
   empleado(servicio: any[]) {
-    if (this.todasSucursalesE || this.seleccionMultiple) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -2273,7 +2054,7 @@ export class EvaluacionComponent implements OnInit {
 
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
   maxmine(servicio: any[]) {
-    if (this.todasSucursalesE || this.seleccionMultiple) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -2387,7 +2168,7 @@ export class EvaluacionComponent implements OnInit {
 
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
   empleadoC(servicio: any[]) {
-    if (this.todasSucursalesE || this.seleccionMultiple) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -2478,7 +2259,7 @@ export class EvaluacionComponent implements OnInit {
 
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
   maxmineC(servicio: any[]) {
-    if (this.todasSucursalesE || this.seleccionMultiple) {
+    if (this.todasSucursales || this.seleccionMultiple) {
       return {
         style: "tableMargin",
         table: {
@@ -2793,520 +2574,6 @@ export class EvaluacionComponent implements OnInit {
     }
   }
 
-  generarPdfEstb(action = "open", pdf: number) {
-    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
-    var fechaDesde = this.fromDateEstb.nativeElement.value.toString().trim();
-    var fechaHasta = this.toDateEstb.nativeElement.value.toString().trim();
-    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
-    let documentDefinition: any;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentEstablecimiento(
-        fechaDesde,
-        fechaHasta,
-      );
-    }
-
-    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  // FUNCION DELEGADA PARA SETEO DE INFORMACIÓN
-  getDocumentEstablecimiento(fD: any, fH: any) {
-    // SE OBTIENE LA FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por: " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Evaluación por agencia",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fD + " hasta " + fH,
-        },
-        this.opcionCuatro
-          ? this.establecimientosC(this.servicioEstb)
-          : this.establecimientos(this.servicioEstb), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF EN ESTRUCTURA
-  establecimientos(servicio: any[]) {
-    if (this.todasSucursalesEST || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF EN ESTRUCTURA
-  establecimientosC(servicio: any[]) {
-    if (this.todasSucursalesEST || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  generarPdfEvalGr(action = "open", pdf: number) {
-    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
-    var fechaDesde = this.fromDateDesdeEvalGr.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateHastaEvalGr.nativeElement.value
-      .toString()
-      .trim();
-    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
-    let documentDefinition: any;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentEvaGrupo(
-        fechaDesde,
-        fechaHasta,
-      );
-    }
-
-    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  // FUNCION DELEGADA PARA SETEO DE INFORMACION
-  getDocumentEvaGrupo(fechaDesde: any, fechaHasta: any) {
-    // SE OBTIENE LA FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
-    return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Evaluación agrupada por calificación",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        this.evagrupo(this.servicioG), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
-  evagrupo(servicio: any[]) {
-    if (this.todasSucursalesEG || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Nombre", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Nombre", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
   // PDF DE GRAFICOS
   generarPdfGra(action = "open", pdf: number) {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
@@ -3594,4 +2861,15 @@ export class EvaluacionComponent implements OnInit {
     doc.save(`Gráfico-Evaluaciones ${fecha}, ${timer}.pdf`);
     window.open(URL.createObjectURL(doc.output("blob")));
   }
+
+  // METOOD PARA LIMPIAR FORMULARIOS Y SELECCION DE BOTONES
+  seleccionado_activo: boolean = true;
+  LimpiarFormularios() {
+    this.Limpiar();
+    this.estadoUsuario = 2;
+    const activo = document.getElementById('activo') as HTMLInputElement;
+    activo.checked = true;
+  }
+
+
 }
