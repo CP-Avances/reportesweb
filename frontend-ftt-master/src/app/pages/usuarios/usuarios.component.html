@@ -3,43 +3,43 @@
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
-                <li class="nav-item" (click)="limpiar()">
+                <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
                         aria-controls="home" aria-selected="true">
                         TURNOS POR FECHA
                     </a>
                 </li>
-                <li class="nav-item" (click)="limpiar()">
+                <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="totalfecha-tab" data-toggle="tab" href="#totalfecha" role="tab"
                         aria-controls="totalfecha" aria-selected="false">
                         TURNOS TOTALES POR FECHA
                     </a>
                 </li>
-                <li class="nav-item" (click)="limpiar()">
+                <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="turnosmeta-tab" data-toggle="tab" href="#turnosmeta" role="tab"
                         aria-controls="turnosmeta" aria-selected="false">
                         TURNOS META
                     </a>
                 </li>
-                <li class="nav-item" (click)="limpiar()">
+                <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
                         aria-controls="profile" aria-selected="false">
                         TIEMPO PROMEDIO DE ATENCIÓN
                     </a>
                 </li>
-                <li class="nav-item" (click)="limpiar()">
+                <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="tiempo-tab" data-toggle="tab" href="#tiempo" role="tab"
                         aria-controls="tiempo" aria-selected="false">
                         TIEMPO DE ATENCIÓN POR TURNOS
                     </a>
                 </li>
-                <li class="nav-item" (click)="limpiar()">
+                <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="atencionusuario-tab" data-toggle="tab" href="#atencionusuario" role="tab"
                         aria-controls="atencionusuario" aria-selected="false">
                         ATENCIÓN AL USUARIO
                     </a>
                 </li>
-                <li class="nav-item" (click)="limpiar()">
+                <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
                         aria-controls="contact" aria-selected="false">
                         ENTRADAS Y SALIDAS AL SISTEMA
@@ -79,8 +79,25 @@
                                 </div>
                             </div>
                             <div class="col-6">
+                                <fieldset>
+                                    <label>Estado de los usuarios</label>
+                                    <div>
+                                        <input type="radio" id="activo" class="radio-col-light-blue" name="estado1"
+                                            [value]="2" (click)="CambiarEstado(2)" checked>
+                                        <label for="activo">Activos</label>
+
+                                        <input type="radio" id="inactivo" class="radio-col-light-blue" name="estado1"
+                                            [value]="1" (click)="CambiarEstado(1)">
+                                        <label for="inactivo">Inactivos</label>
+
+                                        <input type="radio" id="todos" class="radio-col-light-blue" name="estado1"
+                                            [value]="3" (click)="CambiarEstado(3)">
+                                        <label for="todos">Todos</label>
+                                    </div>
+                                </fieldset>
+
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales" (selectionChange)="mostrar_resultado = false">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTF')">
                                         Todas las sucursales
                                     </mat-option>
@@ -91,7 +108,7 @@
                                 </mat-select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros">
+                                    placeholder="Cajeros" (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
                                         Todos los cajeros
                                     </mat-option>
@@ -102,7 +119,7 @@
                                 </mat-select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios">
+                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios" (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarServicios" [value]="-1"
                                         (click)="selectAll('todasServiciosTF')">
                                         Todos los servicios
@@ -110,13 +127,15 @@
                                     <mat-option *ngFor="let serviciosServs of serviciosServs"
                                         [value]="serviciosServs.serv_codigo"
                                         (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
-                                        {{serviciosServs.serv_nombre}} - {{serviciosServs.empresa}}
-                                    </mat-option>
+                                        {{serviciosServs.serv_nombre}}
+                                        <span style="font-size: x-small;">
+                                            ({{serviciosServs.empresa}})
+                                        </span> </mat-option>
                                 </mat-select>
                                 <br><br>
 
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios">
+                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios" (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarSubservicios" [value]="-1"
                                         (click)="selectAll('todasSubServiciosTF')">
                                         Todas las subservicios
@@ -124,7 +143,7 @@
                                     <mat-option *ngFor="let option of subservicios" [value]="option.id"
                                         [disabled]="seleccionMultipleSubServicios">
                                         {{option.nombre}}
-                                    </mat-option>
+                                        <span style="font-size: x-small;">({{option.serv_nombre}})</span> </mat-option>
                                 </mat-select>
                                 <br><br>
 
@@ -138,9 +157,9 @@
                     <br>
                     <h3>TURNOS POR FECHA</h3>
                     <hr>
-                    <div class="table-responsive">
+                    <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table class="table table-striped" id="contentTurnosFecha" #contentTurnosFecha
-                            #tableTurnosFecha>
+                            #tableTurnosFecha >
                             <thead>
                                 <tr>
                                     <th class="text-center" *ngIf="todasSucursalesTF || seleccionMultiple">
@@ -176,10 +195,10 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosFecha()">
+                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosFecha()" *ngIf="mostrar_resultado">
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosFecha('hola', 1)">
+                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosFecha('hola', 1)" *ngIf="mostrar_resultado">
                         PDF
                     </button>
                 </div>
@@ -217,8 +236,24 @@
                                 </div>
                             </div>
                             <div class="col-6">
+                                <fieldset>
+                                    <label>Estado de los usuarios</label>
+                                    <div>
+                                        <input type="radio" id="activo2" class="radio-col-light-blue" name="estado2"
+                                            [value]="2" (click)="CambiarEstado(2)" checked>
+                                        <label for="activo2">Activos</label>
+
+                                        <input type="radio" id="inactivo2" class="radio-col-light-blue" name="estado2"
+                                            [value]="1" (click)="CambiarEstado(1)">
+                                        <label for="inactivo2">Inactivos</label>
+
+                                        <input type="radio" id="todos2" class="radio-col-light-blue" name="estado2"
+                                            [value]="3" (click)="CambiarEstado(3)">
+                                        <label for="todos2">Todos</label>
+                                    </div>
+                                </fieldset>
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales" (selectionChange)="mostrar_resultado = false">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTTF')">
                                         Todas las sucursales
                                     </mat-option>
@@ -229,7 +264,7 @@
                                 </mat-select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros">
+                                    placeholder="Cajeros" (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
                                         Todos los cajeros
                                     </mat-option>
@@ -240,7 +275,7 @@
                                 </mat-select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios">
+                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios" (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarServicios" [value]="-1"
                                         (click)="selectAll('todasServiciosTF')">
                                         Todos los servicios
@@ -248,13 +283,16 @@
                                     <mat-option *ngFor="let serviciosServs of serviciosServs"
                                         [value]="serviciosServs.serv_codigo"
                                         (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
-                                        {{serviciosServs.serv_nombre}} - {{serviciosServs.empresa}}
+                                        {{serviciosServs.serv_nombre}}
+                                        <span style="font-size: x-small;">
+                                            ({{serviciosServs.empresa}})
+                                        </span>
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
 
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios">
+                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios" (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarSubservicios" [value]="-1"
                                         (click)="selectAll('todasSubServiciosTF')">
                                         Todas las subservicios
@@ -262,6 +300,7 @@
                                     <mat-option *ngFor="let option of subservicios" [value]="option.id"
                                         [disabled]="seleccionMultipleSubServicios">
                                         {{option.nombre}}
+                                        <span style="font-size: x-small;">({{option.serv_nombre}})</span>
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
@@ -278,7 +317,7 @@
                     <br>
                     <h3>TURNOS TOTALES POR FECHA</h3>
                     <hr>
-                    <div class="table-responsive">
+                    <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table class="table table-striped" id="contentTurnosTotalFecha" #contentTurnosTotalFecha
                             #tableTurnosTotalFecha>
                             <thead>
@@ -287,8 +326,9 @@
                                         Sucursal
                                     </th>
                                     <th class="text-center">Cajero(a)</th>
-                                    <th class="text-center"*ngIf="todasServiciosTF || seleccionMultipleServicios">Servicio</th>
-                                    <th class="text-center"*ngIf="seleccionMultipleSubServicios">Subservicio</th>
+                                    <th class="text-center" *ngIf="todasServiciosTF || seleccionMultipleServicios">
+                                        Servicio</th>
+                                    <th class="text-center" *ngIf="seleccionMultipleSubServicios">Subservicio</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">No atendidos</th>
@@ -301,8 +341,10 @@
                                     <td *ngIf="todasSucursalesTTF || seleccionMultiple">
                                         {{servicioTurnosTotalFecha.nombreEmpresa}}</td>
                                     <td> {{servicioTurnosTotalFecha.Usuario}}</td>
-                                    <td *ngIf="todasServiciosTF || seleccionMultipleServicios"> {{servicioTurnosTotalFecha.Servicio}}</td>
-                                    <td *ngIf="seleccionMultipleSubServicios"> {{servicioTurnosTotalFecha.subservicio}}</td>
+                                    <td *ngIf="todasServiciosTF || seleccionMultipleServicios">
+                                        {{servicioTurnosTotalFecha.Servicio}}</td>
+                                    <td *ngIf="seleccionMultipleSubServicios"> {{servicioTurnosTotalFecha.subservicio}}
+                                    </td>
                                     <td> {{servicioTurnosTotalFecha.Fecha}}</td>
                                     <td> {{servicioTurnosTotalFecha.Atendidos}} </td>
                                     <td> {{servicioTurnosTotalFecha.No_Atendidos}}</td>
@@ -316,10 +358,10 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosTotalFecha()">
+                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosTotalFecha()" *ngIf="mostrar_resultado">
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosTotalFecha('hola', 1)">
+                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosTotalFecha('hola', 1)" *ngIf="mostrar_resultado">
                         PDF
                     </button>
                 </div>
@@ -356,8 +398,24 @@
                                 </div>
                             </div>
                             <div class="col-6">
+                                <fieldset>
+                                    <label>Estado de los usuarios</label>
+                                    <div>
+                                        <input type="radio" id="activo3" class="radio-col-light-blue" name="estado3"
+                                            [value]="2" (click)="CambiarEstado(2)" checked>
+                                        <label for="activo3">Activos</label>
+
+                                        <input type="radio" id="inactivo3" class="radio-col-light-blue" name="estado3"
+                                            [value]="1" (click)="CambiarEstado(1)">
+                                        <label for="inactivo3">Inactivos</label>
+
+                                        <input type="radio" id="todos3" class="radio-col-light-blue" name="estado3"
+                                            [value]="3" (click)="CambiarEstado(3)">
+                                        <label for="todos3">Todos</label>
+                                    </div>
+                                </fieldset>
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales" (selectionChange)="mostrar_resultado = false">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTM')">
                                         Todas las sucursales
                                     </mat-option>
@@ -368,7 +426,7 @@
                                 </mat-select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros">
+                                    placeholder="Cajeros" (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
                                         Todos los cajeros
                                     </mat-option>
@@ -378,6 +436,37 @@
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
+
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios" (selectionChange)="mostrar_resultado = false">
+                                    <mat-option *ngIf="mostrarServicios" [value]="-1"
+                                        (click)="selectAll('todasServiciosTF')">
+                                        Todos los servicios
+                                    </mat-option>
+                                    <mat-option *ngFor="let serviciosServs of serviciosServs"
+                                        [value]="serviciosServs.serv_codigo"
+                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
+                                        {{serviciosServs.serv_nombre}}
+                                        <span style="font-size: x-small;">
+                                            ({{serviciosServs.empresa}})
+                                        </span>
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios" (selectionChange)="mostrar_resultado = false">
+                                    <mat-option *ngIf="mostrarSubservicios" [value]="-1"
+                                        (click)="selectAll('todasSubServiciosTF')">
+                                        Todas las subservicios
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of subservicios" [value]="option.id"
+                                        [disabled]="seleccionMultipleSubServicios">
+                                        {{option.nombre}}
+                                        <span style="font-size: x-small;">({{option.serv_nombre}})</span>
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosMeta()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
@@ -389,7 +478,7 @@
                     <h3>PORCENTAJE DE CUMPLIMIENTO</h3>
                     <h4>META : {{valor}} turnos</h4>
                     <hr>
-                    <div class="table-responsive">
+                    <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table class="table table-striped" id="contentTurnosMeta" #contentTurnosMeta #tableTurnosMeta>
                             <thead>
                                 <tr>
@@ -397,6 +486,8 @@
                                         Sucursal
                                     </th>
                                     <th class="text-center">Cajero(a)</th>
+                                    <th class="text-center">Servicio</th>
+                                    <th class="text-center">Subservicio</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">Porcentaje de cumplimiento</th>
@@ -407,6 +498,8 @@
                                     <td *ngIf="todasSucursalesTM || seleccionMultiple">
                                         {{servicioTurnosMeta.nombreEmpresa}}</td>
                                     <td> {{servicioTurnosMeta.Usuario}}</td>
+                                    <td> {{servicioTurnosMeta.Servicio}}</td>
+                                    <td> {{servicioTurnosMeta.subservicio}}</td>
                                     <td> {{servicioTurnosMeta.Fecha}}</td>
                                     <td> {{servicioTurnosMeta.Atendidos}} </td>
                                     <td> {{servicioTurnosMeta.Porcentaje_Atendidos}} % </td>
@@ -419,10 +512,10 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosMeta()">
+                    <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosMeta()" *ngIf="mostrar_resultado">
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosMeta('hola', 1)">
+                    <button type="button" class="btn btn-info" (click)="generarPdfTurnosMeta('hola', 1)" *ngIf="mostrar_resultado">
                         PDF
                     </button>
                 </div>
@@ -460,8 +553,24 @@
                                 </div>
                             </div>
                             <div class="col-6">
+                                <fieldset>
+                                    <label>Estado de los usuarios</label>
+                                    <div>
+                                        <input type="radio" id="activo4" class="radio-col-light-blue" name="estado4"
+                                            [value]="2" (click)="CambiarEstado(2)" checked>
+                                        <label for="activo4">Activos</label>
+
+                                        <input type="radio" id="inactivo4" class="radio-col-light-blue" name="estado4"
+                                            [value]="1" (click)="CambiarEstado(1)">
+                                        <label for="inactivo4">Inactivos</label>
+
+                                        <input type="radio" id="todos4" class="radio-col-light-blue" name="estado4"
+                                            [value]="3" (click)="CambiarEstado(3)">
+                                        <label for="todos4">Todos</label>
+                                    </div>
+                                </fieldset>
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales" (selectionChange)="mostrar_resultado = false">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTPA')">
                                         Todas las sucursales
                                     </mat-option>
@@ -472,13 +581,43 @@
                                 </mat-select>
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros">
+                                    placeholder="Cajeros" (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
                                         Todos los cajeros
                                     </mat-option>
                                     <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo"
                                         [disabled]="allSelected">
                                         {{option.caje_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios" (selectionChange)="mostrar_resultado = false">
+                                    <mat-option *ngIf="mostrarServicios" [value]="-1"
+                                        (click)="selectAll('todasServiciosTF')">
+                                        Todos los servicios
+                                    </mat-option>
+                                    <mat-option *ngFor="let serviciosServs of serviciosServs"
+                                        [value]="serviciosServs.serv_codigo"
+                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF" (selectionChange)="mostrar_resultado = false">
+                                        {{serviciosServs.serv_nombre}}
+                                        <span style="font-size: x-small;">
+                                            ({{serviciosServs.empresa}})
+                                        </span>
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios" (selectionChange)="mostrar_resultado = false">
+                                    <mat-option *ngIf="mostrarSubservicios" [value]="-1"
+                                        (click)="selectAll('todasSubServiciosTF')">
+                                        Todas las subservicios
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of subservicios" [value]="option.id"
+                                        [disabled]="seleccionMultipleSubServicios">
+                                        {{option.nombre}}
+                                        <span style="font-size: x-small;">({{option.serv_nombre}})</span>
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
@@ -492,17 +631,17 @@
                     <br>
                     <h3>TIEMPO PROMEDIO DE ATENCIÓN</h3>
                     <hr>
-                    <div class="table-responsive">
+                    <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table class="table table-striped" id="contentPronAtencion" #contenPromAtencion
-                            #tablePromAtencion>
+                            #tablePromAtencion *ngIf="mostrar_resultado">
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTPA || seleccionMultiple">
                                         Sucursal
                                     </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
-                                    <th scope="col" class="text-center">Servicio</th>
-                                    <th scope="col" class="text-center">Subservicio</th>
+                                    <th scope="col" class="text-center"  *ngIf="todasServiciosTF || seleccionMultipleServicios">Servicio</th>
+                                    <th scope="col" class="text-center" *ngIf="seleccionMultipleSubServicios">Subservicio</th>
                                     <th scope="col" class="text-center">Tiempo</th>
                                     <th scope="col" class="text-center">Turnos totales</th>
                                 </tr>
@@ -512,8 +651,8 @@
                                     <td *ngIf="todasSucursalesTPA || seleccionMultiple">
                                         {{servicioPromAtencion.nombreEmpresa}}</td>
                                     <td>{{servicioPromAtencion.Nombre}}</td>
-                                    <td>{{servicioPromAtencion.Servicio}}</td>
-                                    <td>{{servicioPromAtencion.subservicio}}</td>
+                                    <td *ngIf="todasServiciosTF || seleccionMultipleServicios">{{servicioPromAtencion.Servicio}}</td>
+                                    <td *ngIf="seleccionMultipleSubServicios">{{servicioPromAtencion.subservicio}}</td>
                                     <td>{{servicioPromAtencion.Promedio}}</td>
                                     <td>{{servicioPromAtencion.Turnos}}</td>
                                 </tr>
@@ -525,10 +664,10 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelPromAtencion()">
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelPromAtencion()" *ngIf="mostrar_resultado" >
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfPromAtencion('hola', 1)">
+                    <button type="button" class="btn btn-info" (click)="generarPdfPromAtencion('hola', 1)" *ngIf="mostrar_resultado">
                         PDF
                     </button>
                 </div>

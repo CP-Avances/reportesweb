@@ -1,6 +1,9 @@
-import Server from './server/server';
-import router from './router/router';
+require('dotenv').config();
+import express, { Application } from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
 
+import router from './router/router';
 import usuarios from './router/usuarios';
 import evaluacion from './router/evaluacion';
 import atencion from './router/atencion';
@@ -11,28 +14,63 @@ import ingresoclientes from './router/ingresoclientes';
 import atendidosmultiples from './router/atendidosmultiples';
 import opinion from './router/opinion';
 
-import express = require('express');
+import { createServer, Server } from 'http';
 
-// PUERTO 3004 -- DESARROLLO -- 3005 -- PRODUCCION
-const server = Server.init(process.env.PORT || 3004);
+class Servidor {
 
-const port = process.env.PORT || 3004;
+    public app: Application;
+    public server: Server;
 
-// LLAMAR RUTAS
-server.app.use(router);
-server.app.use(usuarios);
-server.app.use(evaluacion);
-server.app.use(atencion);
-server.app.use(satisfacciones);
-server.app.use(ocupacion);
-server.app.use(disestadoturno);
-server.app.use(ingresoclientes);
-server.app.use(atendidosmultiples);
-server.app.use(opinion);
+    constructor() {
+        this.app = express();
+        this.app.use(cors());
+        this.configuracion();
+        this.rutas();
+        this.server = createServer(this.app);
 
-server.app.use(express.urlencoded({extended: false}));
-server.app.use(express.json());
+    }
 
-server.start( () => {
-    console.log(`servidor corriendo en el puerto ${port}`);
-})
+    configuracion(): void {
+        this.app.set('puerto', process.env.PORT || 3004);
+        this.app.use(morgan('dev'));
+        this.app.use(cors());
+        this.app.use(express.json({ limit: '50mb' }));
+        this.app.use(express.urlencoded({ limit: '50mb', extended: true }));
+        this.app.use(express.raw({ type: 'image/*', limit: '2Mb' }));
+        this.app.use(express.static('imagenesReportes'));
+        this.app.set('trust proxy', true);
+        this.app.get('/', (req, res) => {
+            res.status(200).json({
+                status: 'success'
+            });
+        });
+    }
+
+    rutas(): void {
+        // LLAMAR RUTAS
+        this.app.use(router);
+        this.app.use(usuarios);
+        this.app.use(evaluacion);
+        this.app.use(atencion);
+        this.app.use(satisfacciones);
+        this.app.use(ocupacion);
+        this.app.use(disestadoturno);
+        this.app.use(ingresoclientes);
+        this.app.use(atendidosmultiples);
+        this.app.use(opinion);
+    }
+    
+    start(): void {
+        this.app.set('trust proxy', true);
+        this.server.listen(this.app.get('puerto'), () => {
+            console.log('Servidor en el puerto', this.app.get('puerto'));
+        });
+        this.app.use((req, res, next) => {
+            res.header('Access-Control-Allow-Origin', '*');
+            next();
+        })
+    }
+}
+
+const SERVIDOR = new Servidor();
+SERVIDOR.start();

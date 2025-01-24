@@ -68,7 +68,7 @@ export class UsuariosComponent implements OnInit {
   sucursales: any[];
   serviciosServs: any = [];
   subservicios: any[];
-
+  mostrar_resultado = false
   mostrarServicios: boolean = false;
   mostrarSubservicios: boolean = false;
 
@@ -302,14 +302,14 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'todasSucursalesTM':
         this.todasSucursalesTM = !this.todasSucursalesTM;
-        this.todasSucursalesTM ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        this.todasSucursalesTM ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : null;
         break;
       case 'todasSucursalesES':
         this.todasSucursalesES = !this.todasSucursalesES;
         break;
       case 'todasSucursalesTPA':
         this.todasSucursalesTPA = !this.todasSucursalesTPA;
-        this.todasSucursalesTPA ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        this.todasSucursalesTPA ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : null;
         break;
       case 'todasSucursalesTA':
         this.todasSucursalesTA = !this.todasSucursalesTA;
@@ -331,7 +331,6 @@ export class UsuariosComponent implements OnInit {
         this.seleccionMultipleServicios = this.serviciosSeleccionadas.length > 1;
         this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : null;
         break;
-
       case 'todasSubServiciosTF':
         this.seleccionMultipleSubServicios = !this.seleccionMultipleSubServicios;
         break;
@@ -364,7 +363,7 @@ export class UsuariosComponent implements OnInit {
 
   // CONSULTA DE LISTA DE CAJEROS
   getCajeros(sucursal: any) {
-    this.serviceService.getAllCajerosS(sucursal).subscribe(
+    this.serviceService.getCajerosSucursalEstado(sucursal, this.estadoUsuario).subscribe(
       (cajeros: any) => {
         this.cajerosUsuarios = cajeros.cajeros;
         this.mostrarCajeros = true;
@@ -386,14 +385,11 @@ export class UsuariosComponent implements OnInit {
   }
 
   getServicios(sucursal: any) {
-    console.log("ver sucuales seleccionadas: ", sucursal)
     this.serviceService.getAllServiciosS(sucursal).subscribe((servicios: any) => {
-      //this.serviciosServs = servicios.servicios;
       this.serviciosServs = servicios.servicios.filter(
         (valor: any, indice: any, self: any) =>
           self.findIndex((v: any) => v.serv_codigo === valor.serv_codigo) === indice
       );
-      console.log("ver servicios: ", this.serviciosServs)
       this.mostrarServicios = true;
     },
       (error) => {
@@ -402,21 +398,12 @@ export class UsuariosComponent implements OnInit {
           this.mostrarServicios = false;
         }
       });
-
-    console.log('servicios', this.serviciosServs)
   }
 
 
   getSub_servicios(servicio: any) {
-    console.log("ver servicios seleccionados: ", servicio)
-
-    this.serviceService.getAllSub_serviciosS(servicio).subscribe((subservicio: any) => {
-      //this.serviciosServs = servicios.servicios;
-      this.subservicios = subservicio.sub_servicios.filter(
-        (valor: any, indice: any, self: any) =>
-          self.findIndex((v: any) => v.id === valor.id) === indice
-      );
-      console.log("ver subservicios: ", this.subservicios)
+    this.serviceService.getAllSubservicios(servicio).subscribe((subservicios: any) => {
+      this.subservicios = subservicios.servicios;
       this.mostrarSubservicios = true;
     },
       (error) => {
@@ -425,8 +412,26 @@ export class UsuariosComponent implements OnInit {
           this.mostrarSubservicios = false;
         }
       });
-
   }
+
+  // METODO PARA SELCCIONAR ESTADO DE USUARIOS
+  estadoUsuario: number = 2;
+  estadoUsuario2: number = 2;
+
+  CambiarEstado(estado: number) {
+    this.mostrar_resultado = false
+    this.estadoUsuario = estado;
+    this.limpiar();
+  }
+
+  CambiarEstado2(estado: number, grupo: string) {
+    if (grupo === 'usuarios') {
+      this.estadoUsuario = estado;
+    } else if (grupo === 'otros') {
+      this.estadoUsuario2 = estado;
+    }
+  }
+
 
   // METODO PARA LLAMAR CONSULTA DE DATOS
   limpiar() {
@@ -449,6 +454,15 @@ export class UsuariosComponent implements OnInit {
     this.serviciosSeleccionadas = [];
     this.sub_serviciosSeleccionadas = []
   }
+
+  LimpiarFormularios() {
+    this.limpiar();
+    this.estadoUsuario = 2;
+    const activo = document.getElementById('activo') as HTMLInputElement;
+    activo.checked = true;
+    this.mostrar_resultado = false
+  }
+
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
   comprobarBusquedaSucursales(cod: string) {
@@ -479,9 +493,10 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getfiltroturnosfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas)
+        .getfiltroturnosfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
+            this.mostrar_resultado = true
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosFecha = servicio.turnos;
             console.log("ver TURNOS: " + this.servicioTurnosFecha)
@@ -542,10 +557,11 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems,  this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas)
+        .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
-            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
+            this.mostrar_resultado= true;
+            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABfLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosTotalFecha = servicio.turnos;
             this.malRequestTTF = false;
             this.malRequestTTFPag = false;
@@ -604,9 +620,10 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getturnosMeta(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems)
+        .getturnosMeta(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
+            this.mostrar_resultado= true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosMeta = servicio.turnos;
             this.malRequestTM = false;
@@ -653,6 +670,7 @@ export class UsuariosComponent implements OnInit {
    ** ********************************************************************************************************** **/
 
   buscarTiempoPromedioAtencion() {
+
     // CAPTURA DE FECHA Y SELECT DE INTERFAZ
     var fechaDesde = this.fromDatePromAtencion.nativeElement.value
       .toString()
@@ -666,9 +684,10 @@ export class UsuariosComponent implements OnInit {
 
     if (this.selectedItems.length !== 0) {
       this.serviceService
-        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
+        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
+            this.mostrar_resultado = true
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioPromAtencion = servicio.turnos;
             this.malRequestTPA = false;
