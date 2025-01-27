@@ -26,7 +26,7 @@ export class ServiceService {
     if (servicios.length == 0) {
       return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + 0 + "/" + 0 + "/" + estado);
     } else if (subservicios.length == 0 && servicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + 0+ "/" + estado);    
+      return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + 0 + "/" + estado);
     } else if (servicios.length != 0 && subservicios.length != 0) {
       return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios + "/" + estado);
     }
@@ -42,11 +42,11 @@ export class ServiceService {
 
 
     if (servicios.length == 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + 0 + "/" + 0+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + 0 + "/" + 0 + "/" + estado);
     } else if (subservicios.length == 0 && servicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + 0+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + 0 + "/" + estado);
     } else if (servicios.length != 0 && subservicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios + "/" + estado);
 
     }
 
@@ -59,13 +59,13 @@ export class ServiceService {
    ** ****************************************************************************************************************** **/
 
   getturnosMeta(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, sucursales: any, cajeros: any, servicios: any, subservicios: any, estado: any): Observable<servicio[]> {
-  
+
     if (servicios.length == 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnosmeta/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + 0 + "/" + 0+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/turnosmeta/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + 0 + "/" + 0 + "/" + estado);
     } else if (subservicios.length == 0 && servicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnosmeta/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + 0+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/turnosmeta/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + 0 + "/" + estado);
     } else if (servicios.length != 0 && subservicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnosmeta/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/turnosmeta/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios + "/" + estado);
     }
   }
 
@@ -136,16 +136,25 @@ export class ServiceService {
 
   getturnosF(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, servicios: any, subservicios: any, estado: any): Observable<servicio[]> {
     if (servicios.length == 0) {
-      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + 0 + "/" + 0+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + 0 + "/" + 0 + "/" + estado);
     } else if (subservicios.length == 0 && servicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + 0+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + 0 + "/" + estado);
     } else if (servicios.length != 0 && subservicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + subservicios+ "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + subservicios + "/" + estado);
     }
   }
 
-  getturnosAtencion(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/tiempoatencionturnos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales);
+  getturnosAtencion(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any,  servicios: any, subservicios: any, estado: any): Observable<servicio[]> {
+    if (servicios.length == 0) {
+      return this.http.get<servicio[]>(this.URL + "/tiempoatencionturnos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + 0 + "/" + 0 + "/" + estado);
+
+    } else if (subservicios.length == 0 && servicios.length != 0) {
+      return this.http.get<servicio[]>(this.URL + "/tiempoatencionturnos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + 0 + "/" + estado);
+
+    } else if (servicios.length != 0 && subservicios.length != 0) {
+      return this.http.get<servicio[]>(this.URL + "/tiempoatencionturnos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + subservicios + "/" + estado);
+    }
+
   }
 
   getentradassalidasistema(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any): Observable<servicio[]> {

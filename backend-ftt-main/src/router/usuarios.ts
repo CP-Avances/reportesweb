@@ -380,7 +380,7 @@ router.get(
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales", TokenValidation,
+  "/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:servicios/:subservicios/:estado", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
@@ -391,10 +391,21 @@ router.get(
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
 
+    const listaServicios = req.params.servicios;
+    console.log("ver listaServicios", listaServicios)
+    const Serviciosarray = listaServicios.split(",");
+    const listaSubservicios = req.params.subservicios;
+    console.log("ver listaSubservicios", listaSubservicios)
+    const subServiciosarray = listaSubservicios.split(",");
+    const estado = req.params.estado;
+    console.log("ver estado", estado)
+
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
     let hFinAux = 0;
+    let todosServicios = false;
+    let todosSubservicio = false;
 
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -404,14 +415,32 @@ router.get(
       todasSucursales = true
     }
 
+    if (Serviciosarray.includes("-1")) {
+      todosServicios = true
+    }
+
+    if (subServiciosarray.includes("-1")) {
+      todosSubservicio = true
+    }
+    let comprobarestado = ''
+    if (estado == '3') {
+      comprobarestado = `c.caje_estado != 0`
+    } else {
+      comprobarestado = `c.caje_estado = ${estado}`
+    }
+
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
       diaCompleto = true;
     } else {
       hFinAux = parseInt(hFin) - 1;
     }
 
-    let query =
-      `
+
+    let query = '';
+    if (listaServicios != '0' && listaSubservicios != '0') {
+
+      query =
+        `
         SELECT 
           e.empr_nombre AS nombreEmpresa, 
           CAST(CONCAT(s.serv_descripcion, t.turn_numero) AS CHAR) AS turno, 
@@ -419,6 +448,7 @@ router.get(
           c.caje_nombre AS Nombre, 
           ss.id AS id_subservicio, 
           ss.nombre AS subservicio,
+          ct.nombre AS cliente,
           SEC_TO_TIME(TIME_TO_SEC(t.turn_tiempoespera)) AS espera,
           SEC_TO_TIME(IFNULL(t.turn_duracionatencion, 0)) AS atencion,
           DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS turn_fecha,
@@ -435,17 +465,104 @@ router.get(
           usuarios u ON c.usua_codigo = u.usua_codigo
         INNER JOIN 
           sub_servicio ss ON ss.id = t.id_sub_serv
+        INNER JOIN 
+          cliente_turno ct ON ct.turn_codigo = t.turn_codigo
         WHERE 
           u.usua_codigo != 2
           AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
+          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}          ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
+          ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY 
           t.turn_codigo DESC, 
           t.turn_fecha DESC, 
           hora DESC;
       `;
+    } else if (listaSubservicios == '0' && listaServicios != '0') {
+      query =
+        `
+      SELECT 
+        e.empr_nombre AS nombreEmpresa, 
+        CAST(CONCAT(s.serv_descripcion, t.turn_numero) AS CHAR) AS turno, 
+        s.serv_nombre AS Servicio, 
+        c.caje_nombre AS Nombre, 
+        ss.id AS id_subservicio, 
+        ss.nombre AS subservicio,
+        ct.nombre AS cliente,
+        SEC_TO_TIME(TIME_TO_SEC(t.turn_tiempoespera)) AS espera,
+        SEC_TO_TIME(IFNULL(t.turn_duracionatencion, 0)) AS atencion,
+        DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS turn_fecha,
+        CAST(CONCAT(LPAD(t.turn_hora, 2, '0'), ':', LPAD(t.turn_minuto, 2, '0')) AS CHAR) AS hora
+      FROM 
+        turno t
+      INNER JOIN 
+        cajero c ON t.caje_codigo = c.caje_codigo
+      INNER JOIN 
+        servicio s ON t.serv_codigo = s.serv_codigo
+      INNER JOIN 
+        empresa e ON s.empr_codigo = e.empr_codigo
+      INNER JOIN 
+        usuarios u ON c.usua_codigo = u.usua_codigo
+      INNER JOIN 
+        sub_servicio ss ON ss.id = t.id_sub_serv
+           INNER JOIN 
+          cliente_turno ct ON ct.turn_codigo = t.turn_codigo
+      WHERE 
+        u.usua_codigo != 2
+        AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})AND ${comprobarestado}` : `AND ${comprobarestado}`}
+        ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
+        ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+      ORDER BY 
+        t.turn_codigo DESC, 
+        t.turn_fecha DESC, 
+        hora DESC;
+    `;
+    } else if (listaServicios == '0' && listaSubservicios == '0') {
+      query =
+        `
+      SELECT 
+        e.empr_nombre AS nombreEmpresa, 
+        CAST(CONCAT(s.serv_descripcion, t.turn_numero) AS CHAR) AS turno, 
+        s.serv_nombre AS Servicio, 
+        c.caje_nombre AS Nombre, 
+        ss.id AS id_subservicio, 
+        ss.nombre AS subservicio,
+        ct.nombre AS cliente,
+        SEC_TO_TIME(TIME_TO_SEC(t.turn_tiempoespera)) AS espera,
+        SEC_TO_TIME(IFNULL(t.turn_duracionatencion, 0)) AS atencion,
+        DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS turn_fecha,
+        CAST(CONCAT(LPAD(t.turn_hora, 2, '0'), ':', LPAD(t.turn_minuto, 2, '0')) AS CHAR) AS hora
+      FROM 
+        turno t
+      INNER JOIN 
+        cajero c ON t.caje_codigo = c.caje_codigo
+      INNER JOIN 
+        servicio s ON t.serv_codigo = s.serv_codigo
+      INNER JOIN 
+        empresa e ON s.empr_codigo = e.empr_codigo
+      INNER JOIN 
+        usuarios u ON c.usua_codigo = u.usua_codigo
+      INNER JOIN 
+        sub_servicio ss ON ss.id = t.id_sub_serv
+           INNER JOIN 
+          cliente_turno ct ON ct.turn_codigo = t.turn_codigo
+      WHERE 
+        u.usua_codigo != 2
+        AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})AND ${comprobarestado}` : `AND ${comprobarestado}`}
+        ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+      ORDER BY 
+        t.turn_codigo DESC, 
+        t.turn_fecha DESC, 
+        hora DESC;
+    `;
+    }
+
+
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {

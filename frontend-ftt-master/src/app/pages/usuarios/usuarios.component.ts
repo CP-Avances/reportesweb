@@ -3,11 +3,9 @@ import { ToastrService } from "ngx-toastr";
 import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
 import { Utils } from "../../utils/util";
-
 import { AuthenticationService } from "../../services/authentication.service";
 import { ImagenesService } from "../../shared/imagenes.service";
 import { ServiceService } from "../../services/service.service";
-
 import { cajero } from "../../models/cajero";
 import { turno } from "../../models/turno";
 
@@ -15,6 +13,10 @@ import { turno } from "../../models/turno";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as XLSX from "xlsx";
+import ExcelJS, { FillPattern } from "exceljs";
+import * as FileSaver from 'file-saver';
+
+
 import moment from "moment";
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 const EXCEL_EXTENSION = ".xlsx";
@@ -29,6 +31,14 @@ export class UsuariosComponent implements OnInit {
   // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
   fromDate: any;
   toDate: any;
+  private imagen: any;
+
+
+  private bordeCompleto!: Partial<ExcelJS.Borders>;
+  private bordeGrueso!: Partial<ExcelJS.Borders>;
+  private fillAzul!: FillPattern;
+  private fontTitulo!: Partial<ExcelJS.Font>;
+  private fontHipervinculo!: Partial<ExcelJS.Font>;
 
   // CAPTURA DE ELEMENTOS DE LA INTERFAZ VISUAL PARA TRATARLOS Y CAPTURAR DATOS
   @ViewChild("content") element: ElementRef;
@@ -244,6 +254,7 @@ export class UsuariosComponent implements OnInit {
   }
   // TIEMPO DE ATENCION POR TURNOS
   pageChangedTA(event: any) {
+    console.log('Página seleccionada:', event); // Para verificar el valor del evento
     this.configTA.currentPage = event;
   }
   // ENTRADAS Y SALIDAS AL SISTEMA
@@ -313,7 +324,7 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'todasSucursalesTA':
         this.todasSucursalesTA = !this.todasSucursalesTA;
-        this.todasSucursalesTA ? this.getCajeros(this.sucursalesSeleccionadas) : null;
+        this.todasSucursalesTA ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : null;
         break;
       case 'todasSucursalesAU':
         this.todasSucursalesAU = !this.todasSucursalesAU;
@@ -560,7 +571,7 @@ export class UsuariosComponent implements OnInit {
         .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
-            this.mostrar_resultado= true;
+            this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABfLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosTotalFecha = servicio.turnos;
             this.malRequestTTF = false;
@@ -623,7 +634,7 @@ export class UsuariosComponent implements OnInit {
         .getturnosMeta(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
-            this.mostrar_resultado= true;
+            this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosMeta = servicio.turnos;
             this.malRequestTM = false;
@@ -759,9 +770,10 @@ export class UsuariosComponent implements OnInit {
 
     if (this.selectedItems.length !== 0) {
       this.serviceService
-        .getturnosAtencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
+        .getturnosAtencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
+            this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTiempoAtencion = servicio.turnos;
             this.malRequestTA = false;
@@ -1012,36 +1024,130 @@ export class UsuariosComponent implements OnInit {
     );
   }
 
-  ExportTOExcelTurnosFecha() {
+  async ExportTOExcelTurnosFecha() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.todasSucursalesTF || this.seleccionMultiple) {
       for (let i = 0; i < this.servicioTurnosFecha.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioTurnosFecha[i].nombreEmpresa,
-          "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
-          Servicio: this.servicioTurnosFecha[i].Servicio,
-          Subservicio: this.servicioTurnosFecha[i].subservicio,
-          Fecha: this.addOneDay(new Date(this.servicioTurnosFecha[i].Fecha)),
-          Atendidos: this.servicioTurnosFecha[i].Atendidos,
-          "No atendidos": this.servicioTurnosFecha[i].No_Atendidos,
-          Total: this.servicioTurnosFecha[i].Total,
-        });
+        jsonServicio.push([
+          this.servicioTurnosFecha[i].nombreEmpresa,
+          this.servicioTurnosFecha[i].Usuario,
+          this.servicioTurnosFecha[i].Servicio,
+          this.servicioTurnosFecha[i].subservicio,
+          this.addOneDay(new Date(this.servicioTurnosFecha[i].Fecha)),
+          this.servicioTurnosFecha[i].Atendidos,
+          this.servicioTurnosFecha[i].No_Atendidos,
+          this.servicioTurnosFecha[i].Total,
+        ]);
       }
     } else {
       for (let i = 0; i < this.servicioTurnosFecha.length; i++) {
-        jsonServicio.push({
-          "Cajero(a)": this.servicioTurnosFecha[i].Usuario,
-          Servicio: this.servicioTurnosFecha[i].Servicio,
-          Subservicio: this.servicioTurnosFecha[i].subservicio,
-          Fecha: this.addOneDay(new Date(this.servicioTurnosFecha[i].Fecha)),
-          Atendidos: this.servicioTurnosFecha[i].Atendidos,
-          "No atendidos": this.servicioTurnosFecha[i].No_Atendidos,
-          Total: this.servicioTurnosFecha[i].Total,
-        });
+        jsonServicio.push([
+          this.servicioTurnosFecha[i].Usuario,
+          this.servicioTurnosFecha[i].Servicio,
+          this.servicioTurnosFecha[i].subservicio,
+          this.addOneDay(new Date(this.servicioTurnosFecha[i].Fecha)),
+          this.servicioTurnosFecha[i].Atendidos,
+          this.servicioTurnosFecha[i].No_Atendidos,
+          this.servicioTurnosFecha[i].Total,
+        ]);
       }
     }
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Usuarios");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:L1");
+    worksheet.mergeCells("B2:L2");
+    worksheet.mergeCells("B3:L3");
+    worksheet.mergeCells("B4:L4");
+    worksheet.mergeCells("B5:L5");
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'nombre empresa';
+    worksheet.getCell("B2").value = 'Lista de Usuarios'.toUpperCase();
+
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
+    worksheet.columns = [
+      { key: "sucursal", width: 10 },
+      { key: "cajero", width: 20 },
+      { key: "servicio", width: 30 },
+      { key: "subservicio", width: 30 },
+      { key: "fecha", width: 20 },
+      { key: "atendidos", width: 20 },
+      { key: "noatendidos", width: 20 },
+      { key: "total", width: 20 },
+    ]
+
+    const columnas = [
+      { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+      { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+      { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+      { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+      { name: "FECHA", totalsRowLabel: "", filterButton: true },
+      { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+      { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+      { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+    ]
+
+    worksheet.addTable({
+      name: "UsuariosexcelTabla",
+      ref: "A6",
+      headerRow: true,
+      totalsRow: false,
+      style: {
+        theme: "TableStyleMedium16",
+        showRowStripes: true,
+      },
+      columns: columnas,
+      rows: jsonServicio,
+    });
+
+    const numeroFilas = jsonServicio.length;
+    for (let i = 0; i <= numeroFilas; i++) {
+      for (let j = 1; j <= 8; j++) {
+        const cell = worksheet.getRow(i + 6).getCell(j);
+        if (i === 0) {
+          cell.alignment = { vertical: "middle", horizontal: "center" };
+        } else {
+          cell.alignment = {
+            vertical: "middle",
+            horizontal: this.obtenerAlineacionHorizontal(j),
+          };
+        }
+        cell.border = this.bordeCompleto;
+      }
+    }
+    worksheet.getRow(6).font = this.fontTitulo;
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob,`Turnos por fecha'}.xlsx`);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
+    }
+
+
+/*
     // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -1062,6 +1168,17 @@ export class UsuariosComponent implements OnInit {
       new Date().toLocaleString() +
       EXCEL_EXTENSION
     );
+    */
+  }
+
+  private obtenerAlineacionHorizontal(
+    j: number
+  ): "left" | "center" | "right" {
+    if (j === 1 || j === 9 || j === 10 || j === 11) {
+      return "center";
+    } else {
+      return "left";
+    }
   }
 
   ExportTOExcelTurnosTotalFecha() {
