@@ -358,6 +358,18 @@
                                     <td> {{servicioTurnosTotalFecha.No_Atendidos}}</td>
                                     <td> {{servicioTurnosTotalFecha.Total}} </td>
                                 </tr>
+                                <tr>
+                                    <td *ngIf="todasSucursalesTTF || seleccionMultiple">
+                                        </td>
+                                    <td> </td>
+                                    <td *ngIf="todasServiciosTF || seleccionMultipleServicios"></td>
+                                    <td *ngIf="seleccionMultipleSubServicios"> 
+                                    </td>
+                                    <td> </td>
+                                    <td>  </td>
+                                    <td> Total:</td>
+                                    <td> {{suma}} </td>
+                                </tr>
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestTTFPag" id="usuariosTTF"

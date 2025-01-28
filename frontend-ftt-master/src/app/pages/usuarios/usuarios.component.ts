@@ -85,6 +85,7 @@ export class UsuariosComponent implements OnInit {
   cajerosUsuarios: any = [];
   servicioTurnosFecha: any = [];
   servicioTurnosTotalFecha: any = [];
+  suma: number = 0;
   servicioTurnosMeta: any = [];
   servicioAtencionUsua: any = [];
   servicioPromAtencion: any = [];
@@ -296,6 +297,29 @@ export class UsuariosComponent implements OnInit {
         (result) => (this.urlImagen = result)
       );
     });
+
+    this.bordeCompleto = {
+      top: { style: "thin" as ExcelJS.BorderStyle },
+      left: { style: "thin" as ExcelJS.BorderStyle },
+      bottom: { style: "thin" as ExcelJS.BorderStyle },
+      right: { style: "thin" as ExcelJS.BorderStyle },
+    };
+
+    this.bordeGrueso = {
+      top: { style: "medium" as ExcelJS.BorderStyle },
+      left: { style: "medium" as ExcelJS.BorderStyle },
+      bottom: { style: "medium" as ExcelJS.BorderStyle },
+      right: { style: "medium" as ExcelJS.BorderStyle },
+    };
+
+    this.fillAzul = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "4F81BD" }, // Azul claro
+    };
+
+    this.fontTitulo = { bold: true, size: 12, color: { argb: "FFFFFF" } };
+    this.fontHipervinculo = { color: { argb: "0000FF" }, underline: true };
   }
 
   selectAll(opcion: string) {
@@ -574,6 +598,14 @@ export class UsuariosComponent implements OnInit {
             this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABfLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosTotalFecha = servicio.turnos;
+            console.log("ver servicioTurnosTotalFecha", this.servicioTurnosTotalFecha)
+            let sumaTotal: number = 0;
+
+
+            this.servicioTurnosTotalFecha.forEach(elemento => {
+              sumaTotal += Number(elemento.Total);
+            });
+            this.suma = sumaTotal;
             this.malRequestTTF = false;
             this.malRequestTTFPag = false;
 
@@ -1027,6 +1059,47 @@ export class UsuariosComponent implements OnInit {
   async ExportTOExcelTurnosFecha() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Turnos por fecha");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - TURNOS POR FECHA'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateTurnosFecha.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTurnosMeta.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+
+
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
     let jsonServicio: any = [];
     if (this.todasSucursalesTF || this.seleccionMultiple) {
       for (let i = 0; i < this.servicioTurnosFecha.length; i++) {
@@ -1041,6 +1114,58 @@ export class UsuariosComponent implements OnInit {
           this.servicioTurnosFecha[i].Total,
         ]);
       }
+      worksheet.columns = [
+        { key: "sucursal", width: 50 },
+        { key: "cajero", width: 20 },
+        { key: "servicio", width: 50 },
+        { key: "subservicio", width: 50 },
+        { key: "fecha", width: 20 },
+        { key: "atendidos", width: 20 },
+        { key: "noatendidos", width: 20 },
+        { key: "total", width: 20 },
+      ]
+
+      const columnas = [
+        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+        { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+        { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+        { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+        { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "UsuariosexcelTabla",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 8; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
+
     } else {
       for (let i = 0; i < this.servicioTurnosFecha.length; i++) {
         jsonServicio.push([
@@ -1053,122 +1178,65 @@ export class UsuariosComponent implements OnInit {
           this.servicioTurnosFecha[i].Total,
         ]);
       }
-    }
 
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Usuarios");
-    this.imagen = workbook.addImage({
-      base64: this.urlImagen,
-      extension: "png",
-    });
+      worksheet.columns = [
+        { key: "cajero", width: 20 },
+        { key: "servicio", width: 50 },
+        { key: "subservicio", width: 50 },
+        { key: "fecha", width: 20 },
+        { key: "atendidos", width: 20 },
+        { key: "noatendidos", width: 20 },
+        { key: "total", width: 20 },
+      ]
 
-    worksheet.addImage(this.imagen, {
-      tl: { col: 0, row: 0 },
-      ext: { width: 220, height: 105 },
-    });
+      const columnas = [
+        { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+        { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+        { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+        { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+      ]
 
-    // COMBINAR CELDAS
-    worksheet.mergeCells("B1:L1");
-    worksheet.mergeCells("B2:L2");
-    worksheet.mergeCells("B3:L3");
-    worksheet.mergeCells("B4:L4");
-    worksheet.mergeCells("B5:L5");
+      worksheet.addTable({
+        name: "UsuariosexcelTabla",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
 
-    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
-    worksheet.getCell("B1").value = 'nombre empresa';
-    worksheet.getCell("B2").value = 'Lista de Usuarios'.toUpperCase();
-
-    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
-    ["B1", "B2"].forEach((cell) => {
-      worksheet.getCell(cell).alignment = {
-        horizontal: "center",
-        vertical: "middle",
-      };
-      worksheet.getCell(cell).font = { bold: true, size: 14 };
-    });
-
-    worksheet.columns = [
-      { key: "sucursal", width: 10 },
-      { key: "cajero", width: 20 },
-      { key: "servicio", width: 30 },
-      { key: "subservicio", width: 30 },
-      { key: "fecha", width: 20 },
-      { key: "atendidos", width: 20 },
-      { key: "noatendidos", width: 20 },
-      { key: "total", width: 20 },
-    ]
-
-    const columnas = [
-      { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-      { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-      { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-      { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
-      { name: "FECHA", totalsRowLabel: "", filterButton: true },
-      { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-      { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
-      { name: "TOTAL", totalsRowLabel: "", filterButton: true },
-    ]
-
-    worksheet.addTable({
-      name: "UsuariosexcelTabla",
-      ref: "A6",
-      headerRow: true,
-      totalsRow: false,
-      style: {
-        theme: "TableStyleMedium16",
-        showRowStripes: true,
-      },
-      columns: columnas,
-      rows: jsonServicio,
-    });
-
-    const numeroFilas = jsonServicio.length;
-    for (let i = 0; i <= numeroFilas; i++) {
-      for (let j = 1; j <= 8; j++) {
-        const cell = worksheet.getRow(i + 6).getCell(j);
-        if (i === 0) {
-          cell.alignment = { vertical: "middle", horizontal: "center" };
-        } else {
-          cell.alignment = {
-            vertical: "middle",
-            horizontal: this.obtenerAlineacionHorizontal(j),
-          };
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 7; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
         }
-        cell.border = this.bordeCompleto;
       }
+      worksheet.getRow(6).font = this.fontTitulo;
     }
-    worksheet.getRow(6).font = this.fontTitulo;
+
     try {
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: "application/octet-stream" });
-      FileSaver.saveAs(blob,`Turnos por fecha'}.xlsx`);
+      FileSaver.saveAs(blob, `Turnos por fecha.xlsx`);
     } catch (error) {
       console.error("Error al generar el archivo Excel:", error);
     }
-
-
-/*
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioTurnosFecha[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Turnos Fecha");
-    XLSX.writeFile(
-      wb,
-      "Turnos por fecha - " +
-      nombreSucursal +
-      " " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
-    */
   }
 
   private obtenerAlineacionHorizontal(
@@ -1181,205 +1249,1318 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
-  ExportTOExcelTurnosTotalFecha() {
+  async ExportTOExcelTurnosTotalFecha() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Turnos total por fecha");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - TURNOS TOTALES POR FECHA TOTAL'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateTurnosTotalFecha.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTurnosTotalFecha.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
-    if (this.todasSucursalesTTF || this.seleccionMultiple) {
-      for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioTurnosTotalFecha[i].nombreEmpresa,
-          "Cajero(a)": this.servicioTurnosTotalFecha[i].Usuario,
-          Fecha: this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
-          Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
-          "No atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
-          Total: this.servicioTurnosTotalFecha[i].Total,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
-        jsonServicio.push({
-          "Cajero(a)": this.servicioTurnosTotalFecha[i].Usuario,
-          Fecha: this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
-          Atendidos: this.servicioTurnosTotalFecha[i].Atendidos,
-          "No atendidos": this.servicioTurnosTotalFecha[i].No_Atendidos,
-          Total: this.servicioTurnosTotalFecha[i].Total,
-        });
-      }
-    }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioTurnosTotalFecha[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
+    if (this.serviciosSeleccionadas.length == 0) {
+      if (this.todasSucursalesTTF || this.seleccionMultiple) {
+        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+          jsonServicio.push([
+            this.servicioTurnosTotalFecha[i].nombreEmpresa,
+            this.servicioTurnosTotalFecha[i].Usuario,
+            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+            this.servicioTurnosTotalFecha[i].Atendidos,
+            this.servicioTurnosTotalFecha[i].No_Atendidos,
+            this.servicioTurnosTotalFecha[i].Total,
+          ]);
+        }
 
-    XLSX.utils.book_append_sheet(wb, ws, "Turnos Fecha");
-    XLSX.writeFile(
-      wb,
-      "Turnos totales por fecha - " +
-      nombreSucursal +
-      " " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
+        jsonServicio.push([
+          '',
+          '',
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+        worksheet.columns = [
+          { key: "sucursal", width: 50 },
+          { key: "cajero", width: 20 },
+          { key: "fecha", width: 20 },
+          { key: "atendidos", width: 20 },
+          { key: "noatendidos", width: 20 },
+          { key: "total", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "turnostotales",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 6; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+      } else {
+        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+          jsonServicio.push([
+            this.servicioTurnosTotalFecha[i].Usuario,
+            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+            this.servicioTurnosTotalFecha[i].Atendidos,
+            this.servicioTurnosTotalFecha[i].No_Atendidos,
+            this.servicioTurnosTotalFecha[i].Total,
+          ]);
+        }
+        jsonServicio.push([
+          '',
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+
+        worksheet.columns = [
+          { key: "cajero", width: 20 },
+          { key: "fecha", width: 20 },
+          { key: "atendidos", width: 20 },
+          { key: "noatendidos", width: 20 },
+          { key: "total", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "turnostotales",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 5; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+
+      }
+
+
+    } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
+      if (this.todasSucursalesTTF || this.seleccionMultiple) {
+        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+          jsonServicio.push([
+            this.servicioTurnosTotalFecha[i].nombreEmpresa,
+            this.servicioTurnosTotalFecha[i].Usuario,
+            this.servicioTurnosTotalFecha[i].Servicio,
+            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+            this.servicioTurnosTotalFecha[i].Atendidos,
+            this.servicioTurnosTotalFecha[i].No_Atendidos,
+            this.servicioTurnosTotalFecha[i].Total,
+          ]);
+        }
+        jsonServicio.push([
+          '',
+          '',
+          '',
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+
+
+        worksheet.columns = [
+          { key: "sucursal", width: 50 },
+          { key: "cajero", width: 20 },
+          { key: "servicio", width: 50 },
+          { key: "fecha", width: 20 },
+          { key: "atendidos", width: 20 },
+          { key: "noatendidos", width: 20 },
+          { key: "total", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "UsuariosexcelTabla",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 7; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+      } else {
+        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+          jsonServicio.push([
+            this.servicioTurnosTotalFecha[i].Usuario,
+            this.servicioTurnosTotalFecha[i].Servicio,
+            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+            this.servicioTurnosTotalFecha[i].Atendidos,
+            this.servicioTurnosTotalFecha[i].No_Atendidos,
+            this.servicioTurnosTotalFecha[i].Total,
+          ]);
+        }
+        jsonServicio.push([
+          '',
+          '',
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+        worksheet.columns = [
+          { key: "cajero", width: 20 },
+          { key: "servicio", width: 50 },
+          { key: "fecha", width: 20 },
+          { key: "atendidos", width: 20 },
+          { key: "noatendidos", width: 20 },
+          { key: "total", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "UsuariosexcelTabla",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 6; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+      }
+    } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
+      if (this.todasSucursalesTTF || this.seleccionMultiple) {
+        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+          jsonServicio.push([
+            this.servicioTurnosTotalFecha[i].nombreEmpresa,
+            this.servicioTurnosTotalFecha[i].Usuario,
+            this.servicioTurnosTotalFecha[i].Servicio,
+            this.servicioTurnosTotalFecha[i].subservicio,
+            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+            this.servicioTurnosTotalFecha[i].Atendidos,
+            this.servicioTurnosTotalFecha[i].No_Atendidos,
+            this.servicioTurnosTotalFecha[i].Total,
+          ]);
+        }
+
+        jsonServicio.push([
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+
+
+        worksheet.columns = [
+          { key: "sucursal", width: 50 },
+          { key: "cajero", width: 20 },
+          { key: "servicio", width: 50 },
+          { key: "subservicio", width: 50 },
+          { key: "fecha", width: 20 },
+          { key: "atendidos", width: 20 },
+          { key: "noatendidos", width: 20 },
+          { key: "total", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "UsuariosexcelTabla",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 8; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+
+      } else {
+        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+          jsonServicio.push([
+            this.servicioTurnosTotalFecha[i].Usuario,
+            this.servicioTurnosTotalFecha[i].Servicio,
+            this.servicioTurnosTotalFecha[i].subservicio,
+            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+            this.servicioTurnosTotalFecha[i].Atendidos,
+            this.servicioTurnosTotalFecha[i].No_Atendidos,
+            this.servicioTurnosTotalFecha[i].Total,
+          ]);
+        }
+        jsonServicio.push([
+          '',
+          '',
+          '',
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+
+        worksheet.columns = [
+          { key: "cajero", width: 20 },
+          { key: "servicio", width: 50 },
+          { key: "subservicio", width: 50 },
+          { key: "fecha", width: 20 },
+          { key: "atendidos", width: 20 },
+          { key: "noatendidos", width: 20 },
+          { key: "total", width: 20 },
+        ]
+
+
+
+        const columnas = [
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "UsuariosexcelTabla",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 7; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+      }
+
+    }
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, `Turnos totales por fecha.xlsx`);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
+    }
   }
 
-  ExportTOExcelTurnosMeta() {
+  async ExportTOExcelTurnosMeta() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Turnos meta");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:G1");
+    worksheet.mergeCells("B2:G2");
+    worksheet.mergeCells("B3:G3");
+    worksheet.mergeCells("B4:G4");
+    worksheet.mergeCells("B5:G5");
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - PROCENTAJE DE CUMPLIMIENTO'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateTurnosMeta.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTurnosMeta.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
+
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.todasSucursalesTM || this.seleccionMultiple) {
       for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioTurnosMeta[i].nombreEmpresa,
-          "Cajero(a)": this.servicioTurnosMeta[i].Usuario,
-          Fecha: this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
-          Atendidos: this.servicioTurnosMeta[i].Atendidos,
-          "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
-        });
+        jsonServicio.push([
+          this.servicioTurnosMeta[i].nombreEmpresa,
+          this.servicioTurnosMeta[i].Usuario,
+          this.servicioTurnosMeta[i].Servicio,
+          this.servicioTurnosMeta[i].subservicio,
+          this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
+          this.servicioTurnosMeta[i].Atendidos,
+          this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
+        ]);
+
       }
+      worksheet.columns = [
+        { key: "sucursal", width: 50 },
+        { key: "cajero", width: 20 },
+        { key: "servicio", width: 50 },
+        { key: "subservicio", width: 50 },
+        { key: "fecha", width: 20 },
+        { key: "atendidos", width: 20 },
+        { key: "porcentaje", width: 20 },
+      ]
+
+      const columnas = [
+        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: true },
+        { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+        { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+        { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "turnosmeta",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 7; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
+
+
     } else {
       for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
-        jsonServicio.push({
-          "Cajero(a)": this.servicioTurnosMeta[i].Usuario,
-          Fecha: this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
-          Atendidos: this.servicioTurnosMeta[i].Atendidos,
-          "Porcentaje de cumplimiento": this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
-        });
+        jsonServicio.push([
+          this.servicioTurnosMeta[i].Usuario,
+          this.servicioTurnosMeta[i].Servicio,
+          this.servicioTurnosMeta[i].subservicio,
+          this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
+          this.servicioTurnosMeta[i].Atendidos,
+          this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
+        ]);
       }
+
+      worksheet.columns = [
+        { key: "cajero", width: 20 },
+        { key: "servicio", width: 50 },
+        { key: "subservicio", width: 50 },
+        { key: "fecha", width: 20 },
+        { key: "atendidos", width: 20 },
+        { key: "porcentaje", width: 20 },
+      ]
+
+      const columnas = [
+        { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+        { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+        { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "turnosmeta",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 6; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
     }
     // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioTurnosMeta[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
+
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, "Turnos meta - " +
+        nombreSucursal +
+        " " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
     }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Turnos Meta");
-    XLSX.writeFile(
-      wb,
-      "Turnos meta - " +
-      nombreSucursal +
-      " " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
+
   }
 
-  exportarAExcelPromAtencion() {
+  async exportarAExcelPromAtencion() {
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Promedio de Atención");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - TIEMPO PROMEDIO ATENCIÓN'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDatePromAtencion.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDatePromAtencion.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
-    let tamanos: any = [];
-    if (this.todasSucursalesTPA || this.seleccionMultiple) {
-      for (let i = 0; i < this.servicioPromAtencion.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioPromAtencion[i].nombreEmpresa,
-          "Cajero(a)": this.servicioPromAtencion[i].Nombre,
-          Servicio: this.servicioPromAtencion[i].Servicio,
-          Subservicio: this.servicioPromAtencion[i].subservicio,
-          Tiempo: this.servicioPromAtencion[i].Promedio,
-          Turnos: this.servicioPromAtencion[i].Turnos,
+    if (this.serviciosSeleccionadas.length == 0) {
+      if (this.todasSucursalesTPA || this.seleccionMultiple) {
+        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+          jsonServicio.push([
+            this.servicioPromAtencion[i].nombreEmpresa,
+            this.servicioPromAtencion[i].Nombre,
+            this.servicioPromAtencion[i].Promedio,
+            this.servicioPromAtencion[i].Turnos,
+          ]);
+        }
+        /*
+        jsonServicio.push([
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+
+        */
+        worksheet.columns = [
+          { key: "sucursal", width: 50 },
+          { key: "cajero", width: 20 },
+          { key: "promedio", width: 20 },
+          { key: "turnos", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "promedioatencion",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
         });
-      }
-      tamanos = [this.servicioPromAtencion[0].nombreEmpresa];
-    } else {
-      for (let i = 0; i < this.servicioPromAtencion.length; i++) {
-        jsonServicio.push({
-          "Cajero(a)": this.servicioPromAtencion[i].Nombre,
-          Servicio: this.servicioPromAtencion[i].Servicio,
-          Subservicio: this.servicioPromAtencion[i].subservicio,
-          Tiempo: this.servicioPromAtencion[i].Promedio,
-          Turnos: this.servicioPromAtencion[i].Turnos,
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 4; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+      } else {
+        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+          jsonServicio.push([
+            this.servicioPromAtencion[i].Nombre,
+            this.servicioPromAtencion[i].Promedio,
+            this.servicioPromAtencion[i].Turnos,
+          ]);
+        }
+        /*
+        jsonServicio.push([
+          '',
+          'Total: ',
+          this.suma,
+        ])
+        */
+
+        worksheet.columns = [
+          { key: "cajero", width: 20 },
+          { key: "promedio", width: 20 },
+          { key: "turnos", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "turnostotales",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
         });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 3; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+
       }
+
+
+    } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
+      if (this.todasSucursalesTPA || this.seleccionMultiple) {
+        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+          jsonServicio.push([
+            this.servicioPromAtencion[i].nombreEmpresa,
+            this.servicioPromAtencion[i].Nombre,
+            this.servicioPromAtencion[i].Servicio,
+            this.servicioPromAtencion[i].Promedio,
+            this.servicioPromAtencion[i].Turnos,
+          ]);
+        }
+        /*
+        jsonServicio.push([
+          '',
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+*/
+
+        worksheet.columns = [
+          { key: "sucursal", width: 50 },
+          { key: "cajero", width: 20 },
+          { key: "servicio", width: 50 },
+          { key: "promedio", width: 20 },
+          { key: "turnos", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "UsuariosexcelTabla",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 5; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+      } else {
+        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+          jsonServicio.push([
+            this.servicioPromAtencion[i].Nombre,
+            this.servicioPromAtencion[i].Servicio,
+            this.servicioPromAtencion[i].Promedio,
+            this.servicioPromAtencion[i].Turnos,
+          ]);
+        }
+        /*
+        jsonServicio.push([
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+          */
+        worksheet.columns = [
+          { key: "cajero", width: 20 },
+          { key: "servicio", width: 50 },
+          { key: "promedio", width: 20 },
+          { key: "turnos", width: 20 },
+        ]
+
+        const columnas = [
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "UsuariosexcelTabla",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 4; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+      }
+    } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
+      if (this.todasSucursalesTPA || this.seleccionMultiple) {
+        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+          jsonServicio.push([
+            this.servicioPromAtencion[i].nombreEmpresa,
+            this.servicioPromAtencion[i].Nombre,
+            this.servicioPromAtencion[i].Servicio,
+            this.servicioPromAtencion[i].subservicio,
+            this.servicioPromAtencion[i].Promedio,
+            this.servicioPromAtencion[i].Turnos,
+          ]);
+        }
+        /*
+                jsonServicio.push([
+                  '',
+                  '',
+                  '',
+                  '',
+                  'Total: ',
+                  this.suma,
+                ])
+        */
+
+        worksheet.columns = [
+          { key: "sucursal", width: 50 },
+          { key: "cajero", width: 20 },
+          { key: "servicio", width: 50 },
+          { key: "subservicio", width: 20 },
+          { key: "promedio", width: 20 },
+          { key: "turnos", width: 20 },
+
+        ]
+
+        const columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "UsuariosexcelTabla",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 6; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+
+      } else {
+        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+          jsonServicio.push([
+            this.servicioPromAtencion[i].Nombre,
+            this.servicioPromAtencion[i].Servicio,
+            this.servicioPromAtencion[i].subservicio,
+            this.servicioPromAtencion[i].Promedio,
+            this.servicioPromAtencion[i].Turnos,
+          ]);
+        }
+        /*
+        jsonServicio.push([
+          '',
+          '',
+          '',
+          'Total: ',
+          this.suma,
+        ])
+          */
+
+        worksheet.columns = [
+          { key: "cajero", width: 20 },
+          { key: "servicio", width: 50 },
+          { key: "subservicio", width: 20 },
+          { key: "promedio", width: 20 },
+          { key: "turnos", width: 20 },
+
+        ]
+
+        const columnas = [
+          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+        ]
+
+
+        worksheet.addTable({
+          name: "UsuariosexcelTabla",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 5; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+      }
+
     }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioPromAtencion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, "Promedio de atencion - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
     }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Promedio");
-    XLSX.writeFile(
-      wb,
-      "Promedio de atencion - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
+
   }
 
-  exportarAExcelTiempoAtencion() {
+  async exportarAExcelTiempoAtencion() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Tiempo de Atencion por Turnos");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:G1");
+    worksheet.mergeCells("B2:G2");
+    worksheet.mergeCells("B3:G3");
+    worksheet.mergeCells("B4:G4");
+    worksheet.mergeCells("B5:G5");
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - TIEMPO DE ATENCIÓN POR TURNOS'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateTiempoAtencion.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateTiempoAtencion.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
-    let tamanos: any = [];
     if (this.todasSucursalesTA || this.seleccionMultiple) {
       for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioTiempoAtencion[i].nombreEmpresa,
-          "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
-          Fecha: this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
-          Hora: this.servicioTiempoAtencion[i].hora,
-          Servicio: this.servicioTiempoAtencion[i].Servicio,
-          Subservicio: this.servicioTiempoAtencion[i].subservicio,
-          Turno: this.servicioTiempoAtencion[i].turno,
-          "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
-          "Tiempo de atención": this.servicioTiempoAtencion[i].atencion,
-        });
+        jsonServicio.push([
+          this.servicioTiempoAtencion[i].nombreEmpresa,
+          this.servicioTiempoAtencion[i].Nombre,
+          this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
+          this.servicioTiempoAtencion[i].hora,
+          this.servicioTiempoAtencion[i].Servicio,
+          this.servicioTiempoAtencion[i].subservicio,
+          this.servicioTiempoAtencion[i].cliente,
+          this.servicioTiempoAtencion[i].turno,
+          this.servicioTiempoAtencion[i].espera,
+          this.servicioTiempoAtencion[i].atencion,
+        ]);
       }
-      tamanos = [this.servicioTiempoAtencion[0].nombreEmpresa];
+      worksheet.columns = [
+        { key: "sucursal", width: 50 },
+        { key: "cajero", width: 20 },
+        { key: "fecha", width: 20 },
+        { key: "hora", width: 20 },
+        { key: "servicio", width: 50 },
+        { key: "subservicio", width: 50 },
+        { key: "cliente", width: 50 },
+        { key: "turno", width: 20 },
+        { key: "TiempoEspera", width: 20 },
+        { key: "TiempoAtencion", width: 20 },
+
+      ]
+
+      const columnas = [
+        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: true },
+        { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
+        { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "CLIENTE", totalsRowLabel: "", filterButton: true },
+        { name: "TURNO", totalsRowLabel: "", filterButton: true },
+        { name: "TIEMPO DE ESPERA", totalsRowLabel: "", filterButton: true },
+        { name: "TIEMPO DE ATENCIÓN", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "tiempodeAtencion",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 10; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
     } else {
       for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
-        jsonServicio.push({
-          "Cajero(a)": this.servicioTiempoAtencion[i].Nombre,
-          Fecha: this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
-          Hora: this.servicioTiempoAtencion[i].hora,
-          Servicio: this.servicioTiempoAtencion[i].Servicio,
-          Subservicio: this.servicioTiempoAtencion[i].subservicio,
-          Turno: this.servicioTiempoAtencion[i].turno,
-          "Tiempo de espera": this.servicioTiempoAtencion[i].espera,
-          "Tiempo de atención": this.servicioTiempoAtencion[i].atencion,
-        });
+        jsonServicio.push([
+          this.servicioTiempoAtencion[i].Nombre,
+          this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
+          this.servicioTiempoAtencion[i].hora,
+          this.servicioTiempoAtencion[i].Servicio,
+          this.servicioTiempoAtencion[i].subservicio,
+          this.servicioTiempoAtencion[i].cliente,
+          this.servicioTiempoAtencion[i].turno,
+          this.servicioTiempoAtencion[i].espera,
+          this.servicioTiempoAtencion[i].atencion,
+        ]);
+
       }
+      worksheet.columns = [
+        { key: "cajero", width: 20 },
+        { key: "fecha", width: 20 },
+        { key: "hora", width: 20 },
+        { key: "servicio", width: 50 },
+        { key: "subservicio", width: 50 },
+        { key: "cliente", width: 50 },
+        { key: "turno", width: 20 },
+        { key: "TiempoEspera", width: 20 },
+        { key: "TiempoAtencion", width: 20 },      
+      ]
+
+      const columnas = [
+        { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
+        { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "CLIENTE", totalsRowLabel: "", filterButton: true },
+        { name: "TURNO", totalsRowLabel: "", filterButton: true },
+        { name: "TIEMPO DE ESPERA", totalsRowLabel: "", filterButton: true },
+        { name: "TIEMPO DE ATENCIÓN", totalsRowLabel: "", filterButton: true },
+      ]
+      worksheet.addTable({
+        name: "tiempoatencion",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 9; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
+
     }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioTiempoAtencion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
+
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob,  "Tiempo de atencion - " +
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
     }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Turnos");
-    XLSX.writeFile(
-      wb,
-      "Tiempo de atencion - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
+
   }
 
   exportarAExcelAtencionUsuario() {
@@ -1829,72 +3010,283 @@ export class UsuariosComponent implements OnInit {
 
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
   CampoDetalleTotal(servicio: any[]) {
-    if (this.todasSucursalesTTF) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto", "auto"],
 
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Atendidos", style: "tableHeader" },
-              { text: "No atendidos", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Atendidos },
-                { style: "itemsTable", text: res.No_Atendidos },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto"],
+    if (this.serviciosSeleccionadas.length == 0) {
 
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Atendidos", style: "tableHeader" },
-              { text: "No atendidos", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
+      if (this.todasSucursalesTTF) {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            widths: ["*", "*", "auto", "auto", "auto", "auto"],
+
+            body: [
+              [
+                { text: "Sucursal", style: "tableHeader" },
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Atendidos", style: "tableHeader" },
+                { text: "No atendidos", style: "tableHeader" },
+                { text: "Total", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.nombreEmpresa },
+                  { style: "itemsTable", text: res.Usuario },
+                  { style: "itemsTable", text: res.Fecha },
+                  { style: "itemsTable", text: res.Atendidos },
+                  { style: "itemsTable", text: res.No_Atendidos },
+                  { style: "itemsTable", text: res.Total },
+                ];
+              }),
+              [
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: 'Total:' },
+                { style: "itemsTable", text: this.suma },
+              ]
             ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Atendidos },
-                { style: "itemsTable", text: res.No_Atendidos },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
-        },
-      };
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      } else {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            widths: ["*", "auto", "auto", "auto", "auto"],
+
+            body: [
+              [
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Atendidos", style: "tableHeader" },
+                { text: "No atendidos", style: "tableHeader" },
+                { text: "Total", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.Usuario },
+                  { style: "itemsTable", text: res.Fecha },
+                  { style: "itemsTable", text: res.Atendidos },
+                  { style: "itemsTable", text: res.No_Atendidos },
+                  { style: "itemsTable", text: res.Total },
+                ];
+              }),
+              [
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: 'Total:' },
+                { style: "itemsTable", text: this.suma },
+              ]
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      }
+    } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
+
+      if (this.todasSucursalesTTF) {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            widths: ["*", "*", "*", "auto", "auto", "auto", "auto"],
+
+            body: [
+              [
+                { text: "Sucursal", style: "tableHeader" },
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Servicio", style: "tableHeader" },
+
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Atendidos", style: "tableHeader" },
+                { text: "No atendidos", style: "tableHeader" },
+                { text: "Total", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.nombreEmpresa },
+                  { style: "itemsTable", text: res.Usuario },
+                  { style: "itemsTable", text: res.Servicio },
+                  { style: "itemsTable", text: res.Fecha },
+                  { style: "itemsTable", text: res.Atendidos },
+                  { style: "itemsTable", text: res.No_Atendidos },
+                  { style: "itemsTable", text: res.Total },
+                ];
+              }),
+              [
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: 'Total:' },
+                { style: "itemsTable", text: this.suma },
+              ]
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      } else {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            widths: ["*", "*", "auto", "auto", "auto", "auto"],
+
+            body: [
+              [
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Servicio", style: "tableHeader" },
+
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Atendidos", style: "tableHeader" },
+                { text: "No atendidos", style: "tableHeader" },
+                { text: "Total", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.Usuario },
+                  { style: "itemsTable", text: res.Servicio },
+                  { style: "itemsTable", text: res.Fecha },
+                  { style: "itemsTable", text: res.Atendidos },
+                  { style: "itemsTable", text: res.No_Atendidos },
+                  { style: "itemsTable", text: res.Total },
+                ];
+              }),
+              [
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: 'Total:' },
+                { style: "itemsTable", text: this.suma },
+              ]
+
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      }
+
+    } if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
+      if (this.todasSucursalesTTF) {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            widths: ["*", "*", "*", "*", "auto", "auto", "auto", "auto"],
+
+            body: [
+              [
+                { text: "Sucursal", style: "tableHeader" },
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Servicio", style: "tableHeader" },
+                { text: "Subservicio", style: "tableHeader" },
+
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Atendidos", style: "tableHeader" },
+                { text: "No atendidos", style: "tableHeader" },
+                { text: "Total", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.nombreEmpresa },
+                  { style: "itemsTable", text: res.Usuario },
+                  { style: "itemsTable", text: res.Servicio },
+                  { style: "itemsTable", text: res.subservicio },
+                  { style: "itemsTable", text: res.Fecha },
+                  { style: "itemsTable", text: res.Atendidos },
+                  { style: "itemsTable", text: res.No_Atendidos },
+                  { style: "itemsTable", text: res.Total },
+                ];
+              }),
+              [
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: 'Total:' },
+                { style: "itemsTable", text: this.suma },
+              ]
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      } else {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            widths: ["*", "*", "*", "auto", "auto", "auto", "auto"],
+
+            body: [
+              [
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Servicio", style: "tableHeader" },
+                { text: "Subservicio", style: "tableHeader" },
+
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Atendidos", style: "tableHeader" },
+                { text: "No atendidos", style: "tableHeader" },
+                { text: "Total", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.Usuario },
+                  { style: "itemsTable", text: res.Servicio },
+                  { style: "itemsTable", text: res.subservicio },
+                  { style: "itemsTable", text: res.Fecha },
+                  { style: "itemsTable", text: res.Atendidos },
+                  { style: "itemsTable", text: res.No_Atendidos },
+                  { style: "itemsTable", text: res.Total },
+                ];
+              }),
+              [
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: '' },
+                { style: "itemsTable", text: 'Total:' },
+                { style: "itemsTable", text: this.suma },
+              ]
+
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      }
     }
   }
 
@@ -2052,12 +3444,14 @@ export class UsuariosComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto"],
+          widths: ["*", "*", "*", "*", "auto", "auto", "auto"],
 
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
               { text: "Cajero(a)", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "Porcentaje de cumplimiento", style: "tableHeader" },
@@ -2066,6 +3460,8 @@ export class UsuariosComponent implements OnInit {
               return [
                 { style: "itemsTable", text: res.nombreEmpresa },
                 { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
@@ -2084,11 +3480,13 @@ export class UsuariosComponent implements OnInit {
         style: "tableMargin",
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto"],
+          widths: ["*", "*", "*", "auto", "auto", "auto"],
 
           body: [
             [
               { text: "Cajero(a)", style: "tableHeader" },
+              { text: "Servicio", style: "tableHeader" },
+              { text: "Subservicio", style: "tableHeader" },
               { text: "Fecha", style: "tableHeader" },
               { text: "Atendidos", style: "tableHeader" },
               { text: "Porcentaje de cumplimiento", style: "tableHeader" },
@@ -2096,6 +3494,8 @@ export class UsuariosComponent implements OnInit {
             ...servicio.map((res) => {
               return [
                 { style: "itemsTable", text: res.Usuario },
+                { style: "itemsTable", text: res.Servicio },
+                { style: "itemsTable", text: res.subservicio },
                 { style: "itemsTable", text: res.Fecha },
                 { style: "itemsTable", text: res.Atendidos },
                 { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
@@ -2262,73 +3662,201 @@ export class UsuariosComponent implements OnInit {
 
   // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
   Campopromedioatencion(servicio: any[]) {
-    if (this.todasSucursalesTPA || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          alignment: "center",
-          widths: ["*", "*", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Tiempo", style: "tableHeader" },
-              { text: "Turnos", style: "tableHeader" },
+    if (this.serviciosSeleccionadas.length == 0) {
+      if (this.todasSucursalesTPA || this.seleccionMultiple) {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            alignment: "center",
+            widths: ["*", "*", "auto", "auto"],
+            body: [
+              [
+                { text: "Sucursal", style: "tableHeader" },
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Tiempo", style: "tableHeader" },
+                { text: "Turnos", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.nombreEmpresa },
+                  { style: "itemsTable", text: res.Nombre },
+                  { style: "itemsTable", text: res.Promedio },
+                  { style: "itemsTable", text: res.Turnos },
+                ];
+              }),
             ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Nombre },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subservicio },
-                { style: "itemsTable", text: res.Promedio },
-                { style: "itemsTable", text: res.Turnos },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          alignment: "center",
-          widths: ["*", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Tiempo", style: "tableHeader" },
-              { text: "Turnos", style: "tableHeader" },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      } else {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            alignment: "center",
+            widths: ["*", "auto", "auto"],
+            body: [
+              [
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Tiempo", style: "tableHeader" },
+                { text: "Turnos", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.Nombre },
+                  { style: "itemsTable", text: res.Promedio },
+                  { style: "itemsTable", text: res.Turnos },
+                ];
+              }),
             ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Nombre },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subservicio },
-                { style: "itemsTable", text: res.Promedio },
-                { style: "itemsTable", text: res.Turnos },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
           },
-        },
-      };
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      }
+    } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
+      if (this.todasSucursalesTPA || this.seleccionMultiple) {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            alignment: "center",
+            widths: ["*", "*", "auto", "auto", "auto"],
+            body: [
+              [
+                { text: "Sucursal", style: "tableHeader" },
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Servicio", style: "tableHeader" },
+                { text: "Tiempo", style: "tableHeader" },
+                { text: "Turnos", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.nombreEmpresa },
+                  { style: "itemsTable", text: res.Nombre },
+                  { style: "itemsTable", text: res.Servicio },
+                  { style: "itemsTable", text: res.Promedio },
+                  { style: "itemsTable", text: res.Turnos },
+                ];
+              }),
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      } else {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            alignment: "center",
+            widths: ["*", "auto", "auto", "auto"],
+            body: [
+              [
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Servicio", style: "tableHeader" },
+                { text: "Tiempo", style: "tableHeader" },
+                { text: "Turnos", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.Nombre },
+                  { style: "itemsTable", text: res.Servicio },
+                  { style: "itemsTable", text: res.Promedio },
+                  { style: "itemsTable", text: res.Turnos },
+                ];
+              }),
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      }
+    } if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
+      if (this.todasSucursalesTPA || this.seleccionMultiple) {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            alignment: "center",
+            widths: ["*", "*", "auto", "auto", "auto", "auto"],
+            body: [
+              [
+                { text: "Sucursal", style: "tableHeader" },
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Servicio", style: "tableHeader" },
+                { text: "Subservicio", style: "tableHeader" },
+                { text: "Tiempo", style: "tableHeader" },
+                { text: "Turnos", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.nombreEmpresa },
+                  { style: "itemsTable", text: res.Nombre },
+                  { style: "itemsTable", text: res.Servicio },
+                  { style: "itemsTable", text: res.subservicio },
+                  { style: "itemsTable", text: res.Promedio },
+                  { style: "itemsTable", text: res.Turnos },
+                ];
+              }),
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      } else {
+        return {
+          style: "tableMargin",
+          table: {
+            headerRows: 1,
+            alignment: "center",
+            widths: ["*", "auto", "auto", "auto", "auto"],
+            body: [
+              [
+                { text: "Cajero(a)", style: "tableHeader" },
+                { text: "Servicio", style: "tableHeader" },
+                { text: "Subservicio", style: "tableHeader" },
+                { text: "Tiempo", style: "tableHeader" },
+                { text: "Turnos", style: "tableHeader" },
+              ],
+              ...servicio.map((res) => {
+                return [
+                  { style: "itemsTable", text: res.Nombre },
+                  { style: "itemsTable", text: res.Servicio },
+                  { style: "itemsTable", text: res.subservicio },
+                  { style: "itemsTable", text: res.Promedio },
+                  { style: "itemsTable", text: res.Turnos },
+                ];
+              }),
+            ],
+          },
+          layout: {
+            fillColor: function (rowIndex: any) {
+              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+            },
+          },
+        };
+      }
     }
+
+
   }
 
   generarPdfTiempoAtencion(action = "open", pdf: number) {
