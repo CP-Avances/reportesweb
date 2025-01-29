@@ -161,58 +161,124 @@ router.get("/evaluacion/resumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:se
     filtros += ` AND f.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' `;
     let grupo_order = ``;
     if (listaServicios != '0N' && listaSubservicios != '0N' && listaCajeros != '0N') {
-        grupo_order +=
-            `      
-          GROUP BY 
-            s.serv_nombre, f.eval_fecha, a.usua_codigo, ss.nombre
-          ORDER BY 
-            s.serv_nombre, f.eval_fecha DESC;
-        `;
+        if (verFecha === true) {
+            grupo_order +=
+                `      
+            GROUP BY 
+              s.serv_nombre, f.eval_fecha, a.usua_codigo, ss.nombre
+            ORDER BY 
+              s.serv_nombre, f.eval_fecha DESC;
+          `;
+        }
+        else {
+            grupo_order +=
+                `      
+            GROUP BY 
+              s.serv_nombre, a.usua_codigo, ss.nombre
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+        }
     }
     if (listaServicios != '0N' && listaSubservicios != '0N' && listaCajeros === '0N') {
-        grupo_order +=
-            `      
-          GROUP BY 
-            e.empr_nombre, s.serv_nombre, f.eval_fecha, ss.nombre
-          ORDER BY 
-            s.serv_nombre, f.eval_fecha DESC;
-        `;
+        if (verFecha === true) {
+            grupo_order +=
+                `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, f.eval_fecha, ss.nombre
+            ORDER BY 
+              s.serv_nombre, f.eval_fecha DESC;
+          `;
+        }
+        else {
+            grupo_order +=
+                `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, ss.nombre
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+        }
     }
     if (listaServicios != '0N' && listaSubservicios === '0N' && listaCajeros != '0N') {
-        grupo_order +=
-            `      
-          GROUP BY 
-            s.serv_nombre, f.eval_fecha, a.usua_codigo
-          ORDER BY 
-            s.serv_nombre, f.eval_fecha DESC;
-        `;
+        if (verFecha === true) {
+            grupo_order +=
+                `      
+            GROUP BY 
+              s.serv_nombre, f.eval_fecha, a.usua_codigo
+            ORDER BY 
+              s.serv_nombre, f.eval_fecha DESC;
+          `;
+        }
+        else {
+            grupo_order +=
+                `      
+            GROUP BY 
+              s.serv_nombre, a.usua_codigo
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+        }
     }
     if (listaServicios != '0N' && listaSubservicios === '0N' && listaCajeros === '0N') {
-        grupo_order +=
-            `      
-          GROUP BY 
-            e.empr_nombre, s.serv_nombre, f.eval_fecha
-          ORDER BY 
-            s.serv_nombre, f.eval_fecha DESC;
-        `;
+        if (verFecha === true) {
+            grupo_order +=
+                `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, f.eval_fecha
+            ORDER BY 
+              s.serv_nombre, f.eval_fecha DESC;
+          `;
+        }
+        else {
+            grupo_order +=
+                `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+        }
     }
     if (listaServicios === '0N' && listaSubservicios === '0N' && listaCajeros != '0N') {
-        grupo_order +=
-            `      
-          GROUP BY 
-             e.empr_nombre, f.eval_fecha, a.usua_codigo
-          ORDER BY 
-            f.eval_fecha DESC;
-        `;
+        if (verFecha === true) {
+            grupo_order +=
+                `      
+            GROUP BY 
+              e.empr_nombre, f.eval_fecha, a.usua_codigo
+            ORDER BY 
+              f.eval_fecha DESC;
+            `;
+        }
+        else {
+            grupo_order +=
+                `      
+            GROUP BY 
+              e.empr_nombre, a.usua_codigo
+            ORDER BY 
+              e.empr_nombre DESC;
+          `;
+        }
     }
     if (listaServicios === '0N' && listaSubservicios === '0N' && listaCajeros === '0N') {
-        grupo_order +=
-            `      
-          GROUP BY 
-            e.empr_nombre, f.eval_fecha
-          ORDER BY 
-            f.eval_fecha DESC;
-        `;
+        if (verFecha === true) {
+            grupo_order +=
+                `      
+            GROUP BY 
+              e.empr_nombre, f.eval_fecha
+            ORDER BY 
+              f.eval_fecha DESC;
+          `;
+        }
+        else {
+            grupo_order +=
+                `      
+            GROUP BY 
+              e.empr_nombre
+            ORDER BY 
+              e.empr_nombre DESC;
+          `;
+        }
     }
     let consulta = `
       SELECT 
@@ -229,7 +295,7 @@ router.get("/evaluacion/resumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:se
       ${filtros}
       ${grupo_order}
       `;
-    //console.log('consulta ', consulta)
+    console.log('consulta ', consulta);
     query = consulta;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
