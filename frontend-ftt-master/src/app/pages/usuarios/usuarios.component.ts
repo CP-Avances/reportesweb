@@ -495,6 +495,8 @@ export class UsuariosComponent implements OnInit {
 
   // METODO PARA LLAMAR CONSULTA DE DATOS
   limpiar() {
+    this.mostrar_resultado = false
+
     this.cajerosUsuarios = [];
     this.mostrarCajeros = false;
     this.selectedItems = [];
@@ -520,9 +522,13 @@ export class UsuariosComponent implements OnInit {
     this.estadoUsuario = 2;
     const activo = document.getElementById('activo') as HTMLInputElement;
     activo.checked = true;
-    this.mostrar_resultado = false
   }
 
+  verFecha: string = '1';
+  CambiarFecha(opcion: string) {
+    this.verFecha = opcion;
+    this.mostrar_resultado= false
+  }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
   comprobarBusquedaSucursales(cod: string) {
@@ -617,7 +623,7 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
+        .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario, this.verFecha)
         .subscribe(
           (servicio: any) => {
             this.mostrar_resultado = true;

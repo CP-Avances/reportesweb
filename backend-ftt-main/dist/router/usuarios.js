@@ -1036,7 +1036,7 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
         }
     });
 });
-router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros/:servicios/:subservicios/:estado", verifivarToken_1.TokenValidation, (req, res) => {
+router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros/:servicios/:subservicios/:estado/:fecha", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -1046,13 +1046,13 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
     const listaCajeros = req.params.cajeros;
     const cajerosArray = listaCajeros.split(",");
     const listaServicios = req.params.servicios;
-    console.log("ver listaServicios", listaServicios);
     const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    console.log("ver listaSubservicios", listaSubservicios);
     const subServiciosarray = listaSubservicios.split(",");
     const estado = req.params.estado;
-    console.log("ver estado", estado);
+    // VARIABLE QUE DEFINEN FECHA (1) O RANGO DE FECHAS (2)
+    const fecha = req.params.fecha;
+    let verFecha = true;
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
@@ -1078,6 +1078,10 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
     else {
         comprobarestado = `c.caje_estado = ${estado}`;
     }
+    // VALIDACION DE FECHAS
+    if (fecha === "2") {
+        verFecha = false;
+    }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
     }
@@ -1094,8 +1098,7 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
           ss.id AS id_subservicio, 
           ss.nombre AS subservicio,
           s.serv_nombre AS Servicio, 
-
-          DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha, 
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
           SUM(t.turn_estado = 1) AS Atendidos, 
           SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
           SUM(t.turn_estado != 0) AS Total
@@ -1121,14 +1124,14 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
         GROUP BY 
           e.empr_nombre, 
-          DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''}
           u.usua_nombre, 
           ss.id, 
           ss.nombre,
           s.serv_nombre
 
         ORDER BY 
-          Fecha DESC, 
+          ${verFecha ? `Fecha DESC,` : ''}
           Usuario ASC;
       `;
     }
@@ -1139,7 +1142,7 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
         e.empr_nombre AS nombreEmpresa,
         u.usua_nombre AS Usuario, 
         s.serv_nombre AS Servicio, 
-        DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha, 
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
         SUM(t.turn_estado = 1) AS Atendidos, 
         SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
         SUM(t.turn_estado != 0) AS Total
@@ -1163,12 +1166,12 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
       GROUP BY 
         e.empr_nombre, 
-        DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''}
         u.usua_nombre, 
         s.serv_nombre
 
       ORDER BY 
-        Fecha DESC, 
+          ${verFecha ? `Fecha DESC,` : ''}
         Usuario ASC;
     `;
     }
@@ -1178,7 +1181,7 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
         SELECT 
           e.empr_nombre AS nombreEmpresa,
           u.usua_nombre AS Usuario, 
-          DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha, 
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
           SUM(t.turn_estado = 1) AS Atendidos, 
           SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
           SUM(t.turn_estado != 0) AS Total
@@ -1199,11 +1202,11 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
         GROUP BY 
           e.empr_nombre, 
-          DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''}
           u.usua_nombre 
       
         ORDER BY 
-          Fecha DESC, 
+          ${verFecha ? `Fecha DESC,` : ''}
           Usuario ASC;
       `;
     }
