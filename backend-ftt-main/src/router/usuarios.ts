@@ -471,7 +471,8 @@ router.get(
           u.usua_codigo != 2
           AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}          ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
+          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}          
+          ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY 
@@ -626,21 +627,36 @@ router.get("/tiempopromedioatencion", TokenValidation, (req: Request, res: Respo
  ** ************************************************************************************************************ **/
 
 router.get(
-  "/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales", TokenValidation,
+  "/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:listaCodigos/:estado", TokenValidation,
   (req: Request, res: Response) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
     const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
+    const listaCodigos = req.params.listaCodigos;
+    const codigosArray = listaCodigos.split(",");
     const sucursalesArray = listaSucursales.split(",");
 
     let todasSucursales = false;
     let diaCompleto = false;
     let hFinAux = 0;
+    let todosCajeros = false;
+    const estado = req.params.estado;
+    console.log("ver estado", estado)
+
+    if (codigosArray.includes("-2")) {
+      todosCajeros = true
+    }
 
     if (sucursalesArray.includes("-1")) {
       todasSucursales = true
+    }
+    let comprobarestado = ''
+    if (estado == '3') {
+      comprobarestado = `c.caje_estado != 0`
+    } else {
+      comprobarestado = `c.caje_estado = ${estado}`
     }
 
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
@@ -661,10 +677,15 @@ router.get(
             WHEN 3 THEN 'Entrada Emisión'
           ELSE 'Salida Emisión'
           END AS Razon
-        FROM registro r, usuarios u, empresa e
+        FROM 
+        registro r, empresa e,
+        usuarios u
+        INNER JOIN 
+        cajero c ON u.usua_codigo = c.usua_codigo
         WHERE r.usua_codigo = u.usua_codigo
           ${todasSucursales ? 'AND u.empr_codigo = e.empr_codigo' : `AND u.empr_codigo IN (${listaSucursales})`}
           AND reg_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}         
           ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
           AND u.usua_codigo != 2
         ORDER BY fecha DESC, hora DESC;

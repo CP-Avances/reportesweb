@@ -78,7 +78,25 @@ export class UsuariosComponent implements OnInit {
   sucursales: any[];
   serviciosServs: any = [];
   subservicios: any[];
-  mostrar_resultado = false
+  mostrar_resultado = false;
+
+  onSelectionChange() {
+    this.mostrar_resultado = false;
+    if (!this.serviciosSeleccionadas || this.serviciosSeleccionadas.length === 0) {
+      this.mostrarSubservicios = false;
+      this.selectAll('serviciosSeleccionadas');
+    }
+  }
+
+  onSelectionChangeSucursal() {
+    this.mostrar_resultado = false;
+    if (!this.sucursalesSeleccionadas || this.sucursalesSeleccionadas.length === 0) {
+      this.mostrarCajeros = false;
+      this.mostrarServicios = false;
+      this.selectAll('sucursalesSeleccionadas');
+    }
+  }
+
   mostrarServicios: boolean = false;
   mostrarSubservicios: boolean = false;
 
@@ -323,6 +341,7 @@ export class UsuariosComponent implements OnInit {
   }
 
   selectAll(opcion: string) {
+    this.mostrar_resultado = false
     switch (opcion) {
       case 'allSelected':
         this.allSelected = !this.allSelected;
@@ -341,6 +360,7 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'todasSucursalesES':
         this.todasSucursalesES = !this.todasSucursalesES;
+        this.todasSucursalesES ? this.getCajeros(this.sucursalesSeleccionadas) : null;
         break;
       case 'todasSucursalesTPA':
         this.todasSucursalesTPA = !this.todasSucursalesTPA;
@@ -356,7 +376,7 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'sucursalesSeleccionadas':
         this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-        this.sucursalesSeleccionadas.length > 0 ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : null;
+        this.sucursalesSeleccionadas.length > 0 ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : this.cajerosUsuarios = [], this.serviciosServs = [];
         break;
       case 'todasServiciosTF':
         this.todasServiciosTF = !this.todasServiciosTF;
@@ -364,7 +384,7 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'serviciosSeleccionadas':
         this.seleccionMultipleServicios = this.serviciosSeleccionadas.length > 1;
-        this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : null;
+        this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : this.subservicios = [];
         break;
       case 'todasSubServiciosTF':
         this.seleccionMultipleSubServicios = !this.seleccionMultipleSubServicios;
@@ -438,15 +458,20 @@ export class UsuariosComponent implements OnInit {
 
   getSub_servicios(servicio: any) {
     this.serviceService.getAllSubservicios(servicio).subscribe((subservicios: any) => {
+      console.log("entro a buscacr subservicio")
+
       this.subservicios = subservicios.servicios;
       this.mostrarSubservicios = true;
     },
       (error) => {
+        console.log("entro a error de subservicio")
         if (error.status == 400) {
           this.subservicios = [];
           this.mostrarSubservicios = false;
         }
       });
+
+
   }
 
   // METODO PARA SELCCIONAR ESTADO DE USUARIOS
@@ -859,6 +884,7 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+
   buscarAtencionUsuario() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateAtencionUsua.nativeElement.value
@@ -891,9 +917,7 @@ export class UsuariosComponent implements OnInit {
               this.servicioAtencionUsua = null;
               this.malRequestAU = true;
               this.malRequestAUPag = true;
-              /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-               *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-               **/
+
               if (this.servicioAtencionUsua == null) {
                 this.configAU.totalItems = 0;
               } else {
@@ -911,15 +935,11 @@ export class UsuariosComponent implements OnInit {
           }
         );
     } else {
-      /** SI SE SELECCIONA EL ELEMENTO POR DEFECTO DE SELECT SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE
-       *  INTERFAZ SE VACIA VARIABLE DE CONSULTA
-       **/
+
       this.servicioAtencionUsua = null;
       this.malRequestAU = true;
       this.malRequestAUPag = true;
-      /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-       *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-       **/
+
       if (this.servicioAtencionUsua == null) {
         this.configAU.totalItems = 0;
       } else {
@@ -932,6 +952,7 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+
   leerEntradasSalidasSistema() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     let fechaDesde = this.fromDateUES.nativeElement.value.toString().trim();
@@ -941,9 +962,10 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getentradassalidasistema(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas)
+        .getentradassalidasistema(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
+            this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioEntradaSalida = servicio.turnos;
             this.malRequestES = false;
@@ -1010,30 +1032,174 @@ export class UsuariosComponent implements OnInit {
     return date;
   }
 
-  exportarAExcelEntradaSalida() {
+  async exportarAExcelEntradaSalida() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Entradas - salidas");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - ENTRADAS-SALIDAS'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateUES.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateUES.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
     let jsonServicio: any = [];
     if (this.todasSucursalesES || this.seleccionMultiple) {
       for (let i = 0; i < this.servicioEntradaSalida.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioEntradaSalida[i].nombreEmpresa,
-          "Cajero(a)": this.servicioEntradaSalida[i].Usuario,
-          Fecha: this.addOneDay(new Date(this.servicioEntradaSalida[i].fecha)),
-          Hora: this.servicioEntradaSalida[i].hora,
-          Razón: this.servicioEntradaSalida[i].Razon,
-        });
+        jsonServicio.push([
+          this.servicioEntradaSalida[i].nombreEmpresa,
+          this.servicioEntradaSalida[i].Usuario,
+          this.addOneDay(new Date(this.servicioEntradaSalida[i].fecha)),
+          this.servicioEntradaSalida[i].hora,
+          this.servicioEntradaSalida[i].Razon,
+        ]
+        );
       }
+
+      worksheet.columns = [
+        { key: "sucursal", width: 50 },
+        { key: "cajero", width: 20 },
+        { key: "fecha", width: 50 },
+        { key: "hora", width: 50 },
+        { key: "razon", width: 20 },
+      ]
+
+      const columnas = [
+        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+        { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
+        { name: "RAZON", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "UsuariosexcelTabla",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 5; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
     } else {
       for (let i = 0; i < this.servicioEntradaSalida.length; i++) {
-        jsonServicio.push({
-          "Cajero(a)": this.servicioEntradaSalida[i].Usuario,
-          Fecha: this.addOneDay(new Date(this.servicioEntradaSalida[i].fecha)),
-          Hora: this.servicioEntradaSalida[i].hora,
-          Razón: this.servicioEntradaSalida[i].Razon,
-        });
+        jsonServicio.push([
+          this.servicioEntradaSalida[i].Usuario,
+          this.addOneDay(new Date(this.servicioEntradaSalida[i].fecha)),
+          this.servicioEntradaSalida[i].hora,
+          this.servicioEntradaSalida[i].Razon,
+        ])
       }
+
+      worksheet.columns = [
+        { key: "cajero", width: 20 },
+        { key: "fecha", width: 50 },
+        { key: "hora", width: 50 },
+        { key: "razon", width: 20 },
+      ]
+
+      const columnas = [
+        { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
+        { name: "RAZON", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "UsuariosexcelTabla",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 4; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
     }
+
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, "Entradas y salidas - " +
+      nombreSucursal +
+      " - " +
+      new Date().toLocaleString() +
+      EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
+    }
+
+/*
     // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -1054,6 +1220,7 @@ export class UsuariosComponent implements OnInit {
       new Date().toLocaleString() +
       EXCEL_EXTENSION
     );
+    */
   }
 
   async ExportTOExcelTurnosFecha() {
@@ -2503,7 +2670,7 @@ export class UsuariosComponent implements OnInit {
         { key: "cliente", width: 50 },
         { key: "turno", width: 20 },
         { key: "TiempoEspera", width: 20 },
-        { key: "TiempoAtencion", width: 20 },      
+        { key: "TiempoAtencion", width: 20 },
       ]
 
       const columnas = [
@@ -2552,7 +2719,7 @@ export class UsuariosComponent implements OnInit {
     try {
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: "application/octet-stream" });
-      FileSaver.saveAs(blob,  "Tiempo de atencion - " +
+      FileSaver.saveAs(blob, "Tiempo de atencion - " +
         nombreSucursal +
         " - " +
         new Date().toLocaleString() +
@@ -2563,6 +2730,7 @@ export class UsuariosComponent implements OnInit {
 
   }
 
+  /*
   exportarAExcelAtencionUsuario() {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
@@ -2612,6 +2780,7 @@ export class UsuariosComponent implements OnInit {
       EXCEL_EXTENSION
     );
   }
+    */
 
   validarHoras(hInicio: any, hFin: any) {
     let diaCompleto: boolean = false;
@@ -4015,7 +4184,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Sucursal", style: "tableHeader" },
@@ -4024,6 +4193,7 @@ export class UsuariosComponent implements OnInit {
               { text: "Hora", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Subservicio", style: "tableHeader" },
+              { text: "Cliente", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
               { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
@@ -4036,6 +4206,7 @@ export class UsuariosComponent implements OnInit {
                 { style: "itemsTable", text: res.hora },
                 { style: "itemsTable", text: res.Servicio },
                 { style: "itemsTable", text: res.subservicio },
+                { style: "itemsTable", text: res.cliente },
                 { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
@@ -4055,7 +4226,7 @@ export class UsuariosComponent implements OnInit {
         table: {
           headerRows: 1,
           alignment: "center",
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
           body: [
             [
               { text: "Cajero(a)", style: "tableHeader" },
@@ -4063,6 +4234,7 @@ export class UsuariosComponent implements OnInit {
               { text: "Hora", style: "tableHeader" },
               { text: "Servicio", style: "tableHeader" },
               { text: "Subservicio", style: "tableHeader" },
+              { text: "Cliente", style: "tableHeader" },
               { text: "Turno", style: "tableHeader" },
               { text: "Tiempo de espera", style: "tableHeader" },
               { text: "Tiempo de atención", style: "tableHeader" },
@@ -4074,6 +4246,7 @@ export class UsuariosComponent implements OnInit {
                 { style: "itemsTable", text: res.hora },
                 { style: "itemsTable", text: res.Servicio },
                 { style: "itemsTable", text: res.subervicio },
+                { style: "itemsTable", text: res.cliente },
                 { style: "itemsTable", text: res.turno },
                 { style: "itemsTable", text: res.espera },
                 { style: "itemsTable", text: res.atencion },
@@ -4300,6 +4473,7 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+  /*
   generarPdfAtencionUsuario(action = "open", pdf: number) {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.fromDateAtencionUsua.nativeElement.value
@@ -4334,6 +4508,7 @@ export class UsuariosComponent implements OnInit {
         break;
     }
   }
+    */
 
   // FUNCION DELEGADA PARA SETEO DE INFORMACION en estructura
   getDocumentAtencionUsuario(fechaDesde: any, fechaHasta: any) {

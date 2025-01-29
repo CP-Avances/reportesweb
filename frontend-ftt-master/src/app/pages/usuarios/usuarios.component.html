@@ -33,12 +33,14 @@
                         TIEMPO DE ATENCIÓN POR TURNOS
                     </a>
                 </li>
+                <!--
                 <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="atencionusuario-tab" data-toggle="tab" href="#atencionusuario" role="tab"
                         aria-controls="atencionusuario" aria-selected="false">
                         ATENCIÓN AL USUARIO
                     </a>
                 </li>
+                -->
                 <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
                         aria-controls="contact" aria-selected="false">
@@ -57,21 +59,25 @@
                                     <div>
                                         <label for="fromDateTurnosFecha">Fecha desde: &nbsp;</label>
                                         <input type="date" id="fromDateTurnosFecha" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateTurnosFecha" #fromDateTurnosFecha><br><br>
+                                            name="fromDateTurnosFecha" #fromDateTurnosFecha
+                                            (change)="mostrar_resultado = false"><br><br>
                                     </div>
                                     <div>
                                         <label for="toDateTurnosFecha">Fecha hasta: &nbsp;</label>
                                         <input type="date" id="toDateTurnosFecha" value="{{toDate}}" [max]="toDate"
-                                            name="toDateTurnosFecha" #toDateTurnosFecha>
+                                            name="toDateTurnosFecha" #toDateTurnosFecha
+                                            (change)="mostrar_resultado = false">
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioTF>
+                                    <select class="form-control" name="selectmake" #horaInicioTF
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Inicio</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinTF>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTF
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Fin</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
@@ -98,7 +104,7 @@
 
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales"
-                                    (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChangeSucursal()">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTF')">
                                         Todas las sucursales
                                     </mat-option>
@@ -121,7 +127,7 @@
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(value)]="serviciosSeleccionadas" placeholder="Servicios"
-                                    (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChange()">
                                     <mat-option *ngIf="mostrarServicios" [value]="-1"
                                         (click)="selectAll('todasServiciosTF')">
                                         Todos los servicios
@@ -218,22 +224,25 @@
                                     <div>
                                         <label for="fromDateTurnosTotalFecha">Fecha desde: &nbsp;</label>
                                         <input type="date" id="fromDateTurnosTotalFecha" value="{{fromDate}}"
-                                            [max]="toDate" name="fromDateTurnosTotalFecha"
-                                            #fromDateTurnosTotalFecha><br><br>
+                                            [max]="toDate" name="fromDateTurnosTotalFecha" #fromDateTurnosTotalFecha
+                                            (change)="mostrar_resultado = false"><br><br>
                                     </div>
                                     <div>
                                         <label for="toDateTurnosTotalFecha">Fecha hasta: &nbsp;</label>
                                         <input type="date" id="toDateTurnosTotalFecha" value="{{toDate}}" [max]="toDate"
-                                            name="toDateTurnosTotalFecha" #toDateTurnosTotalFecha>
+                                            name="toDateTurnosTotalFecha" #toDateTurnosTotalFecha
+                                            (change)="mostrar_resultado = false">
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioTTF>
+                                    <select class="form-control" name="selectmake" #horaInicioTTF
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Inicio</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinTTF>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTTF
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Fin</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
@@ -259,7 +268,7 @@
                                 </fieldset>
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales"
-                                    (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChangeSucursal()">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTTF')">
                                         Todas las sucursales
                                     </mat-option>
@@ -282,7 +291,7 @@
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(value)]="serviciosSeleccionadas" placeholder="Servicios"
-                                    (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChange()">
                                     <mat-option *ngIf="mostrarServicios" [value]="-1"
                                         (click)="selectAll('todasServiciosTF')">
                                         Todos los servicios
@@ -360,13 +369,13 @@
                                 </tr>
                                 <tr>
                                     <td *ngIf="todasSucursalesTTF || seleccionMultiple">
-                                        </td>
-                                    <td> </td>
-                                    <td *ngIf="todasServiciosTF || seleccionMultipleServicios"></td>
-                                    <td *ngIf="seleccionMultipleSubServicios"> 
                                     </td>
                                     <td> </td>
-                                    <td>  </td>
+                                    <td *ngIf="todasServiciosTF || seleccionMultipleServicios"></td>
+                                    <td *ngIf="seleccionMultipleSubServicios">
+                                    </td>
+                                    <td> </td>
+                                    <td> </td>
                                     <td> Total:</td>
                                     <td> {{suma}} </td>
                                 </tr>
@@ -398,21 +407,25 @@
                                     <div>
                                         <label for="fromDateTurnosMeta">Fecha desde: &nbsp;</label>
                                         <input type="date" id="fromDateTurnosMeta" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateTurnosMeta" #fromDateTurnosMeta><br><br>
+                                            name="fromDateTurnosMeta" #fromDateTurnosMeta
+                                            (change)="mostrar_resultado = false"><br><br>
                                     </div>
                                     <div>
                                         <label for="toDateTurnosMeta">Fecha hasta: &nbsp;</label>
                                         <input type="date" id="toDateTurnosMeta" value="{{toDate}}" [max]="toDate"
-                                            name="toDateTurnosMeta" #toDateTurnosMeta>
+                                            name="toDateTurnosMeta" #toDateTurnosMeta
+                                            (change)="mostrar_resultado = false">
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioTM>
+                                    <select class="form-control" name="selectmake" #horaInicioTM
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Inicio</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinTM>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTM
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Fin</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
@@ -438,7 +451,7 @@
                                 </fieldset>
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales"
-                                    (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChangeSucursal()">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTM')">
                                         Todas las sucursales
                                     </mat-option>
@@ -462,7 +475,7 @@
 
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(value)]="serviciosSeleccionadas" placeholder="Servicios"
-                                    (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChange()">
                                     <mat-option *ngIf="mostrarServicios" [value]="-1"
                                         (click)="selectAll('todasServiciosTF')">
                                         Todos los servicios
@@ -558,21 +571,25 @@
                                     <div>
                                         <label for="fromDatePromAtencion">Fecha desde:&nbsp;</label>
                                         <input type="date" id="fromDatePromAtencion" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDatePromAtencion" #fromDatePromAtencion><br><br>
+                                            name="fromDatePromAtencion" #fromDatePromAtencion
+                                            (change)="mostrar_resultado = false"><br><br>
                                     </div>
                                     <div>
                                         <label for="toDatePromAtencion">Fecha hasta:&nbsp;</label>
                                         <input type="date" id="toDatePromAtencion" value="{{toDate}}" [max]="toDate"
-                                            name="toDatePromAtencion" #toDatePromAtencion>
+                                            name="toDatePromAtencion" #toDatePromAtencion
+                                            (change)="mostrar_resultado = false">
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioTPA>
+                                    <select class="form-control" name="selectmake" #horaInicioTPA
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Inicio</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinTPA>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTPA
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Fin</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
@@ -598,7 +615,7 @@
                                 </fieldset>
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(value)]="sucursalesSeleccionadas" placeholder="Sucursales"
-                                    (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChangeSucursal()">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTPA')">
                                         Todas las sucursales
                                     </mat-option>
@@ -622,15 +639,14 @@
 
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(value)]="serviciosSeleccionadas" placeholder="Servicios"
-                                    (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChange()">
                                     <mat-option *ngIf="mostrarServicios" [value]="-1"
                                         (click)="selectAll('todasServiciosTF')">
                                         Todos los servicios
                                     </mat-option>
                                     <mat-option *ngFor="let serviciosServs of serviciosServs"
                                         [value]="serviciosServs.serv_codigo"
-                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF"
-                                        (selectionChange)="mostrar_resultado = false">
+                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
                                         {{serviciosServs.serv_nombre}}
                                         <span style="font-size: x-small;">
                                             ({{serviciosServs.empresa}})
@@ -718,22 +734,25 @@
                                     <div>
                                         <label for="fromDateTiempoAtencion">Fecha desde:&nbsp;</label>
                                         <input type="date" id="fromDateTiempoAtencion" value="{{fromDate}}"
-                                            [max]="toDate" name="fromDateTiempoAtencion"
-                                            #fromDateTiempoAtencion><br><br>
+                                            [max]="toDate" name="fromDateTiempoAtencion" #fromDateTiempoAtencion
+                                            (change)="mostrar_resultado = false"><br><br>
                                     </div>
                                     <div>
                                         <label for="toDateTiempoAtencion">Fecha hasta:&nbsp;</label>
                                         <input type="date" id="toDateTiempoAtencion" value="{{toDate}}" [max]="toDate"
-                                            name="toDateTiempoAtencion" #toDateTiempoAtencion>
+                                            name="toDateTiempoAtencion" #toDateTiempoAtencion
+                                            (change)="mostrar_resultado = false">
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioTA>
+                                    <select class="form-control" name="selectmake" #horaInicioTA
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Inicio</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinTA>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinTA
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Fin</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
@@ -758,7 +777,8 @@
                                     </div>
                                 </fieldset>
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales"
+                                    (selectionChange)="onSelectionChangeSucursal()">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesTA')">
                                         Todas las sucursales
                                     </mat-option>
@@ -781,7 +801,7 @@
                                 <br><br>
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(value)]="serviciosSeleccionadas" placeholder="Servicios"
-                                    (selectionChange)="mostrar_resultado = false" (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="onSelectionChange()">
                                     <mat-option *ngIf="mostrarServicios" [value]="-1"
                                         (click)="selectAll('todasServiciosTF')">
                                         Todos los servicios
@@ -798,7 +818,7 @@
 
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios"
-                                    (selectionChange)="mostrar_resultado = false" (selectionChange)="mostrar_resultado = false">
+                                    (selectionChange)="mostrar_resultado = false">
                                     <mat-option *ngIf="mostrarSubservicios" [value]="-1"
                                         (click)="selectAll('todasSubServiciosTF')">
                                         Todas las subservicios
@@ -854,19 +874,18 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <pagination-controls *ngIf="!malRequestTAPag" 
-                        id="usuariosTA"
-                        [previousLabel]="labels.previousLabel" 
-                        [currentPage]="configTA.currentPage"
-                        [nextLabel]="labels.nextLabel"
-                        (pageChange)="pageChangedTA($event)">
+                        <pagination-controls *ngIf="!malRequestTAPag" id="usuariosTA"
+                            [previousLabel]="labels.previousLabel" [currentPage]="configTA.currentPage"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedTA($event)">
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelTiempoAtencion()"  *ngIf="mostrar_resultado">
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelTiempoAtencion()"
+                        *ngIf="mostrar_resultado">
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfTiempoAtencion('hola', 1)"  *ngIf="mostrar_resultado">
+                    <button type="button" class="btn btn-info" (click)="generarPdfTiempoAtencion('hola', 1)"
+                        *ngIf="mostrar_resultado">
                         PDF
                     </button>
                 </div>
@@ -882,21 +901,24 @@
                                     <div>
                                         <label for="fromDateUES">Fecha desde: &nbsp;</label>
                                         <input type="date" id="fromDateUES" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateUES" #fromDateUES><br><br>
+                                            name="fromDateUES" #fromDateUES
+                                            (change)="mostrar_resultado = false"><br><br>
                                     </div>
                                     <div>
                                         <label for="toDateUES">Fecha hasta: &nbsp;</label>
                                         <input type="date" id="toDateUES" value="{{toDate}}" [max]="toDate"
-                                            name="toDateUES" #toDateUES>
+                                            name="toDateUES" #toDateUES (change)="mostrar_resultado = false">
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioES>
+                                    <select class="form-control" name="selectmake" #horaInicioES
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Inicio</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinES>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinES
+                                        (change)="mostrar_resultado = false">
                                         <option value="-1" selected>Hora Fin</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
@@ -904,14 +926,42 @@
                                 </div>
                             </div>
                             <div class="col-6">
+                                <fieldset>
+                                    <label>Estado de los usuarios</label>
+                                    <div>
+                                        <input type="radio" id="activo6" class="radio-col-light-blue" name="estado6"
+                                            [value]="2" (click)="CambiarEstado(2)" checked>
+                                        <label for="activo6">Activos</label>
+
+                                        <input type="radio" id="inactivo6" class="radio-col-light-blue" name="estado6"
+                                            [value]="1" (click)="CambiarEstado(1)">
+                                        <label for="inactivo6">Inactivos</label>
+
+                                        <input type="radio" id="todos6" class="radio-col-light-blue" name="estado6"
+                                            [value]="3" (click)="CambiarEstado(3)">
+                                        <label for="todos6">Todos</label>
+                                    </div>
+                                </fieldset>
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales"
+                                    (selectionChange)="onSelectionChangeSucursal()">
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesES')">
                                         Todas las sucursales
                                     </mat-option>
                                     <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
                                         (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesES">
                                         {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                                <br><br>
+                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
+                                    placeholder="Cajeros" (selectionChange)="mostrar_resultado = false">
+                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
+                                        Todos los cajeros
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo"
+                                        [disabled]="allSelected">
+                                        {{option.caje_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
@@ -925,7 +975,7 @@
                     <br>
                     <h3>ENTRADAS Y SALIDAS</h3>
                     <hr>
-                    <div class="table-responsive">
+                    <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table id="contentEntradaSalida" class="table table-striped" #contentEntradaSalida
                             #tableEntradaSalida>
                             <thead class="thead-dark">
@@ -956,16 +1006,17 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEntradaSalida()">
+                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEntradaSalida()" *ngIf="mostrar_resultado">
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfEntradaSalida('hola', 1)">
+                    <button type="button" class="btn btn-info" (click)="generarPdfEntradaSalida('hola', 1)" *ngIf="mostrar_resultado">
                         PDF
                     </button>
                 </div>
 
                 <!-- *********************************** ATENCION AL USUARIO *************************************** -->
 
+                <!--
                 <div class="tab-pane fade" id="atencionusuario" role="tabpanel" aria-labelledby="atencionusuario-tab">
                     <br><br>
                     <div class="container">
@@ -998,7 +1049,7 @@
                             </div>
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
+                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales" (selectionChange)="onSelectionChangeSucursal()" >
                                     <mat-option [value]="-1" (click)="selectAll('todasSucursalesAU')">
                                         Todas las sucursales
                                     </mat-option>
@@ -1071,6 +1122,7 @@
                         PDF
                     </button>
                 </div>
+                -->
             </div>
         </form>
     </div>

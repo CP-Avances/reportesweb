@@ -144,7 +144,7 @@ export class ServiceService {
     }
   }
 
-  getturnosAtencion(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any,  servicios: any, subservicios: any, estado: any): Observable<servicio[]> {
+  getturnosAtencion(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, servicios: any, subservicios: any, estado: any): Observable<servicio[]> {
     if (servicios.length == 0) {
       return this.http.get<servicio[]>(this.URL + "/tiempoatencionturnos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + 0 + "/" + 0 + "/" + estado);
 
@@ -157,8 +157,8 @@ export class ServiceService {
 
   }
 
-  getentradassalidasistema(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/entradasalidasistema/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales);
+  getentradassalidasistema(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, listaCodigos: any, estado: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/entradasalidasistema/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + listaCodigos + "/" + estado);
   }
 
   getatencionusuario(): Observable<servicio[]> {
