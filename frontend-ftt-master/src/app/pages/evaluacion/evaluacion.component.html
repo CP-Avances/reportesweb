@@ -6,19 +6,13 @@
                 <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link active" id="servicio-tab" data-toggle="tab" href="#servicio" role="tab"
                         aria-controls="servicio" aria-selected="true">
-                        EVALUACIÓN POR FECHA
+                        RESUMEN EVALUACIÓN
                     </a>
                 </li>
                 <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="tiempromat-tab" data-toggle="tab" href="#tiempromat" role="tab"
                         aria-controls="tiempromat" aria-selected="false">
-                        EVALUACIÓN POR RANGO DE FECHAS
-                    </a>
-                </li>
-                <li class="nav-item" (click)="LimpiarFormularios()">
-                    <a class="nav-link" id="omitidas-tab" data-toggle="tab" href="#omitidas" role="tab"
-                        aria-controls="omitidas" aria-selected="false">
-                        EVALUACIONES OMITIDAS
+                        EVALUACIÓN POR TURNOS
                     </a>
                 </li>
                 <li class="nav-item" (click)="LimpiarFormularios()">
@@ -30,7 +24,7 @@
             </ul>
 
             <div class="tab-content" id="myTabContent">
-                <!--  *****************   CONSULTA RESUMEN DE EVALUACIONES POR CADA FECHA  ********************  -->
+                <!--  *****************   CONSULTA RESUMEN DE EVALUACIONES  ********************  -->
                 <div class="tab-pane fade show active" id="servicio" role="tabpanel" aria-labelledby="servicio-tab">
                     <br><br>
                     <div class="container">
@@ -38,28 +32,40 @@
                             <div class="col-4">
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
-                                        <label for="fromDateServicios">Fecha desde:</label>
-                                        <input type="date" id="fromDateServicios" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateServicios" #fromDateServicios><br><br>
+                                        <label for="desdeRE">Fecha desde:</label>
+                                        <input type="date" id="desdeRE" value="{{fromDate}}" [max]="toDate"
+                                            name="desdeRE" #desdeRE><br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateServicios">Fecha hasta:</label>
-                                        <input type="date" id="toDateServicios" value="{{toDate}}" [max]="toDate"
-                                            name="toDateServicios" #toDateServicios>
+                                        <label for="hastaRE">Fecha hasta:</label>
+                                        <input type="date" id="hastaRE" value="{{toDate}}" [max]="toDate" name="hastaRE"
+                                            #hastaRE>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioS>
+                                    <select class="form-control" name="selectmake" #horaInicioRE>
                                         <option value="-1" selected>Hora Inicio</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinS>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinRE>
                                         <option value="-1" selected>Hora Fin</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
                                 </div>
+                                <br>
+                                <fieldset>
+                                    <div>
+                                        <input type="radio" id="fecha" class="radio-col-light-blue" name="verfecha"
+                                            [value]="'1'" (click)="CambiarFecha('1')" checked>
+                                        <label for="fecha">Presentar Fecha</label>
+
+                                        <input type="radio" id="rango" class="radio-col-light-blue" name="verfecha"
+                                            [value]="'2'" (click)="CambiarFecha('2')">
+                                        <label for="rango">Rango de fechas</label>
+                                    </div>
+                                </fieldset>
                             </div>
                             <div class="col-8">
                                 <fieldset>
@@ -117,7 +123,7 @@
                                                 Todos los servicios
                                             </mat-option>
                                             <mat-option style="font-size: 12px;"
-                                                *ngFor="let serviciosServs of serviciosServs"
+                                                *ngFor="let serviciosServs of listaServicios"
                                                 [value]="serviciosServs.serv_codigo" [disabled]="todosServicios"
                                                 (click)="selectAll('serviciosSeleccionados')">
                                                 {{serviciosServs.serv_nombre}}
@@ -143,7 +149,7 @@
                                     </div>
                                 </div>
                                 <br>
-                                <button type="button" class="btn btn-search" (click)="BuscarEvaluacionFechas()">
+                                <button type="button" class="btn btn-search" (click)="BuscarResumenEvaluacion()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
                                 </button>
@@ -151,10 +157,9 @@
                         </div>
                     </div>
                     <br>
-
-                    <h3>EVALUACIÓN POR SERVICIOS</h3>
+                    <h3>RESUMEN EVALUACIÓN</h3>
                     <hr>
-                    <div class="table-responsive" id="contentServicios" #contentServicios #tableServicios>
+                    <div class="table-responsive" id="contentResumenE" #contentResumenE #tableResumenE>
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
@@ -162,7 +167,7 @@
                                     <th scope="col" class="text-center" *ngIf="verCajero">Cajero(a)</th>
                                     <th scope="col" class="text-center" *ngIf="verServicio">Servicio</th>
                                     <th scope="col" class="text-center" *ngIf="verSubservicio">Subservicio</th>
-                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center" *ngIf="verFecha === '1'">Fecha</th>
                                     <th scope="col" class="text-center">Excelente</th>
                                     <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
                                     <th scope="col" class="text-center">Bueno</th>
@@ -173,19 +178,19 @@
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestS">
-                                <tr *ngFor="let servicioServs of servicioServs | paginate:configS">
-                                    <td>{{servicioServs.nombreEmpresa}}</td>
-                                    <td *ngIf="verCajero">{{servicioServs.Usuario}}</td>
-                                    <td *ngIf="verServicio">{{servicioServs.Servicio}}</td>
-                                    <td *ngIf="verSubservicio">{{servicioServs.subservicio}}</td>
-                                    <td>{{servicioServs.Fecha}}</td>
-                                    <td>{{servicioServs.Excelente}}</td>
-                                    <td *ngIf="!opcionCuatro">{{servicioServs.Muy_Bueno}}</td>
-                                    <td>{{servicioServs.Bueno}}</td>
-                                    <td>{{servicioServs.Regular}}</td>
-                                    <td>{{servicioServs.Malo}}</td>
-                                    <td>{{servicioServs.Total}}</td>
-                                    <td>{{servicioServs.Promedio}}</td>
+                                <tr *ngFor="let resumen of resumenEvaluacion | paginate:configS">
+                                    <td>{{resumen.nombreEmpresa}}</td>
+                                    <td *ngIf="verCajero">{{resumen.Usuario}}</td>
+                                    <td *ngIf="verServicio">{{resumen.Servicio}}</td>
+                                    <td *ngIf="verSubservicio">{{resumen.subservicio}}</td>
+                                    <td *ngIf="verFecha === '1'">{{resumen.Fecha}}</td>
+                                    <td>{{resumen.Excelente}}</td>
+                                    <td *ngIf="!opcionCuatro">{{resumen.Muy_Bueno}}</td>
+                                    <td>{{resumen.Bueno}}</td>
+                                    <td>{{resumen.Regular}}</td>
+                                    <td>{{resumen.Malo}}</td>
+                                    <td>{{resumen.Total}}</td>
+                                    <td>{{resumen.Promedio}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -200,150 +205,220 @@
                     <button type="button" class="btn btn-info" (click)="GenerarPDFEvaluacionFechas('hola', 1)">
                         PDF
                     </button>
-
-                </div>
-
-                <div class="tab-pane fade" id="tiempromat" role="tabpanel" aria-labelledby="tiempromat-tab">
                     <br><br>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="contenedor-fechas mt-2 mb-2">
-                                    <div>
-                                        <label for="fromDateDesdeEvalEmpl">Fecha desde:</label>
-                                        <input type="date" id="fromDateDesdeEvalEmpl" value="{{fromDate}}"
-                                            [max]="toDate" name="fromDateDesdeEvalEmpl" #fromDateDesdeEvalEmpl><br><br>
-                                    </div>
-                                    <div>
-                                        <label for="toDateHastaEvalEmpl">Fecha hasta:</label>
-                                        <input type="date" id="toDateHastaEvalEmpl" value="{{toDate}}" [max]="toDate"
-                                            name="toDateHastaEvalEmpl" #toDateHastaEvalEmpl>
-                                    </div>
+                    <h3>GRÁFICO EVALUACIÓN</h3>
+                    <div class="row">
+                        <div class="col-md">
+                            <fieldset>
+                                <div>
+                                    <label>Orientación de la página</label>
+                                    <br>
+                                    <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
+                                        value="portrait" (click)="CambiarOrientacion('portrait')" checked>
+                                    <label for="vertical">Vertical</label>
+
+                                    <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
+                                        value="landscape" (click)="CambiarOrientacion('landscape')">
+                                    <label for="horizontal">Horizontal</label>
                                 </div>
-                                <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioC>
-                                        <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinC>
-                                        <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursales')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursales">
-                                        {{sucursal.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('')">
-                                        Todos los cajeros
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of cajerosEval" [value]="option.caje_codigo"
-                                        [disabled]="allSelected">
-                                        {{option.caje_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <button type="button" class="btn btn-search" (click)="buscarEvalEmpl()">
-                                    <span class="glyphicon glyphicon-filter"></span> Buscar
+                            </fieldset>
+                        </div>
+                        <div class="col-md">
+                            <label>Tipo de gráfico</label>
+                            <div>
+                                <button type="button" class="btn btn-info mx-2" (click)="CambiarGrafico('pie')">
+                                    PASTEL
+                                </button>
+                                <button type="button" class="btn btn-info" (click)="CambiarGrafico('bar')">
+                                    BARRAS
                                 </button>
                             </div>
                         </div>
                     </div>
                     <br>
-                    <h3>EVALUACIÓN POR CAJERO</h3>
+                    <div id="canvasCont" *ngIf="!malRequestS">
+                        <h3>RESUMEN DE EVALUACIÓN</h3><br>
+                        <canvas id="canvas">{{chart}}</canvas>
+                    </div>
+                </div>
+
+                <!--  *****************   CONSULTA EVALUACIONES POR TURNOS  ********************  -->
+                <div class="tab-pane fade" id="tiempromat" role="tabpanel" aria-labelledby="tiempromat-tab">
+                    <br><br>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="contenedor-fechas mt-2 mb-2">
+                                    <div>
+                                        <label for="desdeEvalT">Fecha desde:</label>
+                                        <input type="date" id="desdeEvalT" value="{{fromDate}}" [max]="toDate"
+                                            name="desdeEvalT" #desdeEvalT><br><br>
+                                    </div>
+                                    <div>
+                                        <label for="hastaEvalT">Fecha hasta:</label>
+                                        <input type="date" id="hastaEvalT" value="{{toDate}}" [max]="toDate"
+                                            name="hastaEvalT" #hastaEvalT>
+                                    </div>
+                                </div>
+                                <div class="contenedor-horas">
+                                    <select class="form-control" name="selectmake" #horaInicioET>
+                                        <option value="-1" selected>Hora Inicio</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                    <select class="form-control ml-2" name="selectmake" #horaFinET>
+                                        <option value="-1" selected>Hora Fin</option>
+                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <br>
+                                <fieldset>
+                                    <label>Presentar evaluaciones</label>
+                                    <div>
+                                        <input type="radio" id="todasE" class="radio-col-light-blue" name="calificacion"
+                                            [value]="3" (click)="CambiarEvaluacion(3)" checked>
+                                        <label for="todasE">Todas</label>
+
+                                        <input type="radio" id="evaluadas" class="radio-col-light-blue"
+                                            name="calificacion" [value]="2" (click)="CambiarEvaluacion(2)">
+                                        <label for="evaluadas">Evaluadas</label>
+
+                                        <input type="radio" id="omitidas" class="radio-col-light-blue"
+                                            name="calificacion" [value]="1" (click)="CambiarEvaluacion(1)">
+                                        <label for="omitidas">Omitidas</label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-8">
+                                <fieldset>
+                                    <label>Estado de los usuarios</label>
+                                    <div>
+                                        <input type="radio" id="activoRF" class="radio-col-light-blue" name="estadoRF"
+                                            [value]="2" (click)="CambiarEstado(2)" checked>
+                                        <label for="activoRF">Activos</label>
+
+                                        <input type="radio" id="inactivoRF" class="radio-col-light-blue" name="estadoRF"
+                                            [value]="1" (click)="CambiarEstado(1)">
+                                        <label for="inactivoRF">Inactivos</label>
+
+                                        <input type="radio" id="todosRF" class="radio-col-light-blue" name="estadoRF"
+                                            [value]="3" (click)="CambiarEstado(3)">
+                                        <label for="todosRF">Todos</label>
+                                    </div>
+                                </fieldset>
+                                <br>
+                                <div class="row">
+                                    <div class="col-md">
+                                        <mat-select style="font-size: 13px;" multiple class="form-control"
+                                            name="selectmake" [(value)]="sucursalesSeleccionadas"
+                                            placeholder="Sucursales">
+                                            <mat-option [value]="-1" (click)="selectAll('todasSucursales')">
+                                                Todas las sucursales
+                                            </mat-option>
+                                            <mat-option style="font-size: 12px;" *ngFor="let sucursal of sucursales"
+                                                [value]="sucursal.empr_codigo"
+                                                (click)="selectAll('sucursalesSeleccionadas')"
+                                                [disabled]="todasSucursales">
+                                                {{sucursal.empr_nombre}}
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                        <mat-select style="font-size: 13px;" multiple class="form-control"
+                                            name="selectmake" [(value)]="cajerosSeleccionados" placeholder="Cajeros">
+                                            <mat-option *ngIf="mostrarCajeros" [value]="-1"
+                                                (click)="selectAll('todosCajeros')">
+                                                Todos los cajeros
+                                            </mat-option>
+                                            <mat-option style="font-size: 12px;" *ngFor="let option of cajerosEval"
+                                                [value]="option.usua_codigo" [disabled]="todosCajeros"
+                                                (click)="selectAll('cajerosSeleccionados')">
+                                                {{option.caje_nombre}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </div>
+                                    <div class="col-md">
+                                        <mat-select style="font-size: 13px;" multiple class="form-control"
+                                            name="selectmake" [(value)]="serviciosSeleccionados"
+                                            placeholder="Servicios">
+                                            <mat-option *ngIf="mostrarServicios" [value]="-1"
+                                                (click)="selectAll('todosServicios')">
+                                                Todos los servicios
+                                            </mat-option>
+                                            <mat-option style="font-size: 12px;"
+                                                *ngFor="let serviciosServs of listaServicios"
+                                                [value]="serviciosServs.serv_codigo" [disabled]="todosServicios"
+                                                (click)="selectAll('serviciosSeleccionados')">
+                                                {{serviciosServs.serv_nombre}}
+                                                <span style="font-size: x-small;">
+                                                    ({{serviciosServs.empresa}})
+                                                </span>
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                        <mat-select style="font-size: 13px;" multiple class="form-control"
+                                            name="selectmake" [(value)]="selectedItems" placeholder="Subservicios">
+                                            <mat-option *ngIf="mostrarSubservicios" [value]="-1"
+                                                (click)="selectAll('todosSubservicios')">
+                                                Todos los subservicios
+                                            </mat-option>
+                                            <mat-option style="font-size: 12px;" *ngFor="let sub of subservicios"
+                                                [value]="sub.id" [disabled]="todosSubservicios"
+                                                (click)="selectAll('subserviciosSeleccionados')">
+                                                {{sub.nombre}}
+                                                <span style="font-size: x-small;">({{sub.serv_nombre}})</span>
+                                            </mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+                                <br>
+                                <button type="button" class="btn btn-search" (click)="MostrarEvaluaciones()">
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                    Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br> <br>
+                    <h3>EVALUACIÓN POR TURNO</h3>
                     <hr>
-                    <div class="table-responsive" id="contentEvalEmpl" #contentEvalEmpl #tableEvalEmpl>
+                    <div class="table-responsive" id="contentEvalT" #contentEvalT #tableEvalT>
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursales || seleccionMultiple">
-                                        Sucursal
+                                    <th scope="col" class="text-center">N°</th>
+                                    <th scope="col" class="text-center">Sucursal</th>
+                                    <th scope="col" class="text-center" *ngIf="verCajero">Cajero(a)</th>
+                                    <th scope="col" class="text-center" *ngIf="verServicio">Servicio</th>
+                                    <th scope="col" class="text-center" *ngIf="verSubservicio">Subservicio</th>
+                                    <th scope="col" class="text-center" *ngIf="verCliente != '' && verCliente != null">
+                                        Información del usuario
                                     </th>
-                                    <th scope="col" class="text-center">Cajero(a)</th>
                                     <th scope="col" class="text-center">Fecha</th>
-                                    <th scope="col" class="text-center">Excelente</th>
-                                    <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
-                                    <th scope="col" class="text-center">Bueno</th>
-                                    <th scope="col" class="text-center">Regular</th>
-                                    <th scope="col" class="text-center">Malo</th>
-                                    <th scope="col" class="text-center">Total</th>
-                                    <th scope="col" class="text-center">Promedio</th>
+                                    <th scope="col" class="text-center">Hora</th>
+                                    <th scope="col" class="text-center">Turno</th>
+                                    <th scope="col" class="text-center">Calificación</th>
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestE">
-                                <tr *ngFor="let servicioEvalEmpl of servicioEvalEmpl | paginate:configE">
-                                    <td *ngIf="todasSucursales || seleccionMultiple">{{servicioEvalEmpl.nombreEmpresa}}
+                                <tr *ngFor="let evalua of listaEvaluaciones | paginate:configE">
+                                    <td>{{evalua.numero}}</td>
+                                    <td>{{evalua.nombreEmpresa}}</td>
+                                    <td *ngIf="verCajero">{{evalua.usua_nombre}}</td>
+                                    <td *ngIf="verServicio">{{evalua.servicio}}</td>
+                                    <td *ngIf="verSubservicio">{{evalua.subservicio}}</td>
+                                    <td *ngIf="verCliente != '' && verCliente != null">
+                                        {{evalua.informacion}}
                                     </td>
-                                    <td>{{servicioEvalEmpl.usua_nombre}}</td>
-                                    <td>{{servicioEvalEmpl.fecha}}</td>
-                                    <td>{{servicioEvalEmpl.Excelente}}</td>
-                                    <td *ngIf="!opcionCuatro">{{servicioEvalEmpl.Muy_Bueno}}</td>
-                                    <td>{{servicioEvalEmpl.Bueno}}</td>
-                                    <td>{{servicioEvalEmpl.Regular}}</td>
-                                    <td>{{servicioEvalEmpl.Malo}}</td>
-                                    <td>{{servicioEvalEmpl.Total}}</td>
-                                    <td>{{servicioEvalEmpl.Promedio}}</td>
+                                    <td>{{evalua.fecha}}</td>
+                                    <td>{{evalua.hora}}</td>
+                                    <td>{{evalua.turno}}</td>
+                                    <td>{{evalua.calificacion}}</td>
                                 </tr>
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestEPag" id="Evale" [previousLabel]="labels.previousLabel"
-                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedE($event)">
-                        </pagination-controls>
-                    </div>
-                    <br>
-                    <h3>EVALUACIONES MÁXIMAS Y MÍNIMAS POR CAJERO</h3>
-                    <hr>
-                    <div class="table-responsive" id="contentEvalMMEmpl" #contentEvalMMEmpl #TABLEEvalMMEmpl #table>
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursales || seleccionMultiple">
-                                        Sucursal
-                                    </th>
-                                    <th scope="col" class="text-center">Cajero(a)</th>
-                                    <th scope="col" class="text-center">Fecha</th>
-                                    <th scope="col" class="text-center">Excelente</th>
-                                    <th scope="col" class="text-center" *ngIf="!opcionCuatro">Muy Bueno</th>
-                                    <th scope="col" class="text-center">Bueno</th>
-                                    <th scope="col" class="text-center">Regular</th>
-                                    <th scope="col" class="text-center">Malo</th>
-                                    <th scope="col" class="text-center">Total</th>
-                                    <th scope="col" class="text-center">Max.</th>
-                                    <th scope="col" class="text-center">Min.</th>
-                                </tr>
-                            </thead>
-                            <tbody *ngIf="!malRequestE">
-                                <tr *ngFor="let servicioEvalMMEmpl of servicioEvalMMEmpl | paginate:configEMM">
-                                    <td *ngIf="todasSucursales || seleccionMultiple">
-                                        {{servicioEvalMMEmpl.nombreEmpresa}}</td>
-                                    <td>{{servicioEvalMMEmpl.usua_nombre}}</td>
-                                    <td>{{servicioEvalMMEmpl.fecha}}</td>
-                                    <td>{{servicioEvalMMEmpl.Excelente}}</td>
-                                    <td *ngIf="!opcionCuatro">{{servicioEvalMMEmpl.Muy_Bueno}}</td>
-                                    <td>{{servicioEvalMMEmpl.Bueno}}</td>
-                                    <td>{{servicioEvalMMEmpl.Regular}}</td>
-                                    <td>{{servicioEvalMMEmpl.Malo}}</td>
-                                    <td>{{servicioEvalMMEmpl.Total}}</td>
-                                    <td>{{servicioEvalMMEmpl.max}}</td>
-                                    <td>{{servicioEvalMMEmpl.min}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <pagination-controls *ngIf="!malRequestEPag" id="Evalemm" [previousLabel]="labels.previousLabel"
-                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedEMM($event)">
+                            [nextLabel]="labels.nextLabel" (pageChange)="paginacionEvaluacionTurno($event)">
                         </pagination-controls>
                     </div>
                     <br>
@@ -355,237 +430,6 @@
                     </button>
                 </div>
 
-                <div class="tab-pane fade" id="omitidas" role="tabpanel" aria-labelledby="tiempromat-tab">
-                    <br><br>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="contenedor-fechas mt-2 mb-2">
-                                    <div>
-                                        <label for="fromDateDesdeEvalOmitidas">Fecha desde:</label>
-                                        <input type="date" id="fromDateDesdeEvalOmitidas" value="{{fromDate}}"
-                                            [max]="toDate" name="fromDateDesdeEvalOmitidas"
-                                            #fromDateDesdeEvalOmitidas><br><br>
-                                    </div>
-                                    <div>
-                                        <label for="toDateHastaEvalOmitidas">Fecha hasta:</label>
-                                        <input type="date" id="toDateHastaEvalOmitidas" value="{{toDate}}"
-                                            [max]="toDate" name="toDateHastaEvalOmitidas" #toDateHastaEvalOmitidas>
-                                    </div>
-                                </div>
-                                <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioO>
-                                        <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinO>
-                                        <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesEO')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadasEO')" [disabled]="todasSucursalesEO">
-                                        {{sucursal.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('')">
-                                        Todos los cajeros
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of cajerosEvalOmitidas" [value]="option.caje_codigo"
-                                        [disabled]="allSelected">
-                                        {{option.caje_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <button type="button" class="btn btn-search" (click)="buscarEvalOmitidas()">
-                                    <span class="glyphicon glyphicon-filter"></span>
-                                    Buscar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-                    <h3>EVALUACIONES OMITIDAS</h3>
-                    <hr>
-                    <div class="table-responsive" id="contentEvalOmitidas" #contentEvalOmitidas #tableEvalOmitidas>
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesEO || seleccionMultiple">
-                                        Sucursal
-                                    </th>
-                                    <th scope="col" class="text-center">Cajero(a)</th>
-                                    <th scope="col" class="text-center">Fecha</th>
-                                    <th scope="col" class="text-center">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody *ngIf="!malRequestEOmitidas">
-                                <tr
-                                    *ngFor="let servicioEvalOmitidas of servicioEvalOmitidas | paginate:configEOmitidas">
-                                    <td *ngIf="todasSucursalesEO || seleccionMultiple">
-                                        {{servicioEvalOmitidas.nombreEmpresa}}</td>
-                                    <td>{{servicioEvalOmitidas.usua_nombre}}</td>
-                                    <td>{{servicioEvalOmitidas.fecha}}</td>
-                                    <td>{{servicioEvalOmitidas.Total}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <pagination-controls *ngIf="!malRequestEOmitidasPag" id="Evaleomitidas"
-                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
-                            (pageChange)="pageChangedEOmitidas($event)">
-                        </pagination-controls>
-                    </div>
-                    <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEvalOmitidas()">
-                        EXCEL
-                    </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfEvalOmitidas('hola', 1)">
-                        PDF
-                    </button>
-                    <br><br>
-                </div>
-
-                <div class="tab-pane fade" id="graficoeva" role="tabpanel" aria-labelledby="graficoeva-tab">
-                    <br><br>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="contenedor-fechas mt-2 mb-2">
-                                    <div>
-                                        <label for="fromDateDesdeEvalGra">Fecha desde:</label>
-                                        <input type="date" id="fromDateDesdeEvalGra" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateDesdeEvalGra" #fromDateDesdeEvalGra><br><br>
-                                    </div>
-                                    <div>
-                                        <label for="toDateHastaEvalGra">Fecha hasta:</label>
-                                        <input type="date" id="toDateHastaEvalGra" value="{{toDate}}" [max]="toDate"
-                                            name="toDateHastaEvalGra" #toDateHastaEvalGra>
-                                    </div>
-                                </div>
-                                <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioG>
-                                        <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinG>
-                                        <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesG')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadasG')" [disabled]="todasSucursalesG">
-                                        {{sucursal.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('')">
-                                        Todos los cajeros
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of cajerosG" [value]="option.caje_codigo"
-                                        [disabled]="allSelected">
-                                        {{option.caje_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <button type="button" class="btn btn-search" (click)="leerGraficosevabar()">
-                                    <span class="glyphicon glyphicon-filter"></span>
-                                    Buscar
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
-                    <br>
-                    <h3>EVALUACIÓN</h3>
-                    <hr>
-                    <div class="container" id="contentGra" #contentGra #tableGra>
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead class="thead-dark">
-                                    <tr>
-                                        <th scope="col" class="text-center"
-                                            *ngIf="todasSucursalesG || seleccionMultiple">Sucursal</th>
-                                        <th scope="col" class="text-center">Cajero(a)</th>
-                                        <th scope="col" class="text-center">Evaluación</th>
-                                        <th scope="col" class="text-center">Total</th>
-                                        <th scope="col" class="text-center">Porcentajes</th>
-                                    </tr>
-                                </thead>
-                                <tbody *ngIf="!malRequestGra">
-                                    <tr *ngFor="let servicioGra of servicioGra | paginate:configG">
-                                        <td *ngIf="todasSucursalesG || seleccionMultiple">{{servicioGra.nombreEmpresa}}
-                                        </td>
-                                        <td>{{servicioGra.usuario}}</td>
-                                        <td>{{servicioGra.evaluacion}}</td>
-                                        <td>{{servicioGra.total}}</td>
-                                        <td>{{servicioGra.porcentaje}} %</td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
-                            <pagination-controls *ngIf="!malRequestGraPag" id="Evalg"
-                                [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
-                                (pageChange)="pageChangedG($event)">
-                            </pagination-controls>
-                        </div>
-                        <div>
-                            <button type="button" class="btn btn-info mx-2" (click)="cambiar('pie')">
-                                pastel
-                            </button>
-                            <button type="button" class="btn btn-info" (click)="cambiar('bar')">
-                                barras
-                            </button>
-                        </div>
-                        <br>
-                        <div id="canvasCont" *ngIf="!malRequestGra">
-                            <h3>GRÁFICO EVALUACIÓN</h3><br>
-                            <canvas id="canvas">{{chart}}</canvas>
-                        </div>
-                    </div>
-                    <br>
-                    <fieldset>
-                        <div>
-                            <label>Orientación de página: </label>
-
-                            <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
-                                value="portrait" (click)="cambiarOrientacion('portrait')" checked>
-                            <label for="vertical">Vertical</label>
-
-                            <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
-                                value="landscape" (click)="cambiarOrientacion('landscape')">
-                            <label for="horizontal">Horizontal</label>
-                        </div>
-                    </fieldset>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelGra()">
-                        EXCEL
-                    </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfGra('hola',1)">
-                        PDF
-                    </button>
-                </div>
             </div>
         </form>
     </div>

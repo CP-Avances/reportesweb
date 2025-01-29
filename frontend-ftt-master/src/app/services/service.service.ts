@@ -177,17 +177,33 @@ export class ServiceService {
    ** **                                          EVALUACION                                                          ** **
    ** ****************************************************************************************************************** **/
 
-  getPromediosEvaluacionFechas(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/promedios/fechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + subservicio + "/" + cajero + "/" + opcion + "/" + estado);
+  getResumenEvaluacion(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any, fecha:string): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/evaluacion/resumen/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + subservicio + "/" + cajero + "/" + opcion + "/" + estado + "/" + fecha);
   }
+
+  getEvaluacionTurnos(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, servicios: any, subservicios: any, cajeros: any, estado: any, opciones: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/evaluacion/turnos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + servicios + "/" + subservicios + "/" + cajeros + "/" + estado + "/" + opciones);
+  }
+
+  getEvaluacionOmitidaTurnos(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, servicios: any, subservicios: any, cajeros: any, estado: any): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/evaluacion/omitidos/turnos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + servicios + "/" + subservicios + "/" + cajeros + "/" + estado);
+  }
+
+
+
+
+
+
+
+
+
+
 
   getmaxminservicios(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, opcion: string): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/maximosminimos/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + opcion);
   }
 
-  getprmediosempleado(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, opcion: string): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/promediose/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + opcion);
-  }
+
 
   getevalomitidasempleado(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/omitidas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales);
