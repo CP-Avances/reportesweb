@@ -165,63 +165,130 @@ router.get(
     let grupo_order = ``
 
     if (listaServicios != '0N' && listaSubservicios != '0N' && listaCajeros != '0N') {
-      grupo_order +=
-        `      
-          GROUP BY 
-            s.serv_nombre, f.eval_fecha, a.usua_codigo, ss.nombre
-          ORDER BY 
-            s.serv_nombre, f.eval_fecha DESC;
-        `;
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              s.serv_nombre, f.eval_fecha, a.usua_codigo, ss.nombre
+            ORDER BY 
+              s.serv_nombre, f.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              s.serv_nombre, a.usua_codigo, ss.nombre
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+      }
+
     }
 
     if (listaServicios != '0N' && listaSubservicios != '0N' && listaCajeros === '0N') {
-      grupo_order +=
-        `      
-          GROUP BY 
-            e.empr_nombre, s.serv_nombre, f.eval_fecha, ss.nombre
-          ORDER BY 
-            s.serv_nombre, f.eval_fecha DESC;
-        `;
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, f.eval_fecha, ss.nombre
+            ORDER BY 
+              s.serv_nombre, f.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, ss.nombre
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+      }
     }
 
     if (listaServicios != '0N' && listaSubservicios === '0N' && listaCajeros != '0N') {
-      grupo_order +=
-        `      
-          GROUP BY 
-            s.serv_nombre, f.eval_fecha, a.usua_codigo
-          ORDER BY 
-            s.serv_nombre, f.eval_fecha DESC;
-        `;
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              s.serv_nombre, f.eval_fecha, a.usua_codigo
+            ORDER BY 
+              s.serv_nombre, f.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              s.serv_nombre, a.usua_codigo
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+      }
     }
 
     if (listaServicios != '0N' && listaSubservicios === '0N' && listaCajeros === '0N') {
-      grupo_order +=
-        `      
-          GROUP BY 
-            e.empr_nombre, s.serv_nombre, f.eval_fecha
-          ORDER BY 
-            s.serv_nombre, f.eval_fecha DESC;
-        `;
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, f.eval_fecha
+            ORDER BY 
+              s.serv_nombre, f.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+      }
     }
 
     if (listaServicios === '0N' && listaSubservicios === '0N' && listaCajeros != '0N') {
-      grupo_order +=
-        `      
-          GROUP BY 
-             e.empr_nombre, f.eval_fecha, a.usua_codigo
-          ORDER BY 
-            f.eval_fecha DESC;
-        `;
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, f.eval_fecha, a.usua_codigo
+            ORDER BY 
+              f.eval_fecha DESC;
+            `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, a.usua_codigo
+            ORDER BY 
+              e.empr_nombre DESC;
+          `;
+      }
     }
 
     if (listaServicios === '0N' && listaSubservicios === '0N' && listaCajeros === '0N') {
-      grupo_order +=
-        `      
-          GROUP BY 
-            e.empr_nombre, f.eval_fecha
-          ORDER BY 
-            f.eval_fecha DESC;
-        `;
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, f.eval_fecha
+            ORDER BY 
+              f.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre
+            ORDER BY 
+              e.empr_nombre DESC;
+          `;
+      }
     }
 
     let consulta =
@@ -240,7 +307,7 @@ router.get(
       ${filtros}
       ${grupo_order}
       `;
-    //console.log('consulta ', consulta)
+    console.log('consulta ', consulta)
 
     query = consulta
 
@@ -761,7 +828,7 @@ router.get(
         ${filtros}
         ORDER BY f.eval_fecha DESC;
       `;
-    
+
     console.log('consulta1 ', consulta)
 
     query = consulta
@@ -929,7 +996,7 @@ router.get(
         ${filtros}
         ORDER BY ne.eval_fecha DESC;
       `;
-    
+
     console.log('consulta2 ', consulta)
 
     query = consulta
