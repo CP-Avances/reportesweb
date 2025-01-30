@@ -129,13 +129,13 @@ export class ServiceService {
    ** **                                    TIEMPO PROMEDIO DE ATENCION                                         ** ** 
    ** ************************************************************************************************************ **/
 
-  getturnosF(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, servicios: any, subservicios: any, estado: any): Observable<servicio[]> {
+  getturnosF(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, servicios: any, subservicios: any, estado: any, fecha:string): Observable<servicio[]> {
     if (servicios.length == 0) {
-      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + 0 + "/" + 0 + "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + 0 + "/" + 0 + "/" + estado + "/" + fecha);
     } else if (subservicios.length == 0 && servicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + 0 + "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + 0 + "/" + estado+ "/" + fecha);
     } else if (servicios.length != 0 && subservicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + subservicios + "/" + estado);
+      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + subservicios + "/" + estado + "/" + fecha);
     }
   }
 

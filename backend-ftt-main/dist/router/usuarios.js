@@ -196,7 +196,7 @@ router.get("/getallcajeros/:sucursales/:estado", verifivarToken_1.TokenValidatio
 /** ************************************************************************************************************ **
  ** **                               TIEMPO PROMEDIO DE ATENCION                                              ** **
  ** ************************************************************************************************************ **/
-router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:servicios/:subservicios/:estado", verifivarToken_1.TokenValidation, (req, res) => {
+router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales/:servicios/:subservicios/:estado/:fecha", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -206,13 +206,13 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     const listaServicios = req.params.servicios;
-    console.log("ver listaServicios", listaServicios);
     const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    console.log("ver listaSubservicios", listaSubservicios);
     const subServiciosarray = listaSubservicios.split(",");
     const estado = req.params.estado;
-    console.log("ver estado", estado);
+    // VARIABLE QUE DEFINEN FECHA (1) O RANGO DE FECHAS (2)
+    const fecha = req.params.fecha;
+    let verFecha = true;
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
@@ -238,6 +238,10 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
     else {
         comprobarestado = `c.caje_estado = ${estado}`;
     }
+    // VALIDACION DE FECHAS
+    if (fecha === "2") {
+        verFecha = false;
+    }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
     }
@@ -254,6 +258,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           c.caje_nombre AS Nombre,
           ss.id AS id_subservicio, 
           ss.nombre AS subservicio,
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
           COUNT(t.turn_codigo) AS Turnos, 
           TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
         FROM 
@@ -277,7 +282,16 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY 
-          e.empr_nombre, s.serv_nombre, c.caje_nombre, ss.id, ss.nombre;
+          e.empr_nombre,
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''}
+          s.serv_nombre, 
+          c.caje_nombre, 
+          ss.id, 
+          ss.nombre
+
+           ORDER BY 
+          ${verFecha ? `Fecha DESC,` : ''}
+          Nombre ASC;
       `;
     }
     else if (listaSubservicios == '0' && listaServicios != '0') {
@@ -286,6 +300,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
         SELECT 
           e.empr_nombre AS nombreEmpresa, 
           s.serv_nombre AS Servicio, 
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
           c.caje_nombre AS Nombre,
           COUNT(t.turn_codigo) AS Turnos, 
           TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
@@ -307,7 +322,14 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY 
-          e.empr_nombre, s.serv_nombre, c.caje_nombre;
+          e.empr_nombre,
+          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''} 
+          s.serv_nombre, 
+          c.caje_nombre
+
+          ORDER BY 
+          ${verFecha ? `Fecha DESC,` : ''}
+          Nombre ASC;
       `;
     }
     else if (listaServicios == '0' && listaSubservicios == '0') {
@@ -316,6 +338,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
       SELECT 
         e.empr_nombre AS nombreEmpresa, 
         c.caje_nombre AS Nombre,
+         ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
         COUNT(t.turn_codigo) AS Turnos, 
         TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
       FROM 
@@ -334,7 +357,13 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
         ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY 
-        e.empr_nombre, c.caje_nombre;
+        e.empr_nombre, 
+        ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''}
+        c.caje_nombre
+
+        ORDER BY 
+        ${verFecha ? `Fecha DESC,` : ''}
+        Nombre ASC;
     `;
     }
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {

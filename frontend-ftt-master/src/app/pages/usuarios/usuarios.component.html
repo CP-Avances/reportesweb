@@ -369,9 +369,9 @@
                                     <th class="text-center">Cajero(a)</th>
                                     <th class="text-center" *ngIf="serviciosSeleccionadas.length>0">
                                         Servicio</th>
-                                    <th class="text-center" *ngIf="sub_serviciosSeleccionadas.length>0 ">Subservicio
+                                    <th class="text-center" *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">Subservicio
                                     </th>
-                                    <th class="text-center">Fecha</th>
+                                    <th class="text-center" *ngIf="verFecha == '1'">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">No atendidos</th>
                                     <th class="text-center">Total</th>
@@ -385,10 +385,10 @@
                                     <td> {{servicioTurnosTotalFecha.Usuario}}</td>
                                     <td *ngIf="serviciosSeleccionadas.length>0">
                                         {{servicioTurnosTotalFecha.Servicio}}</td>
-                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 ">
+                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
                                         {{servicioTurnosTotalFecha.subservicio}}
                                     </td>
-                                    <td> {{servicioTurnosTotalFecha.Fecha}}</td>
+                                    <td *ngIf="verFecha == '1'"> {{servicioTurnosTotalFecha.Fecha}}</td>
                                     <td> {{servicioTurnosTotalFecha.Atendidos}} </td>
                                     <td> {{servicioTurnosTotalFecha.No_Atendidos}}</td>
                                     <td> {{servicioTurnosTotalFecha.Total}} </td>
@@ -398,9 +398,9 @@
                                     </td>
                                     <td> </td>
                                     <td *ngIf="serviciosSeleccionadas.length>0"></td>
-                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 ">
+                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0 ">
                                     </td>
-                                    <td> </td>
+                                    <td *ngIf="verFecha == '1'"> </td>
                                     <td> </td>
                                     <td> Total:</td>
                                     <td> {{suma}} </td>
@@ -475,62 +475,72 @@
                                         <label for="todos3">Todos</label>
                                     </div>
                                 </fieldset>
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales"
-                                    (selectionChange)="onSelectionChangeSucursal()">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesTM')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesTM">
-                                        {{option.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros" (selectionChange)="mostrar_resultado = false">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
-                                        Todos los cajeros
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo"
-                                        [disabled]="allSelected">
-                                        {{option.caje_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
+                                <br>
+                                <div class="row">
+                                    <div class="col-md">
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales"
+                                            (selectionChange)="onSelectionChangeSucursal()">
+                                            <mat-option [value]="-1" (click)="selectAll('todasSucursalesTM')">
+                                                Todas las sucursales
+                                            </mat-option>
+                                            <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                                (click)="selectAll('sucursalesSeleccionadas')"
+                                                [disabled]="todasSucursalesTM">
+                                                {{option.empr_nombre}}
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="selectedItems" placeholder="Cajeros"
+                                            (selectionChange)="mostrar_resultado = false">
+                                            <mat-option *ngIf="mostrarCajeros" [value]="-2"
+                                                (click)="selectAll('allSelected')">
+                                                Todos los cajeros
+                                            </mat-option>
+                                            <mat-option *ngFor="let option of cajerosUsuarios"
+                                                [value]="option.caje_codigo" [disabled]="allSelected">
+                                                {{option.caje_nombre}}
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                    </div>
 
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios"
-                                    (selectionChange)="onSelectionChange()">
-                                    <mat-option *ngIf="mostrarServicios" [value]="-1"
-                                        (click)="selectAll('todasServiciosTF')">
-                                        Todos los servicios
-                                    </mat-option>
-                                    <mat-option *ngFor="let serviciosServs of serviciosServs"
-                                        [value]="serviciosServs.serv_codigo"
-                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
-                                        {{serviciosServs.serv_nombre}}
-                                        <span style="font-size: x-small;">
-                                            ({{serviciosServs.empresa}})
-                                        </span>
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios"
-                                    (selectionChange)="mostrar_resultado = false">
-                                    <mat-option *ngIf="mostrarSubservicios" [value]="-1"
-                                        (click)="selectAll('todasSubServiciosTF')">
-                                        Todas las subservicios
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of subservicios" [value]="option.id"
-                                        [disabled]="seleccionMultipleSubServicios">
-                                        {{option.nombre}}
-                                        <span style="font-size: x-small;">({{option.serv_nombre}})</span>
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-
+                                    <div class="col-md">
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="serviciosSeleccionadas" placeholder="Servicios"
+                                            (selectionChange)="onSelectionChange()">
+                                            <mat-option *ngIf="mostrarServicios" [value]="-1"
+                                                (click)="selectAll('todasServiciosTF')">
+                                                Todos los servicios
+                                            </mat-option>
+                                            <mat-option *ngFor="let serviciosServs of serviciosServs"
+                                                [value]="serviciosServs.serv_codigo"
+                                                (click)="selectAll('serviciosSeleccionadas')"
+                                                [disabled]="todasServiciosTF">
+                                                {{serviciosServs.serv_nombre}}
+                                                <span style="font-size: x-small;">
+                                                    ({{serviciosServs.empresa}})
+                                                </span>
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios"
+                                            (selectionChange)="mostrar_resultado = false">
+                                            <mat-option *ngIf="mostrarSubservicios" [value]="-1"
+                                                (click)="selectAll('todasSubServiciosTF')">
+                                                Todas las subservicios
+                                            </mat-option>
+                                            <mat-option *ngFor="let option of subservicios" [value]="option.id"
+                                                [disabled]="seleccionMultipleSubServicios">
+                                                {{option.nombre}}
+                                                <span style="font-size: x-small;">({{option.serv_nombre}})</span>
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosMeta()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
@@ -571,7 +581,7 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestTMPag" id="usuariosTM"
-                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            [previousLabel]="labels.previousLabel" [currentPage]="configTM.currentPage" [nextLabel]="labels.nextLabel"
                             (pageChange)="pageChangedTM($event)">
                         </pagination-controls>
                     </div>
@@ -621,6 +631,18 @@
                                         </option>
                                     </select>
                                 </div>
+                                <br>
+                                <fieldset>
+                                    <div>
+                                        <input type="radio" id="fecha2" class="radio-col-light-blue" name="verfecha2"
+                                            [value]="'1'" (click)="CambiarFecha('1')" checked>
+                                        <label for="fecha2">Presentar Fecha</label>
+
+                                        <input type="radio" id="rango2" class="radio-col-light-blue" name="verfecha2"
+                                            [value]="'2'" (click)="CambiarFecha('2')">
+                                        <label for="rango2">Rango de fechas</label>
+                                    </div>
+                                </fieldset>
                             </div>
                             <div class="col-6">
                                 <fieldset>
@@ -639,61 +661,72 @@
                                         <label for="todos4">Todos</label>
                                     </div>
                                 </fieldset>
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales"
-                                    (selectionChange)="onSelectionChangeSucursal()">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesTPA')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesTPA">
-                                        {{sucursal.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros" (selectionChange)="mostrar_resultado = false">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
-                                        Todos los cajeros
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo"
-                                        [disabled]="allSelected">
-                                        {{option.caje_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios"
-                                    (selectionChange)="onSelectionChange()">
-                                    <mat-option *ngIf="mostrarServicios" [value]="-1"
-                                        (click)="selectAll('todasServiciosTF')">
-                                        Todos los servicios
-                                    </mat-option>
-                                    <mat-option *ngFor="let serviciosServs of serviciosServs"
-                                        [value]="serviciosServs.serv_codigo"
-                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
-                                        {{serviciosServs.serv_nombre}}
-                                        <span style="font-size: x-small;">
-                                            ({{serviciosServs.empresa}})
-                                        </span>
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios"
-                                    (selectionChange)="mostrar_resultado = false">
-                                    <mat-option *ngIf="mostrarSubservicios" [value]="-1"
-                                        (click)="selectAll('todasSubServiciosTF')">
-                                        Todas las subservicios
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of subservicios" [value]="option.id"
-                                        [disabled]="seleccionMultipleSubServicios">
-                                        {{option.nombre}}
-                                        <span style="font-size: x-small;">({{option.serv_nombre}})</span>
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
+                                <br>
+                                <div class="row">
+                                    <div class="col-md">
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="sucursalesSeleccionadas" placeholder="Sucursales"
+                                            (selectionChange)="onSelectionChangeSucursal()">
+                                            <mat-option [value]="-1" (click)="selectAll('todasSucursalesTPA')">
+                                                Todas las sucursales
+                                            </mat-option>
+                                            <mat-option *ngFor="let sucursal of sucursales"
+                                                [value]="sucursal.empr_codigo"
+                                                (click)="selectAll('sucursalesSeleccionadas')"
+                                                [disabled]="todasSucursalesTPA">
+                                                {{sucursal.empr_nombre}}
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="selectedItems" placeholder="Cajeros"
+                                            (selectionChange)="mostrar_resultado = false">
+                                            <mat-option *ngIf="mostrarCajeros" [value]="-2"
+                                                (click)="selectAll('allSelected')">
+                                                Todos los cajeros
+                                            </mat-option>
+                                            <mat-option *ngFor="let option of cajerosUsuarios"
+                                                [value]="option.caje_codigo" [disabled]="allSelected">
+                                                {{option.caje_nombre}}
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                    </div>
+                                    <div class="col-md">
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="serviciosSeleccionadas" placeholder="Servicios"
+                                            (selectionChange)="onSelectionChange()">
+                                            <mat-option *ngIf="mostrarServicios" [value]="-1"
+                                                (click)="selectAll('todasServiciosTF')">
+                                                Todos los servicios
+                                            </mat-option>
+                                            <mat-option *ngFor="let serviciosServs of serviciosServs"
+                                                [value]="serviciosServs.serv_codigo"
+                                                (click)="selectAll('serviciosSeleccionadas')"
+                                                [disabled]="todasServiciosTF">
+                                                {{serviciosServs.serv_nombre}}
+                                                <span style="font-size: x-small;">
+                                                    ({{serviciosServs.empresa}})
+                                                </span>
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios"
+                                            (selectionChange)="mostrar_resultado = false">
+                                            <mat-option *ngIf="mostrarSubservicios" [value]="-1"
+                                                (click)="selectAll('todasSubServiciosTF')">
+                                                Todas las subservicios
+                                            </mat-option>
+                                            <mat-option *ngFor="let option of subservicios" [value]="option.id"
+                                                [disabled]="seleccionMultipleSubServicios">
+                                                {{option.nombre}}
+                                                <span style="font-size: x-small;">({{option.serv_nombre}})</span>
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn btn-search" (click)="buscarTiempoPromedioAtencion()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
@@ -713,10 +746,12 @@
                                         Sucursal
                                     </th>
                                     <th scope="col" class="text-center">Cajero(a)</th>
-                                    <th scope="col" class="text-center"
-                                        *ngIf="todasServiciosTF || seleccionMultipleServicios">Servicio</th>
-                                    <th scope="col" class="text-center" *ngIf="seleccionMultipleSubServicios">
+                                    <th scope="col" class="text-center" *ngIf="serviciosSeleccionadas.length>0">Servicio
+                                    </th>
+                                    <th scope="col" class="text-center" *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
                                         Subservicio</th>
+                                    <th class="text-center" *ngIf="verFecha == '1'">Fecha</th>
+
                                     <th scope="col" class="text-center">Tiempo</th>
                                     <th scope="col" class="text-center">Turnos totales</th>
                                 </tr>
@@ -726,16 +761,18 @@
                                     <td *ngIf="todasSucursalesTPA || seleccionMultiple">
                                         {{servicioPromAtencion.nombreEmpresa}}</td>
                                     <td>{{servicioPromAtencion.Nombre}}</td>
-                                    <td *ngIf="todasServiciosTF || seleccionMultipleServicios">
+                                    <td *ngIf="serviciosSeleccionadas.length>0">
                                         {{servicioPromAtencion.Servicio}}</td>
-                                    <td *ngIf="seleccionMultipleSubServicios">{{servicioPromAtencion.subservicio}}</td>
+                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">{{servicioPromAtencion.subservicio}}
+                                    </td>
+                                    <td *ngIf="verFecha == '1'"> {{servicioPromAtencion.Fecha}}</td>
                                     <td>{{servicioPromAtencion.Promedio}}</td>
                                     <td>{{servicioPromAtencion.Turnos}}</td>
                                 </tr>
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestTPPag" id="usuariosTP"
-                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            [previousLabel]="labels.previousLabel" [currentPage]="configTP.currentPage" [nextLabel]="labels.nextLabel"
                             (pageChange)="pageChangedTP($event)">
                         </pagination-controls>
                     </div>
@@ -802,60 +839,71 @@
                                         <label for="todos5">Todos</label>
                                     </div>
                                 </fieldset>
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales"
-                                    (selectionChange)="onSelectionChangeSucursal()">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesTA')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesTA">
-                                        {{sucursal.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros" (selectionChange)="mostrar_resultado = false">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
-                                        Todos los cajeros
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo"
-                                        [disabled]="allSelected">
-                                        {{option.caje_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="serviciosSeleccionadas" placeholder="Servicios"
-                                    (selectionChange)="onSelectionChange()">
-                                    <mat-option *ngIf="mostrarServicios" [value]="-1"
-                                        (click)="selectAll('todasServiciosTF')">
-                                        Todos los servicios
-                                    </mat-option>
-                                    <mat-option *ngFor="let serviciosServs of serviciosServs"
-                                        [value]="serviciosServs.serv_codigo"
-                                        (click)="selectAll('serviciosSeleccionadas')" [disabled]="todasServiciosTF">
-                                        {{serviciosServs.serv_nombre}}
-                                        <span style="font-size: x-small;">
-                                            ({{serviciosServs.empresa}})
-                                        </span> </mat-option>
-                                </mat-select>
-                                <br><br>
-
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios"
-                                    (selectionChange)="mostrar_resultado = false">
-                                    <mat-option *ngIf="mostrarSubservicios" [value]="-1"
-                                        (click)="selectAll('todasSubServiciosTF')">
-                                        Todas las subservicios
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of subservicios" [value]="option.id"
-                                        [disabled]="seleccionMultipleSubServicios">
-                                        {{option.nombre}}
-                                        <span style="font-size: x-small;">({{option.serv_nombre}})</span> </mat-option>
-                                </mat-select>
-                                <br><br>
-
+                                <br>
+                                <div class="row">
+                                    <div class="col-md">
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="sucursalesSeleccionadas" placeholder="Sucursales"
+                                            (selectionChange)="onSelectionChangeSucursal()">
+                                            <mat-option [value]="-1" (click)="selectAll('todasSucursalesTA')">
+                                                Todas las sucursales
+                                            </mat-option>
+                                            <mat-option *ngFor="let sucursal of sucursales"
+                                                [value]="sucursal.empr_codigo"
+                                                (click)="selectAll('sucursalesSeleccionadas')"
+                                                [disabled]="todasSucursalesTA">
+                                                {{sucursal.empr_nombre}}
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="selectedItems" placeholder="Cajeros"
+                                            (selectionChange)="mostrar_resultado = false">
+                                            <mat-option *ngIf="mostrarCajeros" [value]="-2"
+                                                (click)="selectAll('allSelected')">
+                                                Todos los cajeros
+                                            </mat-option>
+                                            <mat-option *ngFor="let option of cajerosUsuarios"
+                                                [value]="option.caje_codigo" [disabled]="allSelected">
+                                                {{option.caje_nombre}}
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                    </div>
+                                    <div class="col-md">
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="serviciosSeleccionadas" placeholder="Servicios"
+                                            (selectionChange)="onSelectionChange()">
+                                            <mat-option *ngIf="mostrarServicios" [value]="-1"
+                                                (click)="selectAll('todasServiciosTF')">
+                                                Todos los servicios
+                                            </mat-option>
+                                            <mat-option *ngFor="let serviciosServs of serviciosServs"
+                                                [value]="serviciosServs.serv_codigo"
+                                                (click)="selectAll('serviciosSeleccionadas')"
+                                                [disabled]="todasServiciosTF">
+                                                {{serviciosServs.serv_nombre}}
+                                                <span style="font-size: x-small;">
+                                                    ({{serviciosServs.empresa}})
+                                                </span> </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                        <mat-select multiple class="form-control" name="selectmake"
+                                            [(value)]="sub_serviciosSeleccionadas" placeholder="Subservicios"
+                                            (selectionChange)="mostrar_resultado = false">
+                                            <mat-option *ngIf="mostrarSubservicios" [value]="-1"
+                                                (click)="selectAll('todasSubServiciosTF')">
+                                                Todas las subservicios
+                                            </mat-option>
+                                            <mat-option *ngFor="let option of subservicios" [value]="option.id"
+                                                [disabled]="seleccionMultipleSubServicios">
+                                                {{option.nombre}}
+                                                <span style="font-size: x-small;">({{option.serv_nombre}})</span>
+                                            </mat-option>
+                                        </mat-select>
+                                        <br><br>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn btn-search" (click)="buscarTiempoAtencion()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
@@ -968,6 +1016,7 @@
                                         <label for="todos6">Todos</label>
                                     </div>
                                 </fieldset>
+                                <br>
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales"
                                     (selectionChange)="onSelectionChangeSucursal()">
@@ -1027,7 +1076,7 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestESPag" id="usuariosES"
-                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            [previousLabel]="labels.previousLabel" [currentPage]="configES.currentPage" [nextLabel]="labels.nextLabel"
                             (pageChange)="pageChangedES($event)">
                         </pagination-controls>
                     </div>

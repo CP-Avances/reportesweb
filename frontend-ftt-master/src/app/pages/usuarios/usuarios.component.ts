@@ -527,7 +527,7 @@ export class UsuariosComponent implements OnInit {
   verFecha: string = '1';
   CambiarFecha(opcion: string) {
     this.verFecha = opcion;
-    this.mostrar_resultado= false
+    this.mostrar_resultado = false
   }
 
   // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
@@ -758,7 +758,7 @@ export class UsuariosComponent implements OnInit {
 
     if (this.selectedItems.length !== 0) {
       this.serviceService
-        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
+        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario, this.verFecha)
         .subscribe(
           (servicio: any) => {
             this.mostrar_resultado = true
@@ -1016,7 +1016,7 @@ export class UsuariosComponent implements OnInit {
     listaSucursales.forEach(elemento => {
       const cod = elemento;
       if (cod == "-1") {
-        nombreSucursal = "Todas las sucursales";
+        nombreSucursal = "Reporte General";
         return;
       }
       const nombre = this.sucursales.find(
@@ -1034,7 +1034,7 @@ export class UsuariosComponent implements OnInit {
 
   // Función para sumar un día a la fecha
   addOneDay(date: Date): Date {
-    date.setDate(date.getDate() + 1);
+    //date.setDate(date.getDate() + 1);
     return date;
   }
 
@@ -1197,36 +1197,36 @@ export class UsuariosComponent implements OnInit {
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: "application/octet-stream" });
       FileSaver.saveAs(blob, "Entradas y salidas - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION);
+        nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
     } catch (error) {
       console.error("Error al generar el archivo Excel:", error);
     }
 
-/*
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioEntradaSalida[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Entradas-Salidas");
-    XLSX.writeFile(
-      wb,
-      "Entradas y salidas - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
-    */
+    /*
+        // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
+        const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
+        const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
+        const header = Object.keys(this.servicioEntradaSalida[0]); // NOMBRE DE CABECERAS DE COLUMNAS
+        var wscols: any = [];
+        for (var i = 0; i < header.length; i++) {
+          // CABECERAS AÑADIDAS CON ESPACIOS
+          wscols.push({ wpx: 150 });
+        }
+        ws["!cols"] = wscols;
+        XLSX.utils.book_append_sheet(wb, ws, "Entradas-Salidas");
+        XLSX.writeFile(
+          wb,
+          "Entradas y salidas - " +
+          nombreSucursal +
+          " - " +
+          new Date().toLocaleString() +
+          EXCEL_EXTENSION
+        );
+        */
   }
 
   async ExportTOExcelTurnosFecha() {
@@ -1424,7 +1424,7 @@ export class UsuariosComponent implements OnInit {
 
   async ExportTOExcelTurnosTotalFecha() {
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Turnos total por fecha");
+    const worksheet = workbook.addWorksheet("Turnos totales");
     this.imagen = workbook.addImage({
       base64: this.urlImagen,
       extension: "png",
@@ -1443,7 +1443,7 @@ export class UsuariosComponent implements OnInit {
     worksheet.mergeCells("B5:H5");
 
     // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
-    worksheet.getCell("B1").value = 'REPORTE - TURNOS TOTALES POR FECHA TOTAL'.toUpperCase();
+    worksheet.getCell("B1").value = 'REPORTE - TURNOS TOTALES'.toUpperCase();
     worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
     var fechaDesde = this.fromDateTurnosTotalFecha.nativeElement.value
       .toString()
@@ -1464,42 +1464,76 @@ export class UsuariosComponent implements OnInit {
     let jsonServicio: any = [];
     if (this.serviciosSeleccionadas.length == 0) {
       if (this.todasSucursalesTTF || this.seleccionMultiple) {
-        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].nombreEmpresa,
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
           jsonServicio.push([
-            this.servicioTurnosTotalFecha[i].nombreEmpresa,
-            this.servicioTurnosTotalFecha[i].Usuario,
-            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
-            this.servicioTurnosTotalFecha[i].Atendidos,
-            this.servicioTurnosTotalFecha[i].No_Atendidos,
-            this.servicioTurnosTotalFecha[i].Total,
-          ]);
+            '',
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+        } else {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].nombreEmpresa,
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
+          jsonServicio.push([
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
         }
-
-        jsonServicio.push([
-          '',
-          '',
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-        worksheet.columns = [
-          { key: "sucursal", width: 50 },
-          { key: "cajero", width: 20 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "noatendidos", width: 20 },
-          { key: "total", width: 20 },
-        ]
-
-        const columnas = [
-          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "FECHA", totalsRowLabel: "", filterButton: true },
-          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "turnostotales",
@@ -1515,8 +1549,14 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0;
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 6; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 6
+          } else {
+            tamanioC = 5
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -1531,38 +1571,71 @@ export class UsuariosComponent implements OnInit {
         }
         worksheet.getRow(6).font = this.fontTitulo;
       } else {
-        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
           jsonServicio.push([
-            this.servicioTurnosTotalFecha[i].Usuario,
-            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
-            this.servicioTurnosTotalFecha[i].Atendidos,
-            this.servicioTurnosTotalFecha[i].No_Atendidos,
-            this.servicioTurnosTotalFecha[i].Total,
-          ]);
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+
+        } else {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
+          jsonServicio.push([
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
         }
-        jsonServicio.push([
-          '',
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-
-        worksheet.columns = [
-          { key: "cajero", width: 20 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "noatendidos", width: 20 },
-          { key: "total", width: 20 },
-        ]
-
-        const columnas = [
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "FECHA", totalsRowLabel: "", filterButton: true },
-          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "turnostotales",
@@ -1578,8 +1651,14 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0;
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 5; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 5
+          } else {
+            tamanioC = 4
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -1600,47 +1679,91 @@ export class UsuariosComponent implements OnInit {
 
     } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTTF || this.seleccionMultiple) {
-        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].nombreEmpresa,
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Servicio,
+              this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
           jsonServicio.push([
-            this.servicioTurnosTotalFecha[i].nombreEmpresa,
-            this.servicioTurnosTotalFecha[i].Usuario,
-            this.servicioTurnosTotalFecha[i].Servicio,
-            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
-            this.servicioTurnosTotalFecha[i].Atendidos,
-            this.servicioTurnosTotalFecha[i].No_Atendidos,
-            this.servicioTurnosTotalFecha[i].Total,
-          ]);
+            '',
+            '',
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+
+
+        } else {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].nombreEmpresa,
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Servicio,
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
+          jsonServicio.push([
+            '',
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+
         }
-        jsonServicio.push([
-          '',
-          '',
-          '',
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-
-
-        worksheet.columns = [
-          { key: "sucursal", width: 50 },
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "noatendidos", width: 20 },
-          { key: "total", width: 20 },
-        ]
-
-        const columnas = [
-          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "FECHA", totalsRowLabel: "", filterButton: true },
-          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "UsuariosexcelTabla",
@@ -1656,8 +1779,14 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 7; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 7
+          } else {
+            tamanioC = 6
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -1673,41 +1802,78 @@ export class UsuariosComponent implements OnInit {
         worksheet.getRow(6).font = this.fontTitulo;
 
       } else {
-        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Servicio,
+              this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
           jsonServicio.push([
-            this.servicioTurnosTotalFecha[i].Usuario,
-            this.servicioTurnosTotalFecha[i].Servicio,
-            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
-            this.servicioTurnosTotalFecha[i].Atendidos,
-            this.servicioTurnosTotalFecha[i].No_Atendidos,
-            this.servicioTurnosTotalFecha[i].Total,
-          ]);
-        }
-        jsonServicio.push([
-          '',
-          '',
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-        worksheet.columns = [
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "noatendidos", width: 20 },
-          { key: "total", width: 20 },
-        ]
+            '',
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
 
-        const columnas = [
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "FECHA", totalsRowLabel: "", filterButton: true },
-          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
-        ]
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+        } else {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Servicio,
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
+          jsonServicio.push([
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+
+        }
+
 
         worksheet.addTable({
           name: "UsuariosexcelTabla",
@@ -1723,8 +1889,14 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 6; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 6
+          } else {
+            tamanioC = 5
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -1742,52 +1914,100 @@ export class UsuariosComponent implements OnInit {
       }
     } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTTF || this.seleccionMultiple) {
-        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].nombreEmpresa,
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Servicio,
+              this.servicioTurnosTotalFecha[i].subservicio,
+              this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
+
           jsonServicio.push([
-            this.servicioTurnosTotalFecha[i].nombreEmpresa,
-            this.servicioTurnosTotalFecha[i].Usuario,
-            this.servicioTurnosTotalFecha[i].Servicio,
-            this.servicioTurnosTotalFecha[i].subservicio,
-            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
-            this.servicioTurnosTotalFecha[i].Atendidos,
-            this.servicioTurnosTotalFecha[i].No_Atendidos,
-            this.servicioTurnosTotalFecha[i].Total,
-          ]);
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+
+        } else {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].nombreEmpresa,
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Servicio,
+              this.servicioTurnosTotalFecha[i].subservicio,
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
+
+          jsonServicio.push([
+            '',
+            '',
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 50 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+
         }
-
-        jsonServicio.push([
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-
-
-        worksheet.columns = [
-          { key: "sucursal", width: 50 },
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "subservicio", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "noatendidos", width: 20 },
-          { key: "total", width: 20 },
-        ]
-
-        const columnas = [
-          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "FECHA", totalsRowLabel: "", filterButton: true },
-          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "UsuariosexcelTabla",
@@ -1803,8 +2023,15 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 8; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 8
+          } else {
+            tamanioC = 7
+          }
+
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -1821,48 +2048,86 @@ export class UsuariosComponent implements OnInit {
 
 
       } else {
-        for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Servicio,
+              this.servicioTurnosTotalFecha[i].subservicio,
+              this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
           jsonServicio.push([
-            this.servicioTurnosTotalFecha[i].Usuario,
-            this.servicioTurnosTotalFecha[i].Servicio,
-            this.servicioTurnosTotalFecha[i].subservicio,
-            this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
-            this.servicioTurnosTotalFecha[i].Atendidos,
-            this.servicioTurnosTotalFecha[i].No_Atendidos,
-            this.servicioTurnosTotalFecha[i].Total,
-          ]);
+            '',
+            '',
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
+        } else {
+          for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+            jsonServicio.push([
+              this.servicioTurnosTotalFecha[i].Usuario,
+              this.servicioTurnosTotalFecha[i].Servicio,
+              this.servicioTurnosTotalFecha[i].subservicio,
+              this.servicioTurnosTotalFecha[i].Atendidos,
+              this.servicioTurnosTotalFecha[i].No_Atendidos,
+              this.servicioTurnosTotalFecha[i].Total,
+            ]);
+          }
+          jsonServicio.push([
+            '',
+            '',
+            '',
+            '',
+            'Total: ',
+            this.suma,
+          ])
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 50 },
+            { key: "atendidos", width: 20 },
+            { key: "noatendidos", width: 20 },
+            { key: "total", width: 20 },
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
+            { name: "TOTAL", totalsRowLabel: "", filterButton: true },
+          ]
         }
-        jsonServicio.push([
-          '',
-          '',
-          '',
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
 
-        worksheet.columns = [
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "subservicio", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "noatendidos", width: 20 },
-          { key: "total", width: 20 },
-        ]
-
-
-
-        const columnas = [
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "FECHA", totalsRowLabel: "", filterButton: true },
-          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "NO ATENDIDOS", totalsRowLabel: "", filterButton: true },
-          { name: "TOTAL", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "UsuariosexcelTabla",
@@ -1878,8 +2143,14 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 7; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 7;
+          } else {
+            tamanioC = 6;
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -1899,8 +2170,9 @@ export class UsuariosComponent implements OnInit {
     }
     try {
       const buffer = await workbook.xlsx.writeBuffer();
+
       const blob = new Blob([buffer], { type: "application/octet-stream" });
-      FileSaver.saveAs(blob, `Turnos totales por fecha.xlsx`);
+      FileSaver.saveAs(blob, `Turnos totales.xlsx`);
     } catch (error) {
       console.error("Error al generar el archivo Excel:", error);
     }
@@ -2131,36 +2403,58 @@ export class UsuariosComponent implements OnInit {
     let jsonServicio: any = [];
     if (this.serviciosSeleccionadas.length == 0) {
       if (this.todasSucursalesTPA || this.seleccionMultiple) {
-        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
-          jsonServicio.push([
-            this.servicioPromAtencion[i].nombreEmpresa,
-            this.servicioPromAtencion[i].Nombre,
-            this.servicioPromAtencion[i].Promedio,
-            this.servicioPromAtencion[i].Turnos,
-          ]);
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].nombreEmpresa,
+              this.servicioPromAtencion[i].Nombre,
+              this.addOneDay(new Date(this.servicioPromAtencion[i].Fecha)),
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "fecha", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
+
+        } else {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].nombreEmpresa,
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
         }
-        /*
-        jsonServicio.push([
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-
-        */
-        worksheet.columns = [
-          { key: "sucursal", width: 50 },
-          { key: "cajero", width: 20 },
-          { key: "promedio", width: 20 },
-          { key: "turnos", width: 20 },
-        ]
-
-        const columnas = [
-          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
-          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "promedioatencion",
@@ -2176,8 +2470,15 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0;
+
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 4; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 5
+          } else {
+            tamanioC = 4
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -2192,32 +2493,54 @@ export class UsuariosComponent implements OnInit {
         }
         worksheet.getRow(6).font = this.fontTitulo;
       } else {
-        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
-          jsonServicio.push([
-            this.servicioPromAtencion[i].Nombre,
-            this.servicioPromAtencion[i].Promedio,
-            this.servicioPromAtencion[i].Turnos,
-          ]);
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].Nombre,
+              this.addOneDay(new Date(this.servicioPromAtencion[i].Fecha)),
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "fecha", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
+
+        } else {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
         }
-        /*
-        jsonServicio.push([
-          '',
-          'Total: ',
-          this.suma,
-        ])
-        */
 
-        worksheet.columns = [
-          { key: "cajero", width: 20 },
-          { key: "promedio", width: 20 },
-          { key: "turnos", width: 20 },
-        ]
 
-        const columnas = [
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
-          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "turnostotales",
@@ -2233,8 +2556,14 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0;
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 3; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 4
+          } else {
+            tamanioC = 3
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -2255,40 +2584,67 @@ export class UsuariosComponent implements OnInit {
 
     } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTPA || this.seleccionMultiple) {
-        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
-          jsonServicio.push([
-            this.servicioPromAtencion[i].nombreEmpresa,
-            this.servicioPromAtencion[i].Nombre,
-            this.servicioPromAtencion[i].Servicio,
-            this.servicioPromAtencion[i].Promedio,
-            this.servicioPromAtencion[i].Turnos,
-          ]);
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].nombreEmpresa,
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Servicio,
+              this.addOneDay(new Date(this.servicioPromAtencion[i].Fecha)),
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
+        } else {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].nombreEmpresa,
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Servicio,
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
         }
-        /*
-        jsonServicio.push([
-          '',
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-*/
 
-        worksheet.columns = [
-          { key: "sucursal", width: 50 },
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "promedio", width: 20 },
-          { key: "turnos", width: 20 },
-        ]
 
-        const columnas = [
-          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
-          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "UsuariosexcelTabla",
@@ -2304,8 +2660,15 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0
+
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 5; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 6
+          } else {
+            tamanioC = 5
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -2321,35 +2684,58 @@ export class UsuariosComponent implements OnInit {
         worksheet.getRow(6).font = this.fontTitulo;
 
       } else {
-        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
-          jsonServicio.push([
-            this.servicioPromAtencion[i].Nombre,
-            this.servicioPromAtencion[i].Servicio,
-            this.servicioPromAtencion[i].Promedio,
-            this.servicioPromAtencion[i].Turnos,
-          ]);
-        }
-        /*
-        jsonServicio.push([
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-          */
-        worksheet.columns = [
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "promedio", width: 20 },
-          { key: "turnos", width: 20 },
-        ]
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Servicio,
+              this.addOneDay(new Date(this.servicioPromAtencion[i].Fecha)),
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
 
-        const columnas = [
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
-          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
-        ]
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
+        } else {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Servicio,
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
+        }
+
 
         worksheet.addTable({
           name: "UsuariosexcelTabla",
@@ -2365,8 +2751,15 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0
+
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 4; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 5
+          } else {
+            tamanioC = 4
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -2384,45 +2777,73 @@ export class UsuariosComponent implements OnInit {
       }
     } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTPA || this.seleccionMultiple) {
-        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
-          jsonServicio.push([
-            this.servicioPromAtencion[i].nombreEmpresa,
-            this.servicioPromAtencion[i].Nombre,
-            this.servicioPromAtencion[i].Servicio,
-            this.servicioPromAtencion[i].subservicio,
-            this.servicioPromAtencion[i].Promedio,
-            this.servicioPromAtencion[i].Turnos,
-          ]);
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].nombreEmpresa,
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Servicio,
+              this.servicioPromAtencion[i].subservicio,
+              this.addOneDay(new Date(this.servicioPromAtencion[i].Fecha)),
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 20 },
+            { key: "fecha", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
+        } else {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].nombreEmpresa,
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Servicio,
+              this.servicioPromAtencion[i].subservicio,
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+
+          ]
+
+          columnas = [
+            { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
         }
-        /*
-                jsonServicio.push([
-                  '',
-                  '',
-                  '',
-                  '',
-                  'Total: ',
-                  this.suma,
-                ])
-        */
 
-        worksheet.columns = [
-          { key: "sucursal", width: 50 },
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "subservicio", width: 20 },
-          { key: "promedio", width: 20 },
-          { key: "turnos", width: 20 },
-
-        ]
-
-        const columnas = [
-          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
-          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
-        ]
 
         worksheet.addTable({
           name: "UsuariosexcelTabla",
@@ -2438,8 +2859,15 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0
+
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 6; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 7
+          } else {
+            tamanioC = 6
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -2456,41 +2884,70 @@ export class UsuariosComponent implements OnInit {
 
 
       } else {
-        for (let i = 0; i < this.servicioPromAtencion.length; i++) {
-          jsonServicio.push([
-            this.servicioPromAtencion[i].Nombre,
-            this.servicioPromAtencion[i].Servicio,
-            this.servicioPromAtencion[i].subservicio,
-            this.servicioPromAtencion[i].Promedio,
-            this.servicioPromAtencion[i].Turnos,
-          ]);
+        let columnas = []
+        if (this.verFecha == '1') {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Servicio,
+              this.servicioPromAtencion[i].subservicio,
+              this.addOneDay(new Date(this.servicioPromAtencion[i].Fecha)),
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 20 },
+            { key: "fecha", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "FECHA", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
+        } else {
+          for (let i = 0; i < this.servicioPromAtencion.length; i++) {
+            jsonServicio.push([
+              this.servicioPromAtencion[i].Nombre,
+              this.servicioPromAtencion[i].Servicio,
+              this.servicioPromAtencion[i].subservicio,
+              this.servicioPromAtencion[i].Promedio,
+              this.servicioPromAtencion[i].Turnos,
+            ]);
+          }
+
+
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 20 },
+            { key: "promedio", width: 20 },
+            { key: "turnos", width: 20 },
+
+          ]
+
+          columnas = [
+            { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
+            { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+            { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
+            { name: "TURNOS", totalsRowLabel: "", filterButton: true },
+          ]
+
         }
-        /*
-        jsonServicio.push([
-          '',
-          '',
-          '',
-          'Total: ',
-          this.suma,
-        ])
-          */
 
-        worksheet.columns = [
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "subservicio", width: 20 },
-          { key: "promedio", width: 20 },
-          { key: "turnos", width: 20 },
 
-        ]
-
-        const columnas = [
-          { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true },
-          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
-          { name: "TIEMPO", totalsRowLabel: "", filterButton: true },
-          { name: "TURNOS", totalsRowLabel: "", filterButton: true },
-        ]
 
 
         worksheet.addTable({
@@ -2507,8 +2964,14 @@ export class UsuariosComponent implements OnInit {
         });
 
         const numeroFilas = jsonServicio.length;
+        let tamanioC = 0
         for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 5; j++) {
+          if (this.verFecha == '1') {
+            tamanioC = 6;
+          } else {
+            tamanioC = 5;
+          }
+          for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
             if (i === 0) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -3189,278 +3652,552 @@ export class UsuariosComponent implements OnInit {
     if (this.serviciosSeleccionadas.length == 0) {
 
       if (this.todasSucursalesTTF) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "auto", "auto", "auto", "auto"],
+        if (this.verFecha == '1') {
 
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "No atendidos", style: "tableHeader" },
-                { text: "Total", style: "tableHeader" },
+          return {
+
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "auto", "auto", "auto", "auto"],
+
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Usuario },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.No_Atendidos },
-                  { style: "itemsTable", text: res.Total },
-                ];
-              }),
-              [
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: 'Total:' },
-                { style: "itemsTable", text: this.suma },
-              ]
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+
+
+          };
+
+        } else {
+
+          return {
+
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "auto", "auto", "auto"],
+
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+        }
+
       } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "auto", "auto", "auto", "auto"],
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "auto", "auto", "auto", "auto"],
 
-            body: [
-              [
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "No atendidos", style: "tableHeader" },
-                { text: "Total", style: "tableHeader" },
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.Usuario },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.No_Atendidos },
-                  { style: "itemsTable", text: res.Total },
-                ];
-              }),
-              [
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: 'Total:' },
-                { style: "itemsTable", text: this.suma },
-              ]
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "auto", "auto", "auto"],
+
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+        }
+
+
       }
     } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
 
       if (this.todasSucursalesTTF) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "*", "auto", "auto", "auto", "auto"],
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto", "auto", "auto", "auto"],
 
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
 
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "No atendidos", style: "tableHeader" },
-                { text: "Total", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Usuario },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.No_Atendidos },
-                  { style: "itemsTable", text: res.Total },
-                ];
-              }),
-              [
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: 'Total:' },
-                { style: "itemsTable", text: this.suma },
-              ]
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto", "auto", "auto"],
+
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
+
       } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "auto", "auto", "auto", "auto"],
 
-            body: [
-              [
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "auto", "auto", "auto", "auto"],
 
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "No atendidos", style: "tableHeader" },
-                { text: "Total", style: "tableHeader" },
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
+
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.Usuario },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.No_Atendidos },
-                  { style: "itemsTable", text: res.Total },
-                ];
-              }),
-              [
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: 'Total:' },
-                { style: "itemsTable", text: this.suma },
-              ]
-
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
+
       }
 
     } if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTTF) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "*", "*", "auto", "auto", "auto", "auto"],
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "*", "auto", "auto", "auto", "auto"],
 
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Subservicio", style: "tableHeader" },
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
 
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "No atendidos", style: "tableHeader" },
-                { text: "Total", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Usuario },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.subservicio },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.No_Atendidos },
-                  { style: "itemsTable", text: res.Total },
-                ];
-              }),
-              [
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: 'Total:' },
-                { style: "itemsTable", text: this.suma },
-              ]
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "*", "auto", "auto", "auto"],
+
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+        }
+
       } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "*", "auto", "auto", "auto", "auto"],
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto", "auto", "auto", "auto"],
 
-            body: [
-              [
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Subservicio", style: "tableHeader" },
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
 
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "No atendidos", style: "tableHeader" },
-                { text: "Total", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
+
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.Usuario },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.subservicio },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.No_Atendidos },
-                  { style: "itemsTable", text: res.Total },
-                ];
-              }),
-              [
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: '' },
-                { style: "itemsTable", text: 'Total:' },
-                { style: "itemsTable", text: this.suma },
-              ]
-
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto", "auto", "auto"],
+
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "No atendidos", style: "tableHeader" },
+                  { text: "Total", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.No_Atendidos },
+                    { style: "itemsTable", text: res.Total },
+                  ];
+                }),
+                [
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: '' },
+                  { style: "itemsTable", text: 'Total:' },
+                  { style: "itemsTable", text: this.suma },
+                ]
+
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
       }
     }
   }
@@ -3839,198 +4576,424 @@ export class UsuariosComponent implements OnInit {
   Campopromedioatencion(servicio: any[]) {
     if (this.serviciosSeleccionadas.length == 0) {
       if (this.todasSucursalesTPA || this.seleccionMultiple) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            alignment: "center",
-            widths: ["*", "*", "auto", "auto"],
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Tiempo", style: "tableHeader" },
-                { text: "Turnos", style: "tableHeader" },
+
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "*", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Nombre },
-                  { style: "itemsTable", text: res.Promedio },
-                  { style: "itemsTable", text: res.Turnos },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "*", "auto", "auto"],
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+        }
+
       } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            alignment: "center",
-            widths: ["*", "auto", "auto"],
-            body: [
-              [
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Tiempo", style: "tableHeader" },
-                { text: "Turnos", style: "tableHeader" },
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.Nombre },
-                  { style: "itemsTable", text: res.Promedio },
-                  { style: "itemsTable", text: res.Turnos },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "auto", "auto"],
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+        }
       }
     } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTPA || this.seleccionMultiple) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            alignment: "center",
-            widths: ["*", "*", "auto", "auto", "auto"],
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Tiempo", style: "tableHeader" },
-                { text: "Turnos", style: "tableHeader" },
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "*", "auto", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Nombre },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.Promedio },
-                  { style: "itemsTable", text: res.Turnos },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "*", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
+
       } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            alignment: "center",
-            widths: ["*", "auto", "auto", "auto"],
-            body: [
-              [
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Tiempo", style: "tableHeader" },
-                { text: "Turnos", style: "tableHeader" },
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.Nombre },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.Promedio },
-                  { style: "itemsTable", text: res.Turnos },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+
+
+        }
+
       }
     } if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTPA || this.seleccionMultiple) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            alignment: "center",
-            widths: ["*", "*", "auto", "auto", "auto", "auto"],
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Subservicio", style: "tableHeader" },
-                { text: "Tiempo", style: "tableHeader" },
-                { text: "Turnos", style: "tableHeader" },
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Fecha },
+
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Nombre },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.subservicio },
-                  { style: "itemsTable", text: res.Promedio },
-                  { style: "itemsTable", text: res.Turnos },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "*", "auto", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
+
+
       } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            alignment: "center",
-            widths: ["*", "auto", "auto", "auto", "auto"],
-            body: [
-              [
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Subservicio", style: "tableHeader" },
-                { text: "Tiempo", style: "tableHeader" },
-                { text: "Turnos", style: "tableHeader" },
+        if (this.verFecha == '1') {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Fecha },
+
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.Nombre },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.subservicio },
-                  { style: "itemsTable", text: res.Promedio },
-                  { style: "itemsTable", text: res.Turnos },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              alignment: "center",
+              widths: ["*", "auto", "auto", "auto", "auto"],
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Tiempo", style: "tableHeader" },
+                  { text: "Turnos", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Nombre },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Promedio },
+                    { style: "itemsTable", text: res.Turnos },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
       }
     }
-
 
   }
 
