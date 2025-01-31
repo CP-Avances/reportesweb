@@ -99,7 +99,6 @@ router.get(
       columnas += `a.usua_nombre AS Usuario,`;
       estadoUsuario = true;
     }
-
     if (!opciones) {
       columnas += `SUM(eval_califica = 50) AS Excelente,`;
       columnas += `SUM(eval_califica = 40) AS Muy_Bueno,`;
