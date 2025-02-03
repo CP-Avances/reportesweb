@@ -4,6 +4,7 @@ import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
 import { saveAs } from 'file-saver';
 import { Utils } from "../../utils/util";
+//import ExcelJS from "exceljs";
 
 import { ServiceService } from "../../services/service.service";
 import { ImagenesService } from "../../shared/imagenes.service";
@@ -56,7 +57,7 @@ export class EvaluacionComponent implements OnInit {
   userDisplayName: any;
 
   // PARAMETROS DE REPORTES
-  p_color: any;
+  p_color = "#affbfb";
   urlImagen: string;
 
   // VARIABLES DE OPCIONES DE BOTONES
@@ -117,7 +118,7 @@ export class EvaluacionComponent implements OnInit {
 
   // OPCIONES MULTIPLES
 
-  selectedItems: string[] = [];
+  selectedItems: any[] = [];
   sucursalesSeleccionadas: string[] = [];
   cajerosSeleccionados: string[] = [];
   serviciosSeleccionados: string[] = [];
@@ -187,7 +188,7 @@ export class EvaluacionComponent implements OnInit {
     // SETEO DE GRAFICO POR DEFECTO
     this.tipo = "bar";
     // SETEO ORIENTACION
-    this.orientacion = "portrait";
+    this.orientacion = "landscape";
     // CARGAR LOGO PARA LOS REPORTES
     this.imagenesService.cargarImagen().then((result: any) => {
       this.urlImagen = result;
@@ -276,6 +277,7 @@ export class EvaluacionComponent implements OnInit {
 
   // OBTIENE LOS SUBSERVICIOS QUE EXISTEN
   getSubservicios(servicio: any) {
+    this.subservicios = this.arrayVacio;
     this.serviceService.getAllSubservicios(servicio).subscribe((subservicios: any) => {
       this.subservicios = subservicios.servicios;
       this.mostrarSubservicios = true;
@@ -288,72 +290,131 @@ export class EvaluacionComponent implements OnInit {
       });
   }
 
-  // METODO DE CONTROL DE SELECCION DE FILTROS
+  // CONTROL DE SELECCION DE DATOS
   selectAll(opcion: string) {
     switch (opcion) {
       case 'todasSucursales':
         this.todasSucursales = !this.todasSucursales;
-        this.todasSucursales ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-        this.todasSucursales ? this.getServicios(this.sucursalesSeleccionadas) : null;
+        if (this.todasSucursales) {
+          this.getCajeros(this.sucursalesSeleccionadas);
+          this.getServicios(this.sucursalesSeleccionadas);
+        } else {
+          if (this.sucursalesSeleccionadas.length != 0) {
+            this.getCajeros(this.sucursalesSeleccionadas);
+            this.getServicios(this.sucursalesSeleccionadas);
+          }
+          // LIMPIAR FORMULARIO
+          this.listaServicios = [];
+          this.mostrarServicios = false;
+          this.verServicio = false;
+          this.todosServicios = false;
+          this.serviciosSeleccionados = [];
+
+          this.subservicios = [];
+          this.mostrarSubservicios = false;
+          this.verSubservicio = false;
+          this.todosSubservicios = false;
+          this.selectedItems = [];
+
+          this.cajerosEval = [];
+          this.mostrarCajeros = false;
+          this.cajerosSeleccionados = [];
+          this.verCajero = false;
+          this.todosCajeros = false;
+
+        }
         break;
+
       case 'sucursalesSeleccionadas':
         this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-        this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-        this.sucursalesSeleccionadas.length > 0 ? this.getServicios(this.sucursalesSeleccionadas) : null;
+        if (this.sucursalesSeleccionadas.length > 0) {
+          this.getCajeros(this.sucursalesSeleccionadas);
+          this.getServicios(this.sucursalesSeleccionadas);
+        } else {
+          // LIMPIAR FORMULARIO
+          this.listaServicios = [];
+          this.mostrarServicios = false;
+          this.verServicio = false;
+          this.todosServicios = false;
+          this.serviciosSeleccionados = [];
+
+          this.subservicios = [];
+          this.mostrarSubservicios = false;
+          this.verSubservicio = false;
+          this.todosSubservicios = false;
+          this.selectedItems = [];
+
+          this.cajerosEval = [];
+          this.mostrarCajeros = false;
+          this.cajerosSeleccionados = [];
+          this.verCajero = false;
+          this.todosCajeros = false;
+
+        }
         break;
+
       case 'todosCajeros':
         this.todosCajeros = !this.todosCajeros;
-        this.verCajero = false;
-        if (this.todosCajeros) {
-          this.verCajero = true;
-        }
-        if (this.cajerosSeleccionados.length > 0) {
-          this.verCajero = true;
+        this.verCajero = this.todosCajeros || this.cajerosSeleccionados.length > 0;
+        if (!this.todosCajeros) {
+          this.cajerosSeleccionados = [];
         }
         this.resumenEvaluacion = [];
         break;
+
       case 'cajerosSeleccionados':
-        this.verCajero = false;
-        if (this.cajerosSeleccionados.length > 0) {
-          this.verCajero = true;
-        }
+        this.verCajero = this.cajerosSeleccionados.length > 0;
         this.resumenEvaluacion = [];
         break;
+
       case 'todosServicios':
         this.todosServicios = !this.todosServicios;
-        this.todosServicios ? this.getSubservicios(this.serviciosSeleccionados) : null;
-        this.verServicio = false;
+        this.verServicio = this.todosServicios || this.serviciosSeleccionados.length > 0;
         if (this.todosServicios) {
-          this.verServicio = true;
+          this.getSubservicios(this.serviciosSeleccionados);
+        } else {
+          if (this.serviciosSeleccionados.length === 0) {
+            this.subservicios = [];
+            this.selectedItems = [];
+            this.mostrarSubservicios = false;
+          } else {
+            this.getSubservicios(this.serviciosSeleccionados);
+          }
         }
+        this.resumenEvaluacion = [];
+        break;
+
+      case 'serviciosSeleccionados':
         if (this.serviciosSeleccionados.length > 0) {
           this.verServicio = true;
+          this.todosSubservicios = false;
+          this.getSubservicios(this.serviciosSeleccionados);
+        } else {
+          this.verServicio = this.todosServicios;
+          console.log('ver todosServicios ', this.todosServicios)
+          if (!this.todosServicios) {
+            this.subservicios = [];
+            this.selectedItems = [];
+            this.mostrarSubservicios = false;
+          }
         }
         this.resumenEvaluacion = [];
         break;
-      case 'serviciosSeleccionados':
-        this.verServicio = this.serviciosSeleccionados.length > 0;
-        this.serviciosSeleccionados.length > 0 ? this.getSubservicios(this.serviciosSeleccionados) : null;
-        this.resumenEvaluacion = [];
-        break;
+
       case 'todosSubservicios':
         this.todosSubservicios = !this.todosSubservicios;
-        this.verSubservicio = false;
-        if (this.todosSubservicios) {
-          this.verSubservicio = true;
-        }
-        if (this.selectedItems.length > 0) {
-          this.verSubservicio = true;
+        this.verSubservicio = this.todosSubservicios || this.selectedItems.length > 0;
+        if (!this.todosSubservicios) {
+          this.selectedItems = [];
         }
         this.resumenEvaluacion = [];
         break;
+
       case 'subserviciosSeleccionados':
-        this.verSubservicio = false;
-        if (this.selectedItems.length > 0) {
-          this.verSubservicio = true;
-        }
+        this.verSubservicio = this.selectedItems.length > 0;
         this.resumenEvaluacion = [];
         break;
+
       default:
         break;
     }
@@ -374,6 +435,7 @@ export class EvaluacionComponent implements OnInit {
     this.tipoEvaluacion = 3;
     const evaluacion = document.getElementById('todasE') as HTMLInputElement;
     evaluacion.checked = true;
+    this.opcionesGrafico = 'sucursalG';
   }
 
   Limpiar() {
@@ -382,22 +444,25 @@ export class EvaluacionComponent implements OnInit {
     this.todasSucursales = false;
     this.todosServicios = false;
     this.todosCajeros = false;
+
     this.sucursalesSeleccionadas = [];
     this.serviciosSeleccionados = [];
     this.cajerosSeleccionados = [];
-    this.resumenEvaluacion = this.arrayVacio;
-    this.detectarCambios.detectChanges();
     this.selectedItems = [];
+
+    this.resumenEvaluacion = this.arrayVacio;
+    this.listaEvaluaciones = this.arrayVacio;
+    this.detectarCambios.detectChanges();
+
     this.mostrarCajeros = false;
     this.mostrarServicios = false;
     this.mostrarSubservicios = false;
     this.verCajero = false;
     this.verServicio = false;
     this.verSubservicio = false;
-    this.listaEvaluaciones = this.arrayVacio;
 
-
-
+    this.subservicios = [];
+    this.listaServicios = [];
     this.cajerosEval = [];
 
     this.todasSucursalesS = false;
@@ -411,7 +476,7 @@ export class EvaluacionComponent implements OnInit {
     listaSucursales.forEach((elemento: any) => {
       const cod = elemento;
       if (cod == "-1") {
-        nombreSucursal = "Todas las sucursales";
+        nombreSucursal = "GENERALES";
         return;
       }
       const nombre = this.sucursales.find(
@@ -443,9 +508,8 @@ export class EvaluacionComponent implements OnInit {
     this.Limpiar();
   }
 
-  // METODO PARA BUSCAR EVALUACIONES DE ACUERDO A LOS FILTROS SELECCIONADOS
-  BuscarResumenEvaluacion() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
+  MostrarResumenEvaluaciones() {
+    this.opcionesGrafico = 'sucursalG';
     var fechaDesde = this.desdeRE.nativeElement.value
       .toString()
       .trim();
@@ -458,12 +522,7 @@ export class EvaluacionComponent implements OnInit {
     var datoSubservicio: any = '0N';
     var datoCajero: any = '0N';
 
-    /*    console.log('ingresa ver sucursales ', this.sucursalesSeleccionadas);
-        console.log('ingresa ver servicios', this.serviciosSeleccionados)
-        console.log('ingresa ver subservicios', this.selectedItems)
-        console.log('ingresa ver cajeros', this.cajerosSeleccionados)*/
-
-    if (this.sucursalesSeleccionadas.length !== 0) {
+    if (this.sucursalesSeleccionadas.length != 0) {
 
       if (this.serviciosSeleccionados.length != 0) {
         datoServicio = this.serviciosSeleccionados;
@@ -476,109 +535,520 @@ export class EvaluacionComponent implements OnInit {
       if (this.cajerosSeleccionados.length != 0) {
         datoCajero = this.cajerosSeleccionados;
       }
+      this.BuscarResumenEvaluacion(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, datoSubservicio, datoCajero);
 
-      // SERVICIOS
-      this.serviceService
-        .getResumenEvaluacion(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, this.sucursalesSeleccionadas, datoSubservicio, datoCajero, this.opcionCuatro.toString(), this.estadoUsuario, this.verFecha)
-        .subscribe(
-          (servicio: any) => {
-            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-            this.resumenEvaluacion = servicio.turnos;
-            console.log('ver res ', this.resumenEvaluacion)
-            this.malRequestS = false;
-            this.malRequestSPag = false;
-            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-            if (this.configS.currentPage > 1) {
-              this.configS.currentPage = 1;
-            }
-          },
-          (error) => {
-            if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE INTERFAZ
-              this.resumenEvaluacion = null;
-              this.malRequestS = true;
-              this.malRequestSPag = true;
-              /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-                  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-              **/
-              if (this.resumenEvaluacion == null) {
-                this.configS.totalItems = 0;
-              } else {
-                this.configS.totalItems = this.resumenEvaluacion.length;
-              }
-              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-              this.configS = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
-              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-                timeOut: 6000,
-              });
-            }
-          }
-        );
     } else {
+      this.toastr.info("No ha seleccionado datos.", "Upss !!!.", {
+        timeOut: 6000,
+      });
       // SI SE SELECCIONA OPCION POR DEFECTO SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-      this.resumenEvaluacion = null;
+      this.resumenEvaluacion = this.arrayVacio;
       this.malRequestS = true;
       this.malRequestSPag = true;
     }
   }
 
-  exportarExcelEvalaucionFechas() {
-    let nombreSucursal = this.ObtenerNombreSucursal(this.sucursalesSeleccionadas);
+  // METODO PARA BUSCAR EVALUACIONES DE ACUERDO A LOS FILTROS SELECCIONADOS
+  BuscarResumenEvaluacion(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, datoServicio: any, datoSubservicio: any, datoCajero: any,) {
     // SERVICIOS
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    for (let i = 0; i < this.resumenEvaluacion.length; i++) {
-      const item = {
-        ...(this.todasSucursalesS || this.seleccionMultiple
-          ? { Sucursal: this.resumenEvaluacion[i].nombreEmpresa }
-          : {}),
-        "Servicio": this.resumenEvaluacion[i].Servicio,
-        "Subservicio": this.resumenEvaluacion[i].subservicio,
-        "Cajero(a)": this.resumenEvaluacion[i].Usuario,
-        Fecha: this.addOneDay(new Date(this.resumenEvaluacion[i].Fecha)),
-        Excelente: this.resumenEvaluacion[i].Excelente,
-        ...(!this.opcionCuatro
-          ? { "Muy Bueno": this.resumenEvaluacion[i].Muy_Bueno }
-          : {}),
-        Bueno: this.resumenEvaluacion[i].Bueno,
-        Regular: this.resumenEvaluacion[i].Regular,
-        Malo: this.resumenEvaluacion[i].Malo,
-        Total: this.resumenEvaluacion[i].Total,
-        Promedio: this.resumenEvaluacion[i].Promedio,
-      };
-
-      jsonServicio.push(item);
-    }
-
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.resumenEvaluacion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Servicios");
-    XLSX.writeFile(
-      wb,
-      "Servicios - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
+    this.serviceService
+      .getResumenEvaluacion(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, this.sucursalesSeleccionadas, datoSubservicio, datoCajero, this.opcionCuatro.toString(), this.estadoUsuario, this.verFecha)
+      .subscribe(
+        (servicio: any) => {
+          let informacion = servicio.turnos;
+          //console.log('informacion ', informacion)
+          console.log('ingresa existe evaluaciones ');
+          this.BuscarResumenOmitidas(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, datoSubservicio, datoCajero, informacion);
+        },
+        (error) => {
+          if (error.status == 400) {
+            console.log('ingresa no existe evaluaciones ');
+            this.BuscarResumenOmitidas(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, datoSubservicio, datoCajero, '');
+          }
+        }
+      );
   }
+
+  // METODO PARA BUSCAR EVALUACIONES DE ACUERDO A LOS FILTROS SELECCIONADOS
+  BuscarResumenOmitidas(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, datoServicio: any, datoSubservicio: any, datoCajero: any, evaluaciones: any) {
+    // SERVICIOS
+    this.serviceService
+      .getResumenEvaluacionOmitidas(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, this.sucursalesSeleccionadas, datoSubservicio, datoCajero, this.opcionCuatro.toString(), this.estadoUsuario, this.verFecha)
+      .subscribe(
+        (servicio: any) => {
+          let omitidas = servicio.turnos;
+          console.log('ingresa existe omitidas ', evaluaciones);
+          this.ProcesarDatosResumen(evaluaciones, omitidas);
+        },
+        (error) => {
+          if (error.status == 400) {
+            if (evaluaciones != 0) {
+              console.log('ingresa no existe omitidas pero si evaluaciones', evaluaciones);
+              this.ProcesarDatosResumen(evaluaciones, '');
+            }
+            else {
+              this.ErrorResumen();
+            }
+          }
+        }
+      );
+  }
+
+  ErrorResumen() {
+    // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES DE INTERFAZ
+    this.resumenEvaluacion = this.arrayVacio;
+    this.malRequestS = true;
+    this.malRequestSPag = true;
+    /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
+        CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
+    **/
+    if (this.resumenEvaluacion.length === 0) {
+      this.configS.totalItems = 0;
+    } else {
+      this.configS.totalItems = this.resumenEvaluacion.length;
+    }
+    // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
+    this.configS = {
+      itemsPerPage: this.MAX_PAGS,
+      currentPage: 1,
+    };
+    // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
+    this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+      timeOut: 6000,
+    });
+  }
+
+  ProcesarDatosResumen(evaluaciones: any, omitidas: any) {
+    //console.log('ver datos evaluaciones ', evaluaciones);
+    //console.log('ver datos omitidas ', omitidas);
+
+    this.resumenEvaluacion = [];
+    // TRATAMIENTO DE DATOS DE PAGINACION
+    this.malRequestS = false;
+    this.malRequestSPag = false;
+    if (this.configS.currentPage > 1) {
+      this.configS.currentPage = 1;
+    }
+
+    // SI EVALUACIONES ESTA VACIO, ASIGNAMOS OMITIDAS DIRECTAMENTE
+    if (evaluaciones.length === 0) {
+      this.resumenEvaluacion = [...omitidas];
+      //console.log('ver datos generales ', this.resumenEvaluacion);
+      return;
+    }
+    // SI OMITIDAS ESTA VACIO, ASIGNAMOS EVALUACIONES DIRECTAMENTE
+    if (omitidas.length === 0) {
+      this.resumenEvaluacion = [...evaluaciones];
+      //console.log('ver datos generales ', this.resumenEvaluacion);
+      return;
+    }
+
+    // DETERMINAR CLAVES DE COMPARACION DINAMICAMENTE
+    const claves = [];
+    if (this.verFecha === '1') claves.push('Fecha');
+    if (this.verCajero) claves.push('usua_codigo');
+    if (this.verServicio) claves.push('serv_codigo');
+    if (this.verSubservicio) claves.push('sub_codigo');
+
+    let soloOmitidas = [];
+
+    // FUSIONAR OMITIDAS CON EVALUACIONES SI COINCIDEN EN LAS CLAVES
+    evaluaciones.forEach((evalua: any) => {
+      omitidas.forEach((omitida: any) => {
+        const coincide = claves.every((clave) => evalua[clave] === omitida[clave]);
+        if (coincide) {
+          evalua.Omitidas += omitida.Omitidas;
+          evalua.Total += omitida.Total;
+          soloOmitidas.push(omitida);
+        }
+      });
+    });
+
+    // FILTRAR OMITIDAS QUE YA FUERON COMBINADAS CON EVALUACIONES
+    const omitidasProcesadas = new Set(soloOmitidas.map((obj: any) => JSON.stringify(obj)));
+    const omitidasRestantes = omitidas.filter((o: any) => !omitidasProcesadas.has(JSON.stringify(o)));
+
+    // AGREGAR OMITIDAS RESTANTES A EVALUACIONES
+    this.resumenEvaluacion = [...evaluaciones, ...omitidasRestantes];
+  }
+
+  /** ** *************************************************************************************************** **
+   ** **                                METODO DE GENERACION DE GRAFICOS                                  ** **
+   ** ** *************************************************************************************************** **/
+
+  // FUNCION QUE DETECTA CAMBIO DE TIPO DE GRAFICO, Y CREA UNO NUEVO
+  opcionesGrafico: string = 'sucursalG';
+  CambiarOpcionesGrafico(opciones: string) {
+    this.opcionesGrafico = opciones;
+  }
+
+  CambiarGrafico(tipo: string) {
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    let labels: any;
+
+    // FUNCION PARA VALIDAR UNA SELECCION
+    const esSeleccionValida = (lista: any[]) => lista.length === 1 && lista[0] != '-1';
+
+    switch (this.opcionesGrafico) {
+      case 'subservicioG':
+        if (esSeleccionValida(this.sucursalesSeleccionadas) && esSeleccionValida(this.serviciosSeleccionados)) {
+          if (this.verCajero && !esSeleccionValida(this.cajerosSeleccionados)) {
+            this.VerMensaje();
+            return;
+          }
+          labels = this.resumenEvaluacion.map((e: any) => e.subservicio);
+        } else {
+          this.VerMensaje();
+          return;
+        }
+        break;
+
+      case 'servicioG':
+        if (esSeleccionValida(this.sucursalesSeleccionadas)) {
+          if (this.verCajero && !esSeleccionValida(this.cajerosSeleccionados)) {
+            this.VerMensaje();
+            return;
+          }
+          if (this.verSubservicio && !esSeleccionValida(this.selectedItems)) {
+            this.VerMensaje();
+            return;
+          }
+          labels = this.resumenEvaluacion.map((e: any) => e.Servicio);
+        } else {
+          this.VerMensaje();
+          return;
+        }
+        break;
+
+      case 'cajeroG':
+        if (esSeleccionValida(this.sucursalesSeleccionadas)) {
+          if (this.verServicio && !esSeleccionValida(this.serviciosSeleccionados)) {
+            this.VerMensaje();
+            return;
+          }
+          if (this.verSubservicio && !esSeleccionValida(this.selectedItems)) {
+            this.VerMensaje();
+            return;
+          }
+          labels = this.resumenEvaluacion.map((e: any) => e.Usuario);
+        } else {
+          this.VerMensaje();
+          return;
+        }
+        break;
+
+      case 'sucursalG':
+        if (this.verServicio && !esSeleccionValida(this.serviciosSeleccionados)) {
+          this.VerMensaje();
+          return;
+        }
+        if (this.verSubservicio && !esSeleccionValida(this.selectedItems)) {
+          this.VerMensaje();
+          return;
+        }
+        if (this.verCajero && !esSeleccionValida(this.cajerosSeleccionados)) {
+          this.VerMensaje();
+          return;
+        }
+        labels = this.resumenEvaluacion.map((e: any) => e.nombreEmpresa);
+        break;
+
+      default:
+        this.VerMensaje();
+        return;
+    }
+
+    this.PresentarGrafico(labels, tipo);
+  }
+
+  PresentarGrafico(labels: any, tipo: any) {
+    // LOS VALORES NUMERICOS DE PROMEDIO Y OMITIDAS
+    const dataEvaluadas = this.resumenEvaluacion.map((e: any) => e.Evaluadas);
+    const dataOmitidas = this.resumenEvaluacion.map((e: any) => e.Omitidas);
+    // COLORES GENERADOS
+    const colorsEvaluados = this.resumenEvaluacion.map(() => this.GenerarColoresEvaluadas());
+    const colorsOmitidas = this.resumenEvaluacion.map(() => this.GenerarColoresOmitidas());
+    this.tipo = tipo;
+    if (tipo === 'bar') {
+      this.generarGraficoBarra(labels, dataEvaluadas, dataOmitidas, colorsEvaluados, colorsOmitidas);
+    }
+    else {
+      this.generarGraficoPastel(labels, dataEvaluadas, dataOmitidas, colorsEvaluados, colorsOmitidas);
+    }
+  }
+
+  generarGraficoBarra(etiquetas: any, dataEvaluadas: any, dataOmitidas: any, colorsEvaluados: any, colorsOmitidas: any) {
+    const labels = etiquetas;  // Nombres de las sucursales
+    // CREAMOS LOS DATASETS
+    const promedioDataset = {
+      label: 'Evaluaciones',
+      data: dataEvaluadas,  // LOS VALORES DE PROMEDIO 
+      backgroundColor: colorsEvaluados,  // COLORES
+      borderColor: colorsEvaluados.map((color: any) => color.replace('0.6', '1')),  // COLORES CON MAS OPACIDAD PARA LOS BORDES
+      borderWidth: 1
+    };
+    const omitidasDataset = {
+      label: 'Omitidas',
+      data: dataOmitidas,  // LOS VALORES DE OMITIDAS
+      backgroundColor: colorsOmitidas,  // COLORES
+      borderColor: colorsOmitidas.map((color: any) => color.replace('0.6', '1')),  // BORDES CON MAS OPACIDAD
+      borderWidth: 1
+    };
+    // GENERAR GRAFICO
+    this.chart = new Chart("canvas", {
+      type: 'bar',
+      data: {
+        labels: labels,  // ETIQUETAS
+        datasets: [promedioDataset, omitidasDataset]  // ANADIMOS LOS DATASETS PARA PROMEDIO Y OMITIDAS
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            stacked: false  // ASEGURA QUE LAS BARRAS NO SE APILEN
+          },
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const datasetIndex = context.datasetIndex;
+                const dataIndex = context.dataIndex;
+
+                // TOOLTIP PARA PROMEDIO (VALOR STRING COMO "EXCELENTE") Y OMITIDAS (VALOR NUMERICO)
+                if (datasetIndex === 0) {  // PARA EVALUACIONES
+                  return `${context.label}: ${this.resumenEvaluacion[dataIndex].Promedio}`;
+                } else {  // PARA OMITIDAS
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          },
+          legend: {
+            labels: {
+              generateLabels: (chart) => {
+                const datasets = chart.data.datasets;
+                const labels = [];
+                // GENERAR ETIQUETAS PERSONALIZADAS
+                datasets.forEach((dataset, datasetIndex) => {
+                  dataset.data.forEach((dataValue, dataIndex) => {
+                    const tipo = chart.data.labels[dataIndex];
+                    const label = `${tipo} - ${dataset.label}: ${dataValue}`;
+                    labels.push({
+                      text: label,
+                      fillStyle: dataset.backgroundColor[dataIndex],
+                      strokeStyle: dataset.borderColor[dataIndex],
+                      lineWidth: 1,
+                      hidden: false
+                    });
+                  });
+                });
+                return labels;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  generarGraficoPastel(etiquetas: any, dataEvaluadas: any, dataOmitidas: any, colorsEvaluados: any, colorsOmitidas: any) {
+    const labels = etiquetas;   // ETIQUETAS
+    // CREAMOS LOS DATASETS
+    const promedioDataset = {
+      label: 'Evaluaciones',
+      data: dataEvaluadas,  // LOS VALORES DE PROMEDIO
+      backgroundColor: colorsEvaluados,  // COLORES
+      borderColor: colorsEvaluados.map((color: any) => color.replace('0.6', '1')),  // COLORES CON MAS OPACIDAD PARA LOS BORDES
+      borderWidth: 1
+    };
+    const omitidasDataset = {
+      label: 'Omitidas',
+      data: dataOmitidas,  // LOS VALORES DE OMITIDAS
+      backgroundColor: colorsOmitidas,  // 
+      borderColor: colorsOmitidas.map((color: any) => color.replace('0.6', '1')),  // BORDES CON MAS OPACIDAD
+      borderWidth: 1
+    };
+    // GENERAR GRAFICO
+    this.chart = new Chart("canvas", {
+      type: 'pie',
+      data: {
+        labels: labels,  // LAS ETIQUETAS
+        datasets: [promedioDataset, omitidasDataset]  // ANADIMOS LOS DATASETS PARA PROMEDIO Y OMITIDAS
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const datasetIndex = context.datasetIndex;
+                const dataIndex = context.dataIndex;
+                // TOOLTIP PARA PROMEDIO (VALOR STRING COMO "EXCELENTE") Y OMITIDAS (VALOR NUMERICO)
+                if (datasetIndex === 0) {  // PARA EVALUADAS
+                  return `${context.label}: ${this.resumenEvaluacion[dataIndex].Promedio}`;
+                } else {  // PARA OMITIDAS
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          },
+          legend: {
+            labels: {
+              generateLabels: (chart) => {
+                const datasets = chart.data.datasets;
+                const labels = [];
+                // GENERAR ETIQUETAS PERSONALIZADAS
+                datasets.forEach((dataset, datasetIndex) => {
+                  dataset.data.forEach((dataValue, dataIndex) => {
+                    const tipo = chart.data.labels[dataIndex];
+                    const label = `${tipo} - ${dataset.label}: ${dataValue}`;
+
+                    labels.push({
+                      text: label,
+                      fillStyle: dataset.backgroundColor[dataIndex],
+                      strokeStyle: dataset.borderColor[dataIndex],
+                      lineWidth: 1,
+                      hidden: false
+                    });
+                  });
+                });
+                return labels;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // FUNCION PARA GENERAR UN COLOR ALEATORIO
+  GenerarColoresEvaluadas() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.6)`;
+  }
+
+  // FUNCION PARA GENERAR UN COLOR ALEATORIO
+  GenerarColoresOmitidas() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.6)`;
+  }
+
+  VerMensaje() {
+    this.toastr.info("Los filtros aplicados no son válidos. Cada filtro debe tener solo una opción seleccionada, excepto el filtro correspondiente al Tipo de Grráfico seleccionado, que puede contener más de un registro", "Upss !!!.", {
+      timeOut: 6000,
+    });
+  }
+
+  GenerarExcelEvaluaciones() {
+    /*
+    let workbook = new ExcelJS.Workbook();
+    let worksheet = workbook.addWorksheet("Resumen Evaluaciones");
+  
+    // DEFINIR ENCABEZADOS DINAMICAMENTE
+    let headers = ["Sucursal"];
+    if (this.verSubservicio) {
+      headers.push("Servicio", "Subservicio");
+    } else if (this.verServicio) {
+      headers.push("Servicio");
+    }
+    if (this.verCajero) {
+      headers.push("Cajero(a)");
+    }
+    if (this.verFecha === "1") {
+      headers.push("Fecha");
+    }
+    headers.push("Excelente");
+    if (!this.opcionCuatro) {
+      headers.push("Muy Bueno");
+    }
+    headers.push("Bueno", "Regular", "Malo", "Total Evaluadas", "Total Omitidas", "Total General", "Promedio");
+  
+    // AGREGAR ENCABEZADOS A LA HOJA
+    worksheet.addRow(headers).font = { bold: true };
+  
+    // AGREGAR DATOS DINAMICOS
+    this.resumenEvaluacion.forEach(res => {
+      let row = [res.nombreEmpresa];
+      if (this.verSubservicio) {
+        row.push(res.Servicio, res.subservicio);
+      } else if (this.verServicio) {
+        row.push(res.Servicio);
+      }
+      if (this.verCajero) {
+        row.push(res.Usuario);
+      }
+      if (this.verFecha === "1") {
+        row.push(res.Fecha);
+      }
+      row.push(res.Excelente);
+      if (!this.opcionCuatro) {
+        row.push(res.Muy_Bueno);
+      }
+      row.push(res.Bueno, res.Regular, res.Malo, res.Evaluadas, res.Omitidas, res.Total, res.Promedio);
+      worksheet.addRow(row);
+    });
+  
+    // AJUSTAR EL ANCHO DE LAS COLUMNAS AUTOMATICAMENTE
+    worksheet.columns.forEach(column => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, cell => {
+        let cellValue = cell.value ? cell.value.toString() : "";
+        maxLength = Math.max(maxLength, cellValue.length);
+      });
+      column.width = maxLength < 10 ? 10 : maxLength;
+    });
+  
+    // ESTILOS DE ENCABEZADO
+    worksheet.getRow(1).eachCell(cell => {
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFCC00" } };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.font = { bold: true };
+    });
+  
+    // GENERAR ARCHIVO EXCEL Y DESCARGARLO
+    workbook.xlsx.writeBuffer().then(buffer => {
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      saveAs(blob, "ResumenEvaluaciones.xlsx");
+    });
+*/
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // GENERACION DE PDF'S
   GenerarPDFEvaluacionFechas(action = "open", pdf: number) {
-    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.desdeRE.nativeElement.value
       .toString()
       .trim();
@@ -586,7 +1056,7 @@ export class EvaluacionComponent implements OnInit {
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition: any;
     if (pdf === 1) {
-      documentDefinition = this.DocumentarEvalaucionFechas(
+      documentDefinition = this.DocumentarEvaluacionFechas(
         fechaDesde,
         fechaHasta,
       );
@@ -611,329 +1081,173 @@ export class EvaluacionComponent implements OnInit {
   }
 
   // FUNCION DELEGADA PARA SETEO DE INFORMACIÓN EN ESTRUCTURA
-  DocumentarEvalaucionFechas(fechaDesde: any, fechaHasta: any) {
+  DocumentarEvaluacionFechas(fechaDesde: any, fechaHasta: any) {
+    if (this.verFecha != '1') {
+      var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
+      // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
+      var canvasImg = canvas1.toDataURL("image/png");
+    }
     // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.ObtenerNombreSucursal(this.sucursalesSeleccionadas);
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
       pageSize: 'A4',
-      pageOrientation: 'landscape',
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageOrientation: this.orientacion,
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 75,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Evaluación por servicio",
-              bold: true,
-              fontSize: 15,
-              margin: [-75, 20, 0, 0],
-            },
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA
-        this.opcionCuatro
-          ? this.serviciosC(this.resumenEvaluacion)
-          : this.servicios(this.resumenEvaluacion),
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `RESUMEN DE EVALUACIONES`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fechaDesde} HASTA ${fechaHasta}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        this.TratamientoInformacionEvaluacion(this.resumenEvaluacion),
+        this.LeerGraficoEvaluaciones(canvasImg),
       ],
       styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        itemsTable: { fontSize: 8, alignment: 'center' },
+      }
     };
   }
 
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND SERVICIOS
-  servicios(servicio: any[]) {
-    if (this.todasSucursalesS || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subservicio },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
+  TratamientoInformacionEvaluacion(servicio: any[]) {
+    let headers = [{ text: "Sucursal", style: "tableHeader", alignment: 'center', }];
+    let includeSubservicio = this.verSubservicio;
+    let includeServicio = this.verServicio;
+    let includeCajero = this.verCajero;
+    let includeFecha = this.verFecha === "1";
+    let includeMuyBueno = !this.opcionCuatro;
+
+    if (includeSubservicio) {
+      headers.push({ text: "Servicio", style: "tableHeader", alignment: 'center' });
+      headers.push({ text: "Subservicio", style: "tableHeader", alignment: 'center' });
+    } else if (includeServicio) {
+      headers.push({ text: "Servicio", style: "tableHeader", alignment: 'center' });
+    }
+
+    if (includeCajero) {
+      headers.push({ text: "Cajero(a)", style: "tableHeader", alignment: 'center' });
+    }
+
+    if (includeFecha) {
+      headers.push({ text: "Fecha", style: "tableHeader", alignment: 'center' });
+    }
+
+    headers.push({ text: "Excelente", style: "tableHeader", alignment: 'center' });
+
+    if (includeMuyBueno) {
+      headers.push({ text: "Muy Bueno", style: "tableHeader", alignment: 'center' });
+    }
+
+    headers.push(...[
+      { text: "Bueno", style: "tableHeader", alignment: 'center' },
+      { text: "Regular", style: "tableHeader", alignment: 'center' },
+      { text: "Malo", style: "tableHeader", alignment: 'center' },
+      { text: "Total Evaluadas", style: "tableHeader", alignment: 'center' },
+      { text: "Total Omitidas", style: "tableHeader", alignment: 'center' },
+      { text: "Total General", style: "tableHeader", alignment: 'center' },
+      { text: "Promedio", style: "tableHeader", alignment: 'center' }
+    ]);
+
+    let bodyRows = servicio.map((res) => {
+      let row = [{ style: "itemsTable", text: res.nombreEmpresa, alignment: 'center' }];
+
+      if (includeSubservicio) {
+        row.push({ style: "itemsTable", text: res.Servicio, alignment: 'center' });
+        row.push({ style: "itemsTable", text: res.subservicio, alignment: 'center' });
+      } else if (includeServicio) {
+        row.push({ style: "itemsTable", text: res.Servicio, alignment: 'center' });
+      }
+
+      if (includeCajero) {
+        row.push({ style: "itemsTable", text: res.Usuario, alignment: 'center' });
+      }
+
+      if (includeFecha) {
+        row.push({ style: "itemsTable", text: res.Fecha, alignment: 'center' });
+      }
+
+      row.push({ style: "itemsTable", text: res.Excelente, alignment: 'center' });
+
+      if (includeMuyBueno) {
+        row.push({ style: "itemsTable", text: res.Muy_Bueno, alignment: 'center' });
+      }
+
+      row.push(...[
+        { style: "itemsTable", text: res.Bueno, alignment: 'center' },
+        { style: "itemsTable", text: res.Regular, alignment: 'center' },
+        { style: "itemsTable", text: res.Malo, alignment: 'center' },
+        { style: "itemsTable", text: res.Evaluadas, alignment: 'center' },
+        { style: "itemsTable", text: res.Omitidas, alignment: 'center' },
+        { style: "itemsTable", text: res.Total, alignment: 'center' },
+        { style: "itemsTable", text: res.Promedio, alignment: 'center' }
+      ]);
+
+      return row;
+    });
+
+    return {
+      alignment: "center",
+      table: {
+        headerRows: 1,
+        widths: headers.map(() => "auto"),
+        body: [headers, ...bodyRows],
+      },
+      layout: {
+        fillColor: function (rowIndex: any) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
         },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
+      },
+      margin: [5, 0, 5, 0], // AGREGAR MARGEN LATERAL PARA CENTRAR MEJOR
+    };
+  }
+
+  LeerGraficoEvaluaciones(imagen: any) {
+    if (this.verFecha != '1') {
+      let contenidoGrafico = [
+        {
+          text: "GRÁFICO DE EVALUACIONES",
+          fontSize: 14,
+          bold: true,
+          alignment: "center",
+          margin: [0, 10, 0, 10],
+          pageBreak: "before"
         },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subservicio },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
+        {
+          image: imagen,
+          fit: [500, 350],
+          margin: [0, 10, 0, 10],
+          alignment: "center",
+        }
+      ];
+      return contenidoGrafico;
     }
   }
 
-  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND SERVICIOS
-  serviciosC(servicio: any[]) {
-    if (this.todasSucursalesS || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Usuario },
-                { style: "itemsTable", text: res.Fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
 
 
   /** ** *************************************************************************************************** **
@@ -1111,9 +1425,7 @@ export class EvaluacionComponent implements OnInit {
         }
       }
     })
-
-    console.log('ver datos ', this.listaEvaluaciones)
-
+    //console.log('ver datos ', this.listaEvaluaciones)
     this.malRequestE = false;
     this.malRequestEPag = false;
     // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
@@ -1517,23 +1829,6 @@ export class EvaluacionComponent implements OnInit {
   }
 
 
-  /** ** *************************************************************************************************** **
-   ** **                          METODO DE BUSQUEDA DE EVALAUCION CON GRAFICOS                           ** **
-   ** ** *************************************************************************************************** **/
-
-  // CAMBIO ORIENTACION
-  CambiarOrientacion(orientacion: string) {
-    this.orientacion = orientacion;
-  }
-
-  // FUNCION QUE DETECTA CAMBIO DE TIPO DE GRAFICO, Y CREA UNO NUEVO
-  CambiarGrafico(tipo: string) {
-    this.tipo = tipo;
-    if (this.chart) {
-      this.chart.destroy();
-    }
-    this.leerGraficosevabar();
-  }
 
 
 
@@ -1580,181 +1875,6 @@ export class EvaluacionComponent implements OnInit {
 
 
 
-
-
-  leerGraficosevabar() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fechaDesde = this.desdeRE.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.hastaRE.nativeElement.value
-      .toString()
-      .trim();
-
-    let horaInicio = this.horaInicioRE.nativeElement.value;
-    let horaFin = this.horaFinRE.nativeElement.value;
-
-    this.malRequestGra = false;
-
-
-    if (this.selectedItems.length !== 0) {
-      this.serviceService
-        .getgraficobarrasfiltro(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.opcionCuatro.toString())
-        .subscribe(
-          (servicioGra: any) => {
-            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-            this.servicioGra = servicioGra.turnos;
-            this.malRequestGraPag = false;
-
-            // FORMATEO Y MAPEO DE DATOS PARA IMPRIMIR VALORES EN GRAFICO
-            let evOrig = this.servicioGra;
-            let evaluaciones = (this.selectedItems[0] == "-2" ? ["Todos los usuarios"] : servicioGra.turnos.map((res) => res.usuario));
-            let Nombres: string | any[];
-            let valNombres: number[];
-            let totalPorc: number;
-            let porcts: string[] | number[];
-
-            if (this.opcionCuatro) {
-              Nombres = ["Excelente", "Bueno", "Regular", "Malo"];
-              valNombres = [0, 0, 0, 0];
-              totalPorc = 0;
-              porcts = [0, 0, 0, 0];
-            } else {
-              Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
-              valNombres = [0, 0, 0, 0, 0];
-              totalPorc = 0;
-              porcts = [0, 0, 0, 0, 0];
-            }
-
-            /** EMPATE PARA OBTENER PORCENTAJES DE NOMBRES QUE NO POSEA LA CONSULTA
-             * (SI UNA CONSULTA NO TIENE MALOS, AQUI SE COMPLETA PARA MOSTRAR MEJOR LOS DATOS AL USUARIO)
-             **/
-            for (var i = 0; i < Nombres.length; i++) {
-              if (evOrig.find((val: any) => val.evaluacion === Nombres[i]) != null) {
-                valNombres[i] = evOrig.find(
-                  (val: any) => val.evaluacion === Nombres[i]
-                ).total;
-              }
-              totalPorc = totalPorc + valNombres[i];
-            }
-            for (var i = 0; i < Nombres.length; i++) {
-              porcts[i] =
-                Math.round(((valNombres[i] * 100) / totalPorc) * 1000) / 1000;
-              Nombres[i] = Nombres[i] + "\n" + porcts[i] + "%";
-            }
-            // SETEO DE TITULO DE GRAFICO
-            var titulo = true;
-            if (this.tipo == "bar") {
-              titulo = false;
-            } else {
-              titulo = true;
-            }
-
-            // CREACION DE CHART [IMAGEN] DE TIPO CANVAS SI ES BAR
-            if (this.tipo == "bar") {
-              // SE DEFINE PARAMETROS COMO LOS LABELS, DATA, OPCIONES (MOSTRAR EL TITULO O RESPONSIVE)
-              this.chart = new Chart("canvas", {
-                type: this.tipo,
-                data: {
-                  labels: Nombres, // EJE X
-                  datasets: [
-                    {
-                      label: "",
-                      data: valNombres,
-                      backgroundColor: [
-                        "rgba(51, 172, 32, 0.4)",
-                        "rgba(55, 171, 228, 1)",
-                        "rgba(213, 220, 102, 0.77)",
-                        "rgba(251, 182, 55, 0.77)",
-                        "rgba(149, 148, 204, 0.86)",
-                      ],
-                    },
-                  ],
-                },
-                options: {
-                  plugins: {
-                    title: {
-                      display: true,
-                      text: evaluaciones[0],
-                    },
-                    legend: {
-                      display: false,
-                    },
-                  },
-                  responsive: true,
-                  maintainAspectRatio: true,
-                },
-              });
-            } else {
-              /** CREACION DE CHART [IMAGEN] DE TIPO CANVAS DE TIPO PIE
-               * SE DEFINE PARAMETROS COMO LOS LABELS, DATA, OPCIONES (MOSTRAR EL TITULO O RESPONSIVE)
-               **/
-              this.chart = new Chart("canvas", {
-                type: 'pie',
-                data: {
-                  labels: Nombres, // EJE X
-                  datasets: [
-                    {
-                      label: evaluaciones[0],
-                      data: valNombres, // EJE Y
-                      backgroundColor: [
-                        "rgba(51, 172, 32, 0.4)",
-                        "rgba(55, 171, 228, 1)",
-                        "rgba(213, 220, 102, 0.77)",
-                        "rgba(251, 182, 55, 0.77)",
-                        "rgba(149, 148, 204, 0.86)",
-                      ],
-                    },
-                  ],
-                },
-                options: {
-                  plugins: {
-                    title: {
-                      display: titulo,
-                      text: evaluaciones[0],
-                    },
-                    datalabels: {
-                      color: "black",
-                      labels: {
-                        title: {
-                          font: {
-                            weight: "bold",
-                          },
-                        },
-                      },
-                    },
-                  },
-                  responsive: true,
-                },
-              });
-            }
-          },
-          (error) => {
-            if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-              this.servicioGra = null;
-              this.malRequestGra = true;
-              this.malRequestGraPag = true;
-              /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-               *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-               **/
-
-
-              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-                timeOut: 6000,
-              });
-            }
-          }
-        );
-      /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
-       *  EVITANDO SUPERPOSISION DEL NUEVO CHART
-       **/
-      if (this.chart != undefined || this.chart != null) {
-        this.chart.destroy();
-      }
-    }
-  }
 
 
 
@@ -1843,6 +1963,25 @@ export class EvaluacionComponent implements OnInit {
       EXCEL_EXTENSION
     );
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

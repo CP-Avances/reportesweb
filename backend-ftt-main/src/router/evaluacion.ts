@@ -90,13 +90,13 @@ router.get(
       columnas += `DATE_FORMAT(f.eval_fecha, '%Y-%m-%d') AS Fecha,`;
     }
     if (listaServicios != '0N') {
-      columnas += `s.serv_nombre AS Servicio,`;
+      columnas += `s.serv_codigo, s.serv_nombre AS Servicio,`;
     }
     if (listaSubservicios != '0N') {
-      columnas += `ss.nombre AS subservicio,`;
+      columnas += `ss.id AS sub_codigo, ss.nombre AS subservicio,`;
     }
     if (listaCajeros != '0N') {
-      columnas += `a.usua_nombre AS Usuario,`;
+      columnas += `a.usua_codigo, a.usua_nombre AS Usuario,`;
       estadoUsuario = true;
     }
 
@@ -112,6 +112,8 @@ router.get(
       SUM(eval_califica = 30) AS Bueno,
       SUM(eval_califica = 20) AS Regular,
       SUM(eval_califica = 10) AS Malo,
+      0 AS Omitidas,
+      COUNT(eval_califica) AS Evaluadas,
       COUNT(eval_califica) AS Total
       `;
 
@@ -169,7 +171,7 @@ router.get(
         grupo_order +=
           `      
             GROUP BY 
-              s.serv_nombre, f.eval_fecha, a.usua_codigo, ss.nombre
+              s.serv_nombre, s.serv_codigo, f.eval_fecha, a.usua_codigo, ss.nombre, ss.id
             ORDER BY 
               s.serv_nombre, f.eval_fecha DESC;
           `;
@@ -178,7 +180,7 @@ router.get(
         grupo_order +=
           `      
             GROUP BY 
-              s.serv_nombre, a.usua_codigo, ss.nombre
+              s.serv_nombre, s.serv_codigo, a.usua_codigo, ss.nombre, ss.id
             ORDER BY 
               s.serv_nombre DESC;
           `;
@@ -191,7 +193,7 @@ router.get(
         grupo_order +=
           `      
             GROUP BY 
-              e.empr_nombre, s.serv_nombre, f.eval_fecha, ss.nombre
+              e.empr_nombre, s.serv_nombre, s.serv_codigo, f.eval_fecha, ss.nombre, ss.id
             ORDER BY 
               s.serv_nombre, f.eval_fecha DESC;
           `;
@@ -200,7 +202,7 @@ router.get(
         grupo_order +=
           `      
             GROUP BY 
-              e.empr_nombre, s.serv_nombre, ss.nombre
+              e.empr_nombre, s.serv_nombre, s.serv_codigo, ss.nombre, ss.id
             ORDER BY 
               s.serv_nombre DESC;
           `;
@@ -212,7 +214,7 @@ router.get(
         grupo_order +=
           `      
             GROUP BY 
-              s.serv_nombre, f.eval_fecha, a.usua_codigo
+              s.serv_nombre, s.serv_codigo, f.eval_fecha, a.usua_codigo
             ORDER BY 
               s.serv_nombre, f.eval_fecha DESC;
           `;
@@ -221,7 +223,7 @@ router.get(
         grupo_order +=
           `      
             GROUP BY 
-              s.serv_nombre, a.usua_codigo
+              s.serv_nombre, s.serv_codigo, a.usua_codigo
             ORDER BY 
               s.serv_nombre DESC;
           `;
@@ -233,7 +235,7 @@ router.get(
         grupo_order +=
           `      
             GROUP BY 
-              e.empr_nombre, s.serv_nombre, f.eval_fecha
+              e.empr_nombre, s.serv_nombre, s.serv_codigo, f.eval_fecha
             ORDER BY 
               s.serv_nombre, f.eval_fecha DESC;
           `;
@@ -242,7 +244,7 @@ router.get(
         grupo_order +=
           `      
             GROUP BY 
-              e.empr_nombre, s.serv_nombre
+              e.empr_nombre, s.serv_nombre, s.serv_codigo
             ORDER BY 
               s.serv_nombre DESC;
           `;
@@ -302,6 +304,294 @@ router.get(
       ${!estadoUsuario ? `INNER JOIN cajero c ON c.usua_codigo = a.usua_codigo` : ''}
       INNER JOIN empresa e ON e.empr_codigo = a.empr_codigo
       INNER JOIN turno t ON t.turn_codigo = f.turn_codigo
+      INNER JOIN servicio s ON s.serv_codigo = t.serv_codigo
+      INNER JOIN sub_servicio ss ON ss.id = t.id_sub_serv
+      ${filtros}
+      ${grupo_order}
+      `;
+    console.log('consulta ', consulta)
+
+    query = consulta
+
+    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
+      if (err) {
+        res.status(400).json({
+          ok: false,
+          error: err,
+        });
+      } else {
+        res.json({
+          ok: true,
+          turnos,
+        });
+      }
+    });
+  }
+);
+
+// METODO DE BUSQUEDA DE EVALUACIONES OMITIDAS POR CAJERO - POR SERVICIO - POR SUBSERVICIO
+router.get(
+  "/evaluacion/omitidas/resumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:servicios/:sucursales/:subservicio/:cajero/:opcion/:estado/:fecha", TokenValidation,
+  (req: Request, res: Response) => {
+
+    // VARIABLES DE FECHAS
+    const fDesde = req.params.fechaDesde;
+    const fHasta = req.params.fechaHasta;
+    // VARIABLES DE HORAS
+    const hInicio = req.params.horaInicio;
+    const hFin = req.params.horaFin;
+    let diaCompleto = false;
+    let hFinAux = 0;
+    // VARIABLE QUE DEFINEN FECHA (1) O RANGO DE FECHAS (2)
+    const fecha = req.params.fecha;
+    let verFecha = true;
+    // VARIBALE DE OPCIONES DE BOTONES (TRUE -> 4 -- FALSE -> 5)
+    const opcion = req.params.opcion;
+    let opciones = false;
+    // VARIABLE DE ESTADO DEL USUARIO
+    const estado = req.params.estado;
+    let estadoUsuario = false;
+    // FILTROS DE SUCURSALES
+    const listaSucursales = req.params.sucursales;
+    const sucursalesArray = listaSucursales.split(",");
+    let todasSucursales = false;
+    // FILTROS DE SERVICIOS
+    const listaServicios: any = req.params.servicios;
+    const serviciosArray = listaServicios.split(",");
+    let todosServicios = false;
+    // FILTROS DE CAJEROS
+    const listaCajeros = req.params.cajero;
+    const cajerosArray = listaCajeros.split(",");
+    let todosCajeros = false;
+    // FILTROS DE SUBSERVICIOS
+    const listaSubservicios = req.params.subservicio;
+    const subserviciosArray = listaSubservicios.split(",");
+    let todosSubservicios = false;
+
+    // VALIDACION DE SUCURSALES
+    if (sucursalesArray.includes("-1")) {
+      todasSucursales = true
+    }
+    // VALIDACION DE SERVICIOS
+    if (serviciosArray.includes("-1")) {
+      todosServicios = true
+    }
+    // VALIDACION DE CAJEROS
+    if (cajerosArray.includes("-1")) {
+      todosCajeros = true
+    }
+    // VALIDACION DE SUBSERVICIOS
+    if (subserviciosArray.includes("-1")) {
+      todosSubservicios = true
+    }
+    // VALIDACION DE HORAS
+    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
+      diaCompleto = true;
+    } else {
+      hFinAux = parseInt(hFin) - 1;
+    }
+    // VALIDACION DE OPCIONES
+    if (opcion == "true") {
+      opciones = true;
+    }
+    // VALIDACION DE FECHAS
+    if (fecha === "2") {
+      verFecha = false;
+    }
+
+    let query;
+
+    // CREAR SQL DE ACUERDO A LAS VALIDACIONES
+    let columnas =
+      `
+      e.empr_nombre AS nombreEmpresa,
+      `;
+
+    if (verFecha === true) {
+      columnas += `DATE_FORMAT(ne.eval_fecha, '%Y-%m-%d') AS Fecha,`;
+    }
+    if (listaServicios != '0N') {
+      columnas += `s.serv_nombre AS Servicio, s.serv_codigo,`;
+    }
+    if (listaSubservicios != '0N') {
+      columnas += `ss.nombre AS subservicio, ss.id AS sub_codigo,`;
+    }
+    if (listaCajeros != '0N') {
+      columnas += `a.usua_nombre AS Usuario, a.usua_codigo,`;
+      estadoUsuario = true;
+    }
+
+    columnas +=
+      `
+        0 AS Excelente,
+        0 AS Muy_Bueno,
+        0 AS Bueno,
+        0 AS Regular,
+        0 AS Malo,
+        0 AS Evaluadas,
+        COUNT(DISTINCT ne.eval_codigo) AS Omitidas,
+        COUNT(DISTINCT ne.eval_codigo) AS Total,
+        'Sin evaluación' AS Promedio
+      `;
+
+    let filtros =
+      `
+        WHERE a.usua_codigo != 2
+      `;
+
+    if (!estadoUsuario) filtros += ` AND c.caje_estado = ${estado} `;
+    if (!todasSucursales) filtros += ` AND a.empr_codigo IN (${listaSucursales}) `;
+    if (listaServicios != '0N') {
+      if (!todosServicios) filtros += ` AND s.serv_codigo IN (${listaServicios}) `;
+    }
+    if (listaSubservicios != '0N') {
+      if (!todosSubservicios) filtros += ` AND ss.id IN (${listaSubservicios}) `;
+    }
+    if (listaCajeros != '0N') {
+      if (!todosCajeros) filtros += ` AND a.usua_codigo IN (${listaCajeros}) `;
+    }
+    if (!diaCompleto) filtros += ` AND ne.eval_hora BETWEEN '${hInicio}' AND '${hFinAux}' `;
+    filtros += ` AND ne.eval_fecha BETWEEN '${fDesde}' AND '${fHasta}' `;
+
+    let grupo_order = ``
+
+    if (listaServicios != '0N' && listaSubservicios != '0N' && listaCajeros != '0N') {
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              s.serv_nombre, s.serv_codigo, ne.eval_fecha, a.usua_codigo, ss.nombre, ss.id
+            ORDER BY 
+              s.serv_nombre, ne.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              s.serv_nombre, s.serv_codigo, a.usua_codigo, ss.nombre, ss.id
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+      }
+
+    }
+
+    if (listaServicios != '0N' && listaSubservicios != '0N' && listaCajeros === '0N') {
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, s.serv_codigo, ne.eval_fecha, ss.nombre, ss.id
+            ORDER BY 
+              s.serv_nombre, ne.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, s.serv_codigo, ss.nombre, ss.id
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+      }
+    }
+
+    if (listaServicios != '0N' && listaSubservicios === '0N' && listaCajeros != '0N') {
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              s.serv_nombre, s.serv_codigo, ne.eval_fecha, a.usua_codigo
+            ORDER BY 
+              s.serv_nombre, ne.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              s.serv_nombre, s.serv_codigo, a.usua_codigo
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+      }
+    }
+
+    if (listaServicios != '0N' && listaSubservicios === '0N' && listaCajeros === '0N') {
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, s.serv_codigo, ne.eval_fecha
+            ORDER BY 
+              s.serv_nombre, ne.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, s.serv_nombre, s.serv_codigo
+            ORDER BY 
+              s.serv_nombre DESC;
+          `;
+      }
+    }
+
+    if (listaServicios === '0N' && listaSubservicios === '0N' && listaCajeros != '0N') {
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, ne.eval_fecha, a.usua_codigo
+            ORDER BY 
+              ne.eval_fecha DESC;
+            `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, a.usua_codigo
+            ORDER BY 
+              e.empr_nombre DESC;
+          `;
+      }
+    }
+
+    if (listaServicios === '0N' && listaSubservicios === '0N' && listaCajeros === '0N') {
+      if (verFecha === true) {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre, ne.eval_fecha
+            ORDER BY 
+              ne.eval_fecha DESC;
+          `;
+      }
+      else {
+        grupo_order +=
+          `      
+            GROUP BY 
+              e.empr_nombre
+            ORDER BY 
+              e.empr_nombre DESC;
+          `;
+      }
+    }
+
+    let consulta =
+      `
+      SELECT 
+        ${columnas}
+      FROM 
+        usuarios a
+      INNER JOIN noevaluacion ne ON a.usua_codigo = ne.usua_codigo
+      ${!estadoUsuario ? `INNER JOIN cajero c ON c.usua_codigo = a.usua_codigo` : ''}
+      INNER JOIN empresa e ON e.empr_codigo = a.empr_codigo
+      INNER JOIN turno t ON t.turn_codigo = ne.turn_codigo
       INNER JOIN servicio s ON s.serv_codigo = t.serv_codigo
       INNER JOIN sub_servicio ss ON ss.id = t.id_sub_serv
       ${filtros}

@@ -15,12 +15,6 @@
                         EVALUACIÓN POR TURNOS
                     </a>
                 </li>
-                <li class="nav-item" (click)="LimpiarFormularios()">
-                    <a class="nav-link" id="graficoeva-tab" data-toggle="tab" href="#graficoeva" role="tab"
-                        aria-controls="graficoeva" aria-selected="false">
-                        GRÁFICOS EVALUACIÓN
-                    </a>
-                </li>
             </ul>
 
             <div class="tab-content" id="myTabContent">
@@ -149,7 +143,7 @@
                                     </div>
                                 </div>
                                 <br>
-                                <button type="button" class="btn btn-search" (click)="BuscarResumenEvaluacion()">
+                                <button type="button" class="btn btn-search" (click)="MostrarResumenEvaluaciones()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
                                 </button>
@@ -173,7 +167,9 @@
                                     <th scope="col" class="text-center">Bueno</th>
                                     <th scope="col" class="text-center">Regular</th>
                                     <th scope="col" class="text-center">Malo</th>
-                                    <th scope="col" class="text-center">Total</th>
+                                    <th scope="col" class="text-center">Total Evaluaciones</th>
+                                    <th scope="col" class="text-center">Total Omitidas</th>
+                                    <th scope="col" class="text-center">Total General</th>
                                     <th scope="col" class="text-center">Promedio</th>
                                 </tr>
                             </thead>
@@ -189,6 +185,8 @@
                                     <td>{{resumen.Bueno}}</td>
                                     <td>{{resumen.Regular}}</td>
                                     <td>{{resumen.Malo}}</td>
+                                    <td>{{resumen.Evaluadas}}</td>
+                                    <td>{{resumen.Omitidas}}</td>
                                     <td>{{resumen.Total}}</td>
                                     <td>{{resumen.Promedio}}</td>
                                 </tr>
@@ -199,46 +197,62 @@
                         </pagination-controls>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarExcelEvalaucionFechas()">
-                        EXCEL
-                    </button>
-                    <button type="button" class="btn btn-info" (click)="GenerarPDFEvaluacionFechas('hola', 1)">
-                        PDF
-                    </button>
-                    <br><br>
-                    <h3>GRÁFICO EVALUACIÓN</h3>
-                    <div class="row">
-                        <div class="col-md">
-                            <fieldset>
+                    <div *ngIf="resumenEvaluacion.length != 0">
+                        <button type="button" class="btn btn-info mx-2" (click)="GenerarExcelEvaluaciones()">
+                            EXCEL
+                        </button>
+                        <button type="button" class="btn btn-info" (click)="GenerarPDFEvaluacionFechas('hola', 1)">
+                            PDF
+                        </button>
+                        <br><br>
+                    </div>
+                    <div *ngIf="resumenEvaluacion.length != 0 && verFecha === '2'">
+                        <h3>GRÁFICO EVALUACIÓN</h3>
+                        <div class="row">
+                            <div class="col-6">
+                                <label>Tipo de Gráfico</label>
                                 <div>
-                                    <label>Orientación de la página</label>
-                                    <br>
-                                    <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
-                                        value="portrait" (click)="CambiarOrientacion('portrait')" checked>
-                                    <label for="vertical">Vertical</label>
-
-                                    <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
-                                        value="landscape" (click)="CambiarOrientacion('landscape')">
-                                    <label for="horizontal">Horizontal</label>
+                                    <button type="button" class="btn btn-info" style="margin-bottom: 5px;"
+                                        (click)="CambiarGrafico('bar')">
+                                        BARRAS
+                                    </button>
+                                    <button type="button" class="btn btn-info mx-2" style="margin-bottom: 5px;"
+                                        (click)="CambiarGrafico('pie')">
+                                        PASTEL
+                                    </button>
                                 </div>
-                            </fieldset>
-                        </div>
-                        <div class="col-md">
-                            <label>Tipo de gráfico</label>
-                            <div>
-                                <button type="button" class="btn btn-info mx-2" (click)="CambiarGrafico('pie')">
-                                    PASTEL
-                                </button>
-                                <button type="button" class="btn btn-info" (click)="CambiarGrafico('bar')">
-                                    BARRAS
-                                </button>
+                            </div>
+                            <div class="col-6">
+                                <fieldset>
+                                    <div>
+                                        <label>Tipos de Gráfico</label>
+                                        <br>
+                                        <input type="radio" id="sucursalG" class="radio-col-light-blue" name="grafico"
+                                            value="sucursalG" (click)="CambiarOpcionesGrafico('sucursalG')" checked>
+                                        <label for="sucursalG">Sucursales</label>
+
+                                        <input *ngIf="verCajero" type="radio" id="cajeroG" class="radio-col-light-blue"
+                                            name="grafico" value="cajeroG" (click)="CambiarOpcionesGrafico('cajeroG')">
+                                        <label *ngIf="verCajero" for="cajeroG">Cajeros</label>
+
+                                        <input *ngIf="verServicio" type="radio" id="servicioG"
+                                            class="radio-col-light-blue" name="grafico" value="servicioG"
+                                            (click)="CambiarOpcionesGrafico('servicioG')">
+                                        <label *ngIf="verServicio" for="servicioG">Servicios</label>
+
+                                        <input *ngIf="verSubservicio" type="radio" id="subservicioG"
+                                            class="radio-col-light-blue" name="grafico" value="subservicioG"
+                                            (click)="CambiarOpcionesGrafico('subservicioG')">
+                                        <label *ngIf="verSubservicio" for="subservicioG">Subservicios</label>
+                                    </div>
+                                </fieldset>
                             </div>
                         </div>
-                    </div>
-                    <br>
-                    <div id="canvasCont" *ngIf="!malRequestS">
-                        <h3>RESUMEN DE EVALUACIÓN</h3><br>
-                        <canvas id="canvas">{{chart}}</canvas>
+                        <br>
+                        <div id="canvasCont">
+                            <h3>RESUMEN GRÁFICO DE EVALUACIÓN</h3><br>
+                            <canvas id="canvas">{{chart}}</canvas>
+                        </div>
                     </div>
                 </div>
 
