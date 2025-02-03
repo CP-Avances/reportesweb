@@ -255,7 +255,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
         SELECT 
           e.empr_nombre AS nombreEmpresa, 
           s.serv_nombre AS Servicio, 
-          c.caje_nombre AS Nombre,
+          ${listaCodigos != '0N' ? ' c.caje_nombre AS Nombre, ' : ''}   
           ss.id AS id_subservicio, 
           ss.nombre AS subservicio,
           ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
@@ -263,7 +263,9 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
         FROM 
           turno t
-        INNER JOIN 
+          ${listaCodigos != '0N' ?
+                `
+            INNER JOIN 
           cajero c ON t.caje_codigo = c.caje_codigo
         INNER JOIN 
           sub_servicio ss ON t.id_sub_serv = ss.id
@@ -273,25 +275,39 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           empresa e ON s.empr_codigo = e.empr_codigo
         INNER JOIN 
           usuarios u ON c.usua_codigo = u.usua_codigo
+          `
+                :
+                    ` 
+        INNER JOIN 
+          sub_servicio ss ON t.id_sub_serv = ss.id
+        INNER JOIN 
+          servicio s ON t.serv_codigo = s.serv_codigo
+        INNER JOIN 
+          empresa e ON s.empr_codigo = e.empr_codigo
+      `}
+
         WHERE 
-          u.usua_codigo != 2
-          AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-          ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}
+          t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
+
         GROUP BY 
           e.empr_nombre,
           ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''}
+          ${listaCodigos != '0N' ? 'u.usua_nombre,' : ''}
           s.serv_nombre, 
-          c.caje_nombre, 
+          ${listaCodigos != '0N' ? 'c.caje_nombre,' : ''}
           ss.id, 
           ss.nombre
 
            ORDER BY 
-          ${verFecha ? `Fecha DESC,` : ''}
-          Nombre ASC;
+        ${verFecha ?
+                `${listaCodigos != '0N' ? 'Fecha DESC, Nombre ASC, servicio DESC;' : 'Fecha DESC, servicio DESC;'}`
+                :
+                    `${listaCodigos != '0N' ? 'Nombre ASC, servicio DESC;' : 'servicio DESC;'}`}
       `;
     }
     else if (listaSubservicios == '0' && listaServicios != '0') {
@@ -301,12 +317,14 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           e.empr_nombre AS nombreEmpresa, 
           s.serv_nombre AS Servicio, 
           ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
-          c.caje_nombre AS Nombre,
+          ${listaCodigos != '0N' ? ' c.caje_nombre AS Nombre, ' : ''}   
           COUNT(t.turn_codigo) AS Turnos, 
           TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
         FROM 
           turno t
-        INNER JOIN 
+          ${listaCodigos != '0N' ?
+                `
+            INNER JOIN 
           cajero c ON t.caje_codigo = c.caje_codigo
         INNER JOIN 
           servicio s ON t.serv_codigo = s.serv_codigo
@@ -314,22 +332,32 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           empresa e ON s.empr_codigo = e.empr_codigo
         INNER JOIN 
           usuarios u ON c.usua_codigo = u.usua_codigo
+          `
+                :
+                    `
+          INNER JOIN 
+          servicio s ON t.serv_codigo = s.serv_codigo
+        INNER JOIN 
+          empresa e ON s.empr_codigo = e.empr_codigo
+      `}
+
         WHERE 
-          u.usua_codigo != 2
-          AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
           ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY 
           e.empr_nombre,
           ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''} 
-          s.serv_nombre, 
-          c.caje_nombre
+          ${listaCodigos != '0N' ? 'c.caje_nombre,' : ''}
+          s.serv_nombre
 
           ORDER BY 
-          ${verFecha ? `Fecha DESC,` : ''}
-          Nombre ASC;
+         ${verFecha ?
+                `${listaCodigos != '0N' ? 'Fecha DESC, Nombre ASC, servicio DESC;' : 'Fecha DESC, servicio DESC;'}`
+                :
+                    `${listaCodigos != '0N' ? 'Nombre ASC, servicio DESC;' : 'servicio DESC;'}`}
       `;
     }
     else if (listaServicios == '0' && listaSubservicios == '0') {
@@ -337,33 +365,37 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
             `
       SELECT 
         e.empr_nombre AS nombreEmpresa, 
-        c.caje_nombre AS Nombre,
+          ${listaCodigos != '0N' ? ' c.caje_nombre AS Nombre, ' : ''}   
          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
         COUNT(t.turn_codigo) AS Turnos, 
         TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
       FROM 
         turno t
+
       INNER JOIN 
-        cajero c ON t.caje_codigo = c.caje_codigo
-          INNER JOIN 
+       cajero c ON t.caje_codigo = c.caje_codigo
+      INNER JOIN 
         usuarios u ON c.usua_codigo = u.usua_codigo
       INNER JOIN 
         empresa e ON u.empr_codigo = e.empr_codigo
-    
+       
       WHERE 
-        u.usua_codigo != 2
-        AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+         t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}
+        ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY 
+        ${verFecha ? ` 
         e.empr_nombre, 
-        ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'),` : ''}
-        c.caje_nombre
+        DATE_FORMAT(t.turn_fecha, '%Y-%m-%d')`
+                :
+                    ' e.empr_nombre'}
+
+         ${listaCodigos != '0N' ? ',c.caje_nombre' : ''}
+
 
         ORDER BY 
-        ${verFecha ? `Fecha DESC,` : ''}
-        Nombre ASC;
+        ${verFecha ? `Fecha DESC, e.empr_nombre ASC;` : 'e.empr_nombre ASC;'}
     `;
     }
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -439,16 +471,16 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
         SELECT 
           e.empr_nombre AS nombreEmpresa, 
 
-CASE 
-    WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'servicio' 
-      THEN CAST(CONCAT(s.serv_descripcion, LPAD(t.turn_numero, 3, '0')) AS CHAR)
-    WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'sub_servicio' 
-      THEN CAST(CONCAT(ss.siglas,LPAD(t.turn_numero, 3, '0')) AS CHAR)
-    ELSE NULL
-  END AS turno,
+        CASE 
+          WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'servicio' 
+          THEN CAST(CONCAT(s.serv_descripcion, LPAD(t.turn_numero, 3, '0')) AS CHAR)
+          WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'sub_servicio' 
+          THEN CAST(CONCAT(ss.siglas,LPAD(t.turn_numero, 3, '0')) AS CHAR)
+        ELSE NULL
+        END AS turno,
 
           s.serv_nombre AS Servicio, 
-          c.caje_nombre AS Nombre, 
+          ${listaCodigos != '0N' ? ' c.caje_nombre AS Nombre, ' : ''}   
           ss.id AS id_subservicio, 
           ss.nombre AS subservicio,
           CASE 
@@ -463,7 +495,10 @@ CASE
           CAST(CONCAT(LPAD(t.turn_hora, 2, '0'), ':', LPAD(t.turn_minuto, 2, '0')) AS CHAR) AS hora
         FROM 
           turno t
-        INNER JOIN 
+
+  ${listaCodigos != '0N' ?
+                `
+             INNER JOIN 
           cajero c ON t.caje_codigo = c.caje_codigo
         INNER JOIN 
           servicio s ON t.serv_codigo = s.serv_codigo
@@ -475,11 +510,24 @@ CASE
           sub_servicio ss ON ss.id = t.id_sub_serv
         INNER JOIN 
           cliente_turno ct ON ct.turn_codigo = t.turn_codigo
+          `
+                :
+                    ` 
+        INNER JOIN 
+          servicio s ON t.serv_codigo = s.serv_codigo
+        INNER JOIN 
+          empresa e ON s.empr_codigo = e.empr_codigo
+        INNER JOIN 
+          sub_servicio ss ON ss.id = t.id_sub_serv
+        INNER JOIN 
+          cliente_turno ct ON ct.turn_codigo = t.turn_codigo
+      `}
+
+
         WHERE 
-          u.usua_codigo != 2
-          AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+          t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`}          
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
@@ -1274,31 +1322,25 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
           SUM(t.turn_estado != 0) AS Total
         FROM 
           turno t
-          ${listaCajeros != '0N' ?
-                `INNER JOIN cajero c ON t.caje_codigo = c.caje_codigo  
-            INNER JOIN usuarios u ON u.usua_codigo = c.usua_codigo
-            INNER JOIN 
+          INNER JOIN cajero c ON t.caje_codigo = c.caje_codigo  
+          INNER JOIN usuarios u ON u.usua_codigo = c.usua_codigo
+          INNER JOIN 
           empresa e ON u.empr_codigo = e.empr_codigo
-            `
-                :
-                    ` `}
-            
         WHERE 
-           ${listaCajeros != '0N' ? 'u.usua_codigo != 2' : `turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'`}
+          ${listaCajeros != '0N' ? 'u.usua_codigo != 2' : `turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'`}
           ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-        ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+          ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
         GROUP BY 
           e.empr_nombre 
           ${verFecha ? `,DATE_FORMAT(t.turn_fecha, '%Y-%m-%d')` : ''}
           ${listaCajeros != '0N' ? ',u.usua_nombre' : ''}
 
-        ORDER BY 
-          ${verFecha ? `Fecha DESC,` : ''}
-          ${listaCajeros != '0N' ? 'Usuario ASC,' : ''}
-          subservicio DESC
-
-          ;
+        
+        ${verFecha ?
+                `${listaCajeros != '0N' ? 'ORDER BY  Fecha DESC, Usuario ASC;' : ' ORDER BY  Fecha DESC;'}`
+                : `${listaCajeros != '0N' ? 'ORDER BY  Usuario ASC;' : ''}`}
+          
       `;
     }
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
@@ -1323,6 +1365,7 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
     const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
+    // CAJEROS
     const listaCajeros = req.params.cajeros;
     const cajerosArray = listaCajeros.split(",");
     const listaServicios = req.params.servicios;
@@ -1370,7 +1413,7 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
             `
         SELECT 
           e.empr_nombre AS nombreEmpresa,
-          u.usua_nombre AS Usuario,
+        ${listaCajeros != '0N' ? 'u.usua_nombre AS Usuario, ' : ''}   
           s.serv_nombre AS Servicio,  
           ss.id AS id_subservicio, 
           ss.nombre AS subservicio,
@@ -1383,41 +1426,54 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
           turno t
         INNER JOIN 
           servicio s ON t.serv_codigo = s.serv_codigo
+        
+        ${listaCajeros != '0N' ?
+                `
         INNER JOIN 
-          cajero c ON t.caje_codigo = c.caje_codigo
+         cajero c ON t.caje_codigo = c.caje_codigo
         INNER JOIN 
-          usuarios u ON u.usua_codigo = c.usua_codigo
+         usuarios u ON u.usua_codigo = c.usua_codigo
         INNER JOIN 
-          empresa e ON u.empr_codigo = e.empr_codigo
+         empresa e ON u.empr_codigo = e.empr_codigo
         INNER JOIN 
-          sub_servicio ss ON ss.id = t.id_sub_serv
+         sub_servicio ss ON ss.id = t.id_sub_serv
+        `
+                :
+                    ` 
+        INNER JOIN 
+         empresa e ON s.empr_codigo = e.empr_codigo
+        INNER JOIN 
+         sub_servicio ss ON ss.id = t.id_sub_serv
+          `}
         WHERE 
-          u.usua_codigo != 2
-          ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-          ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`}
+          turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
+          ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
+          ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-          AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+
         GROUP BY 
           e.empr_nombre, 
           DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
-          u.usua_nombre,
+          ${listaCajeros != '0N' ? 'u.usua_nombre,' : ''}
           s.serv_nombre, 
           ss.id, 
           ss.nombre
+
         ORDER BY 
           Fecha DESC, 
-          Usuario ASC,
+          ${listaCajeros != '0N' ? ' Usuario ASC,' : ''}
           Servicio ASC;
       `;
+        console.log("ver query: ", query);
     }
     else if (listaSubservicios == '0' && listaServicios != '0') {
         query =
             `
       SELECT 
         e.empr_nombre AS nombreEmpresa,
-        u.usua_nombre AS Usuario, 
+        ${listaCajeros != '0N' ? 'u.usua_nombre AS Usuario, ' : ''}   
         s.serv_nombre AS Servicio, 
         ss.id AS id_subservicio, 
         ss.nombre AS subservicio,
@@ -1430,33 +1486,43 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
         turno t
       INNER JOIN 
         servicio s ON t.serv_codigo = s.serv_codigo
-      INNER JOIN 
-        cajero c ON t.caje_codigo = c.caje_codigo
-      INNER JOIN 
-        usuarios u ON u.usua_codigo = c.usua_codigo
-      INNER JOIN 
-        empresa e ON u.empr_codigo = e.empr_codigo
-      INNER JOIN 
-        sub_servicio ss ON ss.id = t.id_sub_serv
+      ${listaCajeros != '0N' ?
+                `
+        INNER JOIN 
+         cajero c ON t.caje_codigo = c.caje_codigo
+        INNER JOIN 
+         usuarios u ON u.usua_codigo = c.usua_codigo
+        INNER JOIN 
+         empresa e ON u.empr_codigo = e.empr_codigo
+        INNER JOIN 
+         sub_servicio ss ON ss.id = t.id_sub_serv
+        `
+                :
+                    ` 
+        INNER JOIN 
+         empresa e ON s.empr_codigo = e.empr_codigo
+        INNER JOIN 
+         sub_servicio ss ON ss.id = t.id_sub_serv
+          `}
+
       WHERE 
-        u.usua_codigo != 2
+        turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-        ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`}
+        ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-        AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-      GROUP BY 
+      
+        GROUP BY 
         e.empr_nombre, 
         DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
-        u.usua_nombre,
+        ${listaCajeros != '0N' ? 'u.usua_nombre,' : ''}
         s.serv_nombre, 
         ss.id, 
         ss.nombre
       ORDER BY 
         Fecha DESC, 
-        Usuario ASC,
+        ${listaCajeros != '0N' ? ' Usuario ASC,' : ''}
         Servicio ASC;
-
     `;
     }
     else if (listaServicios == '0' && listaSubservicios == '0') {
@@ -1464,7 +1530,7 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
             `
       SELECT 
         e.empr_nombre AS nombreEmpresa,
-        u.usua_nombre AS Usuario, 
+        ${listaCajeros != '0N' ? 'u.usua_nombre AS Usuario, ' : ''}   
         s.serv_nombre AS Servicio, 
         ss.id AS id_subservicio, 
         ss.nombre AS subservicio,
@@ -1477,30 +1543,40 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
         turno t
       INNER JOIN 
         servicio s ON t.serv_codigo = s.serv_codigo
-      INNER JOIN 
-        cajero c ON t.caje_codigo = c.caje_codigo
-      INNER JOIN 
-        usuarios u ON u.usua_codigo = c.usua_codigo
-      INNER JOIN 
-        empresa e ON u.empr_codigo = e.empr_codigo
-      INNER JOIN 
-        sub_servicio ss ON ss.id = t.id_sub_serv
+        ${listaCajeros != '0N' ?
+                `
+        INNER JOIN 
+         cajero c ON t.caje_codigo = c.caje_codigo
+        INNER JOIN 
+         usuarios u ON u.usua_codigo = c.usua_codigo
+        INNER JOIN 
+         empresa e ON u.empr_codigo = e.empr_codigo
+        INNER JOIN 
+         sub_servicio ss ON ss.id = t.id_sub_serv
+        `
+                :
+                    ` 
+        INNER JOIN 
+         empresa e ON s.empr_codigo = e.empr_codigo
+        INNER JOIN 
+         sub_servicio ss ON ss.id = t.id_sub_serv
+          `}
       WHERE 
-        u.usua_codigo != 2
+        turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-        ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`}
+        ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-        AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+      
       GROUP BY 
         e.empr_nombre, 
         DATE_FORMAT(t.turn_fecha, '%Y-%m-%d'), 
-        u.usua_nombre, 
+        ${listaCajeros != '0N' ? 'u.usua_nombre,' : ''}
         s.serv_nombre, 
         ss.id, 
         ss.nombre
       ORDER BY 
         Fecha DESC, 
-        Usuario ASC,
+        ${listaCajeros != '0N' ? ' Usuario ASC,' : ''}
         Servicio ASC;
     `;
     }

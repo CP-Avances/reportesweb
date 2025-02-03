@@ -541,70 +541,7 @@ export class UsuariosComponent implements OnInit {
     this.router.navigateByUrl("/");
   }
 
-  /** ********************************************************************************************************** **
-   ** **                                     TURNOS POR FECHA                                                 ** **
-   ** ********************************************************************************************************** **/
-
-  buscarTurnosFecha() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fechaDesde = this.fromDateTurnosFecha.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateTurnosFecha.nativeElement.value
-      .toString()
-      .trim();
-
-    let horaInicio = this.horaInicioTF.nativeElement.value;
-    let horaFin = this.horaFinTF.nativeElement.value;
-
-    if (this.sucursalesSeleccionadas.length !== 0) {
-      this.serviceService
-        .getfiltroturnosfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
-        .subscribe(
-          (servicio: any) => {
-            this.mostrar_resultado = true
-            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-            this.servicioTurnosFecha = servicio.turnos;
-            console.log("ver TURNOS: " + this.servicioTurnosFecha)
-            this.malRequestTF = false;
-            this.malRequestTFPag = false;
-
-            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-            if (this.configTF.currentPage > 1) {
-              this.configTF.currentPage = 1;
-            }
-          },
-          (error) => {
-            if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y BANDERAS CAMBIAN PARA QUITAR TABLA DE INTERFAZ
-              this.servicioTurnosFecha = null;
-              this.malRequestTF = true;
-              this.malRequestTFPag = true;
-
-              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-              if (this.servicioTurnosFecha == null) {
-                this.configTF.totalItems = 0;
-              } else {
-                this.configTF.totalItems = this.servicioTurnosFecha.length;
-              }
-
-              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-              this.configTF = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
-
-              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-                timeOut: 6000,
-              });
-            }
-          }
-        );
-    }
-  }
-
+ 
   /** ********************************************************************************************************** **
    ** **                                     TURNOS TOTALES POR FECHA                                         ** **
    ** ********************************************************************************************************** **/
@@ -622,13 +559,9 @@ export class UsuariosComponent implements OnInit {
     let horaFin = this.horaFinTTF.nativeElement.value;
 
     var datoCajero: any = '0N';
-
     if (this.selectedItems.length != 0) {
       datoCajero = this.selectedItems;
     }
-
-
-
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
@@ -701,9 +634,15 @@ export class UsuariosComponent implements OnInit {
     let horaInicio = this.horaInicioTM.nativeElement.value;
     let horaFin = this.horaFinTM.nativeElement.value;
 
+    var datoCajero: any = '0N';
+
+    if (this.selectedItems.length != 0) {
+      datoCajero = this.selectedItems;
+    }
+
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getturnosMeta(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
+        .getturnosMeta(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoCajero, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
             this.mostrar_resultado = true;
@@ -753,6 +692,7 @@ export class UsuariosComponent implements OnInit {
    ** ********************************************************************************************************** **/
 
   buscarTiempoPromedioAtencion() {
+    console.log("entra a este metodo")
 
     // CAPTURA DE FECHA Y SELECT DE INTERFAZ
     var fechaDesde = this.fromDatePromAtencion.nativeElement.value
@@ -765,9 +705,16 @@ export class UsuariosComponent implements OnInit {
     let horaInicio = this.horaInicioTPA.nativeElement.value;
     let horaFin = this.horaFinTPA.nativeElement.value;
 
-    if (this.selectedItems.length !== 0) {
+    var datoCajero: any = '0N';
+    if (this.selectedItems.length != 0) {
+      datoCajero = this.selectedItems;
+    }
+    console.log("ver datoCajero: ", datoCajero)
+
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario, this.verFecha)
+        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, datoCajero, this.sucursalesSeleccionadas, 
+          this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario, this.verFecha)
         .subscribe(
           (servicio: any) => {
             this.mostrar_resultado = true
@@ -840,9 +787,15 @@ export class UsuariosComponent implements OnInit {
     let horaInicio = this.horaInicioTA.nativeElement.value;
     let horaFin = this.horaFinTA.nativeElement.value;
 
+    var datoCajero: any = '0N';
+
+    if (this.selectedItems.length != 0) {
+      datoCajero = this.selectedItems;
+    }
+
     if (this.selectedItems.length !== 0) {
       this.serviceService
-        .getturnosAtencion(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
+        .getturnosAtencion(fechaDesde, fechaHasta, horaInicio, horaFin, datoCajero, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
             this.mostrar_resultado = true;
