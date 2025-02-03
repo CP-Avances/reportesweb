@@ -542,17 +542,16 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
             `
       SELECT 
         e.empr_nombre AS nombreEmpresa, 
-
-CASE 
-    WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'servicio' 
-      THEN CAST(CONCAT(s.serv_descripcion, LPAD(t.turn_numero, 3, '0')) AS CHAR)
-    WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'sub_servicio' 
-      THEN CAST(CONCAT(ss.siglas, LPAD(t.turn_numero, 3, '0')) AS CHAR)
-    ELSE NULL
-  END AS turno,
+      CASE 
+        WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'servicio' 
+        THEN CAST(CONCAT(s.serv_descripcion, LPAD(t.turn_numero, 3, '0')) AS CHAR)
+        WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'sub_servicio' 
+        THEN CAST(CONCAT(ss.siglas, LPAD(t.turn_numero, 3, '0')) AS CHAR)
+      ELSE NULL
+      END AS turno,
 
         s.serv_nombre AS Servicio, 
-        c.caje_nombre AS Nombre, 
+        ${listaCodigos != '0N' ? ' c.caje_nombre AS Nombre, ' : ''}   
         ss.id AS id_subservicio, 
         ss.nombre AS subservicio,
         CASE 
@@ -568,23 +567,39 @@ CASE
         CAST(CONCAT(LPAD(t.turn_hora, 2, '0'), ':', LPAD(t.turn_minuto, 2, '0')) AS CHAR) AS hora
       FROM 
         turno t
-      INNER JOIN 
-        cajero c ON t.caje_codigo = c.caje_codigo
-      INNER JOIN 
-        servicio s ON t.serv_codigo = s.serv_codigo
-      INNER JOIN 
-        empresa e ON s.empr_codigo = e.empr_codigo
-      INNER JOIN 
-        usuarios u ON c.usua_codigo = u.usua_codigo
-      INNER JOIN 
-        sub_servicio ss ON ss.id = t.id_sub_serv
-           INNER JOIN 
+
+ ${listaCodigos != '0N' ?
+                `
+             INNER JOIN 
+          cajero c ON t.caje_codigo = c.caje_codigo
+        INNER JOIN 
+          servicio s ON t.serv_codigo = s.serv_codigo
+        INNER JOIN 
+          empresa e ON s.empr_codigo = e.empr_codigo
+        INNER JOIN 
+          usuarios u ON c.usua_codigo = u.usua_codigo
+        INNER JOIN 
+          sub_servicio ss ON ss.id = t.id_sub_serv
+        INNER JOIN 
           cliente_turno ct ON ct.turn_codigo = t.turn_codigo
+          `
+                :
+                    ` 
+        INNER JOIN 
+          servicio s ON t.serv_codigo = s.serv_codigo
+        INNER JOIN 
+          empresa e ON s.empr_codigo = e.empr_codigo
+        INNER JOIN 
+          sub_servicio ss ON ss.id = t.id_sub_serv
+        INNER JOIN 
+          cliente_turno ct ON ct.turn_codigo = t.turn_codigo
+      `}
+
       WHERE 
-        u.usua_codigo != 2
-        AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+
+        t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})AND ${comprobarestado}` : `AND ${comprobarestado}`}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       ORDER BY 
@@ -598,7 +613,6 @@ CASE
             `
       SELECT 
         e.empr_nombre AS nombreEmpresa, 
-
         CASE 
         WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'servicio' 
           THEN CAST(CONCAT(s.serv_descripcion, LPAD(t.turn_numero, 3, '0')) AS CHAR)
@@ -608,7 +622,7 @@ CASE
       END AS turno,
 
         s.serv_nombre AS Servicio, 
-        c.caje_nombre AS Nombre, 
+        ${listaCodigos != '0N' ? ' c.caje_nombre AS Nombre, ' : ''}   
         ss.id AS id_subservicio, 
         ss.nombre AS subservicio,
         CASE 
@@ -632,14 +646,14 @@ CASE
       INNER JOIN 
         usuarios u ON c.usua_codigo = u.usua_codigo
       INNER JOIN 
-        sub_servicio ss ON ss.id = t.id_sub_serv
-           INNER JOIN 
-          cliente_turno ct ON ct.turn_codigo = t.turn_codigo
+      sub_servicio ss ON ss.id = t.id_sub_serv
+        INNER JOIN 
+      cliente_turno ct ON ct.turn_codigo = t.turn_codigo
+
       WHERE 
-        u.usua_codigo != 2
-        AND t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
+        t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-        ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})AND ${comprobarestado}` : `AND ${comprobarestado}`}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       ORDER BY 
         t.turn_codigo DESC, 
