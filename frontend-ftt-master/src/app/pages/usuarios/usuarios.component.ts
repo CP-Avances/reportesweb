@@ -793,7 +793,7 @@ export class UsuariosComponent implements OnInit {
       datoCajero = this.selectedItems;
     }
 
-    if (this.selectedItems.length !== 0) {
+    if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
         .getturnosAtencion(fechaDesde, fechaHasta, horaInicio, horaFin, datoCajero, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
