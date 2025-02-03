@@ -18,3 +18,12 @@ export class servicio {
   Nombre?: string;
   Usuario?: string;
 }
+
+
+export class subservicio {
+id: number;
+id_servicio: number;
+nombre: string;
+estado: number;
+}
+
