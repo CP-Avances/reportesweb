@@ -4,7 +4,7 @@ import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
 import { saveAs } from 'file-saver';
 import { Utils } from "../../utils/util";
-//import ExcelJS from "exceljs";
+import ExcelJS from "exceljs";
 
 import { ServiceService } from "../../services/service.service";
 import { ImagenesService } from "../../shared/imagenes.service";
@@ -12,13 +12,6 @@ import { AuthenticationService } from "../../services/authentication.service";
 
 // COMPLEMENTO PARA GRAFICOS
 import { Chart } from "chart.js";
-// COMPLEMENTOS PARA PDF Y EXCEL
-import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
-import jsPDF from "jspdf";
-(<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
-import * as XLSX from "xlsx";
-const EXCEL_EXTENSION = ".xlsx";
 
 @Component({
   selector: "app-evaluacion",
@@ -34,6 +27,7 @@ export class EvaluacionComponent implements OnInit {
   // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
   fromDate: any;
   toDate: any;
+  private imagen: any;
 
   // VARIABLES DE LAS CONSULTAS DE RESUMEN DE EVALUACIONES
   @ViewChild("desdeRE") desdeRE: ElementRef;
@@ -72,30 +66,17 @@ export class EvaluacionComponent implements OnInit {
   cajerosEval: any = [];
   sucursales: any[];
 
-
-
-
-  servicioGra: any = [];
-
-
-
   // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
   todasSucursales: boolean = false;
   todosServicios: boolean = false;
   todosSubservicios: boolean = false;
   todosCajeros: boolean = false;
 
-  todasSucursalesS: boolean = false;
-  todasSucursalesG: boolean = false;
-
   // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestS: boolean = false;
   malRequestSPag: boolean = false;
   malRequestE: boolean = false;
   malRequestEPag: boolean = false;
-
-  malRequestGra: boolean = false;
-  malRequestGraPag: boolean = false;
 
   // CONTROL PAGINACION
   configS: any;
@@ -116,13 +97,11 @@ export class EvaluacionComponent implements OnInit {
   year = new Date().getFullYear();
   date = this.year + "-" + this.month + "-" + this.day;
 
-  // OPCIONES MULTIPLES
-
+  // SELECCION DE DATOS
   selectedItems: any[] = [];
   sucursalesSeleccionadas: string[] = [];
   cajerosSeleccionados: string[] = [];
   serviciosSeleccionados: string[] = [];
-  seleccionMultiple: boolean = false;
 
   // MOSTRAR CAJEROS
   mostrarCajeros: boolean = false;
@@ -184,7 +163,6 @@ export class EvaluacionComponent implements OnInit {
     // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
     this.malRequestSPag = true;
     this.malRequestEPag = true;
-    this.malRequestGraPag = true;
     // SETEO DE GRAFICO POR DEFECTO
     this.tipo = "bar";
     // SETEO ORIENTACION
@@ -259,7 +237,6 @@ export class EvaluacionComponent implements OnInit {
 
   // OBTIENE LOS SERVICIOS QUE EXISTEN
   getServicios(sucursal: any) {
-    console.log('ver ', sucursal)
     this.serviceService.getAllServiciosS(sucursal).subscribe((servicios: any) => {
       this.listaServicios = servicios.servicios.filter(
         (valor: any, indice: any, self: any) =>
@@ -326,7 +303,6 @@ export class EvaluacionComponent implements OnInit {
         break;
 
       case 'sucursalesSeleccionadas':
-        this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
         if (this.sucursalesSeleccionadas.length > 0) {
           this.getCajeros(this.sucursalesSeleccionadas);
           this.getServicios(this.sucursalesSeleccionadas);
@@ -465,9 +441,6 @@ export class EvaluacionComponent implements OnInit {
     this.listaServicios = [];
     this.cajerosEval = [];
 
-    this.todasSucursalesS = false;
-    this.todasSucursalesG = false;;
-    this.seleccionMultiple = false;
   }
 
   ObtenerNombreSucursal(sucursales: any) {
@@ -485,6 +458,13 @@ export class EvaluacionComponent implements OnInit {
       nombreSucursal += `${nombre} `;
     });
     return nombreSucursal;
+  }
+
+  async ImportarPDF() {
+    const pdfMake = await import('src/pdfmake/pdfmake.js');
+    const pdfFonts = await import('src/pdfmake/vfs_fonts.js');
+    pdfMake.default.vfs = pdfFonts.default.pdfMake.vfs;
+    return pdfMake.default;
   }
 
   /** ** *************************************************************************************************** **
@@ -577,13 +557,11 @@ export class EvaluacionComponent implements OnInit {
       .subscribe(
         (servicio: any) => {
           let omitidas = servicio.turnos;
-          console.log('ingresa existe omitidas ', evaluaciones);
           this.ProcesarDatosResumen(evaluaciones, omitidas);
         },
         (error) => {
           if (error.status == 400) {
             if (evaluaciones != 0) {
-              console.log('ingresa no existe omitidas pero si evaluaciones', evaluaciones);
               this.ProcesarDatosResumen(evaluaciones, '');
             }
             else {
@@ -955,35 +933,81 @@ export class EvaluacionComponent implements OnInit {
   }
 
   GenerarExcelEvaluaciones() {
-    /*
     let workbook = new ExcelJS.Workbook();
     let worksheet = workbook.addWorksheet("Resumen Evaluaciones");
-  
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+    let nombreSucursal = this.ObtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'RESUMEN DE EVALUACIONES'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.desdeRE.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.hastaRE.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "PERIODO DE " + fechaDesde + " HASTA " + fechaHasta;
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
     // DEFINIR ENCABEZADOS DINAMICAMENTE
-    let headers = ["Sucursal"];
+    let headers = ["No."];
+    headers.push("SUCURSAL");
     if (this.verSubservicio) {
-      headers.push("Servicio", "Subservicio");
+      headers.push("SERVICIO", "SUBSERVICIO");
     } else if (this.verServicio) {
-      headers.push("Servicio");
+      headers.push("SERVICIO");
     }
     if (this.verCajero) {
-      headers.push("Cajero(a)");
+      headers.push("CAJERO(A)");
     }
     if (this.verFecha === "1") {
-      headers.push("Fecha");
+      headers.push("FECHA");
     }
-    headers.push("Excelente");
+    headers.push("EXCELENTE");
     if (!this.opcionCuatro) {
-      headers.push("Muy Bueno");
+      headers.push("MUY BUENO");
     }
-    headers.push("Bueno", "Regular", "Malo", "Total Evaluadas", "Total Omitidas", "Total General", "Promedio");
-  
+    headers.push("BUENO", "REGULAR", "MALO", "TOTAL EVALUADAS", "TOTAL OMITIDAS", "TOTAL GENERAL", "PROMEDIO");
+
     // AGREGAR ENCABEZADOS A LA HOJA
-    worksheet.addRow(headers).font = { bold: true };
-  
+    let headerRow = worksheet.addRow(headers);
+    headerRow.font = { bold: true };
+
+    // APLICAR BORDES A LOS ENCABEZADOS
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
     // AGREGAR DATOS DINAMICOS
-    this.resumenEvaluacion.forEach(res => {
-      let row = [res.nombreEmpresa];
+    this.resumenEvaluacion.forEach((res: any, index: number) => {
+      let row = [index + 1];
+      row.push(res.nombreEmpresa);
       if (this.verSubservicio) {
         row.push(res.Servicio, res.subservicio);
       } else if (this.verServicio) {
@@ -1000,54 +1024,72 @@ export class EvaluacionComponent implements OnInit {
         row.push(res.Muy_Bueno);
       }
       row.push(res.Bueno, res.Regular, res.Malo, res.Evaluadas, res.Omitidas, res.Total, res.Promedio);
-      worksheet.addRow(row);
+      // AGREGAR LA FILA A LA HOJA
+      let newRow = worksheet.addRow(row);
+      // APLICAR BORDES A CADA CELDA DE LA FILA
+      newRow.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+      // APLICAR ESTILO CEBRA (ALTERNANDO FONDO)
+      if (index % 2 === 0) {
+        newRow.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "F2F2F2" }, // COLOR GRIS CLARO PARA FILAS IMPARES
+          };
+        });
+      } else {
+        newRow.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFFFF" }, // COLOR BLANCO PARA FILAS PARES
+          };
+        });
+      }
     });
-  
+
     // AJUSTAR EL ANCHO DE LAS COLUMNAS AUTOMATICAMENTE
     worksheet.columns.forEach(column => {
-      let maxLength = 0;
-      column.eachCell({ includeEmpty: true }, cell => {
-        let cellValue = cell.value ? cell.value.toString() : "";
-        maxLength = Math.max(maxLength, cellValue.length);
-      });
-      column.width = maxLength < 10 ? 10 : maxLength;
+      column.width = 30;
     });
-  
+
     // ESTILOS DE ENCABEZADO
-    worksheet.getRow(1).eachCell(cell => {
-      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFCC00" } };
+    worksheet.getRow(6).eachCell((cell, colNumber) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "4F81BD" },
+      };
       cell.alignment = { vertical: "middle", horizontal: "center" };
-      cell.font = { bold: true };
+      cell.font = {
+        bold: true,
+        color: { argb: "FFFFFF" }, // COLOR BLANCO PARA EL TEXTO
+      };
+      // HABILITAR FILTRO EN LA CELDA
+      worksheet.autoFilter = {
+        from: { row: 6, column: 1 },  // INICIO DEL FILTRO (FILA 6, COLUMNA 1)
+        to: { row: 6, column: worksheet.columnCount } // FIN DEL FILTRO (ÚLTIMA COLUMNA)
+      };
     });
-  
+
+
     // GENERAR ARCHIVO EXCEL Y DESCARGARLO
     workbook.xlsx.writeBuffer().then(buffer => {
       const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       saveAs(blob, "ResumenEvaluaciones.xlsx");
     });
-*/
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   // GENERACION DE PDF'S
-  GenerarPDFEvaluacionFechas(action = "open", pdf: number) {
+  async GenerarPDFEvaluacionFechas(action = "open", pdf: number) {
+    const pdfMake = await this.ImportarPDF();
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
     var fechaDesde = this.desdeRE.nativeElement.value
       .toString()
@@ -1135,6 +1177,7 @@ export class EvaluacionComponent implements OnInit {
 
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND SERVICIOS
   TratamientoInformacionEvaluacion(servicio: any[]) {
+    let centrar: boolean = false;
     let headers = [{ text: "Sucursal", style: "tableHeader", alignment: 'center', }];
     let includeSubservicio = this.verSubservicio;
     let includeServicio = this.verServicio;
@@ -1145,12 +1188,15 @@ export class EvaluacionComponent implements OnInit {
     if (includeSubservicio) {
       headers.push({ text: "Servicio", style: "tableHeader", alignment: 'center' });
       headers.push({ text: "Subservicio", style: "tableHeader", alignment: 'center' });
+      centrar = true;
     } else if (includeServicio) {
       headers.push({ text: "Servicio", style: "tableHeader", alignment: 'center' });
+      centrar = true;
     }
 
     if (includeCajero) {
       headers.push({ text: "Cajero(a)", style: "tableHeader", alignment: 'center' });
+      centrar = true;
     }
 
     if (includeFecha) {
@@ -1209,12 +1255,16 @@ export class EvaluacionComponent implements OnInit {
 
       return row;
     });
-
+    var columnWidth = 'auto';
+    if (centrar === false) {
+      const totalColumns = headers.length;
+      columnWidth = 100 / totalColumns + "%";
+    }
     return {
       alignment: "center",
       table: {
         headerRows: 1,
-        widths: headers.map(() => "auto"),
+        widths: headers.map(() => columnWidth),
         body: [headers, ...bodyRows],
       },
       layout: {
@@ -1247,8 +1297,6 @@ export class EvaluacionComponent implements OnInit {
       return contenidoGrafico;
     }
   }
-
-
 
   /** ** *************************************************************************************************** **
    ** **                       METODO DE BUSQUEDA DE EVALAUCION POR RANGO DE FECHAS                       ** **
@@ -1425,7 +1473,6 @@ export class EvaluacionComponent implements OnInit {
         }
       }
     })
-    //console.log('ver datos ', this.listaEvaluaciones)
     this.malRequestE = false;
     this.malRequestEPag = false;
     // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
@@ -1434,70 +1481,165 @@ export class EvaluacionComponent implements OnInit {
     }
   }
 
-  exportarAExcelEvalEmpl() {
+  ExportarExcelEvaluacionTurno() {
+    let workbook = new ExcelJS.Workbook();
+    let worksheet = workbook.addWorksheet("Resumen Evaluaciones Turnos");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
     let nombreSucursal = this.ObtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    for (let i = 0; i < this.listaEvaluaciones.length; i++) {
-      const item = {
-        ...(this.todasSucursales || this.seleccionMultiple
-          ? { Sucursal: this.listaEvaluaciones[i].nombreEmpresa }
-          : {}),
-        "Cajero(a)": this.listaEvaluaciones[i].usua_nombre,
-        Fecha: this.addOneDay(new Date(this.listaEvaluaciones[i].fecha)),
-        Excelente: this.listaEvaluaciones[i].Excelente,
-        ...(!this.opcionCuatro
-          ? { "Muy Bueno": this.listaEvaluaciones[i].Muy_Bueno }
-          : {}),
-        Bueno: this.listaEvaluaciones[i].Bueno,
-        Regular: this.listaEvaluaciones[i].Regular,
-        Malo: this.listaEvaluaciones[i].Malo,
-        Total: this.listaEvaluaciones[i].Total,
-        Promedio: this.listaEvaluaciones[i].Promedio,
-      };
-      jsonServicio.push(item);
-    }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DE LA HOJA
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.listaEvaluaciones[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Empleado");
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
 
-    XLSX.writeFile(
-      wb,
-      "Evaluacion-cajero - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
-  }
-
-  generarPdfEvalEmpl(action = "open", pdf: number) {
-    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESIÓN EN PDF
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'RESUMEN DE EVALUACIONES'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
     var fechaDesde = this.desdeEvalT.nativeElement.value
       .toString()
       .trim();
     var fechaHasta = this.hastaEvalT.nativeElement.value
       .toString()
       .trim();
+    worksheet.getCell("B3").value = "PERIODO DE " + fechaDesde + " HASTA " + fechaHasta;
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
+    // DEFINIR ENCABEZADOS DINAMICAMENTE
+    let headers = ["No."];
+    headers.push("SUCURSAL");
+    if (this.verSubservicio) {
+      headers.push("SERVICIO", "SUBSERVICIO");
+    } else if (this.verServicio) {
+      headers.push("SERVICIO");
+    }
+    if (this.verCajero) {
+      headers.push("CAJERO(A)");
+    }
+    headers.push("INFORMACIÓN DEL USUARIO", "FECHA", "HORA", "TURNO", "CALIFICACIÓN");
+
+    // AGREGAR ENCABEZADOS A LA HOJA
+    let headerRow = worksheet.addRow(headers);
+    headerRow.font = { bold: true };
+
+    // APLICAR BORDES A LOS ENCABEZADOS
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    // AGREGAR DATOS DINAMICOS
+    this.listaEvaluaciones.forEach((res: any, index: number) => {
+      let row = [index + 1];
+      row.push(res.nombreEmpresa);
+      if (this.verSubservicio) {
+        row.push(res.servicio, res.subservicio);
+      } else if (this.verServicio) {
+        row.push(res.servicio);
+      }
+      if (this.verCajero) {
+        row.push(res.usua_nombre);
+      }
+      row.push(res.informacion, res.fecha, res.hora, res.turno, res.calificacion);
+      // AGREGAR LA FILA A LA HOJA
+      let newRow = worksheet.addRow(row);
+      // APLICAR BORDES A CADA CELDA DE LA FILA
+      newRow.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+      // APLICAR ESTILO CEBRA (ALTERNANDO FONDO)
+      if (index % 2 === 0) {
+        newRow.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "F2F2F2" }, // COLOR GRIS CLARO PARA FILAS IMPARES
+          };
+        });
+      } else {
+        newRow.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFFFF" }, // COLOR BLANCO PARA FILAS PARES
+          };
+        });
+      }
+    });
+
+    // AJUSTAR EL ANCHO DE LAS COLUMNAS AUTOMATICAMENTE
+    worksheet.columns.forEach(column => {
+      column.width = 30;
+    });
+
+    // ESTILOS DE ENCABEZADO
+    worksheet.getRow(6).eachCell((cell, colNumber) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "4F81BD" },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.font = {
+        bold: true,
+        color: { argb: "FFFFFF" }, // COLOR BLANCO PARA EL TEXTO
+      };
+      // HABILITAR FILTRO EN LA CELDA
+      worksheet.autoFilter = {
+        from: { row: 6, column: 1 },  // INICIO DEL FILTRO (FILA 6, COLUMNA 1)
+        to: { row: 6, column: worksheet.columnCount } // FIN DEL FILTRO (ÚLTIMA COLUMNA)
+      };
+    });
+
+
+    // GENERAR ARCHIVO EXCEL Y DESCARGARLO
+    workbook.xlsx.writeBuffer().then(buffer => {
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      saveAs(blob, "ResumenEvaluacionesTurnos.xlsx");
+    });
+
+  }
+
+  async GenerarPDFTurnos(action = "open", pdf: number) {
+    const pdfMake = await this.ImportarPDF();
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
+    var fechaDesde = this.desdeEvalT.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.hastaEvalT.nativeElement.value.toString().trim();
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition: any;
     if (pdf === 1) {
-      documentDefinition = this.getDocumentEmpleado(
+      documentDefinition = this.DocumentarEvaluacionTurnos(
         fechaDesde,
         fechaHasta,
       );
     }
 
-    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTANA EL PDF CREADO
     switch (action) {
       case "open":
         pdfMake.createPdf(documentDefinition).open();
@@ -1508,363 +1650,131 @@ export class EvaluacionComponent implements OnInit {
       case "download":
         pdfMake.createPdf(documentDefinition).download();
         break;
-
       default:
         pdfMake.createPdf(documentDefinition).open();
         break;
     }
   }
 
-  // FUNCION DELEGADA PARA SETEO DE INFORMACION DE ESTRUCTURA
-  getDocumentEmpleado(fechaDesde: any, fechaHasta: any) {
+  // FUNCION DELEGADA PARA SETEO DE INFORMACIÓN EN ESTRUCTURA
+  DocumentarEvaluacionTurnos(fechaDesde: any, fechaHasta: any) {
     // SE OBTIENE LA FECHA ACTUAL
     let f = new Date();
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.ObtenerNombreSucursal(this.sucursalesSeleccionadas);
-
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageSize: 'A4',
+      pageOrientation: this.orientacion,
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text:
-                "Reporte" + "\n" + " Evaluación por cajero",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF EMPLEADO Y MAX, MIN
-        this.opcionCuatro
-          ? this.empleadoC(this.listaEvaluaciones)
-          : this.empleado(this.listaEvaluaciones),
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `RESUMEN DE EVALUACIONES POR TURNOS`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fechaDesde} HASTA ${fechaHasta}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        this.TratamientoInformacionEvaluacionTurnos(this.listaEvaluaciones),
       ],
       styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        itemsTable: { fontSize: 8, alignment: 'center' },
+      }
     };
   }
 
-  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
-  empleado(servicio: any[]) {
-    if (this.todasSucursales || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Muy Bueno", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Muy_Bueno },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
+  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND SERVICIOS
+  TratamientoInformacionEvaluacionTurnos(servicio: any[]) {
+    var centrar: boolean = false;
+    let headers = [{ text: "SUCURSAL", style: "tableHeader", alignment: 'center', }];
+    let includeSubservicio = this.verSubservicio;
+    let includeServicio = this.verServicio;
+    let includeCajero = this.verCajero;
+
+    if (includeSubservicio) {
+      headers.push({ text: "SERVICIO", style: "tableHeader", alignment: 'center' });
+      headers.push({ text: "SUBSERVICIO", style: "tableHeader", alignment: 'center' });
+    } else if (includeServicio) {
+      headers.push({ text: "SERVICIO", style: "tableHeader", alignment: 'center' });
     }
-  }
 
-  // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
-  empleadoC(servicio: any[]) {
-    if (this.todasSucursales || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: [
-            "*",
-            "*",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-            "auto",
-          ],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Excelente", style: "tableHeader" },
-              { text: "Bueno", style: "tableHeader" },
-              { text: "Regular", style: "tableHeader" },
-              { text: "Malo", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Promedio", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usua_nombre },
-                { style: "itemsTable", text: res.fecha },
-                { style: "itemsTable", text: res.Excelente },
-                { style: "itemsTable", text: res.Bueno },
-                { style: "itemsTable", text: res.Regular },
-                { style: "itemsTable", text: res.Malo },
-                { style: "itemsTable", text: res.Total },
-                { style: "itemsTable", text: res.Promedio },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
+    if (includeCajero) {
+      headers.push({ text: "CAJERO(A)", style: "tableHeader", alignment: 'center' });
     }
+
+    headers.push(...[
+      { text: "INFORMACIÓN DEL USUARIO", style: "tableHeader", alignment: 'center' },
+      { text: "FECHA", style: "tableHeader", alignment: 'center' },
+      { text: "HORA", style: "tableHeader", alignment: 'center' },
+      { text: "TURNO", style: "tableHeader", alignment: 'center' },
+      { text: "CALIFICACIÓN", style: "tableHeader", alignment: 'center' },
+    ]);
+
+    let bodyRows = servicio.map((res) => {
+      let row = [{ style: "itemsTable", text: res.nombreEmpresa, alignment: 'center' }];
+
+      if (includeSubservicio) {
+        row.push({ style: "itemsTable", text: res.servicio, alignment: 'center' });
+        row.push({ style: "itemsTable", text: res.subservicio, alignment: 'center' });
+      } else if (includeServicio) {
+        row.push({ style: "itemsTable", text: res.servicio, alignment: 'center' });
+      }
+
+      if (includeCajero) {
+        row.push({ style: "itemsTable", text: res.usua_nombre, alignment: 'center' });
+      }
+
+      row.push(...[
+        { style: "itemsTable", text: res.informacion, alignment: 'center' },
+        { style: "itemsTable", text: res.fecha, alignment: 'center' },
+        { style: "itemsTable", text: res.hora, alignment: 'center' },
+        { style: "itemsTable", text: res.turno, alignment: 'center' },
+        { style: "itemsTable", text: res.calificacion, alignment: 'center' },
+      ]);
+
+      return row;
+    });
+    var columnWidth = 'auto';
+    if (centrar === false) {
+      const totalColumns = headers.length;
+      columnWidth = 100 / totalColumns + "%";
+    }
+
+    return {
+      alignment: "center",
+      table: {
+        headerRows: 1,
+        widths: headers.map(() => columnWidth),
+        body: [headers, ...bodyRows],
+      },
+      layout: {
+        fillColor: function (rowIndex: any) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+      margin: [5, 0, 5, 0], // AGREGAR MARGEN LATERAL PARA CENTRAR MEJOR
+    };
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   // SE DESLOGUEA DE LA APLICACION
@@ -1872,411 +1782,6 @@ export class EvaluacionComponent implements OnInit {
     this.auth.logout();
     this.router.navigateByUrl("/");
   }
-
-
-
-
-
-
-
-
-  // Función para sumar un día a la fecha
-  addOneDay(date: Date): Date {
-    date.setDate(date.getDate() + 1);
-    return date;
-  }
-
-
-
-
-
-
-
-  generarImagen() {
-    // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
-    const canvas = document.querySelector('#canvas') as HTMLCanvasElement;
-
-    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
-    const canvasImg = canvas.toDataURL('image/png');
-
-    // CREA UN BLOB CON LA IMAGEN
-    const blob = this.dataURLtoBlob(canvasImg);
-
-    // GUARDA EL BLOB EN UN ARCHIVO
-    saveAs(blob, 'grafico.png');
-
-    // LLAMAMOS A LA FUNCIÓN QUE GENERA EL ARCHIVO DE EXCEL Y LE PASAMOS LA RUTA DEL ARCHIVO COMO PARÁMETRO
-    this.exportarAExcelGra();
-
-  }
-
-  dataURLtoBlob(dataUrl: string): Blob {
-    const arr: any = dataUrl.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new Blob([u8arr], { type: mime });
-  }
-
-  exportarAExcelGra() {
-    let nombreSucursal = this.ObtenerNombreSucursal(this.sucursalesSeleccionadas);
-
-    // MAPEO DE INFORMACION DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-
-    for (let i = 0; i < this.servicioGra.length; i++) {
-      const item = {
-        ...(this.todasSucursalesG || this.seleccionMultiple
-          ? { Sucursal: this.servicioGra[i].nombreEmpresa }
-          : {}),
-        "Cajero(a)": this.servicioGra[i].usuario,
-        Evaluación: this.servicioGra[i].evaluacion,
-        Total: this.servicioGra[i].total,
-        Porcentajes: this.servicioGra[i].porcentaje + "%",
-      };
-      jsonServicio.push(item);
-    }
-
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioGra[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    XLSX.writeFile(
-      wb,
-      "GraficoEvaluaciones - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // PDF DE GRAFICOS
-  generarPdfGra(action = "open", pdf: number) {
-    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
-    var fechaDesde = this.desdeRE.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.hastaRE.nativeElement.value
-      .toString()
-      .trim();
-    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
-    let documentDefinition: any;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentGr(fechaDesde, fechaHasta);
-    }
-
-    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  // FUNCION DELEGADA PARA SETEO DE INFORMACION
-  getDocumentGr(fechaDesde, fechaHasta) {
-    var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
-    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
-    var canvasImg = canvas1.toDataURL("image/png");
-    // SE OBTIENE LA FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.ObtenerNombreSucursal(this.sucursalesSeleccionadas);
-
-    // FORMATEO DE DATOS PARA OBTENER, LOS VALORES DE CADA PARÁMETRO
-    let Nombres: any = [];
-    let valNombres: any = [];
-
-    if (this.opcionCuatro) {
-      Nombres = ["Excelente", "Bueno", "Regular", "Malo"];
-      valNombres = [0, 0, 0, 0];
-    } else {
-      Nombres = ["Excelente", "Muy Bueno", "Bueno", "Regular", "Malo"];
-      valNombres = [0, 0, 0, 0, 0];
-    }
-
-    for (var i = 0; i < Nombres.length; i++) {
-      if (
-        this.servicioGra.find((val) => val.evaluacion === Nombres[i]) != null
-      ) {
-        valNombres[i] = this.servicioGra.find(
-          (val) => val.evaluacion === Nombres[i]
-        ).total;
-      }
-    }
-
-    return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      pageOrientation: this.orientacion,
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Gráfico Evaluaciones",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
-        this.grafico(this.servicioGra),
-        this.graficoImagen(canvasImg), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  graficoImagen(imagen: any) {
-    if (this.orientacion == "landscape") {
-      return {
-        image: imagen,
-        fit: [800, 500],
-        margin: [0, 50, 0, 10],
-        alignment: "center",
-        pageBreak: "before",
-      };
-    } else {
-      return {
-        image: imagen,
-        fit: [500, 350],
-        margin: [0, 50, 0, 10],
-        alignment: "center",
-      };
-    }
-  }
-
-  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
-  grafico(servicio: any[]) {
-    if (this.todasSucursalesG || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Evaluacion", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Porcentajes", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.usuario },
-                { style: "itemsTable", text: res.evaluacion },
-                { style: "itemsTable", text: res.total },
-                { style: "itemsTable", text: res.porcentaje + "%" },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          widths: ["*", "*", "*", "*"],
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Evaluacion", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-              { text: "Porcentajes", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.usuario },
-                { style: "itemsTable", text: res.evaluacion },
-                { style: "itemsTable", text: res.total },
-                { style: "itemsTable", text: res.porcentaje + "%" },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  genGraficoPDF() {
-    // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
-    var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
-    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
-    var canvasImg = canvas1.toDataURL("image/png");
-    // CREA PDF
-    var doc = new jsPDF("l", "mm", "a4");
-    // SE OBTIENE EL LARGO Y ANCHO DE LA PAGINA ESTE CASO A4
-    let pageWidth = doc.internal.pageSize.getWidth();
-    let pageHeight = doc.internal.pageSize.getHeight();
-    // OBTIENE FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    var fecha = f.toJSON().split("T")[0];
-    var timer = f.toJSON().split("T")[1].slice(0, 5);
-    // OBTIENE EL CENTRO SUPERIOR DE LA PAGINA
-    let textEnc = "Reporte - Gráfico Evaluaciones";
-    let textEncWidth =
-      (doc.getStringUnitWidth(textEnc) * doc.getFontSize()) /
-      doc.internal.scaleFactor;
-    let xTextEnc = (pageWidth - textEncWidth) / 2;
-    // IMPRIME FECHA, ENCABEZADO, PIE DE PAGINA RESPECTIVAMENTE
-    doc.text("Fecha: " + fecha + " Hora: " + timer, 5, pageHeight - 10);
-    doc.text(textEnc, xTextEnc, 10);
-    doc.text("Impreso por: " + this.userDisplayName, 200, pageHeight - 10);
-    // AÑADE IMAGEN EN EL CENTRO DEL DOCUMENTO
-    doc.addImage(canvasImg, "PNG", 10, 10, 280, 150);
-    // GUARDA PDF CON UN NOMBRE PROPUESTO
-    doc.save(`Gráfico-Evaluaciones ${fecha}, ${timer}.pdf`);
-    window.open(URL.createObjectURL(doc.output("blob")));
-  }
-
-
 
 
 }
