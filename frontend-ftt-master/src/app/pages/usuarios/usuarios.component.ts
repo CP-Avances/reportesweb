@@ -8,6 +8,8 @@ import { ImagenesService } from "../../shared/imagenes.service";
 import { ServiceService } from "../../services/service.service";
 import { cajero } from "../../models/cajero";
 import { turno } from "../../models/turno";
+import { Chart } from "chart.js";
+import { ChangeDetectorRef } from '@angular/core';
 
 // COMPLEMENTOS PARA PDF Y EXCEL
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
@@ -79,6 +81,9 @@ export class UsuariosComponent implements OnInit {
   serviciosServs: any = [];
   subservicios: any[];
   mostrar_resultado = false;
+  chart: any;
+
+
 
   onSelectionChange() {
     this.mostrar_resultado = false;
@@ -197,6 +202,7 @@ export class UsuariosComponent implements OnInit {
     private router: Router,
     private auth: AuthenticationService,
     public datePipe: DatePipe,
+    private cdRef: ChangeDetectorRef
   ) {
     // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
     // TURNOS POR FECHA
@@ -273,7 +279,6 @@ export class UsuariosComponent implements OnInit {
   }
   // TIEMPO DE ATENCION POR TURNOS
   pageChangedTA(event: any) {
-    console.log('Página seleccionada:', event); // Para verificar el valor del evento
     this.configTA.currentPage = event;
   }
   // ENTRADAS Y SALIDAS AL SISTEMA
@@ -520,8 +525,18 @@ export class UsuariosComponent implements OnInit {
   LimpiarFormularios() {
     this.limpiar();
     this.estadoUsuario = 2;
-    const activo = document.getElementById('activo') as HTMLInputElement;
-    activo.checked = true;
+    const activo2 = document.getElementById('activo2') as HTMLInputElement;
+    const activo3 = document.getElementById('activo3') as HTMLInputElement;
+    const activo4 = document.getElementById('activo4') as HTMLInputElement;
+    const activo5 = document.getElementById('activo5') as HTMLInputElement;
+    const activo6 = document.getElementById('activo6') as HTMLInputElement;
+
+    activo2.checked = true;
+    activo3.checked = true;
+    activo4.checked = true;
+    activo5.checked = true;
+    activo6.checked = true;
+
   }
 
   verFecha: string = '1';
@@ -541,10 +556,11 @@ export class UsuariosComponent implements OnInit {
     this.router.navigateByUrl("/");
   }
 
- 
+
   /** ********************************************************************************************************** **
    ** **                                     TURNOS TOTALES POR FECHA                                         ** **
    ** ********************************************************************************************************** **/
+  porcentajeTotal: any;
 
   buscarTurnosTotalFecha() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
@@ -568,17 +584,23 @@ export class UsuariosComponent implements OnInit {
         .getturnostotalfechas(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoCajero, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario, this.verFecha)
         .subscribe(
           (servicio: any) => {
-            this.mostrar_resultado = true;
+            //this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABfLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosTotalFecha = servicio.turnos;
             console.log("ver servicioTurnosTotalFecha", this.servicioTurnosTotalFecha)
             let sumaTotal: number = 0;
-
+            let totalP = servicio.turnos.map((res) => res.PORCENTAJE);
+            let totalPorc: number = 0;
 
             this.servicioTurnosTotalFecha.forEach(elemento => {
               sumaTotal += Number(elemento.Total);
             });
             this.suma = sumaTotal;
+            for (var i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
+              totalPorc = totalPorc + Number(totalP[i]);
+            }
+            this.porcentajeTotal = Math.round(totalPorc);
+
             this.malRequestTTF = false;
             this.malRequestTTFPag = false;
 
@@ -586,27 +608,75 @@ export class UsuariosComponent implements OnInit {
             if (this.configTTF.currentPage > 1) {
               this.configTTF.currentPage = 1;
             }
+
+
+            // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
+            let Nombres =  this.servicioTurnosTotalFecha.map((res) => `${res.Servicio}`);
+            let totales =  this.servicioTurnosTotalFecha.map((res) => res.Total);
+            let atendidos =  this.servicioTurnosTotalFecha.map((res) => res.Atendidos);
+            let noAtendidos =  this.servicioTurnosTotalFecha.map((res) => res.No_Atendidos);
+
+            // SETEO DE CADA GRUPO DE DATOS
+            var atendidosData = {
+              label: "Atendidos",
+              data: atendidos,
+              backgroundColor: "rgba(0, 99, 132, 0.6)",
+            };
+            var noAtendidosData = {
+              label: "No atendidos",
+              data: noAtendidos,
+              backgroundColor: "rgba(99, 132, 0, 0.6)",
+            };
+            var totalesData = {
+              type: "scatter",
+              label: "Totales",
+              data: totales,
+              backgroundColor: "rgba(220, 46, 86, 0.6)",
+            };
+
+            var graficoData =   {
+              labels: Nombres,
+              datasets: [atendidosData, noAtendidosData, totalesData],
+            };
+            if (this.chart) {
+              this.chart.destroy();
+            }
+
+            this.mostrar_resultado = true;
+            this.cdRef.detectChanges(); // Forzar actualización del DOM
+
+            // ESPERAR A QUE EL DIV SE RENDERICE ANTES DE CREAR EL GRÁFICO
+            setTimeout(() => {
+                if (this.chart) {
+                    this.chart.destroy();
+                }
+
+                this.chart = new Chart("canvas", {
+                    type: "bar",
+                    data: graficoData,
+                    options: {
+                        plugins: {
+                            datalabels: {
+                                color: "black",
+                                labels: {
+                                    title: {
+                                        font: {
+                                            weight: "bold",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        responsive: true,
+                    },
+                });
+
+                console.log("ver data del grafico: ", this.chart);
+            }, 0); // Pequeña espera para permitir que 
+
           },
           (error) => {
             if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y BANDERAS CAMBIAN PARA QUITAR TABLA DE INTERFAZ
-              this.servicioTurnosTotalFecha = null;
-              this.malRequestTTF = true;
-              this.malRequestTTFPag = true;
-
-              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-              if (this.servicioTurnosTotalFecha == null) {
-                this.configTTF.totalItems = 0;
-              } else {
-                this.configTTF.totalItems = this.servicioTurnosTotalFecha.length;
-              }
-
-              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-              this.configTTF = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
 
               // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
               this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
@@ -616,6 +686,12 @@ export class UsuariosComponent implements OnInit {
           }
         );
     }
+
+    /*
+    if (this.chart != undefined || this.chart != null) {
+      this.chart.destroy();
+    }
+      */
   }
 
   /** ********************************************************************************************************** **
@@ -645,6 +721,7 @@ export class UsuariosComponent implements OnInit {
         .getturnosMeta(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoCajero, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
+            console.log("ver numero de turnos meta: ", servicio.turnos.length)
             this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosMeta = servicio.turnos;
@@ -658,24 +735,6 @@ export class UsuariosComponent implements OnInit {
           },
           (error) => {
             if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y BANDERAS CAMBIAN PARA QUITAR TABLA DE INTERFAZ
-              this.servicioTurnosMeta = null;
-              this.malRequestTM = true;
-              this.malRequestTMPag = true;
-
-              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-              if (this.servicioTurnosMeta == null) {
-                this.configTM.totalItems = 0;
-              } else {
-                this.configTM.totalItems = this.servicioTurnosMeta.length;
-              }
-
-              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-              this.configTM = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
 
               // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
               this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
@@ -713,10 +772,11 @@ export class UsuariosComponent implements OnInit {
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, datoCajero, this.sucursalesSeleccionadas, 
+        .getturnosF(fechaDesde, fechaHasta, horaInicio, horaFin, datoCajero, this.sucursalesSeleccionadas,
           this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario, this.verFecha)
         .subscribe(
           (servicio: any) => {
+            console.log("ver numero de registros de tiempo promedio de atencion: ", servicio.turnos.length)
             this.mostrar_resultado = true
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioPromAtencion = servicio.turnos;
@@ -729,22 +789,6 @@ export class UsuariosComponent implements OnInit {
           },
           (error) => {
             if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-              this.servicioPromAtencion = null;
-              this.malRequestTPA = true;
-              this.malRequestTPPag = true;
-              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-              if (this.servicioPromAtencion == null) {
-                this.configTP.totalItems = 0;
-              } else {
-                this.configTP.totalItems = this.servicioPromAtencion.length;
-              }
-              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-              this.configTP = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
               // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
               this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
                 timeOut: 6000,
@@ -798,6 +842,7 @@ export class UsuariosComponent implements OnInit {
         .getturnosAtencion(fechaDesde, fechaHasta, horaInicio, horaFin, datoCajero, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
+            console.log("numero de resultados de buscarTiempoAtencion: ", servicio.turnos.length)
             this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTiempoAtencion = servicio.turnos;
@@ -810,22 +855,7 @@ export class UsuariosComponent implements OnInit {
           },
           (error) => {
             if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-              this.servicioTiempoAtencion = null;
-              this.malRequestTA = true;
-              this.malRequestTAPag = true;
-              // COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-              // CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-              if (this.servicioTiempoAtencion == null) {
-                this.configTA.totalItems = 0;
-              } else {
-                this.configTA.totalItems = this.servicioTiempoAtencion.length;
-              }
-              // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-              this.configTA = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
+
               // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
               this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
                 timeOut: 6000,
@@ -853,74 +883,6 @@ export class UsuariosComponent implements OnInit {
   }
 
 
-  buscarAtencionUsuario() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fechaDesde = this.fromDateAtencionUsua.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateAtencionUsua.nativeElement.value
-      .toString()
-      .trim();
-
-    let horaInicio = this.horaInicioAU.nativeElement.value;
-    let horaFin = this.horaFinAU.nativeElement.value;
-
-    if (this.selectedItems.length !== 0) {
-      this.serviceService
-        .getatencionusuarios(fechaDesde, fechaHasta, horaInicio, horaFin, this.selectedItems, this.sucursalesSeleccionadas)
-        .subscribe(
-          (servicio: any) => {
-            // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-            this.servicioAtencionUsua = servicio.turnos;
-            this.malRequestAU = false;
-            this.malRequestAUPag = false;
-            // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-            if (this.configAU.currentPage > 1) {
-              this.configAU.currentPage = 1;
-            }
-          },
-          (error) => {
-            if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-              this.servicioAtencionUsua = null;
-              this.malRequestAU = true;
-              this.malRequestAUPag = true;
-
-              if (this.servicioAtencionUsua == null) {
-                this.configAU.totalItems = 0;
-              } else {
-                this.configAU.totalItems = this.servicioAtencionUsua.length;
-              }
-              this.configAU = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
-              // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-              this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-                timeOut: 6000,
-              });
-            }
-          }
-        );
-    } else {
-
-      this.servicioAtencionUsua = null;
-      this.malRequestAU = true;
-      this.malRequestAUPag = true;
-
-      if (this.servicioAtencionUsua == null) {
-        this.configAU.totalItems = 0;
-      } else {
-        this.configAU.totalItems = this.servicioAtencionUsua.length;
-      }
-      this.configAU = {
-        itemsPerPage: this.MAX_PAGS,
-        currentPage: 1,
-      };
-    }
-  }
-
-
   leerEntradasSalidasSistema() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     let fechaDesde = this.fromDateUES.nativeElement.value.toString().trim();
@@ -928,9 +890,15 @@ export class UsuariosComponent implements OnInit {
     let horaInicio = this.horaInicioES.nativeElement.value;
     let horaFin = this.horaFinES.nativeElement.value;
 
+    var datoCajero: any = '0N';
+
+    if (this.selectedItems.length != 0) {
+      datoCajero = this.selectedItems;
+    }
+
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
-        .getentradassalidasistema(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, this.selectedItems, this.estadoUsuario)
+        .getentradassalidasistema(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoCajero, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
             this.mostrar_resultado = true;
@@ -945,22 +913,6 @@ export class UsuariosComponent implements OnInit {
           },
           (error) => {
             if (error.status == 400) {
-              // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-              this.servicioEntradaSalida = null;
-              this.malRequestES = true;
-              this.malRequestESPag = true;
-              /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-               *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-               **/
-              if (this.servicioEntradaSalida == null) {
-                this.configES.totalItems = 0;
-              } else {
-                this.configES.totalItems = this.servicioEntradaSalida.length;
-              }
-              this.configES = {
-                itemsPerPage: this.MAX_PAGS,
-                currentPage: 1,
-              };
               // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
               this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
                 timeOut: 6000,
@@ -3161,57 +3113,7 @@ export class UsuariosComponent implements OnInit {
 
   }
 
-  /*
-  exportarAExcelAtencionUsuario() {
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    if (this.todasSucursalesAU || this.seleccionMultiple) {
-      for (let i = 0; i < this.servicioAtencionUsua.length; i++) {
-        jsonServicio.push({
-          Sucursal: this.servicioAtencionUsua[i].nombreEmpresa,
-          "Cajero(a)": this.servicioAtencionUsua[i].Nombre,
-          Servicio: this.servicioAtencionUsua[i].Servicio,
-          Subservicio: this.servicioAtencionUsua[i].subservicio,
-          Atendidos: this.servicioAtencionUsua[i].Atendidos,
-          "No atendidos": this.servicioAtencionUsua[i].No_Atendidos,
-          Total: this.servicioAtencionUsua[i].Total,
-        });
-      }
-    } else {
-      for (let i = 0; i < this.servicioAtencionUsua.length; i++) {
-        jsonServicio.push({
-          "Cajero(a)": this.servicioAtencionUsua[i].Nombre,
-          Servicio: this.servicioAtencionUsua[i].Servicio,
-          Subservicio: this.servicioAtencionUsua[i].subservicio,
-          Atendidos: this.servicioAtencionUsua[i].Atendidos,
-          "No atendidos": this.servicioAtencionUsua[i].No_Atendidos,
-          Total: this.servicioAtencionUsua[i].Total,
-        });
-      }
-    }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioAtencionUsua[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {
-      // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 });
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Atencion");
-    XLSX.writeFile(
-      wb,
-      "Atencion al usuario - " +
-      nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
-  }
-    */
+
 
   validarHoras(hInicio: any, hFin: any) {
     let diaCompleto: boolean = false;
@@ -5404,227 +5306,5 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
-  /*
-  generarPdfAtencionUsuario(action = "open", pdf: number) {
-    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
-    var fechaDesde = this.fromDateAtencionUsua.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateAtencionUsua.nativeElement.value
-      .toString()
-      .trim();
 
-    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
-    let documentDefinition;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentAtencionUsuario(
-        fechaDesde,
-        fechaHasta,
-      );
-    }
-    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-    */
-
-  // FUNCION DELEGADA PARA SETEO DE INFORMACION en estructura
-  getDocumentAtencionUsuario(fechaDesde: any, fechaHasta: any) {
-    // SE OBTIENE LA FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
-    return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Atención al Usuario",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " Hasta " + fechaHasta,
-        },
-        this.atencionusuario(this.servicioAtencionUsua), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-  atencionusuario(servicio: any[]) {
-    if (this.todasSucursalesAU || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          alignment: "center",
-          widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Atendidos", style: "tableHeader" },
-              { text: "No atendidos", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.nombreEmpresa },
-                { style: "itemsTable", text: res.Nombre },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subervicio },
-                { style: "itemsTable", text: res.Atendidos },
-                { style: "itemsTable", text: res.No_Atendidos },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          headerRows: 1,
-          alignment: "center",
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Cajero(a)", style: "tableHeader" },
-              { text: "Servicio", style: "tableHeader" },
-              { text: "Subservicio", style: "tableHeader" },
-              { text: "Atendidos", style: "tableHeader" },
-              { text: "No atendidos", style: "tableHeader" },
-              { text: "Total", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.Nombre },
-                { style: "itemsTable", text: res.Servicio },
-                { style: "itemsTable", text: res.subervicio },
-                { style: "itemsTable", text: res.Atendidos },
-                { style: "itemsTable", text: res.No_Atendidos },
-                { style: "itemsTable", text: res.Total },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
 }

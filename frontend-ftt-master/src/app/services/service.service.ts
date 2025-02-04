@@ -19,22 +19,6 @@ export class ServiceService {
   ) { }
 
   /** ****************************************************************************************************************** **
-   ** **                                        TURNOS POR FECHAS                                                     ** **
-   ** ****************************************************************************************************************** **/
-
-  getfiltroturnosfechas(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, sucursales: any, cajeros: any, servicios: any, subservicios: any, estado: any): Observable<servicio[]> {
-    if (servicios.length == 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + 0 + "/" + 0 + "/" + estado);
-    } else if (subservicios.length == 0 && servicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + 0 + "/" + estado);
-    } else if (servicios.length != 0 && subservicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/turnosfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios + "/" + estado);
-    }
-
-  }
-
-
-  /** ****************************************************************************************************************** **
    ** **                                        TURNOS TOTALES POR FECHAS                                             ** **
    ** ****************************************************************************************************************** **/
 

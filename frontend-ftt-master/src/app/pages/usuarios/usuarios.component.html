@@ -14,7 +14,7 @@
                 <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
                         aria-controls="home" aria-selected="false">
-                        TURNOS TOTALES POR FECHA
+                        TURNOS TOTALES
                     </a>
                 </li>
                 <li class="nav-item" (click)="LimpiarFormularios()">
@@ -35,14 +35,6 @@
                         TIEMPO DE ATENCIÓN POR TURNOS
                     </a>
                 </li>
-                <!--
-                <li class="nav-item" (click)="LimpiarFormularios()">
-                    <a class="nav-link" id="atencionusuario-tab" data-toggle="tab" href="#atencionusuario" role="tab"
-                        aria-controls="atencionusuario" aria-selected="false">
-                        ATENCIÓN AL USUARIO
-                    </a>
-                </li>
-                -->
                 <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
                         aria-controls="contact" aria-selected="false">
@@ -190,7 +182,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>TURNOS TOTALES POR FECHA</h3>
+                    <h3>TURNOS TOTALES</h3>
                     <hr>
                     <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table class="table table-striped" id="contentTurnosTotalFecha" #contentTurnosTotalFecha
@@ -209,6 +201,8 @@
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">No atendidos</th>
                                     <th class="text-center">Total</th>
+                                    <th class="text-center">Porcentaje Ocupación</th>
+
                                 </tr>
                             </thead>
                             <tbody *ngIf="!malRequestTTF">
@@ -226,6 +220,8 @@
                                     <td> {{servicioTurnosTotalFecha.Atendidos}} </td>
                                     <td> {{servicioTurnosTotalFecha.No_Atendidos}}</td>
                                     <td> {{servicioTurnosTotalFecha.Total}} </td>
+                                    <td>{{servicioTurnosTotalFecha.PORCENTAJE}} %</td>
+
                                 </tr>
                                 <tr>
                                     <td *ngIf="todasSucursalesTTF || seleccionMultiple">
@@ -238,14 +234,23 @@
                                     <td> </td>
                                     <td> Total:</td>
                                     <td> {{suma}} </td>
+                                    <td>{{porcentajeTotal}} %</td>
+
                                 </tr>
                             </tbody>
                         </table>
-                        <pagination-controls *ngIf="!malRequestTTFPag" id="usuariosTTF"
+                        <pagination-controls  id="usuariosTTF"
                             [previousLabel]="labels.previousLabel" [currentPage]="configTTF.currentPage"
                             [nextLabel]="labels.nextLabel" (pageChange)="pageChangedTTF($event)">
                         </pagination-controls>
                     </div>
+
+                    <br><br>
+                    <div id="canvasCont" *ngIf="mostrar_resultado && verFecha != '1' && selectedItems.length==0 && serviciosSeleccionadas.length>0 && sub_serviciosSeleccionadas.length==0" >
+                        <h3>GRÁFICO SERVICIO</h3>
+                        <canvas id="canvas">{{chart}}</canvas>
+                    </div>
+
                     <br>
                     <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosTotalFecha()"
                         *ngIf="mostrar_resultado">
@@ -579,7 +584,7 @@
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTPA || seleccionMultiple">
                                         Sucursal
                                     </th>
-                                    <th scope="col" class="text-center">Cajero(a)</th>
+                                    <th scope="col" class="text-center" *ngIf="selectedItems.length>0">Cajero(a)</th>
                                     <th scope="col" class="text-center" *ngIf="serviciosSeleccionadas.length>0">Servicio
                                     </th>
                                     <th scope="col" class="text-center" *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
@@ -594,7 +599,7 @@
                                 <tr *ngFor="let servicioPromAtencion of servicioPromAtencion | paginate:configTP">
                                     <td *ngIf="todasSucursalesTPA || seleccionMultiple">
                                         {{servicioPromAtencion.nombreEmpresa}}</td>
-                                    <td>{{servicioPromAtencion.Nombre}}</td>
+                                    <td *ngIf="selectedItems.length>0">{{servicioPromAtencion.Nombre}}</td>
                                     <td *ngIf="serviciosSeleccionadas.length>0">
                                         {{servicioPromAtencion.Servicio}}</td>
                                     <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">{{servicioPromAtencion.subservicio}}
@@ -755,7 +760,7 @@
                                 <tr>
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTA || seleccionMultiple">
                                         Sucursal</th>
-                                    <th scope="col" class="text-center">Cajero(a)</th>
+                                    <th scope="col" class="text-center" *ngIf="selectedItems.length>0">Cajero(a)</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Servicio</th>
@@ -770,7 +775,7 @@
                                 <tr *ngFor="let servicioTiempoAtencion of servicioTiempoAtencion | paginate:configTA">
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">
                                         {{servicioTiempoAtencion.nombreEmpresa}}</td>
-                                    <td>{{servicioTiempoAtencion.Nombre}}</td>
+                                    <td *ngIf="selectedItems.length>0">{{servicioTiempoAtencion.Nombre}}</td>
                                     <td>{{servicioTiempoAtencion.turn_fecha}}</td>
                                     <td>{{servicioTiempoAtencion.hora}}</td>
                                     <td>{{servicioTiempoAtencion.Servicio}}</td>
@@ -783,8 +788,10 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestTAPag" id="usuariosTA"
-                            [previousLabel]="labels.previousLabel" [currentPage]="configTA.currentPage"
-                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedTA($event)">
+                            [previousLabel]="labels.previousLabel" 
+                            [currentPage]="configTA.currentPage"
+                            [nextLabel]="labels.nextLabel" 
+                            (pageChange)="pageChangedTA($event)">
                         </pagination-controls>
                     </div>
                     <br>
@@ -892,7 +899,7 @@
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesES || seleccionMultiple">
                                         Sucursal
                                     </th>
-                                    <th scope="col" class="text-center">Cajero(a)</th>
+                                    <th scope="col" class="text-center" *ngIf="selectedItems.length>0">Cajero(a)</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Razón</th>
@@ -902,7 +909,7 @@
                                 <tr *ngFor="let servicioEntradaSalida of servicioEntradaSalida | paginate:configES">
                                     <td *ngIf="todasSucursalesES || seleccionMultiple">
                                         {{servicioEntradaSalida.nombreEmpresa}}</td>
-                                    <td>{{servicioEntradaSalida.Usuario}}</td>
+                                    <td *ngIf="selectedItems.length>0">{{servicioEntradaSalida.Usuario}}</td>
                                     <td>{{servicioEntradaSalida.fecha}}</td>
                                     <td>{{servicioEntradaSalida.hora}}</td>
                                     <td>{{servicioEntradaSalida.Razon}}</td>
@@ -924,116 +931,6 @@
                         PDF
                     </button>
                 </div>
-
-                <!-- *********************************** ATENCION AL USUARIO *************************************** -->
-
-                <!--
-                <div class="tab-pane fade" id="atencionusuario" role="tabpanel" aria-labelledby="atencionusuario-tab">
-                    <br><br>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="contenedor-fechas mt-2 mb-2">
-                                    <div>
-                                        <label for="fromDateAtencionUsua">Fecha desde:&nbsp;</label>
-                                        <input type="date" id="fromDateAtencionUsua" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateAtencionUsua" #fromDateAtencionUsua><br><br>
-                                    </div>
-                                    <div>
-                                        <label for="toDateAtencionUsua">Fecha hasta:&nbsp;</label>
-                                        <input type="date" id="toDateAtencionUsua" value="{{toDate}}" [max]="toDate"
-                                            name="toDateAtencionUsua" #toDateAtencionUsua>
-                                    </div>
-                                </div>
-                                <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioAU>
-                                        <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinAU>
-                                        <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales" (selectionChange)="onSelectionChangeSucursal()" >
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesAU')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let sucursal of sucursales" [value]="sucursal.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesAU">
-                                        {{sucursal.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake" [(value)]="selectedItems"
-                                    placeholder="Cajeros">
-                                    <mat-option *ngIf="mostrarCajeros" [value]="-2" (click)="selectAll('allSelected')">
-                                        Todos los cajeros
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of cajerosUsuarios" [value]="option.caje_codigo"
-                                        [disabled]="allSelected">
-                                        {{option.caje_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <button type="button" class="btn btn-search" (click)="buscarAtencionUsuario()">
-                                    <span class="glyphicon glyphicon-filter"></span>
-                                    Buscar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-                    <h3>TURNOS ATENDIDOS</h3>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="contentAtencionUsua" #contentAtencionUsua
-                            #tableAtencionUsua>
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesAU || seleccionMultiple">
-                                        Sucursal
-                                    </th>
-                                    <th scope="col" class="text-center">Cajero(a)</th>
-                                    <th scope="col" class="text-center">Servicio</th>
-                                    <th scope="col" class="text-center">Subservicio</th>
-                                    <th scope="col" class="text-center">Atendidos</th>
-                                    <th scope="col" class="text-center">No atendidos</th>
-                                    <th scope="col" class="text-center">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody *ngIf="!malRequestAU">
-                                <tr *ngFor="let servicioAtencionUsua of servicioAtencionUsua | paginate:configAU">
-                                    <td *ngIf="todasSucursalesAU || seleccionMultiple">
-                                        {{servicioAtencionUsua.nombreEmpresa}}</td>
-                                    <td>{{servicioAtencionUsua.Nombre}}</td>
-                                    <td>{{servicioAtencionUsua.Servicio}}</td>
-                                    <td>{{servicioAtencionUsua.subservicio}}</td>
-                                    <td>{{servicioAtencionUsua.Atendidos}}</td>
-                                    <td>{{servicioAtencionUsua.No_Atendidos}}</td>
-                                    <td>{{servicioAtencionUsua.Total}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <pagination-controls *ngIf="!malRequestAUPag" id="usuariosAU"
-                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
-                            (pageChange)="pageChangedAU($event)">
-                        </pagination-controls>
-                    </div>
-                    <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelAtencionUsuario()">
-                        EXCEL
-                    </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfAtencionUsuario('hola', 1)">
-                        PDF
-                    </button>
-                </div>
-                -->
             </div>
         </form>
     </div>
