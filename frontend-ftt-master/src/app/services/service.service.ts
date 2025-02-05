@@ -12,7 +12,7 @@ import { cajero } from '../models/cajero';
 
 export class ServiceService {
 
-  private URL = "http://10.1.0.21:3004";
+  private URL = "http://192.168.0.145:3004";
 
   constructor(
     private http: HttpClient
@@ -158,6 +158,10 @@ export class ServiceService {
 
   getResumenEvaluacion(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any, fecha:string): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/evaluacion/resumen/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + subservicio + "/" + cajero + "/" + opcion + "/" + estado + "/" + fecha);
+  }
+
+  getResumenEvaluacionOmitidas(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any, fecha:string): Observable<servicio[]> {
+    return this.http.get<servicio[]>(this.URL + "/evaluacion/omitidas/resumen/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + subservicio + "/" + cajero + "/" + opcion + "/" + estado + "/" + fecha);
   }
 
   getEvaluacionTurnos(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, servicios: any, subservicios: any, cajeros: any, estado: any, opciones: any): Observable<servicio[]> {
