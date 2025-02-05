@@ -611,10 +611,10 @@ export class UsuariosComponent implements OnInit {
 
 
             // MAPEO DE DATOS PARA IMPRIMIR EN GRAFICO
-            let Nombres =  this.servicioTurnosTotalFecha.map((res) => `${res.Servicio}`);
-            let totales =  this.servicioTurnosTotalFecha.map((res) => res.Total);
-            let atendidos =  this.servicioTurnosTotalFecha.map((res) => res.Atendidos);
-            let noAtendidos =  this.servicioTurnosTotalFecha.map((res) => res.No_Atendidos);
+            let Nombres = this.servicioTurnosTotalFecha.map((res) => `${res.Servicio}`);
+            let totales = this.servicioTurnosTotalFecha.map((res) => res.Total);
+            let atendidos = this.servicioTurnosTotalFecha.map((res) => res.Atendidos);
+            let noAtendidos = this.servicioTurnosTotalFecha.map((res) => res.No_Atendidos);
 
             // SETEO DE CADA GRUPO DE DATOS
             var atendidosData = {
@@ -634,7 +634,7 @@ export class UsuariosComponent implements OnInit {
               backgroundColor: "rgba(220, 46, 86, 0.6)",
             };
 
-            var graficoData =   {
+            var graficoData = {
               labels: Nombres,
               datasets: [atendidosData, noAtendidosData, totalesData],
             };
@@ -647,31 +647,31 @@ export class UsuariosComponent implements OnInit {
 
             // ESPERAR A QUE EL DIV SE RENDERICE ANTES DE CREAR EL GRÁFICO
             setTimeout(() => {
-                if (this.chart) {
-                    this.chart.destroy();
-                }
+              if (this.chart) {
+                this.chart.destroy();
+              }
 
-                this.chart = new Chart("canvas", {
-                    type: "bar",
-                    data: graficoData,
-                    options: {
-                        plugins: {
-                            datalabels: {
-                                color: "black",
-                                labels: {
-                                    title: {
-                                        font: {
-                                            weight: "bold",
-                                        },
-                                    },
-                                },
-                            },
+              this.chart = new Chart("canvas", {
+                type: "bar",
+                data: graficoData,
+                options: {
+                  plugins: {
+                    datalabels: {
+                      color: "black",
+                      labels: {
+                        title: {
+                          font: {
+                            weight: "bold",
+                          },
                         },
-                        responsive: true,
+                      },
                     },
-                });
+                  },
+                  responsive: true,
+                },
+              });
 
-                console.log("ver data del grafico: ", this.chart);
+              console.log("ver data del grafico: ", this.chart);
             }, 0); // Pequeña espera para permitir que 
 
           },
@@ -1374,6 +1374,8 @@ export class UsuariosComponent implements OnInit {
       };
       worksheet.getCell(cell).font = { bold: true, size: 14 };
     });
+
+    let incluirCajero = this.selectedItems.length == 0
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.serviciosSeleccionadas.length == 0) {
@@ -1381,15 +1383,22 @@ export class UsuariosComponent implements OnInit {
         let columnas = []
         if (this.verFecha == '1') {
           for (let i = 0; i < this.servicioTurnosTotalFecha.length; i++) {
-            jsonServicio.push([
+            let fila = [
               this.servicioTurnosTotalFecha[i].nombreEmpresa,
-              this.servicioTurnosTotalFecha[i].Usuario,
               this.addOneDay(new Date(this.servicioTurnosTotalFecha[i].Fecha)),
               this.servicioTurnosTotalFecha[i].Atendidos,
               this.servicioTurnosTotalFecha[i].No_Atendidos,
               this.servicioTurnosTotalFecha[i].Total,
-            ]);
+            ]
+            if (incluirCajero) {
+              fila.splice(1, 0, this.servicioTurnosTotalFecha[i].Usuario); // Insertar "CAJERO" en la segunda posición
+            }
+            jsonServicio.push(fila);
+
+      
           }
+
+
           jsonServicio.push([
             '',
             '',
