@@ -12,7 +12,7 @@ import { cajero } from '../models/cajero';
 
 export class ServiceService {
 
-  private URL = "http://192.168.0.145:3004";
+  private URL = "http://10.1.0.21:3004";
 
   constructor(
     private http: HttpClient

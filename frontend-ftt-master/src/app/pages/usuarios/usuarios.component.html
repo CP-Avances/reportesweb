@@ -245,6 +245,21 @@
                     </div>
 
                     <br>
+                    <fieldset *ngIf="mostrar_resultado && verFecha != '1' && selectedItems.length==0 && serviciosSeleccionadas.length>0 && sub_serviciosSeleccionadas.length==0">
+                        <div>
+                            <label>Orientación de página:</label>
+
+                            <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
+                                value="portrait" (click)="cambiarOrientacion('portrait')" checked>
+                            <label for="vertical">Vertical</label>
+
+                            <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
+                                value="landscape" (click)="cambiarOrientacion('landscape')">
+                            <label for="horizontal">Horizontal</label>
+                        </div>
+                    </fieldset>
+                    <br>
+
                     <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosTotalFecha()"
                         *ngIf="mostrar_resultado">
                         EXCEL

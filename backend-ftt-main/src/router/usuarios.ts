@@ -1678,7 +1678,7 @@ router.get(
       WHERE 
         t.caje_codigo != 0 AND
         turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todasSucursales ? `AND  e.empr_codigo IN (${listaSucursales})` : ''}
         ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
@@ -1735,7 +1735,7 @@ router.get(
       WHERE 
         t.caje_codigo != 0 AND
         turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
         ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       
