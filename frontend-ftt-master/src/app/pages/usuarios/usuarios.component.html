@@ -19,7 +19,7 @@
                 <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
                         aria-controls="profile" aria-selected="false">
-                        TIEMPO PROMEDIO DE ATENCIÓN
+                        TIEMPO DE ATENCIÓN
                     </a>
                 </li>
                 <li class="nav-item" (click)="LimpiarFormularios()">
@@ -37,7 +37,7 @@
             </ul>
 
             <div class="tab-content" id="myTabContent">
-                <!-- *********************************** TURNOS TOTALES POR FECHA *************************************** -->
+                <!-- *********************************** TURNOS TOTALES  *************************************** -->
 
                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <br><br>
@@ -582,7 +582,7 @@
                         </div>
                     </div>
                     <br>
-                    <h3>TIEMPO PROMEDIO DE ATENCIÓN</h3>
+                    <h3>TIEMPO DE ATENCIÓN</h3>
                     <hr>
                     <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table class="table table-striped" id="contentPronAtencion" #contenPromAtencion
@@ -599,7 +599,9 @@
                                         Subservicio</th>
                                     <th class="text-center" *ngIf="verFecha == '1'">Fecha</th>
 
-                                    <th scope="col" class="text-center">Tiempo</th>
+                                    <th scope="col" class="text-center">Tiempo Promedio</th>
+                                    <th scope="col" class="text-center">Tiempo Máximo</th>
+
                                     <th scope="col" class="text-center">Turnos totales</th>
                                 </tr>
                             </thead>
@@ -614,6 +616,7 @@
                                     </td>
                                     <td *ngIf="verFecha == '1'"> {{servicioPromAtencion.Fecha}}</td>
                                     <td>{{servicioPromAtencion.Promedio}}</td>
+                                    <td>{{servicioPromAtencion.Maximo}}</td>
                                     <td>{{servicioPromAtencion.Turnos}}</td>
                                 </tr>
                             </tbody>

@@ -260,7 +260,9 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           ss.nombre AS subservicio,
           ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
           COUNT(t.turn_codigo) AS Turnos, 
-          TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
+          TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio,
+          SEC_TO_TIME(MAX(IFNULL(t.turn_duracionatencion, 0))) AS Maximo
+
         FROM 
           turno t
           ${listaCodigos != '0N' ?
@@ -320,7 +322,8 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
           ${listaCodigos != '0N' ? ' c.caje_nombre AS Nombre, ' : ''}   
           COUNT(t.turn_codigo) AS Turnos, 
-          TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
+          TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio,
+          SEC_TO_TIME(MAX(IFNULL(t.turn_duracionatencion, 0))) AS Maximo
         FROM 
           turno t
           ${listaCodigos != '0N' ?
@@ -345,7 +348,7 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
         WHERE 
         t.caje_codigo != 0 AND
           t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-          ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+          ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
           ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
@@ -370,7 +373,8 @@ router.get("/tiempopromedioatencion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin
           ${listaCodigos != '0N' ? ' c.caje_nombre AS Nombre, ' : ''}   
          ${verFecha ? `DATE_FORMAT(t.turn_fecha, '%Y-%m-%d') AS Fecha,` : ''}
         COUNT(t.turn_codigo) AS Turnos, 
-        TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio
+        TIME_FORMAT(SEC_TO_TIME(AVG(t.turn_duracionatencion)), '%H:%i:%s') AS Promedio,
+        SEC_TO_TIME(MAX(IFNULL(t.turn_duracionatencion, 0))) AS Maximo
       FROM 
         turno t
 
@@ -530,7 +534,7 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
         WHERE 
         t.caje_codigo != 0 AND
           t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-          ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+          ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
           ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
@@ -602,7 +606,7 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
       WHERE 
 t.caje_codigo != 0 AND
         t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
           ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
@@ -657,7 +661,7 @@ t.caje_codigo != 0 AND
       WHERE 
         t.caje_codigo != 0 AND
         t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
+        ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
           ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       ORDER BY 
