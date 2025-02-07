@@ -1251,6 +1251,7 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
           SUM(t.turn_estado = 1) AS Atendidos, 
           SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
           SUM(t.turn_estado != 0) AS Total,
+          
           ROUND((COUNT(t.turn_estado) * 100) / 
           (SELECT SUM(c) 
           FROM (SELECT COUNT(turn_estado) AS c 

@@ -482,20 +482,11 @@ export class UsuariosComponent implements OnInit {
 
   // METODO PARA SELCCIONAR ESTADO DE USUARIOS
   estadoUsuario: number = 2;
-  estadoUsuario2: number = 2;
 
   CambiarEstado(estado: number) {
     this.mostrar_resultado = false
     this.estadoUsuario = estado;
     this.limpiar();
-  }
-
-  CambiarEstado2(estado: number, grupo: string) {
-    if (grupo === 'usuarios') {
-      this.estadoUsuario = estado;
-    } else if (grupo === 'otros') {
-      this.estadoUsuario2 = estado;
-    }
   }
 
 
@@ -3266,7 +3257,6 @@ export class UsuariosComponent implements OnInit {
               { key: "fecha", width: 20 },
               { key: "promedio", width: 20 },
               { key: "maximo", width: 20 },
-
               { key: "turnos", width: 20 },
             ]
           } else {
@@ -3277,12 +3267,9 @@ export class UsuariosComponent implements OnInit {
               { key: "fecha", width: 20 },
               { key: "promedio", width: 20 },
               { key: "maximo", width: 20 },
-
               { key: "turnos", width: 20 },
             ]
-
           }
-
           columnas = [
             { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
             { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
@@ -3323,7 +3310,6 @@ export class UsuariosComponent implements OnInit {
               { key: "subservicio", width: 20 },
               { key: "promedio", width: 20 },
               { key: "maximo", width: 20 },
-
               { key: "turnos", width: 20 },
 
             ]
@@ -3334,7 +3320,6 @@ export class UsuariosComponent implements OnInit {
               { key: "subservicio", width: 20 },
               { key: "promedio", width: 20 },
               { key: "maximo", width: 20 },
-
               { key: "turnos", width: 20 },
             ]
 
@@ -3404,7 +3389,6 @@ export class UsuariosComponent implements OnInit {
               this.addOneDay(new Date(this.servicioPromAtencion[i].Fecha)),
               this.servicioPromAtencion[i].Promedio,
               this.servicioPromAtencion[i].Maximo,
-
               this.servicioPromAtencion[i].Turnos,
             ]
             if (incluirCajero) {
@@ -3422,7 +3406,6 @@ export class UsuariosComponent implements OnInit {
               { key: "fecha", width: 20 },
               { key: "promedio", width: 20 },
               { key: "maximo", width: 20 },
-
               { key: "turnos", width: 20 },
             ]
           } else {
@@ -3432,7 +3415,6 @@ export class UsuariosComponent implements OnInit {
               { key: "fecha", width: 20 },
               { key: "promedio", width: 20 },
               { key: "maximo", width: 20 },
-
               { key: "turnos", width: 20 },
             ]
           }
@@ -3441,7 +3423,6 @@ export class UsuariosComponent implements OnInit {
             { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
             { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
             { name: "FECHA", totalsRowLabel: "", filterButton: true },
-            
             { name: "TIEMPO PROMEDIO", totalsRowLabel: "", filterButton: true },
             { name: "TIEMPO MÁXIMO", totalsRowLabel: "", filterButton: true },
             { name: "TURNOS", totalsRowLabel: "", filterButton: true },
@@ -3473,7 +3454,6 @@ export class UsuariosComponent implements OnInit {
               { key: "subservicio", width: 20 },
               { key: "promedio", width: 20 },
               { key: "maximo", width: 20 },
-
               { key: "turnos", width: 20 },
             ]
           } else {
@@ -3482,7 +3462,6 @@ export class UsuariosComponent implements OnInit {
               { key: "subservicio", width: 20 },
               { key: "promedio", width: 20 },
               { key: "maximo", width: 20 },
-
               { key: "turnos", width: 20 },
             ]
           }
@@ -5873,13 +5852,15 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "*", "auto", "auto", "auto"],
+                widths: ["*", "*", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
                     { text: "Cajero(a)", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
+
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -5888,6 +5869,8 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Nombre },
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
+
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -5905,12 +5888,13 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -5918,6 +5902,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.nombreEmpresa },
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -5940,12 +5925,13 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "*", "auto", "auto"],
+                widths: ["*", "*", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
                     { text: "Cajero(a)", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -5953,6 +5939,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.nombreEmpresa },
                       { style: "itemsTable", text: res.Nombre },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -5970,17 +5957,19 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
                     return [
                       { style: "itemsTable", text: res.nombreEmpresa },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6004,12 +5993,13 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Cajero(a)", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6017,6 +6007,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Nombre },
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6034,17 +6025,19 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Fecha", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
                     return [
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6067,17 +6060,19 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Cajero(a)", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
                     return [
                       { style: "itemsTable", text: res.Nombre },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6095,15 +6090,17 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto"],
+                widths: ["*", "auto", "auto"],
                 body: [
                   [
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
                     return [
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6127,7 +6124,7 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "*", "auto", "auto", "auto", "auto"],
+                widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
@@ -6135,7 +6132,8 @@ export class UsuariosComponent implements OnInit {
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
 
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6145,6 +6143,79 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
+                      { style: "itemsTable", text: res.Turnos },
+                    ];
+                  }),
+                ],
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+                },
+              },
+            };
+          } else {
+            return {
+              style: "tableMargin",
+              table: {
+                headerRows: 1,
+                alignment: "center",
+                widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+                body: [
+                  [
+                    { text: "Sucursal", style: "tableHeader" },
+                    { text: "Servicio", style: "tableHeader" },
+                    { text: "Fecha", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
+                    { text: "Turnos", style: "tableHeader" },
+                  ],
+                  ...servicio.map((res) => {
+                    return [
+                      { style: "itemsTable", text: res.nombreEmpresa },
+                      { style: "itemsTable", text: res.Servicio },
+                      { style: "itemsTable", text: res.Fecha },
+                      { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
+                      { style: "itemsTable", text: res.Turnos },
+                    ];
+                  }),
+                ],
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+                },
+              },
+            };
+          }
+
+
+        } else {
+          if (incluirCajero) {
+            return {
+              style: "tableMargin",
+              table: {
+                headerRows: 1,
+                alignment: "center",
+                widths: ["*", "*", "auto", "auto", "auto", "auto"],
+                body: [
+                  [
+                    { text: "Sucursal", style: "tableHeader" },
+                    { text: "Cajero(a)", style: "tableHeader" },
+                    { text: "Servicio", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
+                    { text: "Turnos", style: "tableHeader" },
+                  ],
+                  ...servicio.map((res) => {
+                    return [
+                      { style: "itemsTable", text: res.nombreEmpresa },
+                      { style: "itemsTable", text: res.Nombre },
+                      { style: "itemsTable", text: res.Servicio },
+                      { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6167,76 +6238,8 @@ export class UsuariosComponent implements OnInit {
                   [
                     { text: "Sucursal", style: "tableHeader" },
                     { text: "Servicio", style: "tableHeader" },
-                    { text: "Fecha", style: "tableHeader" },
-
-                    { text: "Tiempo", style: "tableHeader" },
-                    { text: "Turnos", style: "tableHeader" },
-                  ],
-                  ...servicio.map((res) => {
-                    return [
-                      { style: "itemsTable", text: res.nombreEmpresa },
-                      { style: "itemsTable", text: res.Servicio },
-                      { style: "itemsTable", text: res.Fecha },
-                      { style: "itemsTable", text: res.Promedio },
-                      { style: "itemsTable", text: res.Turnos },
-                    ];
-                  }),
-                ],
-              },
-              layout: {
-                fillColor: function (rowIndex: any) {
-                  return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-                },
-              },
-            };
-          }
-
-
-        } else {
-          if (incluirCajero) {
-            return {
-              style: "tableMargin",
-              table: {
-                headerRows: 1,
-                alignment: "center",
-                widths: ["*", "*", "auto", "auto", "auto"],
-                body: [
-                  [
-                    { text: "Sucursal", style: "tableHeader" },
-                    { text: "Cajero(a)", style: "tableHeader" },
-                    { text: "Servicio", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
-                    { text: "Turnos", style: "tableHeader" },
-                  ],
-                  ...servicio.map((res) => {
-                    return [
-                      { style: "itemsTable", text: res.nombreEmpresa },
-                      { style: "itemsTable", text: res.Nombre },
-                      { style: "itemsTable", text: res.Servicio },
-                      { style: "itemsTable", text: res.Promedio },
-                      { style: "itemsTable", text: res.Turnos },
-                    ];
-                  }),
-                ],
-              },
-              layout: {
-                fillColor: function (rowIndex: any) {
-                  return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-                },
-              },
-            };
-          } else {
-            return {
-              style: "tableMargin",
-              table: {
-                headerRows: 1,
-                alignment: "center",
-                widths: ["*", "auto", "auto", "auto"],
-                body: [
-                  [
-                    { text: "Sucursal", style: "tableHeader" },
-                    { text: "Servicio", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6244,6 +6247,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.nombreEmpresa },
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6267,13 +6271,14 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "*", "auto", "auto", "auto"],
+                widths: ["*", "*", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Cajero(a)", style: "tableHeader" },
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6282,6 +6287,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6299,12 +6305,13 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6312,6 +6319,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6331,12 +6339,13 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Cajero(a)", style: "tableHeader" },
                     { text: "Servicio", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6344,6 +6353,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Nombre },
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6361,17 +6371,19 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Servicio", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
                     return [
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6398,7 +6410,7 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
+                widths: ["*", "*", "auto", "auto", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
@@ -6407,7 +6419,8 @@ export class UsuariosComponent implements OnInit {
                     { text: "Subservicio", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
 
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6419,6 +6432,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Fecha },
 
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6437,7 +6451,7 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
@@ -6445,7 +6459,8 @@ export class UsuariosComponent implements OnInit {
                     { text: "Subservicio", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
 
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6456,6 +6471,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Fecha },
 
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6477,14 +6493,15 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "*", "auto", "auto", "auto", "auto"],
+                widths: ["*", "*", "auto", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
                     { text: "Cajero(a)", style: "tableHeader" },
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Subservicio", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6494,6 +6511,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.subservicio },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6512,13 +6530,14 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Sucursal", style: "tableHeader" },
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Subservicio", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6527,6 +6546,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.subservicio },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6553,14 +6573,15 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Cajero(a)", style: "tableHeader" },
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Subservicio", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6571,6 +6592,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Fecha },
 
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6588,13 +6610,14 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Subservicio", style: "tableHeader" },
                     { text: "Fecha", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6603,6 +6626,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.subservicio },
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },,
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6625,13 +6649,14 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Cajero(a)", style: "tableHeader" },
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Subservicio", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6640,6 +6665,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.subservicio },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
@@ -6658,12 +6684,13 @@ export class UsuariosComponent implements OnInit {
               table: {
                 headerRows: 1,
                 alignment: "center",
-                widths: ["*", "auto", "auto", "auto"],
+                widths: ["*", "auto", "auto", "auto", "auto"],
                 body: [
                   [
                     { text: "Servicio", style: "tableHeader" },
                     { text: "Subservicio", style: "tableHeader" },
-                    { text: "Tiempo", style: "tableHeader" },
+                    { text: "Tiempo Promedio", style: "tableHeader" },
+                    { text: "Tiempo Máximo", style: "tableHeader" },
                     { text: "Turnos", style: "tableHeader" },
                   ],
                   ...servicio.map((res) => {
@@ -6671,6 +6698,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.Servicio },
                       { style: "itemsTable", text: res.subservicio },
                       { style: "itemsTable", text: res.Promedio },
+                      { style: "itemsTable", text: res.Maximo },
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),
