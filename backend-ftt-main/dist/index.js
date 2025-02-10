@@ -11,11 +11,8 @@ const router_1 = __importDefault(require("./router/router"));
 const usuarios_1 = __importDefault(require("./router/usuarios"));
 const evaluacion_1 = __importDefault(require("./router/evaluacion"));
 const atencion_1 = __importDefault(require("./router/atencion"));
-const ocupacion_1 = __importDefault(require("./router/ocupacion"));
 const satisfaccion_1 = __importDefault(require("./router/satisfaccion"));
 const disestadoturno_1 = __importDefault(require("./router/disestadoturno"));
-const ingresoclientes_1 = __importDefault(require("./router/ingresoclientes"));
-const atendidosmultiples_1 = __importDefault(require("./router/atendidosmultiples"));
 const opinion_1 = __importDefault(require("./router/opinion"));
 const http_1 = require("http");
 class Servidor {
@@ -48,10 +45,7 @@ class Servidor {
         this.app.use(evaluacion_1.default);
         this.app.use(atencion_1.default);
         this.app.use(satisfaccion_1.default);
-        this.app.use(ocupacion_1.default);
         this.app.use(disestadoturno_1.default);
-        this.app.use(ingresoclientes_1.default);
-        this.app.use(atendidosmultiples_1.default);
         this.app.use(opinion_1.default);
     }
     start() {

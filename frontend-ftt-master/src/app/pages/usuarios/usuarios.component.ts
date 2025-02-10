@@ -14,7 +14,6 @@ import { ChangeDetectorRef } from '@angular/core';
 // COMPLEMENTOS PARA PDF Y EXCEL
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as XLSX from "xlsx";
 import ExcelJS, { FillPattern } from "exceljs";
 import * as FileSaver from 'file-saver';
 

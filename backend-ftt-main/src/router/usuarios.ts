@@ -134,8 +134,8 @@ router.get("/getallcajeros/:sucursales", TokenValidation, (req: Request, res: Re
 
   const query =
     `
-      SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado 
-      FROM cajero c, usuarios u 
+      SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado
+      FROM cajero c, usuarios u, empresa e 
       WHERE u.usua_codigo = c.usua_codigo
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
         AND u.usua_codigo != 2
@@ -181,11 +181,11 @@ router.get("/getallcajeros/:sucursales/:estado", TokenValidation, (req: Request,
 
   const query =
     `
-      SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado 
-      FROM cajero c, usuarios u 
+      SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado , e.empr_nombre 
+      FROM cajero c, usuarios u, empresa e
       WHERE u.usua_codigo = c.usua_codigo
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-        AND u.usua_codigo != 2
+        AND u.usua_codigo != 2 AND u.empr_codigo = e.empr_codigo
         ${estado}
       ORDER BY c.caje_nombre ASC;
     `;
@@ -859,138 +859,6 @@ router.get(
     });
   }
 );
-
-/** ************************************************************************************************************ **
- ** **                                       ATENCION AL USUARIO                                              ** **
- ** ************************************************************************************************************ **/
-
-router.get("/atencionusuario", TokenValidation, (req: Request, res: Response) => {
-  const query =
-    `
-      SELECT 
-        u.usua_nombre AS Nombre, 
-        s.serv_nombre AS Servicio, 
-        ss.id AS id_subservicio, 
-        ss.nombre AS subservicio,
-        SUM(t.turn_estado = 1) AS Atendidos
-      FROM 
-        usuarios u
-      INNER JOIN 
-        cajero c ON u.usua_codigo = c.usua_codigo
-      INNER JOIN 
-        turno t ON c.caje_codigo = t.caje_codigo
-      INNER JOIN 
-        sub_servicio ss ON t.id_sub_serv = ss.id
-      INNER JOIN 
-        servicio s ON t.serv_codigo = s.serv_codigo
-      GROUP BY 
-        u.usua_nombre, 
-        s.serv_nombre, 
-        ss.id, 
-        ss.nombre;
-    `;
-  MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
-    if (err) {
-      res.status(400).json({
-        ok: false,
-        error: err,
-      });
-    } else {
-      res.json({
-        ok: true,
-        turnos,
-      });
-    }
-  });
-});
-
-router.get(
-  "/atencionusuario/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:listaCodigos/:sucursales", TokenValidation,
-  (req: Request, res: Response) => {
-    const fDesde = req.params.fechaDesde;
-    const fHasta = req.params.fechaHasta;
-    const hInicio = req.params.horaInicio;
-    const hFin = req.params.horaFin;
-    const listaCodigos = req.params.listaCodigos;
-    const codigosArray = listaCodigos.split(",");
-    const listaSucursales = req.params.sucursales;
-    const sucursalesArray = listaSucursales.split(",");
-
-    let todosCajeros = false;
-    let todasSucursales = false;
-    let diaCompleto = false;
-    let hFinAux = 0;
-
-    if (codigosArray.includes("-2")) {
-      todosCajeros = true
-    }
-
-    if (sucursalesArray.includes("-1")) {
-      todasSucursales = true
-    }
-
-    if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
-      diaCompleto = true;
-    } else {
-      hFinAux = parseInt(hFin) - 1;
-    }
-
-    const query =
-      `
-        SELECT 
-          e.empr_nombre AS nombreEmpresa, 
-          u.usua_nombre AS Nombre, 
-          s.serv_nombre AS Servicio, 
-          ss.id AS id_subservicio, 
-          ss.nombre AS subservicio,
-          SUM(t.turn_estado = 1) AS Atendidos,
-          SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
-          SUM(t.turn_estado != 0) AS Total
-        FROM 
-          usuarios u
-        INNER JOIN 
-          cajero c ON u.usua_codigo = c.usua_codigo
-        INNER JOIN 
-          turno t ON c.caje_codigo = t.caje_codigo
-        INNER JOIN 
-          sub_servicio ss ON t.id_sub_serv = ss.id
-        INNER JOIN 
-          servicio s ON t.serv_codigo = s.serv_codigo
-        INNER JOIN 
-          empresa e ON u.empr_codigo = e.empr_codigo
-        WHERE 
-          u.usua_codigo != 2
-          AND turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
-          ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-          ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos})` : ''}
-          ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
-        GROUP BY 
-          e.empr_nombre, 
-          u.usua_nombre, 
-          s.serv_nombre, 
-          ss.id, 
-          ss.nombre
-        ORDER BY 
-          u.usua_nombre ASC, 
-          s.serv_nombre ASC;
-      `;
-
-    MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
-      if (err) {
-        res.status(400).json({
-          ok: false,
-          error: err,
-        });
-      } else {
-        res.json({
-          ok: true,
-          turnos,
-        });
-      }
-    });
-  }
-);
-
 /** ************************************************************************************************************ **
  ** **                                          TURNOS POR FECHA                                              ** **
  ** ************************************************************************************************************ **/

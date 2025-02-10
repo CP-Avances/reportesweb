@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { DatePickerDirective } from 'ng2-date-picker';
 import { Router } from '@angular/router';
 import { Utils } from '../../utils/util';
+import { interval, Subscription } from 'rxjs';
 
 import { ServiceService } from '../../services/service.service';
 import { AuthenticationService } from '../../services/authentication.service';
@@ -86,15 +87,14 @@ export class MenuComponent implements OnInit {
     this.date = f.format('YYYY-MM-DD');
     this.tipo = 'pie';
 
-    this.getOpcionesEvaluacion();
-    this.gettotaltickets();
-    this.gettotalatendidos();
-    this.getsinatender();
-    this.getpromedioatencion();
+    this.repetirIterativamente();
+    // this.gettotaltickets();
+    // this.gettotalatendidos();
+    // this.getsinatender();
+    // this.getpromedioatencion();
     this.getgrafeva();
-
-    this.getevaluacionsucursal();
-    this.getserviciosmasatendidos();
+    //this.getevaluacionsucursal();
+    // this.getserviciosmasatendidos();
 
     Utils.getImageDataUrlFromLocalPath1('assets/logotickets.png').then(
       result => this.urlImagen = result
@@ -114,6 +114,35 @@ export class MenuComponent implements OnInit {
         this.opcionCuatro = true;
       }
       this.getevaluacionsucursal();
+    });
+  }
+  private subscription!: Subscription;
+
+
+  repetirIterativamente() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+
+    this.getOpcionesEvaluacion();
+    this.gettotaltickets();
+    this.gettotalatendidos();
+    this.getsinatender();
+    this.getpromedioatencion();
+    this.getserviciosmasatendidos();
+    this.getevaluacionsucursal();
+
+
+    // Configurar la repetición cada 30 segundos
+    this.subscription = interval(5000).subscribe(() => {
+      this.getOpcionesEvaluacion();
+      this.gettotaltickets();
+      this.gettotalatendidos();
+      this.getsinatender();
+      this.getpromedioatencion();
+      this.getserviciosmasatendidos();
+      this.getevaluacionsucursal();
+
     });
   }
 
@@ -197,7 +226,7 @@ export class MenuComponent implements OnInit {
       //console.log('lista completa ', this.servicio6)
 
       this.altoMA = Math.max.apply(null, this.servicio6.map((tot: any) => tot.total_general));
-      
+
       this.altoMAS = Math.max.apply(null, this.servicio6.
         flatMap((servicio: any) => servicio.subservicios.map((sub: any) => sub.Total))
       );

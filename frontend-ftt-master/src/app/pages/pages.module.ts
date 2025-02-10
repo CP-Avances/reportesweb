@@ -11,41 +11,31 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { FormsModule } from '@angular/forms';
 
-import { AtendidosmultiplesComponent } from './atendidosmultiples/atendidosmultiples.component';
 import { DistestadoturnosComponent } from './distestadoturnos/distestadoturnos.component';
-import { IngresoclientesComponent } from './ingresoclientes/ingresoclientes.component';
 import { ConfiguracionComponent } from './configuracion/configuracion.component';
 import { EvaluacionComponent } from './evaluacion/evaluacion.component';
-import { OcupacionComponent } from './ocupacion/ocupacion.component';
 import { UsuariosComponent } from './usuarios/usuarios.component';
-import { AtencionComponent } from './atencion/atencion.component';
 import { OpinionComponent } from './opinion/opinion.component';
 import { PagesComponent } from './pages.component';
 import { MenuComponent } from './menu/menu.component';
+import { CajerosComponent } from './cajeros/cajeros.component';
 
 @NgModule({
   declarations: [
     MenuComponent,
     UsuariosComponent,
-    AtencionComponent,
     EvaluacionComponent,
-    OcupacionComponent,
     DistestadoturnosComponent,
-    IngresoclientesComponent,
-    AtendidosmultiplesComponent,
     PagesComponent,
     OpinionComponent,
     ConfiguracionComponent,
+    CajerosComponent,
   ],
   exports: [
     MenuComponent,
     UsuariosComponent,
-    AtencionComponent,
     EvaluacionComponent,
-    OcupacionComponent,
     DistestadoturnosComponent,
-    IngresoclientesComponent,
-    AtendidosmultiplesComponent,
     PagesComponent,
     OpinionComponent,
     ConfiguracionComponent

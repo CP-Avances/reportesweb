@@ -1,22 +1,15 @@
 <div class="card">
-    <h2 class="card-header">DISTRIBUCIÓN Y ESTADO DE TURNOS</h2>
+    <h2 class="card-header">MONITOR</h2>
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link active" id="distribucion-tab" data-toggle="tab" href="#distribucion" role="tab"
                         aria-controls="distribucion" aria-selected="true">
-                        DISTRIBUCIÓN Y ESTADO DE TURNOS
+                        MONITOR
                     </a>
                 </li>
-                <!--
-                <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="resumen-tab" data-toggle="tab" href="#resumen" role="tab"
-                        aria-controls="resumen" aria-selected="false">
-                        RESUMEN
-                    </a>
-                </li>
-                -->
+          
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="distribucion" role="tabpanel"
@@ -156,7 +149,6 @@
                         </div>
                     </div>
                     <br>
-                    <h3>DISTRIBUCIÓN Y ESTADO DE TURNOS</h3>
                     <hr>
                     <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table class="table table-striped" id="contentDist" #contentDist #TABLEDist #table>

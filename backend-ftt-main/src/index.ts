@@ -7,11 +7,8 @@ import router from './router/router';
 import usuarios from './router/usuarios';
 import evaluacion from './router/evaluacion';
 import atencion from './router/atencion';
-import ocupacion from './router/ocupacion';
 import satisfacciones from './router/satisfaccion'
 import disestadoturno from './router/disestadoturno';
-import ingresoclientes from './router/ingresoclientes';
-import atendidosmultiples from './router/atendidosmultiples';
 import opinion from './router/opinion';
 
 import { createServer, Server } from 'http';
@@ -53,10 +50,7 @@ class Servidor {
         this.app.use(evaluacion);
         this.app.use(atencion);
         this.app.use(satisfacciones);
-        this.app.use(ocupacion);
         this.app.use(disestadoturno);
-        this.app.use(ingresoclientes);
-        this.app.use(atendidosmultiples);
         this.app.use(opinion);
     }
     

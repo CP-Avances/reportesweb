@@ -229,18 +229,11 @@ export class DistestadoturnosComponent implements OnInit {
         break;
       case 'todasSucursalesD':
         this.todasSucursalesD = !this.todasSucursalesD;
-        //this.todasSucursalesD ? this.getCajeros(this.sucursalesSeleccionadas) : null;
         this.todasSucursalesD ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : null;
         break;
-      /*
-    case 'todasSucursalesR':
-      this.todasSucursalesR = !this.todasSucursalesR;
-      this.todasSucursalesR ? this.getCajeros(this.sucursalesSeleccionadas) : null;
-      break;
-      */
+
       case 'sucursalesSeleccionadas':
         this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-        // this.sucursalesSeleccionadas.length > 0 ? this.getCajeros(this.sucursalesSeleccionadas) : null;
         this.sucursalesSeleccionadas.length > 0 ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : this.cajerosUsuarios = [], this.serviciosServs = [];
         break;
       case 'todasServiciosTF':
@@ -466,7 +459,7 @@ export class DistestadoturnosComponent implements OnInit {
   async exportTOExcelDist() {
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Distribución");
+    const worksheet = workbook.addWorksheet("Monitor");
     this.imagen = workbook.addImage({
       base64: this.urlImagen,
       extension: "png",
@@ -485,7 +478,7 @@ export class DistestadoturnosComponent implements OnInit {
     worksheet.mergeCells("B5:H5");
 
     // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
-    worksheet.getCell("B1").value = 'REPORTE - Distribución'.toUpperCase();
+    worksheet.getCell("B1").value = 'REPORTE - Monitor'.toUpperCase();
     worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
     var fechaDesde = this.fromDateDist.nativeElement.value
       .toString()
@@ -1588,7 +1581,7 @@ export class DistestadoturnosComponent implements OnInit {
             {
               width: '*',
               alignment: 'center',
-              text: 'Reporte - Distribucion y estado de turnos',
+              text: 'Reporte - Monitor',
               bold: true,
               fontSize: 15,
               margin: [-90, 20, 0, 0],
@@ -1624,9 +1617,649 @@ export class DistestadoturnosComponent implements OnInit {
     let incluirCajero = this.selectedItems.length != 0
 
     if (this.serviciosSeleccionadas.length == 0) {
+      if (this.todasSucursalesD || this.seleccionMultiple) {
+        if (this.verFecha == '1') {
+          if (incluirCajero) {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Sucursal', style: 'tableHeader' },
+                    { text: 'Cajero(a)', style: 'tableHeader' },
+                    { text: 'Fecha', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.nombreEmpresa },
+                      { style: 'itemsTable', text: res.Usuario },
+                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+          } else {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Sucursal', style: 'tableHeader' },
+                    { text: 'Fecha', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.nombreEmpresa },
+                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+
+          }
+        } else {
+
+          if (incluirCajero) {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Sucursal', style: 'tableHeader' },
+                    { text: 'Cajero(a)', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.nombreEmpresa },
+                      { style: 'itemsTable', text: res.Usuario },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+          } else {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Sucursal', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.nombreEmpresa },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+
+          }
+
+        }
+
+
+      } else {
+        if (this.verFecha == '1') {
+          if (incluirCajero) {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*',  'auto', 'auto',  'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Cajero(a)', style: 'tableHeader' },
+                    { text: 'Fecha', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.Usuario },
+                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+          } else {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', 'auto',  'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Fecha', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+
+          }
+        } else {
+
+          if (incluirCajero) {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*',  'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Cajero(a)', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.Usuario },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+          } else {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+
+          }
+
+        }
+      }
     } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
 
+      if (this.todasSucursalesD || this.seleccionMultiple) {
+        if (this.verFecha == '1') {
+          if (incluirCajero) {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto','auto'],
+                body: [
+                  [
+                    { text: 'Sucursal', style: 'tableHeader' },
+                    { text: 'Cajero(a)', style: 'tableHeader' },
+                    { text: 'Servicio', style: 'tableHeader' },
+                    { text: 'Fecha', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.nombreEmpresa },
+                      { style: 'itemsTable', text: res.Usuario },
+                      { style: 'itemsTable', text: res.Servicio },
+                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+          } else {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Sucursal', style: 'tableHeader' },
+                    { text: 'Servicio', style: 'tableHeader' },
+                    { text: 'Fecha', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.nombreEmpresa },
+                      { style: 'itemsTable', text: res.Servicio },
+                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+
+          }
+        } else {
+
+          if (incluirCajero) {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Sucursal', style: 'tableHeader' },
+                    { text: 'Cajero(a)', style: 'tableHeader' },
+                    { text: 'Servicio', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.nombreEmpresa },
+                      { style: 'itemsTable', text: res.Usuario },
+                      { style: 'itemsTable', text: res.Servicio },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+          } else {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Sucursal', style: 'tableHeader' },
+                    { text: 'Servicio', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.nombreEmpresa },
+                      { style: 'itemsTable', text: res.Servicio },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+
+          }
+
+        }
+
+
+      } else {
+        if (this.verFecha == '1') {
+          if (incluirCajero) {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto', 'auto', 'auto',  'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Cajero(a)', style: 'tableHeader' },
+                    { text: 'Servicio', style: 'tableHeader' },
+                    { text: 'Fecha', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.Usuario },
+                      { style: 'itemsTable', text: res.Servicio },
+                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+          } else {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto',  'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Servicio', style: 'tableHeader' },
+                    { text: 'Fecha', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.Servicio },
+                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+
+          }
+        } else {
+
+          if (incluirCajero) {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', '*', 'auto',  'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Cajero(a)', style: 'tableHeader' },
+                    { text: 'Servicio', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.Usuario },
+                      { style: 'itemsTable', text: res.Servicio },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+          } else {
+            return {
+              style: 'tableMargin',
+              table: {
+                headerRows: 1,
+                widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                body: [
+                  [
+                    { text: 'Servicio', style: 'tableHeader' },
+                    { text: 'En espera', style: 'tableHeader' },
+                    { text: 'En atención', style: 'tableHeader' },
+                    { text: 'En pausa', style: 'tableHeader' },
+                    { text: 'Atendidos', style: 'tableHeader' },
+                    { text: 'No atendidos', style: 'tableHeader' },
+                    { text: 'Total turnos', style: 'tableHeader' },
+                  ],
+                  ...servicio.map(res => {
+                    return [
+                      { style: 'itemsTable', text: res.Servicio },
+                      { style: 'itemsTable', text: res.pendientes },
+                      { style: 'itemsTable', text: res.en_atencion },
+                      { style: 'itemsTable', text: res.en_pausa },
+                      { style: 'itemsTable', text: res.atendidos },
+                      { style: 'itemsTable', text: res.no_atendidos },
+                      { style: 'itemsTable', text: res.turnos },
+                    ]
+                  })
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex: any) {
+                  return (rowIndex % 2 === 0) ? '#E5E7E9' : null;
+                }
+              }
+            }
+
+          }
+
+        }
+      }
+    
     } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
+      console.log("entra a servicios y subservicios")
       if (this.todasSucursalesD || this.seleccionMultiple) {
         if (this.verFecha == '1') {
           if (incluirCajero) {
@@ -1653,7 +2286,7 @@ export class DistestadoturnosComponent implements OnInit {
                     return [
                       { style: 'itemsTable', text: res.nombreEmpresa },
                       { style: 'itemsTable', text: res.Usuario },
-                      { style: 'itemsTable', text: res.servicio },
+                      { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
                       { style: 'itemsTable', text: res.fecha },
                       { style: 'itemsTable', text: res.pendientes },
@@ -1672,7 +2305,7 @@ export class DistestadoturnosComponent implements OnInit {
                 }
               }
             }
-          }else{
+          } else {
             return {
               style: 'tableMargin',
               table: {
@@ -1694,7 +2327,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ...servicio.map(res => {
                     return [
                       { style: 'itemsTable', text: res.nombreEmpresa },
-                      { style: 'itemsTable', text: res.servicio },
+                      { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
                       { style: 'itemsTable', text: res.fecha },
                       { style: 'itemsTable', text: res.pendientes },
@@ -1715,7 +2348,7 @@ export class DistestadoturnosComponent implements OnInit {
             }
 
           }
-        }else{
+        } else {
 
           if (incluirCajero) {
             return {
@@ -1740,7 +2373,7 @@ export class DistestadoturnosComponent implements OnInit {
                     return [
                       { style: 'itemsTable', text: res.nombreEmpresa },
                       { style: 'itemsTable', text: res.Usuario },
-                      { style: 'itemsTable', text: res.servicio },
+                      { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
@@ -1758,12 +2391,12 @@ export class DistestadoturnosComponent implements OnInit {
                 }
               }
             }
-          }else{
+          } else {
             return {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
                     { text: 'Sucursal', style: 'tableHeader' },
@@ -1779,7 +2412,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ...servicio.map(res => {
                     return [
                       { style: 'itemsTable', text: res.nombreEmpresa },
-                      { style: 'itemsTable', text: res.servicio },
+                      { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
@@ -1802,7 +2435,7 @@ export class DistestadoturnosComponent implements OnInit {
 
         }
 
-       
+
       } else {
         if (this.verFecha == '1') {
           if (incluirCajero) {
@@ -1827,7 +2460,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ...servicio.map(res => {
                     return [
                       { style: 'itemsTable', text: res.Usuario },
-                      { style: 'itemsTable', text: res.servicio },
+                      { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
                       { style: 'itemsTable', text: res.fecha },
                       { style: 'itemsTable', text: res.pendientes },
@@ -1846,7 +2479,7 @@ export class DistestadoturnosComponent implements OnInit {
                 }
               }
             }
-          }else{
+          } else {
             return {
               style: 'tableMargin',
               table: {
@@ -1866,7 +2499,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ],
                   ...servicio.map(res => {
                     return [
-                      { style: 'itemsTable', text: res.servicio },
+                      { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
                       { style: 'itemsTable', text: res.fecha },
                       { style: 'itemsTable', text: res.pendientes },
@@ -1887,17 +2520,16 @@ export class DistestadoturnosComponent implements OnInit {
             }
 
           }
-        }else{
+        } else {
 
           if (incluirCajero) {
             return {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
-                    { text: 'Sucursal', style: 'tableHeader' },
                     { text: 'Cajero(a)', style: 'tableHeader' },
                     { text: 'Servicio', style: 'tableHeader' },
                     { text: 'Subservicio', style: 'tableHeader' },
@@ -1911,7 +2543,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ...servicio.map(res => {
                     return [
                       { style: 'itemsTable', text: res.Usuario },
-                      { style: 'itemsTable', text: res.servicio },
+                      { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
@@ -1929,15 +2561,14 @@ export class DistestadoturnosComponent implements OnInit {
                 }
               }
             }
-          }else{
+          } else {
             return {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto',  'auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
-                    { text: 'Sucursal', style: 'tableHeader' },
                     { text: 'Servicio', style: 'tableHeader' },
                     { text: 'Subservicio', style: 'tableHeader' },
                     { text: 'En espera', style: 'tableHeader' },
@@ -1949,7 +2580,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ],
                   ...servicio.map(res => {
                     return [
-                      { style: 'itemsTable', text: res.servicio },
+                      { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
@@ -1972,14 +2603,8 @@ export class DistestadoturnosComponent implements OnInit {
 
         }
       }
+    
     }
-
-
-
-
-
-
-
   }
 
 }

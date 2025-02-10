@@ -1,0 +1,94 @@
+<div class="card">
+    <h2 class="card-header">USUARIOS</h2>
+    <div class="card-body">
+        <form>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="distribucion" role="tabpanel"
+                    aria-labelledby="distribucion-tab">
+                    <br><br>
+                    <div class="container">
+
+                        <div>
+                            <fieldset>
+                                <label>Estado de los usuarios</label>
+                                <div>
+                                    <input type="radio" id="activo2" class="radio-col-light-blue" name="estado2"
+                                        [value]="2" (click)="CambiarEstado(2)" checked>
+                                    <label for="activo2">Activos</label>
+
+                                    <input type="radio" id="inactivo2" class="radio-col-light-blue" name="estado2"
+                                        [value]="1" (click)="CambiarEstado(1)">
+                                    <label for="inactivo2">Inactivos</label>
+
+                                    <input type="radio" id="todos2" class="radio-col-light-blue" name="estado2"
+                                        [value]="3" (click)="CambiarEstado(3)">
+                                    <label for="todos2">Todos</label>
+                                </div>
+                            </fieldset>
+                            <br>
+                            <div class="row">
+                                <mat-select multiple class="form-control" name="selectmake"
+                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales"
+                                    (selectionChange)="onSelectionChangeSucursal()">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesD')">
+                                        Todas las sucursales
+                                    </mat-option>
+                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesD">
+                                        {{option.empr_nombre}}
+                                    </mat-option>
+                                </mat-select>
+                            </div>
+                            <br>
+                            <button type="button" class="btn btn-search" (click)="buscarCajeros()">
+                                <span class="glyphicon glyphicon-filter"></span>
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                    <br>
+                    <hr>
+                    <div class="table-responsive" *ngIf="mostrar_resultado">
+                        <table class="table table-striped" id="contentDist" #contentDist #TABLEDist #table>
+                            <thead class="thead-dark">
+                                <tr>
+                                    <!--
+                                    <th>
+                                        <mat-icon *ngIf="activar_seleccion" class="flex-shrink-1 bd-highlight" matSuffix
+                                            matTooltipPosition="right" matTooltip="Dar clic para activar selección múltiple."
+                                            id="SelectCheck" (click)="HabilitarSeleccion()">
+                                            library_add_check
+                                        </mat-icon>
+                                        <mat-checkbox *ngIf="plan_multiple" (change)="$event ? masterTogglePag() : null"
+                                            [checked]="selectionProvincias.hasValue() && isAllSelectedPag()"
+                                            [indeterminate]="selectionProvincias.hasValue() && !isAllSelectedPag()"
+                                            [aria-label]="checkboxLabelPag()">
+                                        </mat-checkbox>
+                                    </th>
+-->
+                                    <th scope="col" class="text-center" *ngIf="todasSucursalesD || seleccionMultiple">
+                                        Sucursal
+                                    </th>
+                                    <th scope="col" class="text-center">Cajero(a)</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="!malRequestDist">
+                                <tr *ngFor="let cajero of cajerosSucursales | paginate:configDE">
+                                    <td *ngIf="todasSucursalesD || seleccionMultiple">{{cajero.empr_nombre}}
+                                </td>
+                                    <td>{{cajero.caje_nombre}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls *ngIf="!malRequestDistPag" id="disestde"
+                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
+                            [currentPage]="configDE.currentPage" (pageChange)="pageChangedDE($event)">
+                        </pagination-controls>
+                    </div>
+                    <br>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
