@@ -72,91 +72,12 @@ router.get("/getallsucursales", TokenValidation, (req: Request, res: Response) =
   });
 });
 
-router.get("/getallcajeros", TokenValidation, (req: Request, res: Response) => {
-  const query =
-    `
-      SELECT * FROM cajero 
-      WHERE usua_codigo != 2 AND caje_estado = 2 
-      ORDER BY caje_nombre ASC;
-    `;
-  MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
-    if (err) {
-      res.status(400).json({
-        ok: false,
-        error: err,
-      });
-    } else {
-      res.json({
-        ok: true,
-        cajeros,
-      });
-    }
-  });
-});
 
-// METODO DE CAJEROS CON ESTADO
-router.get("/cajerosEstado/estado", TokenValidation, (req: Request, res: Response) => {
-  const estado_usuario = req.params.estado;
-  // 1 --> INACTIVOS
-  // 2 --> ACTIVOS
-  // 3 --> TODOS
 
-  const query =
-    `
-      SELECT * FROM cajero 
-      WHERE usua_codigo != 2 AND caje_estado = ${estado_usuario}
-      ORDER BY caje_nombre ASC;
-    `;
-  MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
-    if (err) {
-      res.status(400).json({
-        ok: false,
-        error: err,
-      });
-    } else {
-      res.json({
-        ok: true,
-        cajeros,
-      });
-    }
-  });
-});
 
-router.get("/getallcajeros/:sucursales", TokenValidation, (req: Request, res: Response) => {
-  const listaSucursales = req.params.sucursales;
-  const sucursalesArray = listaSucursales.split(",");
 
-  let todasSucursales = false;
 
-  if (sucursalesArray.includes("-1")) {
-    todasSucursales = true
-  }
 
-  const query =
-    `
-      SELECT c.caje_codigo, c.usua_codigo, c.caje_nombre, c.caje_estado
-      FROM cajero c, usuarios u, empresa e 
-      WHERE u.usua_codigo = c.usua_codigo
-        ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-        AND u.usua_codigo != 2
-      ORDER BY c.caje_nombre ASC;
-    `;
-
-  MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
-    if (err) {
-      res.status(400).json({
-        ok: false,
-        error: err,
-      });
-      console.log(err);
-    } else {
-      res.json({
-        ok: true,
-        cajeros,
-      });
-    }
-  });
-});
 
 
 // METODO DE BUSQUEDA DE CAJEROS DE ACUERDO A LA SUCURSAL Y ESTADO
@@ -189,6 +110,46 @@ router.get("/getallcajeros/:sucursales/:estado", TokenValidation, (req: Request,
         ${estado}
       ORDER BY c.caje_nombre ASC;
     `;
+
+  MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
+    if (err) {
+      res.status(400).json({
+        ok: false,
+        error: err,
+      });
+      console.log(err);
+    } else {
+      res.json({
+        ok: true,
+        cajeros,
+      });
+    }
+  });
+});
+
+
+/** ************************************************************************************************************ **
+ ** **                               ACTUALIZAR ESTADO                                                        ** **
+ ** ************************************************************************************************************ **/
+router.get("/cambiarestadocajeros/:sucursales", TokenValidation, (req: Request, res: Response) => {
+
+  const listaSucursales = req.params.sucursales;
+  const query = `
+  UPDATE cajero c
+  JOIN usuarios u ON c.usua_codigo = u.usua_codigo
+  SET 
+    c.caje_estado = CASE 
+                      WHEN c.caje_estado = 2 THEN 1 
+                      WHEN c.caje_estado = 1 THEN 2
+                      ELSE c.caje_estado 
+                    END,
+    u.usua_estado = CASE 
+                    WHEN u.usua_estado = 0 THEN 1
+                    WHEN u.usua_estado = 1 THEN 0
+                    ELSE u.usua_estado
+                    END
+  WHERE c.caje_codigo IN (${listaSucursales});
+`;
 
   MySQL.ejecutarQuery(query, (err: any, cajeros: Object[]) => {
     if (err) {
@@ -859,60 +820,6 @@ router.get(
     });
   }
 );
-/** ************************************************************************************************************ **
- ** **                                          TURNOS POR FECHA                                              ** **
- ** ************************************************************************************************************ **/
-
-router.get("/turnosfecha/:fecha", TokenValidation, (req: Request, res: Response) => {
-  let fechas = req.params.fecha;
-  const query =
-    `
-      SELECT 
-        u.usua_nombre AS Usuario, 
-        s.serv_nombre AS Servicio, 
-        t.turn_fecha AS Fecha, 
-        ss.id AS id_subservicio, 
-        ss.nombre AS subservicio,
-        SUM(t.turn_estado = 1) AS Atendidos, 
-        SUM(t.turn_estado != 1 AND t.turn_estado != 0) AS No_Atendidos, 
-        SUM(t.turn_estado != 0) AS Total
-      FROM 
-        turno t
-      INNER JOIN 
-        servicio s ON t.serv_codigo = s.serv_codigo
-      INNER JOIN 
-        cajero c ON t.caje_codigo = c.caje_codigo
-      INNER JOIN 
-        usuarios u ON u.usua_codigo = c.usua_codigo
-      INNER JOIN 
-        sub_servicio ss ON t.id_sub_serv = ss.id
-      WHERE 
-        turn_fecha = '${fechas}'
-      GROUP BY 
-        t.turn_fecha, 
-        u.usua_nombre, 
-        s.serv_nombre, 
-        ss.id, 
-        ss.nombre
-      ORDER BY 
-        u.usua_nombre ASC, 
-        t.turn_fecha DESC, 
-        s.serv_nombre ASC;
-    `;
-  MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
-    if (err) {
-      res.status(400).json({
-        ok: false,
-        error: err,
-      });
-    } else {
-      res.json({
-        ok: true,
-        turnos,
-      });
-    }
-  });
-});
 
 router.get(
   "/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:cajeros/:servicios/:subservicios/:estado", TokenValidation,

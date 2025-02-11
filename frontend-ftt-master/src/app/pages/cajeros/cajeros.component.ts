@@ -124,6 +124,11 @@ export class CajerosComponent {
           this.configDE.currentPage = 1;
         }
         this.mostrar_resultado = true;
+        this.activar_seleccion = true;
+        this.plan_multiple = false;
+        this.plan_multiple_ = false;
+        this.cajerosEditar = [];
+        this.selectionCajero.clear();
       },
       (error) => {
         if (error.status == 400) {
@@ -141,7 +146,7 @@ export class CajerosComponent {
 
   isAllSelectedPag() {
     const numSelected = this.selectionCajero.selected.length;
-    return numSelected === this.sucursalesSeleccionadas.length
+    return numSelected === this.cajerosSucursales.length
   }
 
   // SELECCIONA TODAS LAS FILAS SI NO ESTAN TODAS SELECCIONADAS; DE LO CONTRARIO, SELECCION CLARA.
@@ -149,6 +154,7 @@ export class CajerosComponent {
     this.isAllSelectedPag() ?
       this.selectionCajero.clear() :
       this.cajerosSucursales.forEach((row: any) => this.selectionCajero.select(row));
+      console.log("ver selectionCajero", this.selectionCajero)
   }
 
   // LA ETIQUETA DE LA CASILLA DE VERIFICACION EN LA FILA PASADA
@@ -157,7 +163,53 @@ export class CajerosComponent {
       return `${this.isAllSelectedPag() ? 'select' : 'deselect'} all`;
     }
     this.cajerosEditar = this.selectionCajero.selected;
-    return `${this.selectionCajero.isSelected(row) ? 'deselect' : 'select'} row ${row.nombre + 1}`;
+
+    //console.log("ver cajerosEditar ", this.cajerosEditar)
+    return `${this.selectionCajero.isSelected(row) ? 'deselect' : 'select'} row ${row.caje_nombre + 1}`;
+  }
+
+
+  // METODOS PARA LA SELECCION MULTIPLE
+  plan_multiple: boolean = false;
+  plan_multiple_: boolean = false;
+  HabilitarSeleccion() {
+    this.plan_multiple = true;
+    this.plan_multiple_ = true;
+    this.auto_individual = false;
+    this.activar_seleccion = false;
+  } 
+  
+  auto_individual: boolean = true;
+  activar_seleccion: boolean = true;
+  seleccion_vacia: boolean = true;
+
+
+  DesactivarCajeros(){
+
+    const cajeCodigos = this.cajerosEditar.map(item => item.caje_codigo).join(',');
+    console.log("ver cajeCodigos", cajeCodigos)
+
+    
+    this.serviceService.actualizarEstadoCajerosSucursalEstado(cajeCodigos).subscribe(
+      (cajeros: any) => {
+        console.log("ver resultados: ", cajeros)
+        this.cajerosSucursales = cajeros.cajeros;
+        this.mostrar_resultado = false;
+        this.activar_seleccion = true;
+        this.plan_multiple = false;
+        this.plan_multiple_ = false;
+        this.cajerosEditar = [];
+        this.selectionCajero.clear();
+      },
+      (error) => {
+        if (error.status == 400) {
+          this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+            timeOut: 6000,
+          });
+        }
+      }
+    );
+    
   }
 
 

@@ -6,6 +6,9 @@ import { DpDatePickerModule } from 'ng2-date-picker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AppRoutingModule } from './app-routing.module';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
+
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -40,6 +43,8 @@ import { TokenInterceptorService } from './services/token-interceptor.service'
     CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
+    MatTooltipModule,
+    MatIconModule,
     AppRoutingModule,
     HttpClientModule,
     NgChartsModule,
@@ -55,7 +60,10 @@ import { TokenInterceptorService } from './services/token-interceptor.service'
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
+    
   ],
+  exports: [MatTooltipModule],
+
   providers: [
     AuthGuard,
     DatePipe,

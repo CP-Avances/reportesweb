@@ -22,7 +22,7 @@ export class ServiceService {
    ** **                                        TURNOS TOTALES POR FECHAS                                             ** **
    ** ****************************************************************************************************************** **/
 
-  getturnostotalfechas(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, sucursales: any, cajeros: any, servicios: any, subservicios: any, estado: any, fecha:string): Observable<servicio[]> {
+  getturnostotalfechas(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, sucursales: any, cajeros: any, servicios: any, subservicios: any, estado: any, fecha: string): Observable<servicio[]> {
     if (servicios.length == 0) {
       return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + 0 + "/" + 0 + "/" + estado + "/" + fecha);
     } else if (subservicios.length == 0 && servicios.length != 0) {
@@ -61,10 +61,6 @@ export class ServiceService {
    ** **                                               USUARIOS                                                       ** **
    ** ****************************************************************************************************************** **/
 
-  getturnosfecha(): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/turnosfecha");
-  }
-
   getAllSucursales(): Observable<empresa[]> {
     return this.http.get<empresa[]>(this.URL + "/getallsucursales");
   }
@@ -73,35 +69,19 @@ export class ServiceService {
     return this.http.get<any>(this.URL + "/categorias/" + tipo);
   }
 
-  getAllCajeros(): Observable<cajero[]> {
-    return this.http.get<cajero[]>(this.URL + "/getallcajeros");
-  }
-
-  // METODO PARA BUSCAR CAJEROS SEGUN SU ESTADO
-  getAllCajerosEstado(estado: any): Observable<cajero[]> {
-    return this.http.get<cajero[]>(this.URL + "/cajerosEstado/" + estado);
-  }
-
-  getAllCajerosS(sucursales: any): Observable<cajero[]> {
-    return this.http.get<cajero[]>(this.URL + "/getallcajeros/" + sucursales);
-  }
 
   // METODO PARA BUSCAR CAJEROS SEGUN SUCURSALES Y ESTADO
   getCajerosSucursalEstado(sucursales: any, estado: any): Observable<cajero[]> {
     return this.http.get<cajero[]>(this.URL + "/getallcajeros/" + sucursales + "/" + estado);
   }
 
-  getAllServicios(): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/getallservicios");
+  // METODO PARA BUSCAR CAJEROS SEGUN SUCURSALES Y ESTADO
+  actualizarEstadoCajerosSucursalEstado(sucursales: any): Observable<cajero[]> {
+    return this.http.get<cajero[]>(this.URL + "/cambiarestadocajeros/" + sucursales);
   }
 
   getAllServiciosS(sucursales: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/getallservicios" + "/" + sucursales);
-  }
-
-  getAllSub_serviciosS(servicios: any): Observable<subservicio[]> {
-    return this.http.get<subservicio[]>(this.URL + "/getallsub_servicios" + "/" + servicios);
-    // METODO PARA BUSCAR SUBSERVICIOS DE ACUERDO AL SERVICIO
   }
 
   getAllSubservicios(servicio: any): Observable<servicio[]> {
@@ -113,11 +93,11 @@ export class ServiceService {
    ** **                                    TIEMPO PROMEDIO DE ATENCION                                         ** ** 
    ** ************************************************************************************************************ **/
 
-  getturnosF(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, servicios: any, subservicios: any, estado: any, fecha:string): Observable<servicio[]> {
+  getturnosF(fechaDesde: any, fechaHasta: any, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, servicios: any, subservicios: any, estado: any, fecha: string): Observable<servicio[]> {
     if (servicios.length == 0) {
       return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + 0 + "/" + 0 + "/" + estado + "/" + fecha);
     } else if (subservicios.length == 0 && servicios.length != 0) {
-      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + 0 + "/" + estado+ "/" + fecha);
+      return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + 0 + "/" + estado + "/" + fecha);
     } else if (servicios.length != 0 && subservicios.length != 0) {
       return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + subservicios + "/" + estado + "/" + fecha);
     }
@@ -145,11 +125,11 @@ export class ServiceService {
    ** **                                          EVALUACION                                                          ** **
    ** ****************************************************************************************************************** **/
 
-  getResumenEvaluacion(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any, fecha:string): Observable<servicio[]> {
+  getResumenEvaluacion(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any, fecha: string): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/evaluacion/resumen/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + subservicio + "/" + cajero + "/" + opcion + "/" + estado + "/" + fecha);
   }
 
-  getResumenEvaluacionOmitidas(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any, fecha:string): Observable<servicio[]> {
+  getResumenEvaluacionOmitidas(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, servicios: any, sucursales: any, subservicio: any, cajero: any, opcion: string, estado: any, fecha: string): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/evaluacion/omitidas/resumen/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + servicios + "/" + sucursales + "/" + subservicio + "/" + cajero + "/" + opcion + "/" + estado + "/" + fecha);
   }
 
@@ -170,20 +150,20 @@ export class ServiceService {
    ** **                                         DISTRIBUCION Y ESTADO DE TURNOS                                      ** **
    ** ****************************************************************************************************************** **/
 
-  getdistribucionturnos(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, servicios: any, subservicios: any, estado: any, fecha:string): Observable<servicio[]> {
+  getdistribucionturnos(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, listaCodigos: any, sucursales: any, servicios: any, subservicios: any, estado: any, fecha: string): Observable<servicio[]> {
     if (servicios.length == 0) {
       //return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + 0 + "/" + 0 + "/" + estado + "/" + fecha);
       return this.http.get<servicio[]>(this.URL + "/distestadoturno/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + 0 + "/" + 0 + "/" + estado + "/" + fecha);
 
-    
+
     } else if (subservicios.length == 0 && servicios.length != 0) {
       return this.http.get<servicio[]>(this.URL + "/distestadoturno/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + 0 + "/" + estado + "/" + fecha);
 
     } else if (servicios.length != 0 && subservicios.length != 0) {
-    // return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios + "/" + estado + "/" + fecha);
-      return this.http.get<servicio[]>(this.URL + "/distestadoturno/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales+ "/" + servicios + "/" + subservicios + "/" + estado + "/" + fecha);
+      // return this.http.get<servicio[]>(this.URL + "/turnostotalfechas/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + cajeros + "/" + servicios + "/" + subservicios + "/" + estado + "/" + fecha);
+      return this.http.get<servicio[]>(this.URL + "/distestadoturno/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + listaCodigos + "/" + sucursales + "/" + servicios + "/" + subservicios + "/" + estado + "/" + fecha);
     }
-  
+
   }
 
 

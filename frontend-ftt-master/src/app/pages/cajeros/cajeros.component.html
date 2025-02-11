@@ -47,25 +47,46 @@
                         </div>
                     </div>
                     <br>
+                    <br>
+
+                    <h3>CAJEROS</h3>
+                    <button *ngIf="estadoUsuario==1 && mostrar_resultado" type="button" class="btn btn-search" (click)="DesactivarCajeros()">
+                        <span class="glyphicon glyphicon-filter"></span>
+                        Activar
+                    </button>
+                    <button *ngIf="estadoUsuario==2 && mostrar_resultado" type="button" class="btn btn-search" (click)="DesactivarCajeros()">
+                        <span class="glyphicon glyphicon-filter"></span>
+                        Desactivar
+                    </button>
+                    <button *ngIf="estadoUsuario==3 && mostrar_resultado" type="button" class="btn btn-search" (click)="DesactivarCajeros()">
+                        <span class="glyphicon glyphicon-filter"></span>
+                        Cambiar estado
+                    </button>
+                    
+
                     <hr>
                     <div class="table-responsive" *ngIf="mostrar_resultado">
                         <table class="table table-striped" id="contentDist" #contentDist #TABLEDist #table>
                             <thead class="thead-dark">
                                 <tr>
-                                    <!--
-                                    <th>
-                                        <mat-icon *ngIf="activar_seleccion" class="flex-shrink-1 bd-highlight" matSuffix
-                                            matTooltipPosition="right" matTooltip="Dar clic para activar selección múltiple."
-                                            id="SelectCheck" (click)="HabilitarSeleccion()">
-                                            library_add_check
-                                        </mat-icon>
-                                        <mat-checkbox *ngIf="plan_multiple" (change)="$event ? masterTogglePag() : null"
-                                            [checked]="selectionProvincias.hasValue() && isAllSelectedPag()"
-                                            [indeterminate]="selectionProvincias.hasValue() && !isAllSelectedPag()"
-                                            [aria-label]="checkboxLabelPag()">
-                                        </mat-checkbox>
+
+                                    <th scope="col"  class="text-center" >
+                                        <div>
+                                            <mat-icon *ngIf="activar_seleccion" class="flex-shrink-1 bd-highlight"
+                                                title="Dar clic para activar selección múltiple." id="SelectCheck"
+                                                (click)="HabilitarSeleccion()">
+                                                library_add_check
+                                            </mat-icon>
+                                            <mat-checkbox *ngIf="plan_multiple"
+                                                (change)="$event ? masterTogglePag() : null"
+                                                [checked]="selectionCajero.hasValue() && isAllSelectedPag()"
+                                                [indeterminate]="selectionCajero.hasValue() && !isAllSelectedPag()"
+                                                [aria-label]="checkboxLabelPag()">
+                                            </mat-checkbox>
+                                        </div>
+
                                     </th>
--->
+
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesD || seleccionMultiple">
                                         Sucursal
                                     </th>
@@ -74,8 +95,15 @@
                             </thead>
                             <tbody *ngIf="!malRequestDist">
                                 <tr *ngFor="let cajero of cajerosSucursales | paginate:configDE">
+                                    <td >
+                                        <mat-checkbox *ngIf="plan_multiple_" (click)="$event.stopPropagation()"
+                                            (change)="$event ? selectionCajero.toggle(cajero) : null"
+                                            [checked]="selectionCajero.isSelected(cajero)"
+                                            [aria-label]="checkboxLabelPag(cajero)">
+                                        </mat-checkbox>
+                                    </td>
                                     <td *ngIf="todasSucursalesD || seleccionMultiple">{{cajero.empr_nombre}}
-                                </td>
+                                    </td>
                                     <td>{{cajero.caje_nombre}}</td>
                                 </tr>
                             </tbody>
