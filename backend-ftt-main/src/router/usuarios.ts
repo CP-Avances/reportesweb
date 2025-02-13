@@ -266,6 +266,8 @@ router.get(
           `
           :
           ` 
+            INNER JOIN 
+          cajero c ON t.caje_codigo = c.caje_codigo
         INNER JOIN 
           sub_servicio ss ON t.id_sub_serv = ss.id
         INNER JOIN 
@@ -278,7 +280,7 @@ router.get(
         t.caje_codigo != 0 AND
           t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
           ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
@@ -313,20 +315,22 @@ router.get(
           turno t
           ${listaCodigos != '0N' ?
           `
-            INNER JOIN 
+          INNER JOIN 
           cajero c ON t.caje_codigo = c.caje_codigo
-        INNER JOIN 
+          INNER JOIN 
           servicio s ON t.serv_codigo = s.serv_codigo
-        INNER JOIN 
+          INNER JOIN 
           empresa e ON s.empr_codigo = e.empr_codigo
-        INNER JOIN 
+          INNER JOIN 
           usuarios u ON c.usua_codigo = u.usua_codigo
           `
           :
           `
           INNER JOIN 
+          cajero c ON t.caje_codigo = c.caje_codigo
+          INNER JOIN 
           servicio s ON t.serv_codigo = s.serv_codigo
-        INNER JOIN 
+          INNER JOIN 
           empresa e ON s.empr_codigo = e.empr_codigo
       `}
 
@@ -334,7 +338,7 @@ router.get(
         t.caje_codigo != 0 AND
           t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
           ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         GROUP BY 
@@ -373,7 +377,7 @@ router.get(
       t.caje_codigo != 0 AND
          t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'
         ${!todasSucursales ? `AND u.empr_codigo IN (${listaSucursales})` : ''}
-        ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+        ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       GROUP BY 
         ${verFecha ? ` 
@@ -518,6 +522,8 @@ router.get(
           `
           :
           ` 
+          INNER JOIN 
+          cajero c ON t.caje_codigo = c.caje_codigo
         INNER JOIN 
           servicio s ON t.serv_codigo = s.serv_codigo
         INNER JOIN 
@@ -533,7 +539,7 @@ router.get(
         t.caje_codigo != 0 AND
           t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
           ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
@@ -590,6 +596,8 @@ router.get(
           `
           :
           ` 
+          INNER JOIN 
+          cajero c ON t.caje_codigo = c.caje_codigo
         INNER JOIN 
           servicio s ON t.serv_codigo = s.serv_codigo
         INNER JOIN 
@@ -604,7 +612,7 @@ router.get(
 t.caje_codigo != 0 AND
         t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
         ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       ORDER BY 
@@ -658,7 +666,7 @@ t.caje_codigo != 0 AND
         t.caje_codigo != 0 AND
         t.turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
         ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+          ${listaCodigos != '0N' ? ` ${!todosCajeros ? `AND c.caje_codigo IN (${listaCodigos}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
       ORDER BY 
         t.turn_codigo DESC, 
@@ -1142,6 +1150,8 @@ router.get(
           :
           ` 
           INNER JOIN 
+        cajero c ON t.caje_codigo = c.caje_codigo
+          INNER JOIN 
           servicio s ON t.serv_codigo = s.serv_codigo
           INNER JOIN empresa e ON s.empr_codigo = e.empr_codigo`}
     
@@ -1151,7 +1161,7 @@ router.get(
           t.caje_codigo != 0 AND
           ${listaCajeros != '0N' ? `turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' AND u.usua_codigo != 2` : `turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'`}
           ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-          ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+          ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
           ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
           ${!todosSubservicio ? `AND ss.id IN (${listaSubservicios})` : ''}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
@@ -1205,7 +1215,9 @@ router.get(
         servicio s ON t.serv_codigo = s.serv_codigo 
 
         `  :
-          ` 
+        ` 
+        INNER JOIN 
+        cajero c ON t.caje_codigo = c.caje_codigo
         INNER JOIN 
         servicio s ON t.serv_codigo = s.serv_codigo
         INNER JOIN empresa e ON s.empr_codigo = e.empr_codigo`}
@@ -1214,7 +1226,7 @@ router.get(
         ${listaCajeros != '0N' ? `turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' AND u.usua_codigo != 2` : `turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'`}
 
         ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-        ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+        ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
         ${!todosServicios ? `AND s.serv_codigo IN (${listaServicios})` : ''}
         ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
       GROUP BY 
@@ -1260,7 +1272,7 @@ router.get(
           t.caje_codigo != 0 AND
           ${listaCajeros != '0N' ? `turn_fecha BETWEEN '${fDesde}' AND '${fHasta}' AND u.usua_codigo != 2` : `turn_fecha BETWEEN '${fDesde}' AND '${fHasta}'`}
           ${!todasSucursales ? `AND e.empr_codigo IN (${listaSucursales})` : ''}
-          ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : ''}
+          ${listaCajeros != '0N' ? ` ${!todasCajeros ? `AND c.caje_codigo IN (${listaCajeros}) AND ${comprobarestado}` : `AND ${comprobarestado}`} ` : `AND ${comprobarestado}`}
           ${!diaCompleto ? `AND t.turn_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''} 
         GROUP BY 
           e.empr_nombre 
