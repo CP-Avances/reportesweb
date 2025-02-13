@@ -76,3 +76,7 @@ table {
 ::ng-deep .card.mat-option.mat-selected .mat-pseudo-checkbox {
     background-color: #398bf7 !important;
 }
+
+input[type="radio"], label {
+    margin: 10px; /* Espacio entre los elementos */
+  }

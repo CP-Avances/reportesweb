@@ -1,16 +1,21 @@
 .espacio {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 
 .card {
-    text-align: center;
+  text-align: center;
 }
 
 #SelectCheck {
-    cursor: pointer;
-    margin-left: 10px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 
 .mat-tooltip {
-    z-index: 9999 !important;
-  }
+  z-index: 9999 !important;
+}
+
+input[type="radio"],
+label {
+  margin: 10px; /* Espacio entre los elementos */
+}

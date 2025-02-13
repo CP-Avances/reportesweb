@@ -95,7 +95,7 @@ export class DistestadoturnosComponent implements OnInit {
   }
 
   // VARIABLE USADA EN EXPORTACION A EXCEL
-  p_color: any;
+  p_color = "#affbfb";
 
   mostrarServicios: boolean = false;
   mostrarSubservicios: boolean = false;
@@ -1542,61 +1542,38 @@ export class DistestadoturnosComponent implements OnInit {
     f.setUTCHours(f.getHours())
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
+      pageSize: 'A4',
       pageOrientation: 'landscape',
-      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false, fontSize: 52 },
-      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3 },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              'Fecha: ' + fecha + ' Hora: ' + timer,
-              {
-                text: [
-                  {
-                    text: '© Pag ' + currentPage.toString() + ' of ' + pageCount, alignment: 'right', color: 'blue', opacity: 0.5
-                  }
-                ],
-              }
-            ],
-            fontSize: 9, color: '#A4B8FF',
-          }
-        ]
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: '*',
-              alignment: 'center',
-              text: 'Reporte - Monitor',
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
             }
-          ]
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: 'subtitulos',
-          text: 'Periodo de ' + fD + ' hasta ' + fH
-        },
-        this.distribucion(this.servicioDist) // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
+          ],
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `REPORTE MONITOR`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fD} HASTA ${fH}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        this.distribucion(this.servicioDist),
       ],
       styles: {
         tableTotal: { fontSize: 30, bold: true, alignment: 'center', fillColor: this.p_color },
@@ -1604,12 +1581,12 @@ export class DistestadoturnosComponent implements OnInit {
         itemsTable: { fontSize: 8, margin: [0, 3, 0, 3], },
         itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
         subtitulos: { fontSize: 16, alignment: 'center', margin: [0, 5, 0, 10] },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
+        tableMargin: { margin: [0, 5, 0, 0], alignment: "center" },
         CabeceraTabla: { fontSize: 12, alignment: 'center', margin: [0, 8, 0, 8], fillColor: this.p_color },
         quote: { margin: [5, -2, 0, -2], italics: true },
         small: { fontSize: 8, color: 'blue', opacity: 0.5 }
       }
-    }
+    };
   }
 
   // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF LA ESTRUCTURA
@@ -1641,7 +1618,7 @@ export class DistestadoturnosComponent implements OnInit {
                     return [
                       { style: 'itemsTable', text: res.nombreEmpresa },
                       { style: 'itemsTable', text: res.Usuario },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -1678,7 +1655,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ...servicio.map(res => {
                     return [
                       { style: 'itemsTable', text: res.nombreEmpresa },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -1784,7 +1761,7 @@ export class DistestadoturnosComponent implements OnInit {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*',  'auto', 'auto',  'auto', 'auto', 'auto', 'auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
                     { text: 'Cajero(a)', style: 'tableHeader' },
@@ -1799,7 +1776,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ...servicio.map(res => {
                     return [
                       { style: 'itemsTable', text: res.Usuario },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -1821,7 +1798,7 @@ export class DistestadoturnosComponent implements OnInit {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', 'auto',  'auto', 'auto', 'auto', 'auto', 'auto'],
+                widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
                     { text: 'Fecha', style: 'tableHeader' },
@@ -1834,7 +1811,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ],
                   ...servicio.map(res => {
                     return [
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -1860,7 +1837,7 @@ export class DistestadoturnosComponent implements OnInit {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*',  'auto', 'auto', 'auto', 'auto', 'auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
                     { text: 'Cajero(a)', style: 'tableHeader' },
@@ -1937,7 +1914,7 @@ export class DistestadoturnosComponent implements OnInit {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto','auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
                     { text: 'Sucursal', style: 'tableHeader' },
@@ -1956,7 +1933,7 @@ export class DistestadoturnosComponent implements OnInit {
                       { style: 'itemsTable', text: res.nombreEmpresa },
                       { style: 'itemsTable', text: res.Usuario },
                       { style: 'itemsTable', text: res.Servicio },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -1995,7 +1972,7 @@ export class DistestadoturnosComponent implements OnInit {
                     return [
                       { style: 'itemsTable', text: res.nombreEmpresa },
                       { style: 'itemsTable', text: res.Servicio },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -2105,7 +2082,7 @@ export class DistestadoturnosComponent implements OnInit {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*', 'auto', 'auto', 'auto',  'auto', 'auto', 'auto', 'auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
                     { text: 'Cajero(a)', style: 'tableHeader' },
@@ -2122,7 +2099,7 @@ export class DistestadoturnosComponent implements OnInit {
                     return [
                       { style: 'itemsTable', text: res.Usuario },
                       { style: 'itemsTable', text: res.Servicio },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -2144,7 +2121,7 @@ export class DistestadoturnosComponent implements OnInit {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*', 'auto',  'auto', 'auto', 'auto', 'auto', 'auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
                     { text: 'Servicio', style: 'tableHeader' },
@@ -2159,7 +2136,7 @@ export class DistestadoturnosComponent implements OnInit {
                   ...servicio.map(res => {
                     return [
                       { style: 'itemsTable', text: res.Servicio },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -2185,7 +2162,7 @@ export class DistestadoturnosComponent implements OnInit {
               style: 'tableMargin',
               table: {
                 headerRows: 1,
-                widths: ['*', '*', 'auto',  'auto', 'auto', 'auto', 'auto', 'auto'],
+                widths: ['*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                 body: [
                   [
                     { text: 'Cajero(a)', style: 'tableHeader' },
@@ -2257,7 +2234,7 @@ export class DistestadoturnosComponent implements OnInit {
 
         }
       }
-    
+
     } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
       console.log("entra a servicios y subservicios")
       if (this.todasSucursalesD || this.seleccionMultiple) {
@@ -2288,7 +2265,7 @@ export class DistestadoturnosComponent implements OnInit {
                       { style: 'itemsTable', text: res.Usuario },
                       { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -2329,7 +2306,7 @@ export class DistestadoturnosComponent implements OnInit {
                       { style: 'itemsTable', text: res.nombreEmpresa },
                       { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -2462,7 +2439,7 @@ export class DistestadoturnosComponent implements OnInit {
                       { style: 'itemsTable', text: res.Usuario },
                       { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -2501,7 +2478,7 @@ export class DistestadoturnosComponent implements OnInit {
                     return [
                       { style: 'itemsTable', text: res.Servicio },
                       { style: 'itemsTable', text: res.subservicio },
-                      { style: 'itemsTable', text: res.fecha },
+                      { style: 'itemsTable', text: res.Fecha },
                       { style: 'itemsTable', text: res.pendientes },
                       { style: 'itemsTable', text: res.en_atencion },
                       { style: 'itemsTable', text: res.en_pausa },
@@ -2603,7 +2580,7 @@ export class DistestadoturnosComponent implements OnInit {
 
         }
       }
-    
+
     }
   }
 
