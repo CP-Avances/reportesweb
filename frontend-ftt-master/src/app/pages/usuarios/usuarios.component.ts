@@ -892,7 +892,7 @@ export class UsuariosComponent implements OnInit {
       datoCajero = this.selectedItems;
     }
 
-    if (this.sucursalesSeleccionadas.length !== 0) {
+    if (this.sucursalesSeleccionadas.length !== 0 && this.selectedItems.length !== 0) {
       this.serviceService
         .getentradassalidasistema(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoCajero, this.estadoUsuario)
         .subscribe(
@@ -2388,9 +2388,9 @@ export class UsuariosComponent implements OnInit {
       }
 
     }
+
     try {
       const buffer = await workbook.xlsx.writeBuffer();
-
       const blob = new Blob([buffer], { type: "application/octet-stream" });
       FileSaver.saveAs(blob, `Turnos totales.xlsx`);
     } catch (error) {
@@ -2438,179 +2438,501 @@ export class UsuariosComponent implements OnInit {
     });
 
     let incluirCajero = this.selectedItems.length != 0
-
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
-    if (this.todasSucursalesTM || this.seleccionMultiple) {
-      let columnas = []
 
-      for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
-        let fila = [
-          this.servicioTurnosMeta[i].nombreEmpresa,
-          this.servicioTurnosMeta[i].Servicio,
-          this.servicioTurnosMeta[i].subservicio,
-          this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
-          this.servicioTurnosMeta[i].Atendidos,
-          this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
-        ]
-        if (incluirCajero) {
-          fila.splice(1, 0, this.servicioTurnosMeta[i].Usuario); // Insertar "CAJERO" en la segunda posición
-        }
-        jsonServicio.push(fila);
-      }
+    if (this.serviciosSeleccionadas.length == 0) {
+      // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+      if (this.todasSucursalesTM || this.seleccionMultiple) {
+        let columnas = []
 
-      if (incluirCajero) {
-        worksheet.columns = [
-          { key: "sucursal", width: 50 },
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "subservicio", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "porcentaje", width: 20 },
-        ]
-      } else {
-        worksheet.columns = [
-          { key: "sucursal", width: 50 },
-          { key: "servicio", width: 50 },
-          { key: "subservicio", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "porcentaje", width: 20 },
-        ]
-      }
-
-      columnas = [
-        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: true },
-        { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-        { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
-        { name: "FECHA", totalsRowLabel: "", filterButton: true },
-        { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-        { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
-      ]
-
-      if (incluirCajero) {
-        // worksheet.columns.splice(1, 0, { key: "cajero", width: 20 }); // Insertar "CAJERO" en la segunda posición
-        columnas.splice(1, 0, { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true }); // Insertar "CAJERO" en la segunda posición
-      }
-
-
-
-      worksheet.addTable({
-        name: "turnosmeta",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
-
-      let tamanioC = 0;
-      const numeroFilas = jsonServicio.length;
-      for (let i = 0; i <= numeroFilas; i++) {
-        incluirCajero ? tamanioC = 7 : tamanioC = 6
-        for (let j = 1; j <= tamanioC; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
+        for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
+          let fila = [
+            this.servicioTurnosMeta[i].nombreEmpresa,
+            this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
+            this.servicioTurnosMeta[i].Atendidos,
+            this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
+          ]
+          if (incluirCajero) {
+            fila.splice(1, 0, this.servicioTurnosMeta[i].Usuario); // Insertar "CAJERO" en la segunda posición
           }
-          cell.border = this.bordeCompleto;
+          jsonServicio.push(fila);
         }
-      }
-      worksheet.getRow(6).font = this.fontTitulo;
 
-
-    } else {
-      let columnas = []
-      for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
-        let fila = [
-          this.servicioTurnosMeta[i].Servicio,
-          this.servicioTurnosMeta[i].subservicio,
-          this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
-          this.servicioTurnosMeta[i].Atendidos,
-          this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
-        ]
         if (incluirCajero) {
-          fila.splice(0, 0, this.servicioTurnosMeta[i].Usuario); // Insertar "CAJERO" en la primera posición
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        } else {
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
         }
-        jsonServicio.push(fila);
-      }
 
-      if (incluirCajero) {
-        worksheet.columns = [
-          { key: "cajero", width: 20 },
-          { key: "servicio", width: 50 },
-          { key: "subservicio", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "porcentaje", width: 20 },
+        columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
         ]
-      } else {
-        worksheet.columns = [
-          { key: "servicio", width: 50 },
-          { key: "subservicio", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "atendidos", width: 20 },
-          { key: "porcentaje", width: 20 },
-        ]
-      }
 
-      columnas = [
-        { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
-        { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
-        { name: "FECHA", totalsRowLabel: "", filterButton: true },
-        { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
-        { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
-      ]
-
-      if (incluirCajero) {
-        //worksheet.columns.splice(1, 0, { key: "cajero", width: 20 }); // Insertar "CAJERO" en la segunda posición
-        columnas.splice(0, 0, { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true }); // Insertar "CAJERO" en la segunda posición
-      }
+        if (incluirCajero) {
+          // worksheet.columns.splice(1, 0, { key: "cajero", width: 20 }); // Insertar "CAJERO" en la segunda posición
+          columnas.splice(1, 0, { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true }); // Insertar "CAJERO" en la segunda posición
+        }
 
 
-      worksheet.addTable({
-        name: "turnosmeta",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
 
-      const numeroFilas = jsonServicio.length;
-      let tamanioC = 0;
+        worksheet.addTable({
+          name: "turnosmeta",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
 
-      for (let i = 0; i <= numeroFilas; i++) {
-        incluirCajero ? tamanioC = 6 : tamanioC = 5
-        for (let j = 1; j <= tamanioC; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
+        let tamanioC = 0;
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          incluirCajero ? tamanioC = 5 : tamanioC = 4
+          for (let j = 1; j <= tamanioC; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
           }
-          cell.border = this.bordeCompleto;
         }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+
+      } else {
+        let columnas = []
+        for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
+          let fila = [
+            this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
+            this.servicioTurnosMeta[i].Atendidos,
+            this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
+          ]
+          if (incluirCajero) {
+            fila.splice(0, 0, this.servicioTurnosMeta[i].Usuario); // Insertar "CAJERO" en la primera posición
+          }
+          jsonServicio.push(fila);
+        }
+
+        if (incluirCajero) {
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        } else {
+          worksheet.columns = [
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        }
+
+        columnas = [
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
+        ]
+
+        if (incluirCajero) {
+          //worksheet.columns.splice(1, 0, { key: "cajero", width: 20 }); // Insertar "CAJERO" en la segunda posición
+          columnas.splice(0, 0, { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true }); // Insertar "CAJERO" en la segunda posición
+        }
+
+
+        worksheet.addTable({
+          name: "turnosmeta",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        let tamanioC = 0;
+
+        for (let i = 0; i <= numeroFilas; i++) {
+          incluirCajero ? tamanioC = 4 : tamanioC = 3
+          for (let j = 1; j <= tamanioC; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
       }
-      worksheet.getRow(6).font = this.fontTitulo;
+    } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
+      if (this.todasSucursalesTM || this.seleccionMultiple) {
+        let columnas = []
+
+        for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
+          let fila = [
+            this.servicioTurnosMeta[i].nombreEmpresa,
+            this.servicioTurnosMeta[i].Servicio,
+            this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
+            this.servicioTurnosMeta[i].Atendidos,
+            this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
+          ]
+          if (incluirCajero) {
+            fila.splice(1, 0, this.servicioTurnosMeta[i].Usuario); // Insertar "CAJERO" en la segunda posición
+          }
+          jsonServicio.push(fila);
+        }
+
+        if (incluirCajero) {
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        } else {
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "servicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        }
+
+        columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
+        ]
+
+        if (incluirCajero) {
+          // worksheet.columns.splice(1, 0, { key: "cajero", width: 20 }); // Insertar "CAJERO" en la segunda posición
+          columnas.splice(1, 0, { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true }); // Insertar "CAJERO" en la segunda posición
+        }
+
+
+
+        worksheet.addTable({
+          name: "turnosmeta",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        let tamanioC = 0;
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          incluirCajero ? tamanioC = 6 : tamanioC = 5
+          for (let j = 1; j <= tamanioC; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+
+      } else {
+        let columnas = []
+        for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
+          let fila = [
+            this.servicioTurnosMeta[i].Servicio,
+            this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
+            this.servicioTurnosMeta[i].Atendidos,
+            this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
+          ]
+          if (incluirCajero) {
+            fila.splice(0, 0, this.servicioTurnosMeta[i].Usuario); // Insertar "CAJERO" en la primera posición
+          }
+          jsonServicio.push(fila);
+        }
+
+        if (incluirCajero) {
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        } else {
+          worksheet.columns = [
+            { key: "servicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        }
+
+        columnas = [
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
+        ]
+
+        if (incluirCajero) {
+          //worksheet.columns.splice(1, 0, { key: "cajero", width: 20 }); // Insertar "CAJERO" en la segunda posición
+          columnas.splice(0, 0, { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true }); // Insertar "CAJERO" en la segunda posición
+        }
+
+
+        worksheet.addTable({
+          name: "turnosmeta",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        let tamanioC = 0;
+
+        for (let i = 0; i <= numeroFilas; i++) {
+          incluirCajero ? tamanioC = 5 : tamanioC = 4
+          for (let j = 1; j <= tamanioC; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+      }
+    } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
+      // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+      if (this.todasSucursalesTM || this.seleccionMultiple) {
+        let columnas = []
+
+        for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
+          let fila = [
+            this.servicioTurnosMeta[i].nombreEmpresa,
+            this.servicioTurnosMeta[i].Servicio,
+            this.servicioTurnosMeta[i].subservicio,
+            this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
+            this.servicioTurnosMeta[i].Atendidos,
+            this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
+          ]
+          if (incluirCajero) {
+            fila.splice(1, 0, this.servicioTurnosMeta[i].Usuario); // Insertar "CAJERO" en la segunda posición
+          }
+          jsonServicio.push(fila);
+        }
+
+        if (incluirCajero) {
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        } else {
+          worksheet.columns = [
+            { key: "sucursal", width: 50 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        }
+
+        columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: true },
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
+        ]
+
+        if (incluirCajero) {
+          // worksheet.columns.splice(1, 0, { key: "cajero", width: 20 }); // Insertar "CAJERO" en la segunda posición
+          columnas.splice(1, 0, { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true }); // Insertar "CAJERO" en la segunda posición
+        }
+
+
+
+        worksheet.addTable({
+          name: "turnosmeta",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        let tamanioC = 0;
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          incluirCajero ? tamanioC = 7 : tamanioC = 6
+          for (let j = 1; j <= tamanioC; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+
+
+      } else {
+        let columnas = []
+        for (let i = 0; i < this.servicioTurnosMeta.length; i++) {
+          let fila = [
+            this.servicioTurnosMeta[i].Servicio,
+            this.servicioTurnosMeta[i].subservicio,
+            this.addOneDay(new Date(this.servicioTurnosMeta[i].Fecha)),
+            this.servicioTurnosMeta[i].Atendidos,
+            this.servicioTurnosMeta[i].Porcentaje_Atendidos + "%",
+          ]
+          if (incluirCajero) {
+            fila.splice(0, 0, this.servicioTurnosMeta[i].Usuario); // Insertar "CAJERO" en la primera posición
+          }
+          jsonServicio.push(fila);
+        }
+
+        if (incluirCajero) {
+          worksheet.columns = [
+            { key: "cajero", width: 20 },
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        } else {
+          worksheet.columns = [
+            { key: "servicio", width: 50 },
+            { key: "subservicio", width: 50 },
+            { key: "fecha", width: 20 },
+            { key: "atendidos", width: 20 },
+            { key: "porcentaje", width: 20 },
+          ]
+        }
+
+        columnas = [
+          { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "ATENDIDOS", totalsRowLabel: "", filterButton: true },
+          { name: "PORCENTAJE DE CUMPLIMIENTO ", totalsRowLabel: "", filterButton: true },
+        ]
+
+        if (incluirCajero) {
+          //worksheet.columns.splice(1, 0, { key: "cajero", width: 20 }); // Insertar "CAJERO" en la segunda posición
+          columnas.splice(0, 0, { name: "CAJERO", totalsRowLabel: "Total:", filterButton: true }); // Insertar "CAJERO" en la segunda posición
+        }
+
+
+        worksheet.addTable({
+          name: "turnosmeta",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
+        });
+
+        const numeroFilas = jsonServicio.length;
+        let tamanioC = 0;
+
+        for (let i = 0; i <= numeroFilas; i++) {
+          incluirCajero ? tamanioC = 6 : tamanioC = 5
+          for (let j = 1; j <= tamanioC; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
+      }
     }
+
     // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
 
     try {
@@ -3360,7 +3682,7 @@ export class UsuariosComponent implements OnInit {
             incluirCajero ? tamanioC = 8 : tamanioC = 7
 
           } else {
-            incluirCajero ? tamanioC = 7: tamanioC = 6
+            incluirCajero ? tamanioC = 7 : tamanioC = 6
           }
           for (let j = 1; j <= tamanioC; j++) {
             const cell = worksheet.getRow(i + 6).getCell(j);
@@ -5539,152 +5861,424 @@ export class UsuariosComponent implements OnInit {
   // FUNCION PARA LLENAR LA TABLA CON LA CONSULTA REALIZADA AL BACKEND
   CampoDetalleMeta(servicio: any[]) {
     let incluirCajero = this.selectedItems.length != 0
-
-    if (this.todasSucursalesTM) {
-
-      if (incluirCajero) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "*", "*", "auto", "auto", "auto"],
-
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Subservicio", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+    if (this.serviciosSeleccionadas.length == 0) {
+      if (this.todasSucursalesTM) {
+        if (incluirCajero) {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "*",  "auto", ],
+  
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Usuario },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.subservicio },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
-
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+  
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto"],
+  
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+  
+        }
+  
       } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "*", "auto", "auto", "auto"],
-
-            body: [
-              [
-                { text: "Sucursal", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Subservicio", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+  
+        if (incluirCajero) {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto"],
+  
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.subservicio },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "auto"],
+  
+              body: [
+                [
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
+      }
+    }else if(this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0){
+      if (this.todasSucursalesTM) {
 
+        if (incluirCajero) {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "*", "auto", "auto", ],
+  
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+  
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto", "auto"],
+  
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+  
+        }
+  
+      } else {
+  
+        if (incluirCajero) {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto", "auto"],
+  
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "auto","auto"],
+  
+              body: [
+                [
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
       }
 
-    } else {
+    }else if(this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0){
+      if (this.todasSucursalesTM) {
 
-      if (incluirCajero) {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "*", "auto", "auto", "auto"],
-
-            body: [
-              [
-                { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Subservicio", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+        if (incluirCajero) {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "*", "auto", "auto", "auto"],
+  
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.Usuario },
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.subservicio },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+  
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto", "auto", "auto"],
+  
+              body: [
+                [
+                  { text: "Sucursal", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.nombreEmpresa },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+  
+        }
+  
       } else {
-        return {
-          style: "tableMargin",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "auto", "auto", "auto"],
-
-            body: [
-              [
-                { text: "Servicio", style: "tableHeader" },
-                { text: "Subservicio", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Atendidos", style: "tableHeader" },
-                { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+  
+        if (incluirCajero) {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "*", "auto", "auto", "auto"],
+  
+              body: [
+                [
+                  { text: "Cajero(a)", style: "tableHeader" },
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Usuario },
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
               ],
-              ...servicio.map((res) => {
-                return [
-                  { style: "itemsTable", text: res.Servicio },
-                  { style: "itemsTable", text: res.subservicio },
-                  { style: "itemsTable", text: res.Fecha },
-                  { style: "itemsTable", text: res.Atendidos },
-                  { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
-                ];
-              }),
-            ],
-          },
-          layout: {
-            fillColor: function (rowIndex: any) {
-              return rowIndex % 2 === 0 ? "#E5E7E9" : null;
             },
-          },
-        };
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        } else {
+          return {
+            style: "tableMargin",
+            table: {
+              headerRows: 1,
+              widths: ["*", "*", "auto", "auto", "auto"],
+  
+              body: [
+                [
+                  { text: "Servicio", style: "tableHeader" },
+                  { text: "Subservicio", style: "tableHeader" },
+                  { text: "Fecha", style: "tableHeader" },
+                  { text: "Atendidos", style: "tableHeader" },
+                  { text: "Porcentaje de cumplimiento", style: "tableHeader" },
+                ],
+                ...servicio.map((res) => {
+                  return [
+                    { style: "itemsTable", text: res.Servicio },
+                    { style: "itemsTable", text: res.subservicio },
+                    { style: "itemsTable", text: res.Fecha },
+                    { style: "itemsTable", text: res.Atendidos },
+                    { style: "itemsTable", text: res.Porcentaje_Atendidos + " %" },
+                  ];
+                }),
+              ],
+            },
+            layout: {
+              fillColor: function (rowIndex: any) {
+                return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+              },
+            },
+          };
+        }
       }
+
     }
   }
 
@@ -6625,7 +7219,7 @@ export class UsuariosComponent implements OnInit {
                       { style: "itemsTable", text: res.subservicio },
                       { style: "itemsTable", text: res.Fecha },
                       { style: "itemsTable", text: res.Promedio },
-                      { style: "itemsTable", text: res.Maximo },,
+                      { style: "itemsTable", text: res.Maximo }, ,
                       { style: "itemsTable", text: res.Turnos },
                     ];
                   }),

@@ -478,12 +478,17 @@ export class EvaluacionComponent implements OnInit {
   // METODO PARA SELCCIONAR ESTADO DE USUARIOS
   estadoUsuario: number = 2;
   CambiarEstado(estado: number) {
+    this.mostrar_resultado = false
+
     this.estadoUsuario = estado;
     this.Limpiar();
   }
+  mostrar_resultado = false;
 
   verFecha: string = '1';
   CambiarFecha(opcion: string) {
+    this.mostrar_resultado = false
+
     this.verFecha = opcion;
     this.Limpiar();
   }
@@ -535,6 +540,7 @@ export class EvaluacionComponent implements OnInit {
       .getResumenEvaluacion(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, this.sucursalesSeleccionadas, datoSubservicio, datoCajero, this.opcionCuatro.toString(), this.estadoUsuario, this.verFecha)
       .subscribe(
         (servicio: any) => {
+          this.mostrar_resultado =true
           let informacion = servicio.turnos;
           //console.log('informacion ', informacion)
           console.log('ingresa existe evaluaciones ');
@@ -1310,11 +1316,14 @@ export class EvaluacionComponent implements OnInit {
   // METODO PARA SELCCIONAR TIPO DE EVALUACION
   tipoEvaluacion: number = 3;
   CambiarEvaluacion(estado: number) {
+    this.mostrar_resultado = false
+
     this.tipoEvaluacion = estado;
     this.Limpiar();
   }
 
   MostrarEvaluaciones() {
+    
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.desdeEvalT.nativeElement.value
       .toString()
@@ -1363,6 +1372,8 @@ export class EvaluacionComponent implements OnInit {
       .getEvaluacionTurnos(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoServicio, datoSubservicio, datoCajero, this.estadoUsuario, this.opcionCuatro.toString())
       .subscribe(
         (servicio: any) => {
+          this.mostrar_resultado = true
+
           let evaluaciones = servicio.turnos;
           if (this.tipoEvaluacion === 3) {
             this.ConsultarEvaluacionesOmitidas(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, datoSubservicio, datoCajero, evaluaciones);
@@ -1389,6 +1400,7 @@ export class EvaluacionComponent implements OnInit {
       .getEvaluacionOmitidaTurnos(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoServicio, datoSubservicio, datoCajero, this.estadoUsuario)
       .subscribe(
         (servicio: any) => {
+         this.mostrar_resultado = true
           let omitidas = servicio.turnos;
           this.ProcesarDatos(evaluaciones, omitidas);
         }, (error) => {

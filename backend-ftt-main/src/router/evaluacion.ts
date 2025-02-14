@@ -145,10 +145,11 @@ router.get(
 
     let filtros =
       `
-        WHERE a.usua_codigo != 2
+        WHERE a.usua_codigo != 2 
       `;
 
-    if (!estadoUsuario) filtros += ` AND c.caje_estado = ${estado} `;
+   (estado != '3')? filtros += ` AND c.caje_estado = ${estado}`: '';
+
     if (opciones) filtros += ` AND f.eval_califica != 50 `;
     if (!todasSucursales) filtros += ` AND a.empr_codigo IN (${listaSucursales}) `;
     if (listaServicios != '0N') {
@@ -300,7 +301,7 @@ router.get(
       FROM 
         usuarios a
       INNER JOIN evaluacion f ON a.usua_codigo = f.usua_codigo
-      ${!estadoUsuario ? `INNER JOIN cajero c ON c.usua_codigo = a.usua_codigo` : ''}
+      INNER JOIN cajero c ON c.usua_codigo = a.usua_codigo
       INNER JOIN empresa e ON e.empr_codigo = a.empr_codigo
       INNER JOIN turno t ON t.turn_codigo = f.turn_codigo
       INNER JOIN servicio s ON s.serv_codigo = t.serv_codigo
@@ -435,10 +436,11 @@ router.get(
 
     let filtros =
       `
-        WHERE a.usua_codigo != 2
+        WHERE a.usua_codigo != 2 
       `;
 
-    if (!estadoUsuario) filtros += ` AND c.caje_estado = ${estado} `;
+
+    (estado != '3')? filtros += ` AND c.caje_estado = ${estado}`: '';
     if (!todasSucursales) filtros += ` AND a.empr_codigo IN (${listaSucursales}) `;
     if (listaServicios != '0N') {
       if (!todosServicios) filtros += ` AND s.serv_codigo IN (${listaServicios}) `;
@@ -588,7 +590,7 @@ router.get(
       FROM 
         usuarios a
       INNER JOIN noevaluacion ne ON a.usua_codigo = ne.usua_codigo
-      ${!estadoUsuario ? `INNER JOIN cajero c ON c.usua_codigo = a.usua_codigo` : ''}
+      INNER JOIN cajero c ON c.usua_codigo = a.usua_codigo
       INNER JOIN empresa e ON e.empr_codigo = a.empr_codigo
       INNER JOIN turno t ON t.turn_codigo = ne.turn_codigo
       INNER JOIN servicio s ON s.serv_codigo = t.serv_codigo
@@ -854,7 +856,10 @@ router.get(
         AND a.usua_codigo != 2 
       `;
 
-    if (!estadoUsuario) filtros += ` AND a.usua_codigo = c.usua_codigo AND c.caje_estado = ${estado} `;
+    if (!estadoUsuario) filtros += ` AND a.usua_codigo = c.usua_codigo `;
+
+    (estado != '3')? filtros += ` AND c.caje_estado = ${estado}`: '';
+
     if (!todasSucursales) filtros += ` AND a.empr_codigo IN (${listaSucursales}) `;
     if (listaServicios != '0N') {
       if (!todosServicios) filtros += ` AND s.serv_codigo IN (${listaServicios}) `;
@@ -876,7 +881,7 @@ router.get(
           usuarios a
           JOIN evaluacion f ON a.usua_codigo = f.usua_codigo
           JOIN empresa e ON e.empr_codigo = a.empr_codigo
-          ${!estadoUsuario ? `JOIN cajero c ON c.usua_codigo = a.usua_codigo` : ''}
+         JOIN cajero c ON c.usua_codigo = a.usua_codigo
           JOIN turno t ON f.turn_codigo = t.turn_codigo
           JOIN servicio s ON s.serv_codigo = t.serv_codigo
           JOIN sub_servicio ss ON ss.id = t.id_sub_serv
@@ -1023,7 +1028,10 @@ router.get(
         AND a.usua_codigo != 2 
       `;
 
-    if (!estadoUsuario) filtros += ` AND a.usua_codigo = c.usua_codigo AND c.caje_estado = ${estado} `;
+    if (!estadoUsuario) filtros += ` AND a.usua_codigo = c.usua_codigo  `;
+    (estado != '3')? filtros += ` AND c.caje_estado = ${estado}`: '';
+
+
     if (!todasSucursales) filtros += ` AND a.empr_codigo IN (${listaSucursales}) `;
     if (listaServicios != '0N') {
       if (!todosServicios) filtros += ` AND s.serv_codigo IN (${listaServicios}) `;
@@ -1044,7 +1052,7 @@ router.get(
         FROM 
           usuarios a
           JOIN empresa e ON e.empr_codigo = a.empr_codigo
-          ${!estadoUsuario ? `JOIN cajero c ON c.usua_codigo = a.usua_codigo` : ''}
+          JOIN cajero c ON c.usua_codigo = a.usua_codigo
           JOIN noevaluacion ne ON ne.usua_codigo = a.usua_codigo
           JOIN turno t ON ne.turn_codigo = t.turn_codigo
           JOIN servicio s ON s.serv_codigo = t.serv_codigo

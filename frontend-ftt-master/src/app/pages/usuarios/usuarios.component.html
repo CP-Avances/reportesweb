@@ -407,8 +407,8 @@
                                         Sucursal
                                     </th>
                                     <th class="text-center" *ngIf="selectedItems.length>0">Cajero(a)</th>
-                                    <th class="text-center">Servicio</th>
-                                    <th class="text-center">Subservicio</th>
+                                    <th class="text-center"  *ngIf="serviciosSeleccionadas.length>0">Servicio</th>
+                                    <th class="text-center" *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">Subservicio</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">Porcentaje de cumplimiento</th>
@@ -419,8 +419,8 @@
                                     <td *ngIf="todasSucursalesTM || seleccionMultiple">
                                         {{servicioTurnosMeta.nombreEmpresa}}</td>
                                     <td *ngIf="selectedItems.length>0"> {{servicioTurnosMeta.Usuario}}</td>
-                                    <td> {{servicioTurnosMeta.Servicio}}</td>
-                                    <td> {{servicioTurnosMeta.subservicio}}</td>
+                                    <td *ngIf="serviciosSeleccionadas.length>0"> {{servicioTurnosMeta.Servicio}}</td>
+                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0"> {{servicioTurnosMeta.subservicio}}</td>
                                     <td> {{servicioTurnosMeta.Fecha}}</td>
                                     <td> {{servicioTurnosMeta.Atendidos}} </td>
                                     <td> {{servicioTurnosMeta.Porcentaje_Atendidos}} % </td>
