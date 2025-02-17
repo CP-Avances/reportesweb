@@ -7,13 +7,14 @@ import { Chart } from "chart.js";
 import { ServiceService } from "../../services/service.service";
 import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
+import ExcelJS, { FillPattern } from "exceljs";
+import * as FileSaver from 'file-saver';
 
 // COMPLEMENTOS PARA PDF Y EXCEL
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { Utils } from "../../utils/util";
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
-import * as XLSX from "xlsx";
 const EXCEL_EXTENSION = ".xlsx";
 
 @Component({
@@ -24,6 +25,7 @@ const EXCEL_EXTENSION = ".xlsx";
 
 export class OpinionComponent implements OnInit {
   chart: any = '';
+  private imagen: any;
 
   // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
   fromDate: any;
@@ -49,6 +51,8 @@ export class OpinionComponent implements OnInit {
   @ViewChild("horaFinG") horaFinG: ElementRef;
   @ViewChild("horaInicioGIC") horaInicioGIC: ElementRef;
   @ViewChild("horaFinGIC") horaFinGIC: ElementRef;
+  private bordeCompleto!: Partial<ExcelJS.Borders>;
+  private fontTitulo!: Partial<ExcelJS.Font>;
 
 
   // VARIABLES DE LA GRAFICA
@@ -197,6 +201,17 @@ export class OpinionComponent implements OnInit {
         (result) => (this.urlImagen = result)
       );
     });
+
+    this.bordeCompleto = {
+      top: { style: "thin" as ExcelJS.BorderStyle },
+      left: { style: "thin" as ExcelJS.BorderStyle },
+      bottom: { style: "thin" as ExcelJS.BorderStyle },
+      right: { style: "thin" as ExcelJS.BorderStyle },
+    };
+
+    this.fontTitulo = { bold: true, size: 12, color: { argb: "FFFFFF" } };
+
+
   }
 
   selectAll(opcion: string) {
@@ -785,184 +800,720 @@ export class OpinionComponent implements OnInit {
     return date;
   }
 
-  exportTOExcelOpiniones() {
+  async exportTOExcelOpiniones() {
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Informe General");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - INFORME GENERAL'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateAtM.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateAtM.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
+
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.todasSucursalesI || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioOpinion.length; step++) {
-        jsonServicio.push({
-          Sucursal: this.servicioOpinion[step].empresa_empr_nombre,
-          Tipo: this.servicioOpinion[step].quejas_emi_tipo,
-          Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-          Fecha: this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
-          Hora: this.servicioOpinion[step].hora,
-          Caja: this.servicioOpinion[step].caja_caja_nombre,
-          Opinión: this.servicioOpinion[step].quejas_emi_queja,
+
+        jsonServicio.push([
+          this.servicioOpinion[step].empresa_empr_nombre,
+          this.servicioOpinion[step].quejas_emi_tipo,
+          this.servicioOpinion[step].quejas_emi_categoria,
+          this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
+          this.servicioOpinion[step].hora,
+          this.servicioOpinion[step].caja_caja_nombre,
+          this.servicioOpinion[step].quejas_emi_queja,
+        ]);
+
+        worksheet.columns = [
+          { key: "suc", width: 50 },
+          { key: "tip", width: 50 },
+          { key: "cate", width: 20 },
+          { key: "fec", width: 20 },
+          { key: "hor", width: 20 },
+          { key: "caj", width: 20 },
+          { key: "opi", width: 20 },
+        ]
+
+        let columnas = []
+        columnas = [
+          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+          { name: "TIPO", totalsRowLabel: "", filterButton: true },
+          { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
+          { name: "FECHA", totalsRowLabel: "", filterButton: true },
+          { name: "HORA", totalsRowLabel: "", filterButton: true },
+          { name: "CAJA", totalsRowLabel: "", filterButton: true },
+          { name: "OPINION", totalsRowLabel: "", filterButton: true },
+        ]
+
+        worksheet.addTable({
+          name: "turnostotales",
+          ref: "A6",
+          headerRow: true,
+          totalsRow: false,
+          style: {
+            theme: "TableStyleMedium16",
+            showRowStripes: true,
+          },
+          columns: columnas,
+          rows: jsonServicio,
         });
+
+
+        const numeroFilas = jsonServicio.length;
+        for (let i = 0; i <= numeroFilas; i++) {
+          for (let j = 1; j <= 7; j++) {
+            const cell = worksheet.getRow(i + 6).getCell(j);
+            if (i === 0) {
+              cell.alignment = { vertical: "middle", horizontal: "center" };
+            } else {
+              cell.alignment = {
+                vertical: "middle",
+                horizontal: this.obtenerAlineacionHorizontal(j),
+              };
+            }
+            cell.border = this.bordeCompleto;
+          }
+        }
+        worksheet.getRow(6).font = this.fontTitulo;
       }
     } else {
       for (let step = 0; step < this.servicioOpinion.length; step++) {
-        jsonServicio.push({
-          Tipo: this.servicioOpinion[step].quejas_emi_tipo,
-          Categoría: this.servicioOpinion[step].quejas_emi_categoria,
-          Fecha: this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
-          Hora: this.servicioOpinion[step].hora,
-          Caja: this.servicioOpinion[step].caja_caja_nombre,
-          Opinión: this.servicioOpinion[step].quejas_emi_queja,
-        });
+        jsonServicio.push([
+          this.servicioOpinion[step].quejas_emi_tipo,
+          this.servicioOpinion[step].quejas_emi_categoria,
+          this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
+          this.servicioOpinion[step].hora,
+          this.servicioOpinion[step].caja_caja_nombre,
+          this.servicioOpinion[step].quejas_emi_queja,
+        ]);
+
       }
+
+      worksheet.columns = [
+        { key: "tip", width: 50 },
+        { key: "cate", width: 20 },
+        { key: "fec", width: 20 },
+        { key: "hor", width: 20 },
+        { key: "caj", width: 20 },
+        { key: "opi", width: 20 },
+      ]
+
+      let columnas = []
+      columnas = [
+        { name: "TIPO", totalsRowLabel: "", filterButton: true },
+        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
+        { name: "CAJA", totalsRowLabel: "", filterButton: true },
+        { name: "OPINION", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "turnostotales",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 6; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
     }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioOpinion[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+
+
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, "informeOpinionesExcel - " + nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
     }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Informe");
-    XLSX.writeFile(
-      wb,
-      "informeOpinionesExcel - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
   }
 
-  exportTOExcelOpinionesIC() {
+  async exportTOExcelOpinionesIC() {
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Informe");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+
+
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+
+
+
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - INFORME QUEJAS Y RECLAMOS'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateIC.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateIC.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.todasSucursalesIC || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-        jsonServicio.push({
-          Sucursal: this.servicioOpinionIC[step].empresa_empr_nombre,
-          Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
-          Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-          Fecha: this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
-          Hora: this.servicioOpinionIC[step].hora,
-          Caja: this.servicioOpinionIC[step].caja_caja_nombre,
-          Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
-        });
+        jsonServicio.push([
+          this.servicioOpinionIC[step].empresa_empr_nombre,
+          this.servicioOpinionIC[step].quejas_emi_tipo,
+          this.servicioOpinionIC[step].quejas_emi_categoria,
+          this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
+          this.servicioOpinionIC[step].hora,
+          this.servicioOpinionIC[step].caja_caja_nombre,
+          this.servicioOpinionIC[step].quejas_emi_queja,
+        ]
+
+        );
       }
+      worksheet.columns = [
+        { key: "sucu", width: 20 },
+        { key: "tip", width: 50 },
+        { key: "cate", width: 20 },
+        { key: "fec", width: 20 },
+        { key: "hor", width: 20 },
+        { key: "caj", width: 20 },
+        { key: "opi", width: 20 },
+      ]
+
+      let columnas = []
+      columnas = [
+        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+        { name: "TIPO", totalsRowLabel: "", filterButton: true },
+        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
+        { name: "CAJA", totalsRowLabel: "", filterButton: true },
+        { name: "OPINION", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "turnostotales",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      let tamanioC = 0;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 7; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
+
+
     } else {
       for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-        jsonServicio.push({
-          Tipo: this.servicioOpinionIC[step].quejas_emi_tipo,
-          Categoría: this.servicioOpinionIC[step].quejas_emi_categoria,
-          Fecha: this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
-          Hora: this.servicioOpinionIC[step].hora,
-          Caja: this.servicioOpinionIC[step].caja_caja_nombre,
-          Opinión: this.servicioOpinionIC[step].quejas_emi_queja,
-        });
+
+        jsonServicio.push([
+          this.servicioOpinionIC[step].quejas_emi_tipo,
+          this.servicioOpinionIC[step].quejas_emi_categoria,
+          this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
+          this.servicioOpinionIC[step].hora,
+          this.servicioOpinionIC[step].caja_caja_nombre,
+          this.servicioOpinionIC[step].quejas_emi_queja,
+        ])
       }
+      worksheet.columns = [
+        { key: "tip", width: 50 },
+        { key: "cate", width: 20 },
+        { key: "fec", width: 20 },
+        { key: "hor", width: 20 },
+        { key: "caj", width: 20 },
+        { key: "opi", width: 20 },
+      ]
+
+      let columnas = []
+      columnas = [
+        { name: "TIPO", totalsRowLabel: "", filterButton: true },
+        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
+        { name: "CAJA", totalsRowLabel: "", filterButton: true },
+        { name: "OPINION", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "turnostotales",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+      const numeroFilas = jsonServicio.length;
+      let tamanioC = 0;
+      for (let i = 0; i <= numeroFilas; i++) {
+
+        for (let j = 1; j <= 6; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
     }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioOpinionIC[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, "informeOpinionesExcel - " + nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
     }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Informe");
-    XLSX.writeFile(
-      wb,
-      "informeOpinionesExcel - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
   }
 
-  exportTOExcelOpinionesGrafico() {
+  private obtenerAlineacionHorizontal(
+    j: number
+  ): "left" | "center" | "right" {
+    if (j === 1 || j === 9 || j === 10 || j === 11) {
+      return "center";
+    } else {
+      return "left";
+    }
+  }
+
+  async exportTOExcelOpinionesGrafico() {
+
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Informe General");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - GRAFICO GENERAL'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateOcupG.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.toDateOcupG.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
 
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.todasSucursalesG || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioocg.length; step++) {
-        jsonServicio.push({
-          Sucursal: this.servicioocg[step].empresa_empr_nombre,
-          Tipo: this.servicioocg[step].quejas_emi_tipo,
-          Cantidad: this.servicioocg[step].queja_cantidad,
-        });
+
+        jsonServicio.push([
+          this.servicioocg[step].empresa_empr_nombre,
+          this.servicioocg[step].quejas_emi_tipo,
+          this.servicioocg[step].queja_cantidad,
+        ])
       }
+
+      worksheet.columns = [
+        { key: "suc", width: 50 },
+        { key: "tip", width: 50 },
+        { key: "canti", width: 20 },
+      ]
+
+      let columnas = []
+      columnas = [
+        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+        { name: "TIPO", totalsRowLabel: "", filterButton: true },
+        { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
+      ]
+
+
+      worksheet.addTable({
+        name: "turnostotales",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 3; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
+
+
     } else {
       for (let step = 0; step < this.servicioocg.length; step++) {
-        jsonServicio.push({
-          Tipo: this.servicioocg[step].quejas_emi_tipo,
-          Cantidad: this.servicioocg[step].queja_cantidad,
-        });
+        jsonServicio.push([
+          this.servicioocg[step].quejas_emi_tipo,
+          this.servicioocg[step].queja_cantidad,
+        ])
       }
+
+      worksheet.columns = [
+        { key: "tip", width: 50 },
+        { key: "canti", width: 20 },
+      ]
+
+      let columnas = []
+      columnas = [
+        { name: "TIPO", totalsRowLabel: "", filterButton: true },
+        { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
+      ]
+
+
+      worksheet.addTable({
+        name: "turnostotales",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 2; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
+
     }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioocg[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Informe");
-    XLSX.writeFile(
-      wb,
-      "informeOpinionesExcel - " + nombreSucursal +
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob,"informeOpinionesExcel - " + nombreSucursal +
       " - " +
       new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
+      EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
+    }
+
   }
 
-  exportTOExcelOpinionesGraficoIC() {
+  async exportTOExcelOpinionesGraficoIC() {
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Quejas y Reclamos");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE - QUEJAS Y RECLAMOS'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fromDateOcupGIC.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.fromDateOcupGIC.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
+
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
 
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.todasSucursalesGIC || this.seleccionMultiple) {
       for (let step = 0; step < this.servicioocgIC.length; step++) {
-        jsonServicio.push({
-          Sucursal: this.servicioocgIC[step].empresa_empr_nombre,
-          Tipo: this.servicioocgIC[step].quejas_emi_tipo,
-          Categoria: this.servicioocgIC[step].quejas_emi_categoria,
-          Cantidad: this.servicioocgIC[step].queja_cantidad,
-        });
+        jsonServicio.push([
+          this.servicioocgIC[step].empresa_empr_nombre,
+          this.servicioocgIC[step].quejas_emi_tipo,
+          this.servicioocgIC[step].quejas_emi_categoria,
+          this.servicioocgIC[step].queja_cantidad,
+        ]
+        );
       }
+      worksheet.columns = [
+        { key: "suc", width: 50 },
+        { key: "tip", width: 50 },
+        { key: "cate", width: 20 },
+        { key: "cant", width: 20 },
+      ]
+
+      let columnas = []
+      columnas = [
+        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+        { name: "TIPO", totalsRowLabel: "", filterButton: true },
+        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
+        { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "turnostotales",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 4; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
     } else {
       for (let step = 0; step < this.servicioocgIC.length; step++) {
-        jsonServicio.push({
-          Tipo: this.servicioocgIC[step].quejas_emi_tipo,
-          Categoria: this.servicioocgIC[step].quejas_emi_categoria,
-          Cantidad: this.servicioocgIC[step].queja_cantidad,
-        });
+        jsonServicio.push([
+          this.servicioocgIC[step].quejas_emi_tipo,
+          this.servicioocgIC[step].quejas_emi_categoria,
+          this.servicioocgIC[step].queja_cantidad,
+        ])
       }
+
+      worksheet.columns = [
+        { key: "tip", width: 50 },
+        { key: "cate", width: 20 },
+        { key: "cant", width: 20 },
+      ]
+
+      let columnas = []
+      columnas = [
+        { name: "TIPO", totalsRowLabel: "", filterButton: true },
+        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
+        { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
+      ]
+
+      worksheet.addTable({
+        name: "turnostotales",
+        ref: "A6",
+        headerRow: true,
+        totalsRow: false,
+        style: {
+          theme: "TableStyleMedium16",
+          showRowStripes: true,
+        },
+        columns: columnas,
+        rows: jsonServicio,
+      });
+
+
+      const numeroFilas = jsonServicio.length;
+      for (let i = 0; i <= numeroFilas; i++) {
+        for (let j = 1; j <= 3; j++) {
+          const cell = worksheet.getRow(i + 6).getCell(j);
+          if (i === 0) {
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+          } else {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: this.obtenerAlineacionHorizontal(j),
+            };
+          }
+          cell.border = this.bordeCompleto;
+        }
+      }
+      worksheet.getRow(6).font = this.fontTitulo;
     }
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioocgIC[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
+
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, "informeOpinionesExcelG - " + nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
     }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, "Informe");
-    XLSX.writeFile(
-      wb,
-      "informeOpinionesExcelG - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION
-    );
+
   }
 
   //---PDF
