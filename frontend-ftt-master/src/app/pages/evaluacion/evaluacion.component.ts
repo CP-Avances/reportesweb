@@ -540,7 +540,7 @@ export class EvaluacionComponent implements OnInit {
       .getResumenEvaluacion(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, this.sucursalesSeleccionadas, datoSubservicio, datoCajero, this.opcionCuatro.toString(), this.estadoUsuario, this.verFecha)
       .subscribe(
         (servicio: any) => {
-          this.mostrar_resultado =true
+          this.mostrar_resultado = true
           let informacion = servicio.turnos;
           //console.log('informacion ', informacion)
           console.log('ingresa existe evaluaciones ');
@@ -1323,7 +1323,7 @@ export class EvaluacionComponent implements OnInit {
   }
 
   MostrarEvaluaciones() {
-    
+
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.desdeEvalT.nativeElement.value
       .toString()
@@ -1400,13 +1400,14 @@ export class EvaluacionComponent implements OnInit {
       .getEvaluacionOmitidaTurnos(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoServicio, datoSubservicio, datoCajero, this.estadoUsuario)
       .subscribe(
         (servicio: any) => {
-         this.mostrar_resultado = true
+          this.mostrar_resultado = true
           let omitidas = servicio.turnos;
           this.ProcesarDatos(evaluaciones, omitidas);
         }, (error) => {
           if (error.status == 400) {
             if (this.tipoEvaluacion === 3) {
               this.ProcesarDatos(evaluaciones, '');
+
             }
             else {
               this.ErrorConsulta();
@@ -1454,40 +1455,50 @@ export class EvaluacionComponent implements OnInit {
 
     let numero: number = 0;
     // PROCESAR DATOS
-    this.listaEvaluaciones.forEach((dato: any) => {
-      numero++;
-      dato.numero = numero;
-      // SIGLAS DEL TURNO
-      if (this.verSiglas === 'subservicio') {
-        dato.turno = dato.turno_subservicio;
-      }
-      else {
-        dato.turno = dato.turno_servicio;
-      }
-      // HORAS DE LA EVALUACION
-      if (dato.eval_hora < 10) {
-        dato.eval_hora = '0' + dato.eval_hora
-      }
-      if (dato.eval_minuto < 10) {
-        dato.eval_minuto = '0' + dato.eval_minuto
-      }
-      dato.hora = dato.eval_hora + ':' + dato.eval_minuto;
-      // INFORMACION DEL CLIENTE
-      if (this.verCliente != '' && this.verCliente != null) {
-        if (this.verCliente === 'nombre') {
-          dato.informacion = dato.nombre_cliente;
+    if (this.listaEvaluaciones.length != 0) {
+      this.listaEvaluaciones.forEach((dato: any) => {
+        numero++;
+        dato.numero = numero;
+        // SIGLAS DEL TURNO
+        if (this.verSiglas === 'subservicio') {
+          dato.turno = dato.turno_subservicio;
         }
-        else if (this.verCliente === 'cedula') {
-          dato.informacion = dato.cedula_cliente;
+        else {
+          dato.turno = dato.turno_servicio;
         }
-        else if (this.verCliente === 'otro') {
-          dato.informacion = dato.informacion_cliente;
+        // HORAS DE LA EVALUACION
+        if (dato.eval_hora < 10) {
+          dato.eval_hora = '0' + dato.eval_hora
         }
-      }
-    })
+        if (dato.eval_minuto < 10) {
+          dato.eval_minuto = '0' + dato.eval_minuto
+        }
+        dato.hora = dato.eval_hora + ':' + dato.eval_minuto;
+        // INFORMACION DEL CLIENTE
+        if (this.verCliente != '' && this.verCliente != null) {
+          if (this.verCliente === 'nombre') {
+            dato.informacion = dato.nombre_cliente;
+          }
+          else if (this.verCliente === 'cedula') {
+            dato.informacion = dato.cedula_cliente;
+          }
+          else if (this.verCliente === 'otro') {
+            dato.informacion = dato.informacion_cliente;
+          }
+        }
+      })
+    } else {
+      this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
+        timeOut: 6000,
+      });
+    }
+
+
     this.malRequestE = false;
     this.malRequestEPag = false;
     // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
+
+
     if (this.configE.currentPage > 1) {
       this.configE.currentPage = 1;
     }

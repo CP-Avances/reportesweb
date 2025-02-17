@@ -983,7 +983,6 @@ router.get("/evaluacion/omitidos/turnos/:fechaDesde/:fechaHasta/:horaInicio/:hor
         ${filtros}
         ORDER BY ne.eval_fecha DESC;
       `;
-    console.log('consulta2 ', consulta);
     query = consulta;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

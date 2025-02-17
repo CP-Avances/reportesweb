@@ -916,6 +916,10 @@ export class UsuariosComponent implements OnInit {
             }
           }
         );
+    }else{
+      this.toastr.info("Seleccione todos los registros, por favor.", "Upss !!!.", {
+        timeOut: 6000,
+      });
     }
   }
 

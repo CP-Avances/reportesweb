@@ -1061,8 +1061,6 @@ router.get(
         ORDER BY ne.eval_fecha DESC;
       `;
 
-    console.log('consulta2 ', consulta)
-
     query = consulta
 
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
