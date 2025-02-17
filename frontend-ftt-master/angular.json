@@ -45,7 +45,8 @@
                 "core-js/modules/es.string.trim.js",
                 "core-js/modules/web.dom-collections.iterator.js",
                 "src/pdfmake/pdfmake.js",
-                "src/pdfmake/vfs_fonts.js"
+                "src/pdfmake/vfs_fonts.js",
+                "exceljs"
               ],
               "outputPath": "dist/frontend-ftt-master",
               "index": "src/index.html",

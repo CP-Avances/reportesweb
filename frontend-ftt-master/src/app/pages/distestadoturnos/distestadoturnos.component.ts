@@ -15,7 +15,7 @@ import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { Utils } from '../../utils/util';
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
-import * as XLSX from 'xlsx';
+
 const EXCEL_EXTENSION = '.xlsx';
 
 @Component({
@@ -1499,21 +1499,6 @@ export class DistestadoturnosComponent implements OnInit {
     } catch (error) {
       console.error("Error al generar el archivo Excel:", error);
     }
-
-    /*
-    // INSTRUCCION PARA GENERAR EXCEL A PARTIR DE JSON, Y NOMBRE DEL ARCHIVO CON FECHA ACTUAL
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(jsonServicio);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    // METODO PARA DEFINIR TAMAÑO DE LAS COLUMNAS DEL REPORTE
-    const header = Object.keys(this.servicioDist[0]); // NOMBRE DE CABECERAS DE COLUMNAS
-    var wscols: any = [];
-    for (var i = 0; i < header.length; i++) {  // CABECERAS AÑADIDAS CON ESPACIOS
-      wscols.push({ wpx: 150 })
-    }
-    ws["!cols"] = wscols;
-    XLSX.utils.book_append_sheet(wb, ws, 'Distribucion');
-    XLSX.writeFile(wb, 'dist-estadoturnos - ' + nombreSucursal + ' - ' + new Date().toLocaleString() + EXCEL_EXTENSION);
-    */
   }
 
   generarPdfDist(action = 'open', pdf: number) {
