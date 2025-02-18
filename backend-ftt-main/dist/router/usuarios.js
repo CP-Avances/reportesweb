@@ -444,7 +444,7 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
         CASE 
           WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'servicio' 
           THEN CAST(CONCAT(s.serv_descripcion, LPAD(t.turn_numero, 3, '0')) AS CHAR)
-          WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'sub_servicio' 
+          WHEN (SELECT gene_valor FROM general WHERE gene_codigo = 12) = 'subservicio' 
           THEN CAST(CONCAT(ss.siglas,LPAD(t.turn_numero, 3, '0')) AS CHAR)
         ELSE NULL
         END AS turno,
