@@ -10,7 +10,6 @@
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="./assets/logotickets3.png">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-s
 
     <!-- Bootstrap Core CSS -->
     <link href="./assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -20,14 +19,15 @@ s
     <!-- You can change the theme colors from here -->
     <link href="./assets/css/colors/blue.css" id="theme" rel="stylesheet">
     <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js" rel="stylesheet" type="application/javascript">
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js" rel="stylesheet"
+        type="application/javascript">
+
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
-<body class="fix-header card-no-border fix-sidebar mat-typography">
+<body ng-app="myModule" class="fix-header card-no-border fix-sidebar mat-typography">
 
     <app-root></app-root>
 
@@ -67,7 +67,59 @@ s
                 $('.navbar-brand span').hide();
             }
         });
+
+       
     </script>
+
+    <script src="//code.angularjs.org/snapshot/angular.min.js"></script>
+    <script>
+        var app = angular.module('myModule', []);
+        app.run(function ($rootScope, $timeout, $document) {
+            // Timeout timer value
+            var TimeOutTimerValue = (30 * 60 * 1000);
+
+            // var TimeOutTimerValue = (60000);
+
+            // Start a timeout
+            var TimeOut_Thread = $timeout(function () { LogoutByTimer() }, TimeOutTimerValue);
+            var bodyElement = angular.element($document);
+
+            /// Keyboard Events
+            bodyElement.bind('keydown', function (e) { TimeOut_Resetter(e) });
+            bodyElement.bind('keyup', function (e) { TimeOut_Resetter(e) });
+            /// Mouse Events
+            bodyElement.bind('click', function (e) { TimeOut_Resetter(e) });
+            bodyElement.bind('mousemove', function (e) { TimeOut_Resetter(e) });
+            bodyElement.bind('DOMMouseScroll', function (e) { TimeOut_Resetter(e) });
+            bodyElement.bind('mousewheel', function (e) { TimeOut_Resetter(e) });
+            bodyElement.bind('mousedown', function (e) { TimeOut_Resetter(e) });
+            /// Touch Events
+            bodyElement.bind('touchstart', function (e) { TimeOut_Resetter(e) });
+            bodyElement.bind('touchmove', function (e) { TimeOut_Resetter(e) });
+            /// Common Events
+            bodyElement.bind('scroll', function (e) { TimeOut_Resetter(e) });
+            bodyElement.bind('focus', function (e) { TimeOut_Resetter(e) });
+
+            function LogoutByTimer() {
+                if (!window.isExecuting) { // Solo hace logout si el método no está corriendo
+                    console.log("Ejecutando LogoutByTimer...");
+                    localStorage.removeItem('token');
+                    // window.location.reload()
+                    window.location.href = '/'
+                }
+
+            }
+
+            function TimeOut_Resetter(e) {
+                /// Stop the pending timeout
+                $timeout.cancel(TimeOut_Thread);
+                /// Reset the timeout
+                TimeOut_Thread = $timeout(function () { LogoutByTimer() }, TimeOutTimerValue);
+            }
+        })
+
+    </script>
+
 
 </body>
 

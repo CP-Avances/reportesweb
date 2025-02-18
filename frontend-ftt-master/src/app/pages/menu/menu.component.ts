@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { DatePickerDirective } from 'ng2-date-picker';
 import { Router } from '@angular/router';
 import { Utils } from '../../utils/util';
@@ -19,7 +19,8 @@ import moment from 'moment';
   styleUrls: ['./menu.component.scss']
 })
 
-export class MenuComponent implements OnInit {
+
+export class MenuComponent implements OnInit , OnDestroy  {
   chart: any;
   tipo: string;
   servicio1: any;
@@ -83,6 +84,8 @@ export class MenuComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    window.isExecuting = true; // Indica que el método está corriendo
+
     var f = moment();
     this.date = f.format('YYYY-MM-DD');
     this.tipo = 'pie';
@@ -99,6 +102,13 @@ export class MenuComponent implements OnInit {
     Utils.getImageDataUrlFromLocalPath1('assets/logotickets.png').then(
       result => this.urlImagen = result
     );
+  }
+
+  ngOnDestroy() {
+    window.isExecuting = false; // Indica que el método ya no se ejecuta
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   salir() {
@@ -145,6 +155,15 @@ export class MenuComponent implements OnInit {
 
     });
   }
+
+  /*
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      console.log('🔴 Suscripción cancelada al salir del componente');
+    }
+  }
+    */
 
   gettotaltickets() {
     this.serviceService.gettotaltickets(this.date).subscribe((servgraf1: any) => {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { ToastrService } from "ngx-toastr";
 import { DatePipe } from '@angular/common'
 import { Router } from '@angular/router';
@@ -24,7 +24,7 @@ const EXCEL_EXTENSION = '.xlsx';
   styleUrls: ['./distestadoturnos.component.scss']
 })
 
-export class DistestadoturnosComponent implements OnInit {
+export class DistestadoturnosComponent implements OnInit, OnDestroy {
   private imagen: any;
 
 
@@ -383,9 +383,19 @@ export class DistestadoturnosComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    window.isExecuting = false; // Indica que el método ya no se ejecuta
+
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      console.log('🔴 Suscripción cancelada al salir del componente');
+    }
+  }
+
 
   ejecutarBusqueda() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
+    window.isExecuting = true;
     var fD = this.fromDateDist.nativeElement.value.toString().trim();
     var fH = this.toDateDist.nativeElement.value.toString().trim();
     let horaInicio = this.horaInicioD.nativeElement.value;
