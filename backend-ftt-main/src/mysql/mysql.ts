@@ -16,7 +16,7 @@ export default class MySQL {
             port: 3307,
             user: 'admin123',
             password: 'admin123',
-            database: 'superintendencia_tickets',
+            database: 'superintendencia_tickets2',
             connectionLimit: 10,
         });
         this.conectarDB();
