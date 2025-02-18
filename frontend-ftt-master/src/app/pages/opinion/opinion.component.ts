@@ -7,7 +7,7 @@ import { Chart } from "chart.js";
 import { ServiceService } from "../../services/service.service";
 import { ImagenesService } from "../../shared/imagenes.service";
 import { AuthenticationService } from "../../services/authentication.service";
-import ExcelJS, { FillPattern } from "exceljs";
+import ExcelJS from "exceljs";
 import * as FileSaver from 'file-saver';
 
 // COMPLEMENTOS PARA PDF Y EXCEL
@@ -1341,10 +1341,10 @@ export class OpinionComponent implements OnInit {
     try {
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: "application/octet-stream" });
-      FileSaver.saveAs(blob,"informeOpinionesExcel - " + nombreSucursal +
-      " - " +
-      new Date().toLocaleString() +
-      EXCEL_EXTENSION);
+      FileSaver.saveAs(blob, "informeOpinionesExcel - " + nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
     } catch (error) {
       console.error("Error al generar el archivo Excel:", error);
     }
