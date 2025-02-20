@@ -353,7 +353,7 @@
 		var node = this.nodes[nodeId];
 
 		if (!node) {
-			console.log('Error: node does not exist');
+			//console.log('Error: node does not exist');
 		}
 		return node;
 	};

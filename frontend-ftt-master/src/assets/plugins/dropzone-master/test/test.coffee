@@ -1295,7 +1295,7 @@ describe "Dropzone", ->
           mock3.type = "image/jpg"
 
           dropzone.on "thumbnail", ->
-            console.log "HII"
+            //console.log "HII"
 
           ct_file = ct_callback = null
           dropzone.createThumbnail = (file, callback) ->

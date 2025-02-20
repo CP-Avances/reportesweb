@@ -16,7 +16,8 @@ export class CajerosComponent {
 
 
   configDE: any;
-  private MAX_PAGS = 10;
+  private MAX_PAGS = 5;
+  itemsPerPageOptions = [5, 10, 15, 20, 50];
   cajerosSucursales = []
 
 
@@ -74,13 +75,7 @@ export class CajerosComponent {
   CambiarEstado(estado: number) {
     this.mostrar_resultado = false
     this.estadoUsuario = estado;
-    this.limpiar();
   }
-
-  limpiar() {
-
-  }
-
 
   onSelectionChangeSucursal() {
     this.mostrar_resultado = false;
@@ -109,12 +104,19 @@ export class CajerosComponent {
   pageChangedDE(event: any) {
     this.configDE.currentPage = event;
   }
+  // CAMBIA LA CANTIDAD DE ELEMENTOS POR PÁGINA Y REINICIA A LA PRIMERA PÁGINA
+  changeItemsPerPageDE(itemsPerPage: number) {
+    this.configDE.itemsPerPage = itemsPerPage; // ACTUALIZA EL NUMERO DE ELEMENTOS POR PAGINA
+    this.configDE.currentPage = 1; // REINICIAR A LA PRIMERA PAGINA
+  }
 
 
   buscarCajeros() {
+    this.MAX_PAGS = 5;
+    this.configDE.itemsPerPage = this.MAX_PAGS; 
     this.serviceService.getCajerosSucursalEstado(this.sucursalesSeleccionadas, this.estadoUsuario).subscribe(
       (cajeros: any) => {
-        console.log("ver resultados: ", cajeros)
+        //console.log("ver resultados: ", cajeros)
         this.cajerosSucursales = cajeros.cajeros;
 
         this.malRequestDist = false;
@@ -154,7 +156,7 @@ export class CajerosComponent {
     this.isAllSelectedPag() ?
       this.selectionCajero.clear() :
       this.cajerosSucursales.forEach((row: any) => this.selectionCajero.select(row));
-      console.log("ver selectionCajero", this.selectionCajero)
+    //console.log("ver selectionCajero", this.selectionCajero)
   }
 
   // LA ETIQUETA DE LA CASILLA DE VERIFICACION EN LA FILA PASADA
@@ -164,7 +166,7 @@ export class CajerosComponent {
     }
     this.cajerosEditar = this.selectionCajero.selected;
 
-    //console.log("ver cajerosEditar ", this.cajerosEditar)
+    ////console.log("ver cajerosEditar ", this.cajerosEditar)
     return `${this.selectionCajero.isSelected(row) ? 'deselect' : 'select'} row ${row.caje_nombre + 1}`;
   }
 
@@ -177,22 +179,22 @@ export class CajerosComponent {
     this.plan_multiple_ = true;
     this.auto_individual = false;
     this.activar_seleccion = false;
-  } 
-  
+  }
+
   auto_individual: boolean = true;
   activar_seleccion: boolean = true;
   seleccion_vacia: boolean = true;
 
 
-  DesactivarCajeros(){
+  DesactivarCajeros() {
 
     const cajeCodigos = this.cajerosEditar.map(item => item.caje_codigo).join(',');
-    console.log("ver cajeCodigos", cajeCodigos)
+    //console.log("ver cajeCodigos", cajeCodigos)
 
-    
+
     this.serviceService.actualizarEstadoCajerosSucursalEstado(cajeCodigos).subscribe(
       (cajeros: any) => {
-        console.log("ver resultados: ", cajeros)
+        //console.log("ver resultados: ", cajeros)
         this.cajerosSucursales = cajeros.cajeros;
         this.mostrar_resultado = false;
         this.activar_seleccion = true;
@@ -209,7 +211,7 @@ export class CajerosComponent {
         }
       }
     );
-    
+
   }
 
 

@@ -158,10 +158,10 @@ export class UsuariosComponent implements OnInit {
   date: any;
 
   // VARIABLE USADA EN EXPORTACION A EXCEL
-  p_color: any;
+  p_color: any = '#0077b6';
 
   // MAXIMO DE ITEMS MOSTRADO DE TABLA EN PANTALLA
-  private MAX_PAGS = 10;
+  private MAX_PAGS = 5;
 
   // PALABRAS DE COMPONENTE DE PAGINACION
   public labels: any = {
@@ -189,10 +189,10 @@ export class UsuariosComponent implements OnInit {
 
   //Variables de informacion
   valor: number;
-  marca: string = "FullTime Tickets";
+  marca: string = "";
   horas: number[] = [];
 
-
+  itemsPerPageOptions = [5, 10, 15, 20, 50];
   @Output() menuMostrarOcultar: EventEmitter<any> = new EventEmitter();
 
   constructor(
@@ -260,35 +260,55 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+
+
   // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
-  // TURNOS POR FECHA
-  pageChangedTF(event: any) {
-    this.configTF.currentPage = event;
-  }
   // TURNOS TOTAL POR FECHA
   pageChangedTTF(event: any) {
     this.configTTF.currentPage = event;
   }
+  // CAMBIA LA CANTIDAD DE ELEMENTOS POR PÁGINA Y REINICIA A LA PRIMERA PÁGINA
+  changeItemsPerPageTTF(itemsPerPage: number) {
+    this.configTTF.itemsPerPage = itemsPerPage; // ACTUALIZA EL NUMERO DE ELEMENTOS POR PAGINA
+    this.configTTF.currentPage = 1; // REINICIAR A LA PRIMERA PAGINA
+  }
+
   // TURNOS META
   pageChangedTM(event: any) {
     this.configTM.currentPage = event;
   }
+  changeItemsPerPageTM(itemsPerPage: number) {
+    this.configTM.itemsPerPage = itemsPerPage;
+    this.configTM.currentPage = 1;
+  }
+
   // TIEMPO PROMEDIO DE ATENCION
   pageChangedTP(event: any) {
     this.configTP.currentPage = event;
   }
+  changeItemsPerPageTP(itemsPerPage: number) {
+    this.configTP.itemsPerPage = itemsPerPage;
+    this.configTP.currentPage = 1;
+  }
+
   // TIEMPO DE ATENCION POR TURNOS
   pageChangedTA(event: any) {
     this.configTA.currentPage = event;
   }
+  changeItemsPerPageTA(itemsPerPage: number) {
+    this.configTA.itemsPerPage = itemsPerPage;
+    this.configTA.currentPage = 1;
+  }
+
   // ENTRADAS Y SALIDAS AL SISTEMA
   pageChangedES(event: any) {
     this.configES.currentPage = event;
   }
-  // ATENCION AL USUARIO
-  pageChangedAU(event: any) {
-    this.configAU.currentPage = event;
+  changeItemsPerPageES(itemsPerPage: number) {
+    this.configES.itemsPerPage = itemsPerPage;
+    this.configES.currentPage = 1;
   }
+
 
   ngOnInit(): void {
     var f = moment();
@@ -463,13 +483,13 @@ export class UsuariosComponent implements OnInit {
 
   getSub_servicios(servicio: any) {
     this.serviceService.getAllSubservicios(servicio).subscribe((subservicios: any) => {
-      console.log("entro a buscacr subservicio")
+      //console.log("entro a buscacr subservicio")
 
       this.subservicios = subservicios.servicios;
       this.mostrarSubservicios = true;
     },
       (error) => {
-        console.log("entro a error de subservicio")
+        //console.log("entro a error de subservicio")
         if (error.status == 400) {
           this.subservicios = [];
           this.mostrarSubservicios = false;
@@ -521,17 +541,22 @@ export class UsuariosComponent implements OnInit {
   LimpiarFormularios() {
     this.limpiar();
     this.estadoUsuario = 2;
+    this.verFecha = '1';
     const activo2 = document.getElementById('activo2') as HTMLInputElement;
     const activo3 = document.getElementById('activo3') as HTMLInputElement;
     const activo4 = document.getElementById('activo4') as HTMLInputElement;
     const activo5 = document.getElementById('activo5') as HTMLInputElement;
     const activo6 = document.getElementById('activo6') as HTMLInputElement;
+    const fecha1 = document.getElementById('fecha') as HTMLInputElement;
+    const fecha2 = document.getElementById('fecha2') as HTMLInputElement;
 
     activo2.checked = true;
     activo3.checked = true;
     activo4.checked = true;
     activo5.checked = true;
     activo6.checked = true;
+    fecha1.checked = true;
+    fecha2.checked = true;
 
   }
 
@@ -559,6 +584,8 @@ export class UsuariosComponent implements OnInit {
   porcentajeTotal: any;
 
   buscarTurnosTotalFecha() {
+    this.MAX_PAGS = 5;
+    this.configTTF.itemsPerPage = this.MAX_PAGS; // Actualiza el número de elementos por página
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateTurnosTotalFecha.nativeElement.value
       .toString()
@@ -583,7 +610,7 @@ export class UsuariosComponent implements OnInit {
             //this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABfLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosTotalFecha = servicio.turnos;
-            console.log("ver servicioTurnosTotalFecha", this.servicioTurnosTotalFecha)
+            //console.log("ver servicioTurnosTotalFecha", this.servicioTurnosTotalFecha)
             let sumaTotal: number = 0;
             let totalP = servicio.turnos.map((res) => res.PORCENTAJE);
             let totalPorc: number = 0;
@@ -667,7 +694,7 @@ export class UsuariosComponent implements OnInit {
                 },
               });
 
-              console.log("ver data del grafico: ", this.chart);
+              //console.log("ver data del grafico: ", this.chart);
             }, 0); // Pequeña espera para permitir que 
 
           },
@@ -695,6 +722,8 @@ export class UsuariosComponent implements OnInit {
    ** ********************************************************************************************************** **/
 
   buscarTurnosMeta() {
+    this.MAX_PAGS = 5;
+    this.configTM.itemsPerPage = this.MAX_PAGS;
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.fromDateTurnosMeta.nativeElement.value
       .toString()
@@ -717,7 +746,7 @@ export class UsuariosComponent implements OnInit {
         .getturnosMeta(fechaDesde, fechaHasta, horaInicio, horaFin, this.sucursalesSeleccionadas, datoCajero, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
-            console.log("ver numero de turnos meta: ", servicio.turnos.length)
+            //console.log("ver numero de turnos meta: ", servicio.turnos.length)
             this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTurnosMeta = servicio.turnos;
@@ -740,6 +769,11 @@ export class UsuariosComponent implements OnInit {
           }
         );
     }
+    else {
+      this.toastr.info("No ha seleccionado datos de búsqueda.", "Upss !!!.", {
+        timeOut: 6000,
+      });
+    }
   }
 
   /** ********************************************************************************************************** **
@@ -747,8 +781,8 @@ export class UsuariosComponent implements OnInit {
    ** ********************************************************************************************************** **/
 
   buscarTiempoPromedioAtencion() {
-    console.log("entra a este metodo")
-
+    this.MAX_PAGS = 5;
+    this.configTP.itemsPerPage = this.MAX_PAGS;
     // CAPTURA DE FECHA Y SELECT DE INTERFAZ
     var fechaDesde = this.fromDatePromAtencion.nativeElement.value
       .toString()
@@ -764,7 +798,7 @@ export class UsuariosComponent implements OnInit {
     if (this.selectedItems.length != 0) {
       datoCajero = this.selectedItems;
     }
-    console.log("ver datoCajero: ", datoCajero)
+    //console.log("ver datoCajero: ", datoCajero)
 
     if (this.sucursalesSeleccionadas.length !== 0) {
       this.serviceService
@@ -772,7 +806,7 @@ export class UsuariosComponent implements OnInit {
           this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario, this.verFecha)
         .subscribe(
           (servicio: any) => {
-            console.log("ver registros de tiempo", servicio.turnos)
+            //console.log("ver registros de tiempo", servicio.turnos)
             this.mostrar_resultado = true
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioPromAtencion = servicio.turnos;
@@ -816,6 +850,8 @@ export class UsuariosComponent implements OnInit {
    ** ********************************************************************************************************** **/
 
   buscarTiempoAtencion() {
+    this.MAX_PAGS = 5;
+    this.configTA.itemsPerPage = this.MAX_PAGS;
     // CAPTURA DE FECHA Y SELECT DE INTERFAZ
     var fechaDesde = this.fromDateTiempoAtencion.nativeElement.value
       .toString()
@@ -838,7 +874,7 @@ export class UsuariosComponent implements OnInit {
         .getturnosAtencion(fechaDesde, fechaHasta, horaInicio, horaFin, datoCajero, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario)
         .subscribe(
           (servicio: any) => {
-            console.log("numero de resultados de buscarTiempoAtencion: ", servicio.turnos.length)
+            //console.log("numero de resultados de buscarTiempoAtencion: ", servicio.turnos.length)
             this.mostrar_resultado = true;
             // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
             this.servicioTiempoAtencion = servicio.turnos;
@@ -880,6 +916,8 @@ export class UsuariosComponent implements OnInit {
 
 
   leerEntradasSalidasSistema() {
+    this.MAX_PAGS = 5;
+    this.configES.itemsPerPage = this.MAX_PAGS;
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     let fechaDesde = this.fromDateUES.nativeElement.value.toString().trim();
     let fechaHasta = this.toDateUES.nativeElement.value.toString().trim();
@@ -916,7 +954,7 @@ export class UsuariosComponent implements OnInit {
             }
           }
         );
-    }else{
+    } else {
       this.toastr.info("Seleccione todos los registros, por favor.", "Upss !!!.", {
         timeOut: 6000,
       });
@@ -1214,7 +1252,7 @@ export class UsuariosComponent implements OnInit {
     });
 
     let incluirCajero = this.selectedItems.length != 0
-    console.log("ver incluirCajero ", incluirCajero)
+    //console.log("ver incluirCajero ", incluirCajero)
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.serviciosSeleccionadas.length == 0) {
@@ -4393,107 +4431,43 @@ export class UsuariosComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      pageOrientation: this.orientacion,
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageSize: 'A4',
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS      
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Turno por Fecha ",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `REPORTE DE TURNO TOTALES`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fechaDesde} HASTA ${fechaHasta}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
         this.CampoDetalleTotal(this.servicioTurnosTotalFecha), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-        this.grafico(), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
+        this.grafico(), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF,
       ],
       styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 10, 0, 20], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        principal: { fontSize: 8, bold: true, alignment: 'center', fillColor: "#aafdc3" },
+        itemsTable: { fontSize: 8 },
+        tableMargin: { margin: [0, 0, 0, 0] },
       },
     };
   }
@@ -5759,105 +5733,42 @@ export class UsuariosComponent implements OnInit {
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
 
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageSize: 'A4',
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Porcentaje de cumplimiento ",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `REPORTE DE TURNOS META`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fechaDesde} HASTA ${fechaHasta}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
         this.CampoDetalleMeta(this.servicioTurnosMeta), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 10, 0, 20], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        principal: { fontSize: 8, bold: true, alignment: 'center', fillColor: "#aafdc3" },
+        itemsTable: { fontSize: 8 },
+        tableMargin: { margin: [0, 0, 0, 0] },
       },
     };
   }
@@ -5872,8 +5783,8 @@ export class UsuariosComponent implements OnInit {
             style: "tableMargin",
             table: {
               headerRows: 1,
-              widths: ["*", "*", "*", "*",  "auto", ],
-  
+              widths: ["*", "*", "*", "*", "auto",],
+
               body: [
                 [
                   { text: "Sucursal", style: "tableHeader" },
@@ -5899,14 +5810,14 @@ export class UsuariosComponent implements OnInit {
               },
             },
           };
-  
+
         } else {
           return {
             style: "tableMargin",
             table: {
               headerRows: 1,
               widths: ["*", "*", "*", "auto"],
-  
+
               body: [
                 [
                   { text: "Sucursal", style: "tableHeader" },
@@ -5930,18 +5841,18 @@ export class UsuariosComponent implements OnInit {
               },
             },
           };
-  
+
         }
-  
+
       } else {
-  
+
         if (incluirCajero) {
           return {
             style: "tableMargin",
             table: {
               headerRows: 1,
               widths: ["*", "*", "*", "auto"],
-  
+
               body: [
                 [
                   { text: "Cajero(a)", style: "tableHeader" },
@@ -5971,7 +5882,7 @@ export class UsuariosComponent implements OnInit {
             table: {
               headerRows: 1,
               widths: ["*", "*", "auto"],
-  
+
               body: [
                 [
                   { text: "Fecha", style: "tableHeader" },
@@ -5995,7 +5906,7 @@ export class UsuariosComponent implements OnInit {
           };
         }
       }
-    }else if(this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0){
+    } else if (this.sub_serviciosSeleccionadas.length == 0 && this.serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTM) {
 
         if (incluirCajero) {
@@ -6003,8 +5914,8 @@ export class UsuariosComponent implements OnInit {
             style: "tableMargin",
             table: {
               headerRows: 1,
-              widths: ["*", "*", "*", "*", "auto", "auto", ],
-  
+              widths: ["*", "*", "*", "*", "auto", "auto",],
+
               body: [
                 [
                   { text: "Sucursal", style: "tableHeader" },
@@ -6032,14 +5943,14 @@ export class UsuariosComponent implements OnInit {
               },
             },
           };
-  
+
         } else {
           return {
             style: "tableMargin",
             table: {
               headerRows: 1,
               widths: ["*", "*", "*", "auto", "auto"],
-  
+
               body: [
                 [
                   { text: "Sucursal", style: "tableHeader" },
@@ -6065,18 +5976,18 @@ export class UsuariosComponent implements OnInit {
               },
             },
           };
-  
+
         }
-  
+
       } else {
-  
+
         if (incluirCajero) {
           return {
             style: "tableMargin",
             table: {
               headerRows: 1,
               widths: ["*", "*", "*", "auto", "auto"],
-  
+
               body: [
                 [
                   { text: "Cajero(a)", style: "tableHeader" },
@@ -6107,8 +6018,8 @@ export class UsuariosComponent implements OnInit {
             style: "tableMargin",
             table: {
               headerRows: 1,
-              widths: ["*", "*", "auto","auto"],
-  
+              widths: ["*", "*", "auto", "auto"],
+
               body: [
                 [
                   { text: "Servicio", style: "tableHeader" },
@@ -6135,7 +6046,7 @@ export class UsuariosComponent implements OnInit {
         }
       }
 
-    }else if(this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0){
+    } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
       if (this.todasSucursalesTM) {
 
         if (incluirCajero) {
@@ -6144,7 +6055,7 @@ export class UsuariosComponent implements OnInit {
             table: {
               headerRows: 1,
               widths: ["*", "*", "*", "*", "auto", "auto", "auto"],
-  
+
               body: [
                 [
                   { text: "Sucursal", style: "tableHeader" },
@@ -6174,14 +6085,14 @@ export class UsuariosComponent implements OnInit {
               },
             },
           };
-  
+
         } else {
           return {
             style: "tableMargin",
             table: {
               headerRows: 1,
               widths: ["*", "*", "*", "auto", "auto", "auto"],
-  
+
               body: [
                 [
                   { text: "Sucursal", style: "tableHeader" },
@@ -6209,18 +6120,18 @@ export class UsuariosComponent implements OnInit {
               },
             },
           };
-  
+
         }
-  
+
       } else {
-  
+
         if (incluirCajero) {
           return {
             style: "tableMargin",
             table: {
               headerRows: 1,
               widths: ["*", "*", "*", "auto", "auto", "auto"],
-  
+
               body: [
                 [
                   { text: "Cajero(a)", style: "tableHeader" },
@@ -6254,7 +6165,7 @@ export class UsuariosComponent implements OnInit {
             table: {
               headerRows: 1,
               widths: ["*", "*", "auto", "auto", "auto"],
-  
+
               body: [
                 [
                   { text: "Servicio", style: "tableHeader" },
@@ -6329,107 +6240,43 @@ export class UsuariosComponent implements OnInit {
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageSize: 'A4',
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Tiempo Promedio Atención",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `REPORTE DE TIEMPO DE ATENCIÓN`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fechaDesde} HASTA ${fechaHasta}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
         this.Campopromedioatencion(this.servicioPromAtencion), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        principal: { fontSize: 8, bold: true, alignment: 'center', fillColor: "#aafdc3" },
+        itemsTable: { fontSize: 8 },
+        tableMargin: { margin: [0, 0, 0, 0] },
       },
     };
   }
@@ -7357,107 +7204,43 @@ export class UsuariosComponent implements OnInit {
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageSize: 'A4',
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Tiempo de atención",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `REPORTE TIEMPO DE ATENCIÓN POR TURNOS`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fechaDesde} HASTA ${fechaHasta}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
         this.Campotiempoatencion(this.servicioTiempoAtencion), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        principal: { fontSize: 8, bold: true, alignment: 'center', fillColor: "#aafdc3" },
+        itemsTable: { fontSize: 8 },
+        tableMargin: { margin: [0, 0, 0, 0] },
       },
     };
   }
@@ -7675,107 +7458,43 @@ export class UsuariosComponent implements OnInit {
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageSize: 'A4',
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Entradas y Salidas al Sistema",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fechaDesde + " hasta " + fechaHasta,
-        },
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `REPORTE ENTRADAS Y SALIDAS DEL SISTEMA`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fechaDesde} HASTA ${fechaHasta}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
         this.entradassalidassistema(this.servicioEntradaSalida), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        principal: { fontSize: 8, bold: true, alignment: 'center', fillColor: "#aafdc3" },
+        itemsTable: { fontSize: 8 },
+        tableMargin: { margin: [0, 0, 0, 0] },
       },
     };
   }

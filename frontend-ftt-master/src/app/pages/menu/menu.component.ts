@@ -160,7 +160,7 @@ export class MenuComponent implements OnInit , OnDestroy  {
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
-      console.log('🔴 Suscripción cancelada al salir del componente');
+      //console.log('🔴 Suscripción cancelada al salir del componente');
     }
   }
     */
@@ -210,7 +210,7 @@ export class MenuComponent implements OnInit , OnDestroy  {
   getserviciosmasatendidos() {
     this.serviceService.getserviciossolicitados().subscribe((res: any) => {
       //this.servicio6 = servicio6.turnos;
-      console.log('servicios ', this.servicio6)
+      //console.log('servicios ', this.servicio6)
 
       const servicio = res.turnos;
 
@@ -219,7 +219,7 @@ export class MenuComponent implements OnInit , OnDestroy  {
           self.findIndex((v: any) => v.id_servicio === valor.id_servicio) === indice
       );
 
-      //console.log('lista ', lista)
+      ////console.log('lista ', lista)
 
       lista.forEach((ser: any) => {
         let nuevo: any = [];
@@ -242,7 +242,7 @@ export class MenuComponent implements OnInit , OnDestroy  {
       })
 
       this.servicio6 = lista;
-      //console.log('lista completa ', this.servicio6)
+      ////console.log('lista completa ', this.servicio6)
 
       this.altoMA = Math.max.apply(null, this.servicio6.map((tot: any) => tot.total_general));
 

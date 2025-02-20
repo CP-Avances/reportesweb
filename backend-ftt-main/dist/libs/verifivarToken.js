@@ -34,7 +34,7 @@ const TokenValidation = (req, res, next) => {
     const token = req.headers.authorization.split(' ')[1];
     if (token === 'null') {
         // SI NO SE PROPORCIONA UN TOKEN, RESPONDER CON UN ERROR 401 (NO AUTORIZADO)
-        console.log("validacion");
+        //console.log("validacion");
         return res.status(401).json({ message: 'No contienen token de autenticación.' });
     }
     try {

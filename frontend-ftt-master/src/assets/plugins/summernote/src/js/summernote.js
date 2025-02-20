@@ -56,7 +56,7 @@ define([
      * $.summernote.addPlugin({
      *     events : {
      *          'hello' : function(layoutInfo, value, $target) {
-     *              console.log('event name is hello, value is ' + value );
+     *              //console.log('event name is hello, value is ' + value );
      *          }
      *     }     
      * })

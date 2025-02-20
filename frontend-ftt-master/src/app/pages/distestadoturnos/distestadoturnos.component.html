@@ -9,7 +9,7 @@
                         MONITOR
                     </a>
                 </li>
-          
+
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="distribucion" role="tabpanel"
@@ -21,15 +21,14 @@
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
                                         <label for="fromDateDist">Fecha desde: &nbsp;</label>
-                                        <input type="date" id="fromDateDist" value="{{fromDate}}"
-                                            [max]="toDate" name="fromDateDist" #fromDateDist
+                                        <input type="date" id="fromDateDist" value="{{fromDate}}" [max]="toDate"
+                                            name="fromDateDist" #fromDateDist
                                             (change)="mostrar_resultado = false"><br><br>
                                     </div>
                                     <div>
                                         <label for="toDateDist">Fecha hasta: &nbsp;</label>
                                         <input type="date" id="toDateDist" value="{{toDate}}" [max]="toDate"
-                                            name="toDateDist" #toDateDist
-                                            (change)="mostrar_resultado = false">
+                                            name="toDateDist" #toDateDist (change)="mostrar_resultado = false">
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
@@ -191,15 +190,25 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestDistPag" id="disestde"
-                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
-                            [currentPage]="configDE.currentPage" (pageChange)="pageChangedDE($event)">
+                            [previousLabel]="labels.previousLabel" [currentPage]="configDE.currentPage"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedDE($event)">
                         </pagination-controls>
+
+                        <label *ngIf="!malRequestDistPag" for="Pagdisestde">Elementos por página:</label>
+                        <select *ngIf="!malRequestDistPag" id="Pagdisestde" [ngModel]="configDE.itemsPerPage"
+                            (ngModelChange)="changeItemsPerPageDE($event)" [ngModelOptions]="{standalone: true}">
+                            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                                {{ option }}
+                            </option>
+                        </select>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelDist()" *ngIf="mostrar_resultado">
+                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelDist()"
+                        *ngIf="mostrar_resultado">
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfDist('hola',1)" *ngIf="mostrar_resultado">
+                    <button type="button" class="btn btn-info" (click)="generarPdfDist('hola',1)"
+                        *ngIf="mostrar_resultado">
                         PDF
                     </button>
                 </div>

@@ -20,7 +20,7 @@
             })
         }
         else{
-            console.log('Please setup options first!!')
+            //console.log('Please setup options first!!')
         }
     }
 
@@ -84,7 +84,7 @@
                     case 'textarea':
                         break;
                     default:
-                        console.log(column.fieldIndex+' '+column.editable);
+                        //console.log(column.fieldIndex+' '+column.editable);
                 }
 
             }, evt);

@@ -61,7 +61,7 @@ router.get("/getallsucursales", verifivarToken_1.TokenValidation, (req, res) => 
                 ok: false,
                 error: err,
             });
-            console.log(err);
+            //console.log(err);
         }
         else {
             res.json({
@@ -105,7 +105,7 @@ router.get("/getallcajeros/:sucursales/:estado", verifivarToken_1.TokenValidatio
                 ok: false,
                 error: err,
             });
-            console.log(err);
+            //console.log(err);
         }
         else {
             res.json({
@@ -142,7 +142,7 @@ router.get("/cambiarestadocajeros/:sucursales", verifivarToken_1.TokenValidation
                 ok: false,
                 error: err,
             });
-            console.log(err);
+            //console.log(err);
         }
         else {
             res.json({
@@ -396,13 +396,13 @@ router.get("/tiempoatencionturnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
     const listaSucursales = req.params.sucursales;
     const sucursalesArray = listaSucursales.split(",");
     const listaServicios = req.params.servicios;
-    console.log("ver listaServicios", listaServicios);
+    //console.log("ver listaServicios", listaServicios)
     const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    console.log("ver listaSubservicios", listaSubservicios);
+    //console.log("ver listaSubservicios", listaSubservicios)
     const subServiciosarray = listaSubservicios.split(",");
     const estado = req.params.estado;
-    console.log("ver estado", estado);
+    //console.log("ver estado", estado)
     let todosCajeros = false;
     let todasSucursales = false;
     let diaCompleto = false;
@@ -707,7 +707,7 @@ router.get("/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
     let hFinAux = 0;
     let todosCajeros = false;
     const estado = req.params.estado;
-    console.log("ver estado", estado);
+    //console.log("ver estado", estado)
     if (codigosArray.includes("-2")) {
         todosCajeros = true;
     }
@@ -758,8 +758,9 @@ router.get("/entradasalidasistema/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:
           ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
 
           AND u.usua_codigo != 2
-        ORDER BY fecha DESC, hora DESC;
+        ORDER BY usua_nombre DESC, fecha DESC, hora DESC;
       `;
+    // console.log('entradas ', query)
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({
@@ -781,19 +782,19 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
     const hInicio = req.params.horaInicio;
     const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
-    console.log("ver listaSucursales: ", listaSucursales);
+    //console.log("ver listaSucursales: ", listaSucursales)
     const sucursalesArray = listaSucursales.split(",");
     const listaCajeros = req.params.cajeros;
-    console.log("ver listaCajeros: ", listaCajeros);
+    //console.log("ver listaCajeros: ", listaCajeros)
     const cajerosArray = listaCajeros.split(",");
     const listaServicios = req.params.servicios;
-    console.log("ver listaServicios", listaServicios);
+    //console.log("ver listaServicios", listaServicios)
     const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    console.log("ver listaSubservicios", listaSubservicios);
+    //console.log("ver listaSubservicios", listaSubservicios)
     const subServiciosarray = listaSubservicios.split(",");
     const estado = req.params.estado;
-    console.log("ver estado", estado);
+    //console.log("ver estado", estado)
     let todasSucursales = false;
     let todasCajeros = false;
     let todosServicios = false;
@@ -827,7 +828,7 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
     }
     let query = '';
     if (listaServicios != '0' && listaSubservicios != '0') {
-        console.log("entra a listaServicios != '0' && listaSubservicios != '0'");
+        //console.log("entra a listaServicios != '0' && listaSubservicios != '0'")
         query =
             `
         SELECT 
@@ -874,7 +875,7 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
       `;
     }
     else if (listaSubservicios == '0' && listaServicios != '0') {
-        console.log("listaSubservicios == '0' && listaServicios != '0'");
+        //console.log("listaSubservicios == '0' && listaServicios != '0'")
         query =
             `
       SELECT 
@@ -920,7 +921,7 @@ router.get("/turnosfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursal
     `;
     }
     else if (listaServicios == '0' && listaSubservicios == '0') {
-        console.log("listaServicios == '0' && listaSubservicios == '0'");
+        //console.log("listaServicios == '0' && listaSubservicios == '0'")
         query =
             `
       SELECT 
@@ -1099,7 +1100,7 @@ router.get("/turnostotalfechas/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
                 `${listaCajeros != '0N' ? 'Fecha DESC, Usuario ASC, servicio DESC;' : 'Fecha DESC, servicio DESC;'}`
                 : `${listaCajeros != '0N' ? 'Usuario ASC, servicio DESC;' : 'servicio DESC;'}`}
       `;
-        console.log("ver query: ", query);
+        //console.log("ver query: ", query);
     }
     else if (listaSubservicios == '0' && listaServicios != '0') {
         query =
@@ -1230,13 +1231,13 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
     const listaCajeros = req.params.cajeros;
     const cajerosArray = listaCajeros.split(",");
     const listaServicios = req.params.servicios;
-    console.log("ver listaServicios", listaServicios);
+    //console.log("ver listaServicios", listaServicios)
     const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    console.log("ver listaSubservicios", listaSubservicios);
+    //console.log("ver listaSubservicios", listaSubservicios)
     const subServiciosarray = listaSubservicios.split(",");
     const estado = req.params.estado;
-    console.log("ver estado", estado);
+    //console.log("ver estado", estado)
     let todasSucursales = false;
     let todasCajeros = false;
     let diaCompleto = false;
@@ -1330,7 +1331,7 @@ router.get("/turnosmeta/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales
           ${listaCajeros != '0N' ? ' Usuario ASC,' : ''}
           Servicio ASC;
       `;
-        console.log("ver query: ", query);
+        //console.log("ver query: ", query)
     }
     else if (listaSubservicios == '0' && listaServicios != '0') {
         query =

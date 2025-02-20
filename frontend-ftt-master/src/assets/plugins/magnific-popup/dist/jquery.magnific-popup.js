@@ -976,13 +976,13 @@ var start = performance.now(),
 for(i = 0; i < rounds; i++) {
 
 }
-console.log('Test #1:', performance.now() - start);
+//console.log('Test #1:', performance.now() - start);
 
 start = performance.now();
 for(i = 0; i < rounds; i++) {
 
 }
-console.log('Test #2:', performance.now() - start);
+//console.log('Test #2:', performance.now() - start);
 */
 
 
@@ -1971,7 +1971,7 @@ $.magnificPopup.registerModule(RETINA_NS, {
  * You may use it outside the Magnific Popup by calling just:
  *
  * $('.your-el').mfpFastClick(function() {
- *     console.log('Clicked!');
+ *     //console.log('Clicked!');
  * });
  *
  * To unbind:

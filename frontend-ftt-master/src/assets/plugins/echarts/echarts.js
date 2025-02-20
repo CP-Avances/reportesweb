@@ -10588,7 +10588,7 @@ define('zrender/zrender', [
             }
         } else if (config.debugMode > 1) {
             for (var k in arguments) {
-                console.log(arguments[k]);
+                //console.log(arguments[k]);
             }
         }
     };

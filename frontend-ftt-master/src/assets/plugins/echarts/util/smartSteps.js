@@ -526,7 +526,7 @@ function bothLocked(min, max, section) {
             score:  score
         };
     }
-    //console.log(debugLog);
+    ////console.log(debugLog);
     reference.sort(function (a, b) {return a.score - b.score;});
     reference   = reference[0];
     expMin.c    = MATH_ROUND(expMin.c - reference.delta / 2);

@@ -81,8 +81,8 @@ var engine = new Bloodhound({
 var promise = engine.initialize();
 
 promise
-.done(function() { console.log('ready to go!'); })
-.fail(function() { console.log('err, something went wrong :('); });
+.done(function() { //console.log('ready to go!'); })
+.fail(function() { //console.log('err, something went wrong :('); });
 ```
 
 After initialization, how subsequent invocations of `#initialize` behave 
@@ -139,13 +139,13 @@ and then passed to the `async` callback.
 bloodhound.get(myQuery, sync, async);
 
 function sync(datums) {
-  console.log('datums from `local`, `prefetch`, and `#add`');
-  console.log(datums);
+  //console.log('datums from `local`, `prefetch`, and `#add`');
+  //console.log(datums);
 }
 
 function async(datums) {
-  console.log('datums from `remote`');
-  console.log(datums);
+  //console.log('datums from `remote`');
+  //console.log(datums);
 }
 ```
 

@@ -99,7 +99,7 @@
         }
 
         if (this.options.minWidth < 100 && this.options.resizable) {
-            console.log("The minWidth when the resizable extension is active should be greater or equal than 100");
+            //console.log("The minWidth when the resizable extension is active should be greater or equal than 100");
             this.options.minWidth = 100;
         }
 

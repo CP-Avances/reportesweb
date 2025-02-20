@@ -296,7 +296,7 @@ router.get("/evaluacion/resumen/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:se
       ${filtros}
       ${grupo_order}
       `;
-    console.log('consulta ', consulta);
+    //console.log('consulta ', consulta)
     query = consulta;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -565,7 +565,7 @@ router.get("/evaluacion/omitidas/resumen/:fechaDesde/:fechaHasta/:horaInicio/:ho
       ${filtros}
       ${grupo_order}
       `;
-    console.log('consulta ', consulta);
+    //console.log('consulta ', consulta)
     query = consulta;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
@@ -826,7 +826,7 @@ router.get("/evaluacion/turnos/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:suc
         ${filtros}
         ORDER BY f.eval_fecha DESC;
       `;
-    console.log('consulta1 ', consulta);
+    //console.log('consulta1 ', consulta)
     query = consulta;
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {

@@ -83,7 +83,8 @@ export class EvaluacionComponent implements OnInit {
   configE: any;
 
   // MAXIMO DE ITEMS MOSTRADO DE TABLA EN PANTALLA
-  private MAX_PAGS = 10;
+  private MAX_PAGS = 5;
+  itemsPerPageOptions = [5, 10, 15, 20, 50];
 
   // PALABRAS DE COMPONENTE DE PAGINACION
   public labels: any = {
@@ -121,7 +122,7 @@ export class EvaluacionComponent implements OnInit {
   verCajero: boolean = false;
 
   // INFORMACION
-  marca: string = "FullTime Tickets";
+  marca: string = "";
   horas: number[] = [];
 
   constructor(
@@ -367,7 +368,7 @@ export class EvaluacionComponent implements OnInit {
           this.getSubservicios(this.serviciosSeleccionados);
         } else {
           this.verServicio = this.todosServicios;
-          console.log('ver todosServicios ', this.todosServicios)
+          //console.log('ver todosServicios ', this.todosServicios)
           if (!this.todosServicios) {
             this.subservicios = [];
             this.selectedItems = [];
@@ -412,6 +413,9 @@ export class EvaluacionComponent implements OnInit {
     const evaluacion = document.getElementById('todasE') as HTMLInputElement;
     evaluacion.checked = true;
     this.opcionesGrafico = 'sucursalG';
+    this.malRequestSPag = true;
+    this.malRequestEPag = true;
+    this.mostrar_resultado = false
   }
 
   Limpiar() {
@@ -474,6 +478,11 @@ export class EvaluacionComponent implements OnInit {
   paginacionEvaluacionFechas(event: any) {
     this.configS.currentPage = event;
   }
+  // CAMBIA LA CANTIDAD DE ELEMENTOS POR PÁGINA Y REINICIA A LA PRIMERA PÁGINA
+  cambiarPaginacionEvaluacionFechas(itemsPerPage: number) {
+    this.configS.itemsPerPage = itemsPerPage; // ACTUALIZA EL NUMERO DE ELEMENTOS POR PAGINA
+    this.configS.currentPage = 1; // REINICIAR A LA PRIMERA PAGINA
+  }
 
   // METODO PARA SELCCIONAR ESTADO DE USUARIOS
   estadoUsuario: number = 2;
@@ -494,6 +503,8 @@ export class EvaluacionComponent implements OnInit {
   }
 
   MostrarResumenEvaluaciones() {
+    this.MAX_PAGS = 5;
+    this.configS.itemsPerPage = this.MAX_PAGS;
     this.opcionesGrafico = 'sucursalG';
     var fechaDesde = this.desdeRE.nativeElement.value
       .toString()
@@ -542,13 +553,13 @@ export class EvaluacionComponent implements OnInit {
         (servicio: any) => {
           this.mostrar_resultado = true
           let informacion = servicio.turnos;
-          //console.log('informacion ', informacion)
-          console.log('ingresa existe evaluaciones ');
+          ////console.log('informacion ', informacion)
+          //console.log('ingresa existe evaluaciones ');
           this.BuscarResumenOmitidas(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, datoSubservicio, datoCajero, informacion);
         },
         (error) => {
           if (error.status == 400) {
-            console.log('ingresa no existe evaluaciones ');
+            //console.log('ingresa no existe evaluaciones ');
             this.BuscarResumenOmitidas(fechaDesde, fechaHasta, horaInicio, horaFin, datoServicio, datoSubservicio, datoCajero, '');
           }
         }
@@ -603,8 +614,8 @@ export class EvaluacionComponent implements OnInit {
   }
 
   ProcesarDatosResumen(evaluaciones: any, omitidas: any) {
-    //console.log('ver datos evaluaciones ', evaluaciones);
-    //console.log('ver datos omitidas ', omitidas);
+    ////console.log('ver datos evaluaciones ', evaluaciones);
+    ////console.log('ver datos omitidas ', omitidas);
 
     this.resumenEvaluacion = [];
     // TRATAMIENTO DE DATOS DE PAGINACION
@@ -617,13 +628,13 @@ export class EvaluacionComponent implements OnInit {
     // SI EVALUACIONES ESTA VACIO, ASIGNAMOS OMITIDAS DIRECTAMENTE
     if (evaluaciones.length === 0) {
       this.resumenEvaluacion = [...omitidas];
-      //console.log('ver datos generales ', this.resumenEvaluacion);
+      ////console.log('ver datos generales ', this.resumenEvaluacion);
       return;
     }
     // SI OMITIDAS ESTA VACIO, ASIGNAMOS EVALUACIONES DIRECTAMENTE
     if (omitidas.length === 0) {
       this.resumenEvaluacion = [...evaluaciones];
-      //console.log('ver datos generales ', this.resumenEvaluacion);
+      ////console.log('ver datos generales ', this.resumenEvaluacion);
       return;
     }
 
@@ -1312,6 +1323,11 @@ export class EvaluacionComponent implements OnInit {
   paginacionEvaluacionTurno(event: any) {
     this.configE.currentPage = event;
   }
+  // CAMBIA LA CANTIDAD DE ELEMENTOS POR PÁGINA Y REINICIA A LA PRIMERA PÁGINA
+  cambiarPaginacionEvaluacionTurno(itemsPerPage: number) {
+    this.configE.itemsPerPage = itemsPerPage; // ACTUALIZA EL NUMERO DE ELEMENTOS POR PAGINA
+    this.configE.currentPage = 1; // REINICIAR A LA PRIMERA PAGINA
+  }
 
   // METODO PARA SELCCIONAR TIPO DE EVALUACION
   tipoEvaluacion: number = 3;
@@ -1323,7 +1339,8 @@ export class EvaluacionComponent implements OnInit {
   }
 
   MostrarEvaluaciones() {
-
+    this.MAX_PAGS = 5;
+    this.configE.itemsPerPage = this.MAX_PAGS;
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
     var fechaDesde = this.desdeEvalT.nativeElement.value
       .toString()

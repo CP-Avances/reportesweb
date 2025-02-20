@@ -21,7 +21,7 @@
  *         
  *        // Sort in the order that was origially in the HTML
  *        var anTds = oTable.fnGetTds( $('#example tbody tr:eq(1)')[0] );
- *        console.log( anTds );
+ *        //console.log( anTds );
  *    } );
  */
 

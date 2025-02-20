@@ -240,7 +240,7 @@ The [*dispatch*.on](https://github.com/d3/d3-dispatch/blob/master/README.md#disp
 
 ```js
 dispatcher.on("foo bar", function(message) {
-  console.log(message);
+  //console.log(message);
 });
 ```
 
@@ -278,7 +278,7 @@ The [*dsv*.parse](https://github.com/d3/d3-dsv/blob/master/README.md#dsv_parse) 
 ```js
 d3.csv("cars.csv", function(error, data) {
   if (error) throw error;
-  console.log(data.columns); // ["Year", "Make", "Model", "Length"]
+  //console.log(data.columns); // ["Year", "Make", "Model", "Length"]
 });
 ```
 
@@ -668,7 +668,7 @@ The change in [internal *node* structure](https://github.com/d3/d3-quadtree/blob
 quadtree.visit(function(node) {
   if (!node.length) {
     do {
-      console.log(node.data);
+      //console.log(node.data);
     } while (node = node.next)
   }
 });
@@ -911,7 +911,7 @@ When called in getter mode, [*selection*.data](https://github.com/d3/d3-selectio
 
 ```js
 selection.on("mousedown touchstart", function() {
-  console.log(d3.event.type);
+  //console.log(d3.event.type);
 });
 ```
 
@@ -1235,7 +1235,7 @@ In D3 3.x, the only way to stop a timer was for its callback to return true. For
 
 ```js
 d3.timer(function(elapsed) {
-  console.log(elapsed);
+  //console.log(elapsed);
   return elapsed >= 1000;
 });
 ```
@@ -1244,7 +1244,7 @@ In 4.0, use [*timer*.stop](https://github.com/d3/d3-timer/blob/master/README.md#
 
 ```js
 var t = d3.timer(function(elapsed) {
-  console.log(elapsed);
+  //console.log(elapsed);
   if (elapsed >= 1000) {
     t.stop();
   }
@@ -1255,7 +1255,7 @@ The primary benefit of *timer*.stop is that timers are not required to self-term
 
 ```js
 var t = d3.timer(function(elapsed) {
-  console.log(elapsed);
+  //console.log(elapsed);
 });
 
 d3.timeout(function() {

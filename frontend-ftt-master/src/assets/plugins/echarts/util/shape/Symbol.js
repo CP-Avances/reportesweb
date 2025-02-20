@@ -135,7 +135,7 @@ define(function (require) {
             var pointList = style.pointList;
             var rect = this.getRect(style);
             var ratio = window.devicePixelRatio || 1;
-            // console.log(rect)
+            // //console.log(rect)
             // var ti = new Date();
             // bbox取整
             rect = {
@@ -167,7 +167,7 @@ define(function (require) {
                 data[idx + 3] = 255;
             }
             ctx.putImageData(pixels, rect.x * ratio, rect.y * ratio);
-            // console.log(new Date() - ti);
+            // //console.log(new Date() - ti);
             return;
         },
         */

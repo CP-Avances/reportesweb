@@ -34,25 +34,25 @@ $(function () {
   // Cropper
   $image.on({
     'build.cropper': function (e) {
-      console.log(e.type);
+      //console.log(e.type);
     },
     'built.cropper': function (e) {
-      console.log(e.type);
+      //console.log(e.type);
     },
     'cropstart.cropper': function (e) {
-      console.log(e.type, e.action);
+      //console.log(e.type, e.action);
     },
     'cropmove.cropper': function (e) {
-      console.log(e.type, e.action);
+      //console.log(e.type, e.action);
     },
     'cropend.cropper': function (e) {
-      console.log(e.type, e.action);
+      //console.log(e.type, e.action);
     },
     'crop.cropper': function (e) {
-      console.log(e.type, e.x, e.y, e.width, e.height, e.rotate, e.scaleX, e.scaleY);
+      //console.log(e.type, e.x, e.y, e.width, e.height, e.rotate, e.scaleX, e.scaleY);
     },
     'zoom.cropper': function (e) {
-      console.log(e.type, e.ratio);
+      //console.log(e.type, e.ratio);
     }
   }).cropper(options);
 
@@ -124,7 +124,7 @@ $(function () {
           try {
             data.option = JSON.parse($target.val());
           } catch (e) {
-            console.log(e.message);
+            //console.log(e.message);
           }
         }
       }
@@ -163,7 +163,7 @@ $(function () {
         try {
           $target.val(JSON.stringify(result));
         } catch (e) {
-          console.log(e.message);
+          //console.log(e.message);
         }
       }
 

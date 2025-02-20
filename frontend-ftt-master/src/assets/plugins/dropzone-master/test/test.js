@@ -1540,7 +1540,7 @@
             mock2.type = "image/jpg";
             mock3.type = "image/jpg";
             dropzone.on("thumbnail", function() {
-              return console.log("HII");
+              return //console.log("HII");
             });
             ct_file = ct_callback = null;
             dropzone.createThumbnail = function(file, callback) {

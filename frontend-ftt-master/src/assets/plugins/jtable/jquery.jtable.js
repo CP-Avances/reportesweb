@@ -1425,7 +1425,7 @@ THE SOFTWARE.
                 return;
             }
 
-            console.log('jTable DEBUG: ' + text);
+            //console.log('jTable DEBUG: ' + text);
         },
 
         _logInfo: function (text) {
@@ -1433,7 +1433,7 @@ THE SOFTWARE.
                 return;
             }
 
-            console.log('jTable INFO: ' + text);
+            //console.log('jTable INFO: ' + text);
         },
 
         _logWarn: function (text) {
@@ -1441,7 +1441,7 @@ THE SOFTWARE.
                 return;
             }
 
-            console.log('jTable WARNING: ' + text);
+            //console.log('jTable WARNING: ' + text);
         },
 
         _logError: function (text) {
@@ -1449,7 +1449,7 @@ THE SOFTWARE.
                 return;
             }
 
-            console.log('jTable ERROR: ' + text);
+            //console.log('jTable ERROR: ' + text);
         }
 
     });

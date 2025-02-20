@@ -959,11 +959,11 @@ var start = performance.now(),
 for(i = 0; i < rounds; i++) {
 
 }
-console.log('Test #1:', performance.now() - start);
+//console.log('Test #1:', performance.now() - start);
 
 start = performance.now();
 for(i = 0; i < rounds; i++) {
 
 }
-console.log('Test #2:', performance.now() - start);
+//console.log('Test #2:', performance.now() - start);
 */

@@ -301,7 +301,7 @@ $(function() {
         var selectableNodes = findSelectableNodes();
 
         $('#chk-select-multi:checkbox').on('change', function () {
-          console.log('multi-select change');
+          //console.log('multi-select change');
           $selectableTree = initSelectableTree();
           selectableNodes = findSelectableNodes();          
         });

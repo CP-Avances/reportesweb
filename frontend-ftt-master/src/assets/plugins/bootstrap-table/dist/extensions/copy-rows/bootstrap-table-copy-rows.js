@@ -19,7 +19,7 @@
             document.execCommand('copy');
         }
         catch (e) {
-            console.log("Oops, unable to copy");
+            //console.log("Oops, unable to copy");
         }
         $(textField).remove();
     };

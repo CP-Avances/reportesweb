@@ -309,7 +309,7 @@ router.get(
       ${filtros}
       ${grupo_order}
       `;
-    console.log('consulta ', consulta)
+    //console.log('consulta ', consulta)
 
     query = consulta
 
@@ -598,7 +598,7 @@ router.get(
       ${filtros}
       ${grupo_order}
       `;
-    console.log('consulta ', consulta)
+    //console.log('consulta ', consulta)
 
     query = consulta
 
@@ -890,7 +890,7 @@ router.get(
         ORDER BY f.eval_fecha DESC;
       `;
 
-    console.log('consulta1 ', consulta)
+    //console.log('consulta1 ', consulta)
 
     query = consulta
 

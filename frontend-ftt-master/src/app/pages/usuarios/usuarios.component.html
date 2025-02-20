@@ -3,7 +3,7 @@
     <div class="card-body">
         <form>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
-                
+
                 <li class="nav-item" (click)="LimpiarFormularios()">
                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
                         aria-controls="home" aria-selected="false">
@@ -33,7 +33,7 @@
                         aria-controls="contact" aria-selected="false">
                         ENTRADAS Y SALIDAS AL SISTEMA
                     </a>
-                </li>
+                </li>               
             </ul>
 
             <div class="tab-content" id="myTabContent">
@@ -188,7 +188,9 @@
                                     <th class="text-center" *ngIf="selectedItems.length>0">Cajero(a)</th>
                                     <th class="text-center" *ngIf="serviciosSeleccionadas.length>0">
                                         Servicio</th>
-                                    <th class="text-center" *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">Subservicio
+                                    <th class="text-center"
+                                        *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
+                                        Subservicio
                                     </th>
                                     <th class="text-center" *ngIf="verFecha == '1'">Fecha</th>
                                     <th class="text-center">Atendidos</th>
@@ -232,20 +234,29 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <pagination-controls  id="usuariosTTF"
-                            [previousLabel]="labels.previousLabel" [currentPage]="configTTF.currentPage"
-                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedTTF($event)">
+                        <pagination-controls id="usuariosTTF" [previousLabel]="labels.previousLabel"
+                            [currentPage]="configTTF.currentPage" [nextLabel]="labels.nextLabel"
+                            (pageChange)="pageChangedTTF($event)">
                         </pagination-controls>
-                    </div>
 
+                        <label for="PagusuariosTTF">Elementos por página:</label>
+                        <select id="PagusuariosTTF" [ngModel]="configTTF.itemsPerPage"
+                            (ngModelChange)="changeItemsPerPageTTF($event)" [ngModelOptions]="{standalone: true}">
+                            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                                {{ option }}
+                            </option>
+                        </select>
+                    </div>
                     <br><br>
-                    <div id="canvasCont" *ngIf="mostrar_resultado && verFecha != '1' && selectedItems.length==0 && serviciosSeleccionadas.length>0 && sub_serviciosSeleccionadas.length==0" >
+                    <div id="canvasCont"
+                        *ngIf="mostrar_resultado && verFecha != '1' && selectedItems.length==0 && serviciosSeleccionadas.length>0 && sub_serviciosSeleccionadas.length==0">
                         <h3>GRÁFICO SERVICIO</h3>
                         <canvas id="canvas">{{chart}}</canvas>
                     </div>
 
                     <br>
-                    <fieldset *ngIf="mostrar_resultado && verFecha != '1' && selectedItems.length==0 && serviciosSeleccionadas.length>0 && sub_serviciosSeleccionadas.length==0">
+                    <fieldset
+                        *ngIf="mostrar_resultado && verFecha != '1' && selectedItems.length==0 && serviciosSeleccionadas.length>0 && sub_serviciosSeleccionadas.length==0">
                         <div>
                             <label>Orientación de página:</label>
 
@@ -407,8 +418,10 @@
                                         Sucursal
                                     </th>
                                     <th class="text-center" *ngIf="selectedItems.length>0">Cajero(a)</th>
-                                    <th class="text-center"  *ngIf="serviciosSeleccionadas.length>0">Servicio</th>
-                                    <th class="text-center" *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">Subservicio</th>
+                                    <th class="text-center" *ngIf="serviciosSeleccionadas.length>0">Servicio</th>
+                                    <th class="text-center"
+                                        *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
+                                        Subservicio</th>
                                     <th class="text-center">Fecha</th>
                                     <th class="text-center">Atendidos</th>
                                     <th class="text-center">Porcentaje de cumplimiento</th>
@@ -420,7 +433,8 @@
                                         {{servicioTurnosMeta.nombreEmpresa}}</td>
                                     <td *ngIf="selectedItems.length>0"> {{servicioTurnosMeta.Usuario}}</td>
                                     <td *ngIf="serviciosSeleccionadas.length>0"> {{servicioTurnosMeta.Servicio}}</td>
-                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0"> {{servicioTurnosMeta.subservicio}}</td>
+                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
+                                        {{servicioTurnosMeta.subservicio}}</td>
                                     <td> {{servicioTurnosMeta.Fecha}}</td>
                                     <td> {{servicioTurnosMeta.Atendidos}} </td>
                                     <td> {{servicioTurnosMeta.Porcentaje_Atendidos}} % </td>
@@ -428,9 +442,17 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestTMPag" id="usuariosTM"
-                            [previousLabel]="labels.previousLabel" [currentPage]="configTM.currentPage" [nextLabel]="labels.nextLabel"
-                            (pageChange)="pageChangedTM($event)">
+                            [previousLabel]="labels.previousLabel" [currentPage]="configTM.currentPage"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedTM($event)">
                         </pagination-controls>
+
+                        <label for="PagusuariosTM">Elementos por página:</label>
+                        <select id="PagusuariosTM" [ngModel]="configTM.itemsPerPage"
+                            (ngModelChange)="changeItemsPerPageTM($event)" [ngModelOptions]="{standalone: true}">
+                            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                                {{ option }}
+                            </option>
+                        </select>
                     </div>
                     <br>
                     <button type="button" class="btn btn-info mx-2" (click)="ExportTOExcelTurnosMeta()"
@@ -595,7 +617,8 @@
                                     <th scope="col" class="text-center" *ngIf="selectedItems.length>0">Cajero(a)</th>
                                     <th scope="col" class="text-center" *ngIf="serviciosSeleccionadas.length>0">Servicio
                                     </th>
-                                    <th scope="col" class="text-center" *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
+                                    <th scope="col" class="text-center"
+                                        *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
                                         Subservicio</th>
                                     <th class="text-center" *ngIf="verFecha == '1'">Fecha</th>
 
@@ -612,7 +635,8 @@
                                     <td *ngIf="selectedItems.length>0">{{servicioPromAtencion.Nombre}}</td>
                                     <td *ngIf="serviciosSeleccionadas.length>0">
                                         {{servicioPromAtencion.Servicio}}</td>
-                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">{{servicioPromAtencion.subservicio}}
+                                    <td *ngIf="sub_serviciosSeleccionadas.length>0 && serviciosSeleccionadas.length>0">
+                                        {{servicioPromAtencion.subservicio}}
                                     </td>
                                     <td *ngIf="verFecha == '1'"> {{servicioPromAtencion.Fecha}}</td>
                                     <td>{{servicioPromAtencion.Promedio}}</td>
@@ -622,9 +646,17 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestTPPag" id="usuariosTP"
-                            [previousLabel]="labels.previousLabel" [currentPage]="configTP.currentPage" [nextLabel]="labels.nextLabel"
-                            (pageChange)="pageChangedTP($event)">
+                            [previousLabel]="labels.previousLabel" [currentPage]="configTP.currentPage"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedTP($event)">
                         </pagination-controls>
+
+                        <label for="PagusuariosTP">Elementos por página:</label>
+                        <select id="PagusuariosTP" [ngModel]="configTP.itemsPerPage"
+                            (ngModelChange)="changeItemsPerPageTP($event)" [ngModelOptions]="{standalone: true}">
+                            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                                {{ option }}
+                            </option>
+                        </select>
                     </div>
                     <br>
                     <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelPromAtencion()"
@@ -799,11 +831,17 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestTAPag" id="usuariosTA"
-                            [previousLabel]="labels.previousLabel" 
-                            [currentPage]="configTA.currentPage"
-                            [nextLabel]="labels.nextLabel" 
-                            (pageChange)="pageChangedTA($event)">
+                            [previousLabel]="labels.previousLabel" [currentPage]="configTA.currentPage"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedTA($event)">
                         </pagination-controls>
+
+                        <label for="PagusuariosTA">Elementos por página:</label>
+                        <select id="PagusuariosTA" [ngModel]="configTA.itemsPerPage"
+                            (ngModelChange)="changeItemsPerPageTA($event)" [ngModelOptions]="{standalone: true}">
+                            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                                {{ option }}
+                            </option>
+                        </select>
                     </div>
                     <br>
                     <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelTiempoAtencion()"
@@ -928,9 +966,17 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestESPag" id="usuariosES"
-                            [previousLabel]="labels.previousLabel" [currentPage]="configES.currentPage" [nextLabel]="labels.nextLabel"
-                            (pageChange)="pageChangedES($event)">
+                            [previousLabel]="labels.previousLabel" [currentPage]="configES.currentPage"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedES($event)">
                         </pagination-controls>
+
+                        <label for="PagusuariosES">Elementos por página:</label>
+                        <select id="PagusuariosES" [ngModel]="configES.itemsPerPage"
+                            (ngModelChange)="changeItemsPerPageES($event)" [ngModelOptions]="{standalone: true}">
+                            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                                {{ option }}
+                            </option>
+                        </select>
                     </div>
                     <br>
                     <button type="button" class="btn btn-info mx-2" (click)="exportarAExcelEntradaSalida()"

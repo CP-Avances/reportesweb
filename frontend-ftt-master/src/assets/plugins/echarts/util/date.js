@@ -50,7 +50,7 @@ define(function() {
             if (Math.round(totalGap / curValue) <= splitNumber * 1.2) {
                 formatter =  _timeGap[i].formatter;
                 gapValue = _timeGap[i].value;
-                // console.log(formatter, gapValue,i);
+                // //console.log(formatter, gapValue,i);
                 break;
             }
         }

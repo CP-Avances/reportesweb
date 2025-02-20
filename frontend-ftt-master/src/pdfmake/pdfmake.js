@@ -53613,9 +53613,9 @@ function timestamp() {
 }
 
 
-// log is just a thin wrapper to console.log that prepends a timestamp
+// log is just a thin wrapper to //console.log that prepends a timestamp
 exports.log = function() {
-  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+  //console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
 };
 
 
@@ -59541,7 +59541,7 @@ function generateFrame(data, options) {
 
 	if (mask != -1 && (mask < 0 || mask > 8))
 		throw 'invalid mask';
-	//console.log('version:', ver, 'mode:', mode, 'ECC:', ecclevel, 'mask:', mask )
+	////console.log('version:', ver, 'mode:', mode, 'ECC:', ecclevel, 'mask:', mask )
 	return generate(data, ver, mode, ecclevel, mask);
 }
 

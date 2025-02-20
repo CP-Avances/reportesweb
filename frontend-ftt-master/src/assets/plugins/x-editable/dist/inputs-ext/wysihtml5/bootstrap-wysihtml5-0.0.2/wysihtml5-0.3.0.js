@@ -134,8 +134,8 @@ window['rangy'] = (function() {
         var warningMessage = "Rangy warning: " + msg;
         if (api.config.alertOnWarn) {
             window.alert(warningMessage);
-        } else if (typeof window.console != UNDEFINED && typeof window.console.log != UNDEFINED) {
-            window.console.log(warningMessage);
+        } else if (typeof window.console != UNDEFINED && typeof window.//console.log != UNDEFINED) {
+            window.//console.log(warningMessage);
         }
     }
 
@@ -200,7 +200,7 @@ window['rangy'] = (function() {
                 allListeners[i](api);
             } catch (ex) {
                 if (isHostObject(window, "console") && isHostMethod(window.console, "log")) {
-                    window.console.log("Init listener threw an exception. Continuing.", ex);
+                    window.//console.log("Init listener threw an exception. Continuing.", ex);
                 }
 
             }
@@ -9434,7 +9434,7 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
       });
       
       try {
-        console.log("Heya! This page is using wysihtml5 for rich text editing. Check out https://github.com/xing/wysihtml5");
+        //console.log("Heya! This page is using wysihtml5 for rich text editing. Check out https://github.com/xing/wysihtml5");
       } catch(e) {}
     },
     

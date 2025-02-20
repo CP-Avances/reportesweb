@@ -34,7 +34,7 @@ var jsDir     = 'src/js/',
 
 var onError = function (err) {
     $.util.beep();
-    console.log(err.toString());
+    //console.log(err.toString());
     this.emit('end');
 };
 

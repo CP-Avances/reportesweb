@@ -33,12 +33,6 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
   private fillAzul!: FillPattern;
   private fontTitulo!: Partial<ExcelJS.Font>;
   private fontHipervinculo!: Partial<ExcelJS.Font>;
-
-
-
-
-
-
   private subscription!: Subscription;
 
   // SETEO DE FECHAS PRIMER DIA DEL MES ACTUAL Y DIA ACTUAL
@@ -86,8 +80,6 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
   verFecha: string = '1';
   CambiarFecha(opcion: string) {
     this.verFecha = opcion;
@@ -95,8 +87,8 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
   }
 
   // VARIABLE USADA EN EXPORTACION A EXCEL
-  p_color = "#affbfb";
-
+  p_color: any = '#0077b6';
+  
   mostrarServicios: boolean = false;
   mostrarSubservicios: boolean = false;
 
@@ -116,7 +108,8 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
 
   // CONTROL PAGINACION
   configDE: any;
-  private MAX_PAGS = 10;
+  private MAX_PAGS = 5;
+  itemsPerPageOptions = [5, 10, 15, 20, 50];
 
   // PALABRAS DE COMPONENTE DE PAGINACION
   public labels: any = {
@@ -148,7 +141,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
   mostrarCajeros: boolean = false;
 
   // INFORMACION
-  marca: string = "FullTime Tickets";
+  marca: string = "";
   horas: number[] = [];
 
   constructor(
@@ -174,6 +167,11 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
   // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
   pageChangedDE(event: any) {
     this.configDE.currentPage = event;
+  }
+  // CAMBIA LA CANTIDAD DE ELEMENTOS POR PÁGINA Y REINICIA A LA PRIMERA PÁGINA
+  changeItemsPerPageDE(itemsPerPage: number) {
+    this.configDE.itemsPerPage = itemsPerPage; // ACTUALIZA EL NUMERO DE ELEMENTOS POR PAGINA
+    this.configDE.currentPage = 1; // REINICIAR A LA PRIMERA PAGINA
   }
 
 
@@ -306,13 +304,13 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
 
   getSub_servicios(servicio: any) {
     this.serviceService.getAllSubservicios(servicio).subscribe((subservicios: any) => {
-      console.log("entro a buscacr subservicio")
+      //console.log("entro a buscacr subservicio")
 
       this.subservicios = subservicios.servicios;
       this.mostrarSubservicios = true;
     },
       (error) => {
-        console.log("entro a error de subservicio")
+        //console.log("entro a error de subservicio")
         if (error.status == 400) {
           this.subservicios = [];
           this.mostrarSubservicios = false;
@@ -369,6 +367,8 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
   }
 
   leerDistribucionTurnos() {
+    this.MAX_PAGS = 5;
+    this.configDE.itemsPerPage = this.MAX_PAGS;
     // Cancelar cualquier intervalo previo antes de iniciar uno nuevo
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -388,7 +388,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
 
     if (this.subscription) {
       this.subscription.unsubscribe();
-      console.log('🔴 Suscripción cancelada al salir del componente');
+      //console.log('🔴 Suscripción cancelada al salir del componente');
     }
   }
 
@@ -401,7 +401,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
     let horaInicio = this.horaInicioD.nativeElement.value;
     let horaFin = this.horaFinD.nativeElement.value;
 
-    console.log("se esta iniciando la busqueda")
+    //console.log("se esta iniciando la busqueda")
 
     var datoCajero: any = '0N';
     if (this.selectedItems.length != 0) {
@@ -412,7 +412,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
       this.serviceService.getdistribucionturnos(fD, fH, horaInicio, horaFin, datoCajero, this.sucursalesSeleccionadas, this.serviciosSeleccionadas, this.sub_serviciosSeleccionadas, this.estadoUsuario, this.verFecha).subscribe((servicio: any) => {
         // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
         this.servicioDist = servicio.turnos;
-        console.log("ver numero de registros: ", this.servicioDist.length)
+        //console.log("ver numero de registros: ", this.servicioDist.length)
         this.malRequestDist = false;
         this.malRequestDistPag = false;
         // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
@@ -507,7 +507,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
     });
 
     let incluirCajero = this.selectedItems.length != 0
-    console.log("ver incluirCajero ", incluirCajero)
+    //console.log("ver incluirCajero ", incluirCajero)
     // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
     let jsonServicio: any = [];
     if (this.serviciosSeleccionadas.length == 0) {
@@ -2231,7 +2231,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
       }
 
     } else if (this.serviciosSeleccionadas.length != 0 && this.sub_serviciosSeleccionadas.length != 0) {
-      console.log("entra a servicios y subservicios")
+      //console.log("entra a servicios y subservicios")
       if (this.todasSucursalesD || this.seleccionMultiple) {
         if (this.verFecha == '1') {
           if (incluirCajero) {

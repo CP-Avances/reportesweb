@@ -16,3 +16,7 @@
     justify-content: space-around;
     flex-wrap: wrap;
 }
+
+input[type="radio"], label {
+    margin: 10px; /* Espacio entre los elementos */
+  }

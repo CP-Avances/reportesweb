@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Reportesticketsweb</title>
+    <title>ReportesTicketsWeb</title>
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -102,7 +102,7 @@
 
             function LogoutByTimer() {
                 if (!window.isExecuting) { // Solo hace logout si el método no está corriendo
-                    console.log("Ejecutando LogoutByTimer...");
+                    //console.log("Ejecutando LogoutByTimer...");
                     localStorage.removeItem('token');
                     // window.location.reload()
                     window.location.href = '/'

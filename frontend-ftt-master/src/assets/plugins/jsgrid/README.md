@@ -422,7 +422,7 @@ $("#grid").jsGrid({
             return error.field + ": " + error.message;
         });
         
-        console.log(messages);
+        //console.log(messages);
     }
     
     ...
@@ -775,7 +775,7 @@ Returns jQuery promise resolved when data filtering is completed.
 ```javascript
 
 $("#grid").jsGrid("clearFilter").done(function() {
-    console.log("filtering completed");
+    //console.log("filtering completed");
 });
 
 ```
@@ -902,7 +902,7 @@ $("#grid").jsGrid("insertItem");
 
 // insert item
 $("#grid").jsGrid("insertItem", { Name: "John", Age: 25, Country: 2 }).done(function() {
-    console.log("insertion completed");
+    //console.log("insertion completed");
 });
 
 ```
@@ -923,7 +923,7 @@ $("#grid").jsGrid("loadData");
 
 // loadData with custom filter
 $("#grid").jsGrid("loadData", { Name: "John" }).done(function() {
-    console.log("data loaded");
+    //console.log("data loaded");
 });
 
 ```
@@ -969,7 +969,7 @@ Returns jQuery promise resolved when data loading is completed. If auto-loading 
 ```javascript
 
 $("#grid").jsGrid("render").done(function() {
-    console.log("rendering completed and data loaded");
+    //console.log("rendering completed and data loaded");
 });
 
 ```
@@ -1012,7 +1012,7 @@ $("#grid").jsGrid("search");
 
 // search with custom filter
 $("#grid").jsGrid("search", { Name: "John" }).done(function() {
-    console.log("filtering completed");
+    //console.log("filtering completed");
 });
 
 ```
@@ -1059,7 +1059,7 @@ $("#grid").jsGrid("sort", { field: "Name", order: "desc" });
 
 // sorting grid by myField in ascending order 
 $("#grid").jsGrid("sort", myField, "asc").done(function() {
-    console.log("sorting completed");
+    //console.log("sorting completed");
 });
 
 ```
@@ -1086,7 +1086,7 @@ $("#grid").jsGrid("updateItem", { ID: 1, Name: "John", Age: 25, Country: 2 });
 
 // update specified item with particular data (row DomNode or row jQueryElement can be used instead of item reference)
 $("#grid").jsGrid("updateItem", item, { ID: 1, Name: "John", Age: 25, Country: 2 }).done(function() {
-    console.log("update completed");
+    //console.log("update completed");
 });
 
 ```
@@ -1224,7 +1224,7 @@ $("#grid").jsGrid({
     ...
     
     onDataLoaded: function(args) {
-        console.log(args.data);
+        //console.log(args.data);
     }
 });
 
@@ -1446,7 +1446,7 @@ $("#grid").jsGrid({
     
     onItemInvalid: function(args) {
         // prints [{ field: "Name", message: "Enter client name" }]
-        console.log(args.errors);
+        //console.log(args.errors);
     }
 });
 
@@ -1564,7 +1564,7 @@ $("#grid").jsGrid({
     ...
     
     onPageChanged: function(args) {
-        console.log(args.pageIndex);
+        //console.log(args.pageIndex);
     }
 });
 
@@ -2089,10 +2089,10 @@ This simple example prints messages to console instead of showing load indicator
 {
     loadIndicator: {
         show: function() { 
-            console.log("loading started");
+            //console.log("loading started");
         },
         hide: function() {
-            console.log("loading finished"); 
+            //console.log("loading finished"); 
         }
     }
 }
@@ -2115,10 +2115,10 @@ The similar example printing messages to console shows how to configure loading 
     loadIndicator: function(config) {
         return {
             show: function() { 
-                console.log("loading started: " + config.message);
+                //console.log("loading started: " + config.message);
             },
             hide: function() {
-                console.log("loading finished"); 
+                //console.log("loading finished"); 
             }
         };
     }

@@ -161,7 +161,7 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
                 `${listaCajeros != '0N' ? 'Fecha DESC, Usuario ASC, servicio DESC;' : 'Fecha DESC, servicio DESC;'}`
                 : `${listaCajeros != '0N' ? 'Usuario ASC, servicio DESC;' : 'servicio DESC;'}`}
           `;
-        console.log("ver query: ", query);
+        //console.log("ver query: ", query);
     }
     else if (listaSubservicios == '0' && listaServicios != '0') {
         query =

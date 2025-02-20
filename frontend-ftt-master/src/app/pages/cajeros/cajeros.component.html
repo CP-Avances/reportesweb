@@ -50,19 +50,22 @@
                     <br>
 
                     <h3>CAJEROS</h3>
-                    <button *ngIf="estadoUsuario==1 && mostrar_resultado" type="button" class="btn btn-search" (click)="DesactivarCajeros()">
+                    <button *ngIf="estadoUsuario==1 && mostrar_resultado" type="button" class="btn btn-search"
+                        (click)="DesactivarCajeros()">
                         <span class="glyphicon glyphicon-filter"></span>
                         Activar
                     </button>
-                    <button *ngIf="estadoUsuario==2 && mostrar_resultado" type="button" class="btn btn-search" (click)="DesactivarCajeros()">
+                    <button *ngIf="estadoUsuario==2 && mostrar_resultado" type="button" class="btn btn-search"
+                        (click)="DesactivarCajeros()">
                         <span class="glyphicon glyphicon-filter"></span>
                         Desactivar
                     </button>
-                    <button *ngIf="estadoUsuario==3 && mostrar_resultado" type="button" class="btn btn-search" (click)="DesactivarCajeros()">
+                    <button *ngIf="estadoUsuario==3 && mostrar_resultado" type="button" class="btn btn-search"
+                        (click)="DesactivarCajeros()">
                         <span class="glyphicon glyphicon-filter"></span>
                         Cambiar estado
                     </button>
-                    
+
 
                     <hr>
                     <div class="table-responsive" *ngIf="mostrar_resultado">
@@ -70,7 +73,7 @@
                             <thead class="thead-dark">
                                 <tr>
 
-                                    <th scope="col"  class="text-center" >
+                                    <th scope="col" class="text-center">
                                         <div>
                                             <mat-icon *ngIf="activar_seleccion" class="flex-shrink-1 bd-highlight"
                                                 title="Dar clic para activar selección múltiple." id="SelectCheck"
@@ -95,7 +98,7 @@
                             </thead>
                             <tbody *ngIf="!malRequestDist">
                                 <tr *ngFor="let cajero of cajerosSucursales | paginate:configDE">
-                                    <td >
+                                    <td>
                                         <mat-checkbox *ngIf="plan_multiple_" (click)="$event.stopPropagation()"
                                             (change)="$event ? selectionCajero.toggle(cajero) : null"
                                             [checked]="selectionCajero.isSelected(cajero)"
@@ -109,9 +112,17 @@
                             </tbody>
                         </table>
                         <pagination-controls *ngIf="!malRequestDistPag" id="disestde"
-                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
-                            [currentPage]="configDE.currentPage" (pageChange)="pageChangedDE($event)">
+                            [previousLabel]="labels.previousLabel" [currentPage]="configDE.currentPage"
+                            [nextLabel]="labels.nextLabel" (pageChange)="pageChangedDE($event)">
                         </pagination-controls>
+
+                        <label *ngIf="!malRequestDistPag" for="Pagdisestde">Elementos por página:</label>
+                        <select *ngIf="!malRequestDistPag" id="Pagdisestde" [ngModel]="configDE.itemsPerPage"
+                            (ngModelChange)="changeItemsPerPageDE($event)" [ngModelOptions]="{standalone: true}">
+                            <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                                {{ option }}
+                            </option>
+                        </select>
                     </div>
                     <br>
 

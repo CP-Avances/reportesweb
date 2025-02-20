@@ -62,7 +62,7 @@ router.get("/getallsucursales", TokenValidation, (req: Request, res: Response) =
         ok: false,
         error: err,
       });
-      console.log(err);
+      //console.log(err);
     } else {
       res.json({
         ok: true,
@@ -117,7 +117,7 @@ router.get("/getallcajeros/:sucursales/:estado", TokenValidation, (req: Request,
         ok: false,
         error: err,
       });
-      console.log(err);
+      //console.log(err);
     } else {
       res.json({
         ok: true,
@@ -157,7 +157,7 @@ router.get("/cambiarestadocajeros/:sucursales", TokenValidation, (req: Request, 
         ok: false,
         error: err,
       });
-      console.log(err);
+      //console.log(err);
     } else {
       res.json({
         ok: true,
@@ -428,13 +428,13 @@ router.get(
     const sucursalesArray = listaSucursales.split(",");
 
     const listaServicios = req.params.servicios;
-    console.log("ver listaServicios", listaServicios)
+    //console.log("ver listaServicios", listaServicios)
     const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    console.log("ver listaSubservicios", listaSubservicios)
+    //console.log("ver listaSubservicios", listaSubservicios)
     const subServiciosarray = listaSubservicios.split(",");
     const estado = req.params.estado;
-    console.log("ver estado", estado)
+    //console.log("ver estado", estado)
 
     let todosCajeros = false;
     let todasSucursales = false;
@@ -755,7 +755,7 @@ router.get(
     let hFinAux = 0;
     let todosCajeros = false;
     const estado = req.params.estado;
-    console.log("ver estado", estado)
+    //console.log("ver estado", estado)
 
     if (codigosArray.includes("-2")) {
       todosCajeros = true
@@ -810,9 +810,10 @@ router.get(
           ${!diaCompleto ? `AND r.reg_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
 
           AND u.usua_codigo != 2
-        ORDER BY fecha DESC, hora DESC;
+        ORDER BY usua_nombre DESC, fecha DESC, hora DESC;
       `;
 
+      // console.log('entradas ', query)
     MySQL.ejecutarQuery(query, (err: any, turnos: Object[]) => {
       if (err) {
         res.status(400).json({
@@ -837,21 +838,21 @@ router.get(
     const hInicio = req.params.horaInicio;
     const hFin = req.params.horaFin;
     const listaSucursales = req.params.sucursales;
-    console.log("ver listaSucursales: ", listaSucursales)
+    //console.log("ver listaSucursales: ", listaSucursales)
     const sucursalesArray = listaSucursales.split(",");
     const listaCajeros = req.params.cajeros;
-    console.log("ver listaCajeros: ", listaCajeros)
+    //console.log("ver listaCajeros: ", listaCajeros)
 
     const cajerosArray = listaCajeros.split(",");
     const listaServicios = req.params.servicios;
-    console.log("ver listaServicios", listaServicios)
+    //console.log("ver listaServicios", listaServicios)
     const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    console.log("ver listaSubservicios", listaSubservicios)
+    //console.log("ver listaSubservicios", listaSubservicios)
     const subServiciosarray = listaSubservicios.split(",");
 
     const estado = req.params.estado;
-    console.log("ver estado", estado)
+    //console.log("ver estado", estado)
 
 
     let todasSucursales = false;
@@ -893,7 +894,7 @@ router.get(
     }
     let query = ''
     if (listaServicios != '0' && listaSubservicios != '0') {
-      console.log("entra a listaServicios != '0' && listaSubservicios != '0'")
+      //console.log("entra a listaServicios != '0' && listaSubservicios != '0'")
       query =
         `
         SELECT 
@@ -939,7 +940,7 @@ router.get(
           Servicio ASC;
       `;
     } else if (listaSubservicios == '0' && listaServicios != '0') {
-      console.log("listaSubservicios == '0' && listaServicios != '0'")
+      //console.log("listaSubservicios == '0' && listaServicios != '0'")
 
       query =
         `
@@ -985,7 +986,7 @@ router.get(
         Servicio ASC;
     `;
     } else if (listaServicios == '0' && listaSubservicios == '0') {
-      console.log("listaServicios == '0' && listaSubservicios == '0'")
+      //console.log("listaServicios == '0' && listaSubservicios == '0'")
 
       query =
         `
@@ -1180,7 +1181,7 @@ router.get(
         }
       `;
 
-      console.log("ver query: ", query);
+      //console.log("ver query: ", query);
 
     } else if (listaSubservicios == '0' && listaServicios != '0') {
       query =
@@ -1321,13 +1322,13 @@ router.get(
     const cajerosArray = listaCajeros.split(",");
 
     const listaServicios = req.params.servicios;
-    console.log("ver listaServicios", listaServicios)
+    //console.log("ver listaServicios", listaServicios)
     const Serviciosarray = listaServicios.split(",");
     const listaSubservicios = req.params.subservicios;
-    console.log("ver listaSubservicios", listaSubservicios)
+    //console.log("ver listaSubservicios", listaSubservicios)
     const subServiciosarray = listaSubservicios.split(",");
     const estado = req.params.estado;
-    console.log("ver estado", estado)
+    //console.log("ver estado", estado)
 
     let todasSucursales = false;
     let todasCajeros = false;
@@ -1430,7 +1431,7 @@ router.get(
           ${listaCajeros != '0N' ? ' Usuario ASC,' : ''}
           Servicio ASC;
       `;
-      console.log("ver query: ", query)
+      //console.log("ver query: ", query)
     } else if (listaSubservicios == '0' && listaServicios != '0') {
       query =
         `

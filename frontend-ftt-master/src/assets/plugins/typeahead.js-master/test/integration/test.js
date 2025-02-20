@@ -49,11 +49,11 @@ describe('jquery-typeahead.js', function() {
     });
 
     driver.on('status', function(info) {
-      console.log(info.cyan);
+      //console.log(info.cyan);
     });
 
     driver.on('command', function(meth, path, data) {
-      console.log(' > ' + meth.yellow, path.grey, data || '');
+      //console.log(' > ' + meth.yellow, path.grey, data || '');
     });
 
     driver.run(function*() {

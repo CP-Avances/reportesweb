@@ -195,7 +195,7 @@ $('.image-link').magnificPopup({
       // "item.el" is a target DOM element (if present)
       // "item.src" is a source that you may modify
 
-      console.log(item); // Do whatever you want with "item" object
+      //console.log(item); // Do whatever you want with "item" object
     }
   }
 });
@@ -417,11 +417,11 @@ callbacks: {
 
     // mfpResponse.data must be a String or a DOM (jQuery) element
 
-    console.log('Ajax content loaded:', mfpResponse);
+    //console.log('Ajax content loaded:', mfpResponse);
   },
   ajaxContentAdded: function() {
     // Ajax content is loaded and appended to DOM
-    console.log(this.content);
+    //console.log(this.content);
   }
 }
 {% endhighlight %}
@@ -725,7 +725,7 @@ By default all what it does is just searches for an image tag and preloads it wi
 {% highlight javascript %}
 callbacks: {
   lazyLoad: function(item) {
-    console.log(item); // Magnific Popup data object that should be loaded
+    //console.log(item); // Magnific Popup data object that should be loaded
   }
 }
 {% endhighlight %}
@@ -929,7 +929,7 @@ $('.image-link').magnificPopup({
 // Name of event should start from  `mfp` and the first letter should be uppercase.
 // e.g. 'open' becomes 'mfpOpen', 'beforeOpen' becomes 'mfpBeforeOpen'.
 $('.image-link').on('mfpOpen', function(e /*, params */) {
-  console.log('Popup opened',  $.magnificPopup.instance);
+  //console.log('Popup opened',  $.magnificPopup.instance);
 });
 {% endhighlight %}
 
@@ -938,44 +938,44 @@ List of callbacks. In each callback `this` is `$.magnificPopup.instance`, so you
 {% highlight javascript %}
 callbacks: {
   beforeOpen: function() {
-    console.log('Start of popup initialization');
+    //console.log('Start of popup initialization');
   },
   elementParse: function(item) {
     // Function will fire for each target element
     // "item.el" is a target DOM element (if present)
     // "item.src" is a source that you may modify
 
-    console.log('Parsing content. Item object that is being parsed:', item);
+    //console.log('Parsing content. Item object that is being parsed:', item);
   },
   change: function() {
-    console.log('Content changed');
-    console.log(this.content); // Direct reference to your popup element
+    //console.log('Content changed');
+    //console.log(this.content); // Direct reference to your popup element
   },
   resize: function() {
-    console.log('Popup resized');
+    //console.log('Popup resized');
     // resize event triggers only when height is changed or layout forced
   },
   open: function() {
-    console.log('Popup is opened');
+    //console.log('Popup is opened');
   },
 
   beforeClose: function() {
     // Callback available since v0.9.0
-    console.log('Popup close has been initiated');
+    //console.log('Popup close has been initiated');
   },
   close: function() {
-    console.log('Popup removal initiated (after removalDelay timer finished)');
+    //console.log('Popup removal initiated (after removalDelay timer finished)');
   },
   afterClose: function() {
-    console.log('Popup is completely closed');
+    //console.log('Popup is completely closed');
   },
 
   markupParse: function(template, values, item) {
     // Triggers each time when content of popup changes
-    // console.log('Parsing:', template, values, item);
+    // //console.log('Parsing:', template, values, item);
   },
   updateStatus: function(data) {
-    console.log('Status changed', data);
+    //console.log('Status changed', data);
     // "data" is an object that has two properties:
     // "data.status" - current status type, can be "loading", "error", "ready"
     // "data.text" - text that will be displayed (e.g. "Loading...")
@@ -984,7 +984,7 @@ callbacks: {
   imageLoadComplete: function() {
     // fires when image in current popup finished loading
     // avaiable since v0.9.0
-    console.log('Image loaded');
+    //console.log('Image loaded');
   },
 
 
@@ -998,11 +998,11 @@ callbacks: {
 
     // mfpResponse.data must be a String or a DOM (jQuery) element
 
-    console.log('Ajax content loaded:', mfpResponse);
+    //console.log('Ajax content loaded:', mfpResponse);
   },
   ajaxContentAdded: function() {
     // Ajax content is loaded and appended to DOM
-    console.log(this.content);
+    //console.log(this.content);
   }
 }
 {% endhighlight %}

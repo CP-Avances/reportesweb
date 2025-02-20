@@ -263,10 +263,10 @@
 				if (self.o.stopPropagation == true){
 					self.$el.one(eventName, function (e) {e.stopPropagation();});
 				}
-				if (debug) console.log('FooTable:'+eventName+': ', args);
+				if (debug) //console.log('FooTable:'+eventName+': ', args);
 				self.$el.trigger(evt, args);
 				if (evt.isDefaultPrevented()){
-					if (debug) console.log('FooTable: default prevented for the "'+eventName+'" event.');
+					if (debug) //console.log('FooTable: default prevented for the "'+eventName+'" event.');
 					d.reject(evt);
 				}	else d.resolve(evt);
 			});

@@ -5,7 +5,7 @@
  * You may use it outside the Magnific Popup by calling just:
  *
  * $('.your-el').mfpFastClick(function() {
- *     console.log('Clicked!');
+ *     //console.log('Clicked!');
  * });
  *
  * To unbind:

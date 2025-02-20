@@ -170,7 +170,7 @@ router.get('/distestadoturno/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:lista
         }
           `;
 
-      console.log("ver query: ", query);
+      //console.log("ver query: ", query);
 
     } else if (listaSubservicios == '0' && listaServicios != '0') {
       query =

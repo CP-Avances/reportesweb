@@ -58,7 +58,7 @@
         function render_sticky_header(event) {
             var table = event.data;
             var table_header_id = table.find('thead').attr('id');
-            // console.log('render_sticky_header for > '+table_header_id);
+            // //console.log('render_sticky_header for > '+table_header_id);
             if (table.length < 1 || $('#'+table_id).length < 1){
                 // turn off window listeners
                 $(window).off('resize.'+table_id);

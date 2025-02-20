@@ -61,7 +61,7 @@ $(document).ready(function(){
         lat: -12.040397656836609,
         lng: -77.03373871559225,
         click: function(e){
-          console.log(e);
+          //console.log(e);
         }
       });
 

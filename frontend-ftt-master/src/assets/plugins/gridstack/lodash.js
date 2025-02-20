@@ -6919,10 +6919,10 @@
      * var array = [1];
      * var other = _.concat(array, 2, [3], [[4]]);
      *
-     * console.log(other);
+     * //console.log(other);
      * // => [1, 2, 3, [4]]
      *
-     * console.log(array);
+     * //console.log(array);
      * // => [1]
      */
     function concat() {
@@ -7207,7 +7207,7 @@
      * var array = [1, 2, 3];
      *
      * _.fill(array, 'a');
-     * console.log(array);
+     * //console.log(array);
      * // => ['a', 'a', 'a']
      *
      * _.fill(Array(3), 2);
@@ -7709,7 +7709,7 @@
      * var array = ['a', 'b', 'c', 'a', 'b', 'c'];
      *
      * _.pull(array, 'a', 'c');
-     * console.log(array);
+     * //console.log(array);
      * // => ['b', 'b']
      */
     var pull = baseRest(pullAll);
@@ -7731,7 +7731,7 @@
      * var array = ['a', 'b', 'c', 'a', 'b', 'c'];
      *
      * _.pullAll(array, ['a', 'c']);
-     * console.log(array);
+     * //console.log(array);
      * // => ['b', 'b']
      */
     function pullAll(array, values) {
@@ -7760,7 +7760,7 @@
      * var array = [{ 'x': 1 }, { 'x': 2 }, { 'x': 3 }, { 'x': 1 }];
      *
      * _.pullAllBy(array, [{ 'x': 1 }, { 'x': 3 }], 'x');
-     * console.log(array);
+     * //console.log(array);
      * // => [{ 'x': 2 }]
      */
     function pullAllBy(array, values, iteratee) {
@@ -7789,7 +7789,7 @@
      * var array = [{ 'x': 1, 'y': 2 }, { 'x': 3, 'y': 4 }, { 'x': 5, 'y': 6 }];
      *
      * _.pullAllWith(array, [{ 'x': 3, 'y': 4 }], _.isEqual);
-     * console.log(array);
+     * //console.log(array);
      * // => [{ 'x': 1, 'y': 2 }, { 'x': 5, 'y': 6 }]
      */
     function pullAllWith(array, values, comparator) {
@@ -7816,10 +7816,10 @@
      * var array = ['a', 'b', 'c', 'd'];
      * var pulled = _.pullAt(array, [1, 3]);
      *
-     * console.log(array);
+     * //console.log(array);
      * // => ['a', 'c']
      *
-     * console.log(pulled);
+     * //console.log(pulled);
      * // => ['b', 'd']
      */
     var pullAt = flatRest(function(array, indexes) {
@@ -7855,10 +7855,10 @@
      *   return n % 2 == 0;
      * });
      *
-     * console.log(array);
+     * //console.log(array);
      * // => [1, 3]
      *
-     * console.log(evens);
+     * //console.log(evens);
      * // => [2, 4]
      */
     function remove(array, predicate) {
@@ -7902,7 +7902,7 @@
      * _.reverse(array);
      * // => [3, 2, 1]
      *
-     * console.log(array);
+     * //console.log(array);
      * // => [3, 2, 1]
      */
     function reverse(array) {
@@ -8896,17 +8896,17 @@
      * var array = [1, 2];
      * var wrapped = _(array).push(3);
      *
-     * console.log(array);
+     * //console.log(array);
      * // => [1, 2]
      *
      * wrapped = wrapped.commit();
-     * console.log(array);
+     * //console.log(array);
      * // => [1, 2, 3]
      *
      * wrapped.last();
      * // => 3
      *
-     * console.log(array);
+     * //console.log(array);
      * // => [1, 2, 3]
      */
     function wrapperCommit() {
@@ -9028,7 +9028,7 @@
      * _(array).reverse().value()
      * // => [3, 2, 1]
      *
-     * console.log(array);
+     * //console.log(array);
      * // => [3, 2, 1]
      */
     function wrapperReverse() {
@@ -9345,12 +9345,12 @@
      * @example
      *
      * _.forEach([1, 2], function(value) {
-     *   console.log(value);
+     *   //console.log(value);
      * });
      * // => Logs `1` then `2`.
      *
      * _.forEach({ 'a': 1, 'b': 2 }, function(value, key) {
-     *   console.log(key);
+     *   //console.log(key);
      * });
      * // => Logs 'a' then 'b' (iteration order is not guaranteed).
      */
@@ -9375,7 +9375,7 @@
      * @example
      *
      * _.forEachRight([1, 2], function(value) {
-     *   console.log(value);
+     *   //console.log(value);
      * });
      * // => Logs `2` then `1`.
      */
@@ -9970,7 +9970,7 @@
      * @example
      *
      * _.defer(function(stamp) {
-     *   console.log(_.now() - stamp);
+     *   //console.log(_.now() - stamp);
      * }, _.now());
      * // => Logs the number of milliseconds it took for the deferred invocation.
      */
@@ -9996,7 +9996,7 @@
      * var saves = ['profile', 'settings'];
      *
      * var done = _.after(saves.length, function() {
-     *   console.log('done saving!');
+     *   //console.log('done saving!');
      * });
      *
      * _.forEach(saves, function(type) {
@@ -10454,7 +10454,7 @@
      * @example
      *
      * _.defer(function(text) {
-     *   console.log(text);
+     *   //console.log(text);
      * }, 'deferred');
      * // => Logs 'deferred' after one millisecond.
      */
@@ -10477,7 +10477,7 @@
      * @example
      *
      * _.delay(function(text) {
-     *   console.log(text);
+     *   //console.log(text);
      * }, 1000, 'later');
      * // => Logs 'later' after one second.
      */
@@ -11003,7 +11003,7 @@
      * // => []
      *
      * var array = [1, 2, 3];
-     * console.log(_.castArray(array) === array);
+     * //console.log(_.castArray(array) === array);
      * // => true
      */
     function castArray() {
@@ -11037,7 +11037,7 @@
      * var objects = [{ 'a': 1 }, { 'b': 2 }];
      *
      * var shallow = _.clone(objects);
-     * console.log(shallow[0] === objects[0]);
+     * //console.log(shallow[0] === objects[0]);
      * // => true
      */
     function clone(value) {
@@ -11068,11 +11068,11 @@
      *
      * var el = _.cloneWith(document.body, customizer);
      *
-     * console.log(el === document.body);
+     * //console.log(el === document.body);
      * // => false
-     * console.log(el.nodeName);
+     * //console.log(el.nodeName);
      * // => 'BODY'
-     * console.log(el.childNodes.length);
+     * //console.log(el.childNodes.length);
      * // => 0
      */
     function cloneWith(value, customizer) {
@@ -11095,7 +11095,7 @@
      * var objects = [{ 'a': 1 }, { 'b': 2 }];
      *
      * var deep = _.cloneDeep(objects);
-     * console.log(deep[0] === objects[0]);
+     * //console.log(deep[0] === objects[0]);
      * // => false
      */
     function cloneDeep(value) {
@@ -11123,11 +11123,11 @@
      *
      * var el = _.cloneDeepWith(document.body, customizer);
      *
-     * console.log(el === document.body);
+     * //console.log(el === document.body);
      * // => false
-     * console.log(el.nodeName);
+     * //console.log(el.nodeName);
      * // => 'BODY'
-     * console.log(el.childNodes.length);
+     * //console.log(el.childNodes.length);
      * // => 20
      */
     function cloneDeepWith(value, customizer) {
@@ -12928,7 +12928,7 @@
      * Foo.prototype.c = 3;
      *
      * _.forIn(new Foo, function(value, key) {
-     *   console.log(key);
+     *   //console.log(key);
      * });
      * // => Logs 'a', 'b', then 'c' (iteration order is not guaranteed).
      */
@@ -12960,7 +12960,7 @@
      * Foo.prototype.c = 3;
      *
      * _.forInRight(new Foo, function(value, key) {
-     *   console.log(key);
+     *   //console.log(key);
      * });
      * // => Logs 'c', 'b', then 'a' assuming `_.forIn` logs 'a', 'b', then 'c'.
      */
@@ -12994,7 +12994,7 @@
      * Foo.prototype.c = 3;
      *
      * _.forOwn(new Foo, function(value, key) {
-     *   console.log(key);
+     *   //console.log(key);
      * });
      * // => Logs 'a' then 'b' (iteration order is not guaranteed).
      */
@@ -13024,7 +13024,7 @@
      * Foo.prototype.c = 3;
      *
      * _.forOwnRight(new Foo, function(value, key) {
-     *   console.log(key);
+     *   //console.log(key);
      * });
      * // => Logs 'b' then 'a' assuming `_.forOwn` logs 'a' then 'b'.
      */
@@ -13641,11 +13641,11 @@
      * var object = { 'a': [{ 'b': { 'c': 3 } }] };
      *
      * _.set(object, 'a[0].b.c', 4);
-     * console.log(object.a[0].b.c);
+     * //console.log(object.a[0].b.c);
      * // => 4
      *
      * _.set(object, ['x', '0', 'y', 'z'], 5);
-     * console.log(object.x[0].y.z);
+     * //console.log(object.x[0].y.z);
      * // => 5
      */
     function set(object, path, value) {
@@ -13804,13 +13804,13 @@
      * _.unset(object, 'a[0].b.c');
      * // => true
      *
-     * console.log(object);
+     * //console.log(object);
      * // => { 'a': [{ 'b': {} }] };
      *
      * _.unset(object, ['a', '0', 'b', 'c']);
      * // => true
      *
-     * console.log(object);
+     * //console.log(object);
      * // => { 'a': [{ 'b': {} }] };
      */
     function unset(object, path) {
@@ -13837,11 +13837,11 @@
      * var object = { 'a': [{ 'b': { 'c': 3 } }] };
      *
      * _.update(object, 'a[0].b.c', function(n) { return n * n; });
-     * console.log(object.a[0].b.c);
+     * //console.log(object.a[0].b.c);
      * // => 9
      *
      * _.update(object, 'x[0].y.z', function(n) { return n ? n + 1 : 0; });
-     * console.log(object.x[0].y.z);
+     * //console.log(object.x[0].y.z);
      * // => 0
      */
     function update(object, path, updater) {
@@ -15248,7 +15248,7 @@
      * var view = {
      *   'label': 'docs',
      *   'click': function() {
-     *     console.log('clicked ' + this.label);
+     *     //console.log('clicked ' + this.label);
      *   }
      * };
      *
@@ -15356,10 +15356,10 @@
      *
      * var objects = _.times(2, _.constant({ 'a': 1 }));
      *
-     * console.log(objects);
+     * //console.log(objects);
      * // => [{ 'a': 1 }, { 'a': 1 }]
      *
-     * console.log(objects[0] === objects[1]);
+     * //console.log(objects[0] === objects[1]);
      * // => true
      */
     function constant(value) {
@@ -15452,7 +15452,7 @@
      *
      * var object = { 'a': 1 };
      *
-     * console.log(_.identity(object) === object);
+     * //console.log(_.identity(object) === object);
      * // => true
      */
     function identity(value) {
@@ -15979,10 +15979,10 @@
      *
      * var arrays = _.times(2, _.stubArray);
      *
-     * console.log(arrays);
+     * //console.log(arrays);
      * // => [[], []]
      *
-     * console.log(arrays[0] === arrays[1]);
+     * //console.log(arrays[0] === arrays[1]);
      * // => false
      */
     function stubArray() {
@@ -16018,10 +16018,10 @@
      *
      * var objects = _.times(2, _.stubObject);
      *
-     * console.log(objects);
+     * //console.log(objects);
      * // => [{}, {}]
      *
-     * console.log(objects[0] === objects[1]);
+     * //console.log(objects[0] === objects[1]);
      * // => false
      */
     function stubObject() {
