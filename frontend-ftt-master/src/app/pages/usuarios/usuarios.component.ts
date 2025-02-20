@@ -401,7 +401,7 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'sucursalesSeleccionadas':
         this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-        this.sucursalesSeleccionadas.length > 0 ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : this.cajerosUsuarios = [], this.serviciosServs = [];
+        this.sucursalesSeleccionadas.length > 0 ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : this.cajerosUsuarios = [], this.serviciosServs = [], this.selectedItems= [], this.serviciosSeleccionadas = [], this.todasServiciosTF =false, this.allSelected = false, this.subservicios = [], this.sub_serviciosSeleccionadas = [], this.seleccionMultipleSubServicios = false;
         break;
       case 'todasServiciosTF':
         this.todasServiciosTF = !this.todasServiciosTF;
@@ -409,7 +409,7 @@ export class UsuariosComponent implements OnInit {
         break;
       case 'serviciosSeleccionadas':
         this.seleccionMultipleServicios = this.serviciosSeleccionadas.length > 1;
-        this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : this.subservicios = [];
+        this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : this.subservicios = [], this.sub_serviciosSeleccionadas = [], this.seleccionMultipleSubServicios = false;
         break;
       case 'todasSubServiciosTF':
         this.seleccionMultipleSubServicios = !this.seleccionMultipleSubServicios;
