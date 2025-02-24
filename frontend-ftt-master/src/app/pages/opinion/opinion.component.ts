@@ -32,28 +32,19 @@ export class OpinionComponent implements OnInit {
   toDate: any;
 
   // CAPTURA DE ELEMENTOS DE LA INTERFAZ VISUAL PARA TRATARLOS Y CAPTURAR DATOS
-  @ViewChild("fromDateAtM") fromDateAtM: ElementRef;
-  @ViewChild("toDateAtM") toDateAtM: ElementRef;
-  @ViewChild("fromDateIC") fromDateIC: ElementRef;
-  @ViewChild("toDateIC") toDateIC: ElementRef;
-  @ViewChild("fromDateOcupG") fromDateOcupG: ElementRef;
-  @ViewChild("toDateOcupG") toDateOcupG: ElementRef;
-  @ViewChild("fromDateOcupGIC") fromDateOcupGIC: ElementRef;
-  @ViewChild("toDateOcupGIC") toDateOcupGIC: ElementRef;
-  @ViewChild('codSucursalAtM') codSucursalAtM: ElementRef;
-  @ViewChild('codSucursalOcupG') codSucursalOcupG: ElementRef;
+  @ViewChild("fechaDesde") fechaDesde: ElementRef;
+  @ViewChild("fechaHasta") fechaHasta: ElementRef;
+  @ViewChild("horaInicio") horaInicio: ElementRef;
+  @ViewChild("horaFin") horaFin: ElementRef;
 
-  @ViewChild("horaInicioI") horaInicioI: ElementRef;
-  @ViewChild("horaFinI") horaFinI: ElementRef;
-  @ViewChild("horaInicioIC") horaInicioIC: ElementRef;
-  @ViewChild("horaFinIC") horaFinIC: ElementRef;
+  @ViewChild("fechaDesdeG") fechaDesdeG: ElementRef;
+  @ViewChild("fechaHastaG") fechaHastaG: ElementRef;
   @ViewChild("horaInicioG") horaInicioG: ElementRef;
   @ViewChild("horaFinG") horaFinG: ElementRef;
-  @ViewChild("horaInicioGIC") horaInicioGIC: ElementRef;
-  @ViewChild("horaFinGIC") horaFinGIC: ElementRef;
+
+
   private bordeCompleto!: Partial<ExcelJS.Borders>;
   private fontTitulo!: Partial<ExcelJS.Font>;
-
 
   // VARIABLES DE LA GRAFICA
   chartPie: any;
@@ -62,39 +53,24 @@ export class OpinionComponent implements OnInit {
 
   // SERVICIOS-VARIABLES DONDE SE ALMACENARAN LAS CONSULTAS A LA BD
   servicioOpinionIC: any = [];
-  servicioOpinion: any = [];
   servicioocg: any = [];
-  servicioocgIC: any = [];
   categorias: any[];
   sucursales: any[];
   servicio: any;
 
   // VARIABLE USADA EN EXPORTACION A EXCEL
-  p_color: any;
+  p_color: any = '#0077b6';
 
   // BANDERAS PARA MOSTRAR LA TABLA CORRESPONDIENTE A LAS CONSULTAS
-  todasSucursalesI: boolean = false;
-  todasSucursalesIC: boolean = false;
-  todasSucursalesG: boolean = false;
-  todasSucursalesGIC: boolean = false;
-  todasCategorias: boolean = false;
+  todasSucursales: boolean = false;
   todosTipos: boolean = false;
 
   // BANDERAS PARA QUE NO SE QUEDE EN PANTALLA CONSULTAS ANTERIORES
   malRequestAtM: boolean = false;
-  malRequestAtMIC: boolean = false;
-  malRequestAtMPag: boolean = false;
-  malRequestAtMICPag: boolean = false;
-  malRequestIC: boolean = false;
   malRequestICPag: boolean = false;
-  malRequestOcupG: boolean = false;
 
   // USUARIO QUE INGRESO AL SISTEMA
   userDisplayName: any;
-
-  // CONTROL PAGINACION
-  configAtM: any;
-  configAtMIC: any;
   configIC: any;
   private MAX_PAGS = 10;
 
@@ -132,10 +108,8 @@ export class OpinionComponent implements OnInit {
   orientacion: string;
 
   // INFORMACION
-  marca: string = "FullTime Tickets";
+  marca: string = "";
   horas: number[] = [];
-
-  mostrarCategorias: boolean = false;
 
   constructor(
     private imagenesService: ImagenesService,
@@ -146,18 +120,6 @@ export class OpinionComponent implements OnInit {
     public datePipe: DatePipe,
   ) {
     // SETEO DE ITEM DE PAGINACION CUANTOS ITEMS POR PAGINA, DESDE QUE PAGINA EMPIEZA, EL TOTAL DE ITEMS RESPECTIVAMENTE
-    this.configAtM = {
-      id: "AtendidosMatm",
-      itemsPerPage: this.MAX_PAGS,
-      currentPage: 1,
-      totalItems: this.servicioOpinion.length,
-    };
-    this.configAtMIC = {
-      id: "AtendidosMatmIC",
-      itemsPerPage: this.MAX_PAGS,
-      currentPage: 1,
-      totalItems: this.servicioocgIC.length,
-    };
     this.configIC = {
       id: "opinionesIC",
       itemsPerPage: this.MAX_PAGS,
@@ -168,11 +130,6 @@ export class OpinionComponent implements OnInit {
     for (let i = 0; i <= 24; i++) {
       this.horas.push(i);
     }
-  }
-
-  // EVENTOS PARA AVANZAR O RETROCEDER EN LA PAGINACION
-  pageChangedAtM(event: any) {
-    this.configAtM.currentPage = event;
   }
 
   pageChangedIC(event: any) {
@@ -191,7 +148,6 @@ export class OpinionComponent implements OnInit {
     // CARGAMOS NOMBRE DE USUARIO LOGUEADO
     this.userDisplayName = sessionStorage.getItem("loggedUser");
     // SETEO DE BANDERAS CUANDO EL RESULTADO DE LA PETICION HTTP NO ES 200 OK
-    this.malRequestAtMPag = true;
     this.malRequestICPag = true;
     // CARGAR LOGO PARA LOS REPORTES
     this.imagenesService.cargarImagen().then((result: any) => {
@@ -211,39 +167,40 @@ export class OpinionComponent implements OnInit {
 
     this.fontTitulo = { bold: true, size: 12, color: { argb: "FFFFFF" } };
 
-
   }
 
   selectAll(opcion: string) {
     switch (opcion) {
-      case 'todasSucursalesI':
-        this.todasSucursalesI = !this.todasSucursalesI;
-        break;
-      case 'todasSucursalesIC':
-        this.todasSucursalesIC = !this.todasSucursalesIC;
-        break;
-      case 'todasSucursalesG':
-        this.todasSucursalesG = !this.todasSucursalesG;
-        break;
-      case 'todasSucursalesGIC':
-        this.todasSucursalesGIC = !this.todasSucursalesGIC;
-        break;
-      case 'todasCategorias':
-        this.todasCategorias = !this.todasCategorias;
+      case 'todasSucursales':
+        this.todasSucursales = !this.todasSucursales;
+        if (!this.todasSucursales) {
+          if (this.sucursalesSeleccionadas.length == 0) {
+            this.servicioOpinionIC = [];
+            this.malRequestICPag = true;
+            this.servicioocg = false;
+            this.malRequestAtM = true;
+          }
+        }
         break;
       case 'todosTipos':
         this.todosTipos = !this.todosTipos;
-        break;
-      case 'tipo1':
-        this.getCategorias(1);
-        break;
-      case 'tipo2':
-        this.getCategorias(2);
+        this.servicioOpinionIC = [];
+        this.malRequestICPag = true;
         break;
       case 'sucursalesSeleccionadas':
         this.sucursalesSeleccionadas.length > 1
           ? this.seleccionMultiple = true
           : this.seleccionMultiple = false;
+        if (this.sucursalesSeleccionadas.length == 0) {
+          this.servicioOpinionIC = [];
+          this.malRequestICPag = true;
+          this.servicioocg = false;
+          this.malRequestAtM = true;
+        }
+        break;
+      case 'seleccionarTipos':
+        this.servicioOpinionIC = [];
+        this.malRequestICPag = true;
         break;
       default:
         break;
@@ -271,24 +228,17 @@ export class OpinionComponent implements OnInit {
     });
   }
 
-  getCategorias(tipo: any) {
-    this.serviceService.getAllCategorias(tipo).subscribe((categoria: any) => {
-      this.categorias = categoria.categoria;
-      this.mostrarCategorias = true;
-    });
-  }
-
   limpiar() {
     this.getSucursales();
-    this.todasSucursalesI = false;
-    this.todasSucursalesG = false;
     this.seleccionMultiple = false;
     this.sucursalesSeleccionadas = [];
-  }
-
-  // COMPRUEBA SI SE REALIZO UNA BUSQUEDA POR SUCURSALES
-  comprobarBusquedaSucursales(cod: string) {
-    return cod == "-1" ? true : false;
+    this.servicioOpinionIC = [];
+    this.malRequestICPag = true;
+    this.tiposSeleccionados = [];
+    this.todosTipos = false;
+    this.todasSucursales = false;
+    this.servicioocg = false;
+    this.malRequestAtM = true;
   }
 
   salir() {
@@ -301,78 +251,52 @@ export class OpinionComponent implements OnInit {
     this.orientacion = orientacion;
   }
 
-  leerOpiniones() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fD = this.fromDateAtM.nativeElement.value.toString().trim();
-    var fH = this.toDateAtM.nativeElement.value.toString().trim();
-    let horaInicio = this.horaInicioI.nativeElement.value;
-    let horaFin = this.horaFinI.nativeElement.value;
+  obtenerNombreSucursal(sucursales: any) {
+    const listaSucursales = sucursales;
+    let nombreSucursal = "";
 
-    if (this.sucursalesSeleccionadas.length !== 0) {
-      this.serviceService.getopiniones(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
-        (servicio: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.servicioOpinion = servicio.turnos;
-          this.servicioOpinion.forEach(dato => {
-            if (dato.caja_caja_nombre === '0') {
-              dato.caja_caja_nombre = ' ';
-            }
-          })
-          this.malRequestAtM = false;
-          this.malRequestAtMPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configAtM.currentPage > 1) {
-            this.configAtM.currentPage = 1;
-          }
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.servicioOpinion = null;
-            this.malRequestAtM = true;
-            this.malRequestAtMPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-             **/
-            if (this.servicioOpinion == null) {
-              this.configAtM.totalItems = 0;
-            } else {
-              this.configAtM.totalItems = this.servicioOpinion.length;
-            }
-
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configAtM = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
-          }
-        }
-      );
-    }
+    listaSucursales.forEach((elemento: any) => {
+      const cod = elemento;
+      if (cod == "-1") {
+        nombreSucursal = "GENERAL";
+        return;
+      }
+      const nombre = this.sucursales.find(
+        (sucursal) => sucursal.empr_codigo == cod
+      ).empr_nombre;
+      nombreSucursal += `${nombre} `;
+    });
+    return nombreSucursal;
   }
 
-  leerOpinionesC() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fD = this.fromDateIC.nativeElement.value.toString().trim();
-    var fH = this.toDateIC.nativeElement.value.toString().trim();
-    let horaInicio = this.horaInicioIC.nativeElement.value;
-    let horaFin = this.horaFinIC.nativeElement.value;
+  // FUNCION PARA SUMAR UN DIA A LA FECHA
+  addOneDay(date: Date): Date {
+    date.setDate(date.getDate() + 1);
+    return date;
+  }
 
-    if (this.sucursalesSeleccionadas.length !== 0) {
-      this.serviceService.getopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados, this.categoriasSeleccionadas).subscribe(
+
+  /** **************************************************************************************** **
+   ** **                         INFORME GENERAL DE SATISFACCION                            ** **
+   ** **************************************************************************************** **/
+
+  LeerOpiniones() {
+    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
+    var fD = this.fechaDesde.nativeElement.value.toString().trim();
+    var fH = this.fechaHasta.nativeElement.value.toString().trim();
+    let horaInicio = this.horaInicio.nativeElement.value;
+    let horaFin = this.horaFin.nativeElement.value;
+
+    if (this.sucursalesSeleccionadas.length != 0 && this.tiposSeleccionados.length != 0) {
+      this.serviceService.getopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
         (servicio: any) => {
           // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioOpinionIC = servicio.turnos;
-          this.servicioOpinionIC.forEach(dato => {
+          this.servicioOpinionIC.forEach((dato: any) => {
             if (dato.caja_caja_nombre === '0') {
               dato.caja_caja_nombre = ' ';
             }
           })
-          this.malRequestIC = false;
           this.malRequestICPag = false;
           // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
           if (this.configIC.currentPage > 1) {
@@ -383,7 +307,6 @@ export class OpinionComponent implements OnInit {
           if (error.status == 400) {
             // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioOpinionIC = null;
-            this.malRequestIC = true;
             this.malRequestICPag = true;
             /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
              *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
@@ -407,12 +330,260 @@ export class OpinionComponent implements OnInit {
         }
       );
     }
+    else {
+      this.toastr.info("No ha seleccionado datos de búsqueda.", "Upss !!!.", {
+        timeOut: 6000,
+      });
+    }
   }
 
-  leerGrafOpinion() {
+  GenerarPDFOpiniones(action = "open", pdf: number) {
+    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
+    var fD = this.fechaDesde.nativeElement.value.toString().trim();
+    var fH = this.fechaHasta.nativeElement.value.toString().trim();
+
+    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
+    let documentDefinition: any;
+    if (pdf === 1) {
+      documentDefinition = this.EstructuraOpiniones(fD, fH);
+    }
+
+    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
+    switch (action) {
+      case "open":
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+      case "print":
+        pdfMake.createPdf(documentDefinition).print();
+        break;
+      case "download":
+        pdfMake.createPdf(documentDefinition).download();
+        break;
+
+      default:
+        pdfMake.createPdf(documentDefinition).open();
+        break;
+    }
+  }
+
+  // FUNCION DELEGADA PARA SETEO DE INFORMACION
+  EstructuraOpiniones(desde: any, hasta: any) {
+    // SE OBTIENE LA FECHA ACTUAL
+    let f = new Date();
+    f.setUTCHours(f.getHours());
+    this.date = f.toJSON();
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    return {
+      pageSize: 'A4',
+      pageOrientation: 'landscape',
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
+        fecha = f.toJSON().split("T")[0];
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
+          columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
+            {
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
+          ],
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `REPORTE MÓDULO DE SATISFACCIÓN`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${desde} HASTA ${hasta}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        this.ListarOpiniones(this.servicioOpinionIC), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF      
+      ],
+      styles: {
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        principal: { fontSize: 8, bold: true, alignment: 'center', fillColor: "#aafdc3" },
+        itemsTable: { fontSize: 8 },
+        tableMargin: { margin: [0, 0, 0, 0] },
+      },
+    };
+  }
+
+  ListarOpiniones(servicio: any[]) {
+    return {
+      style: "tableMargin",
+      table: {
+        alignment: "center",
+        headerRows: 1,
+        widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
+
+        body: [
+          [
+            { text: "Sucursal", style: "tableHeader" },
+            { text: "Tipo", style: "tableHeader" },
+            { text: "Categoría", style: "tableHeader" },
+            { text: "Fecha", style: "tableHeader" },
+            { text: "Hora", style: "tableHeader" },
+            { text: "Caja", style: "tableHeader" },
+            { text: "Observación", style: "tableHeader" },
+          ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.empresa_empr_nombre },
+              { style: "itemsTable", text: res.quejas_emi_tipo },
+              { style: "itemsTable", text: res.quejas_emi_categoria },
+              { style: "itemsTable", text: res.quejas_emi_fecha },
+              { style: "itemsTable", text: res.hora },
+              { style: "itemsTable", text: res.caja_caja_nombre },
+              { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex: any) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
+        },
+      },
+    };
+  }
+
+  async exportTOExcelSatisfaccion() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Informe Opiniones");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE MÓDULO DE SATISFACCIÓN'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fechaDesde.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.fechaHasta.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "PERIODO DE " + fechaDesde + " HASTA " + fechaHasta;
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
+    for (let step = 0; step < this.servicioOpinionIC.length; step++) {
+      jsonServicio.push([
+        this.servicioOpinionIC[step].empresa_empr_nombre,
+        this.servicioOpinionIC[step].quejas_emi_tipo,
+        this.servicioOpinionIC[step].quejas_emi_categoria,
+        this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
+        this.servicioOpinionIC[step].hora,
+        this.servicioOpinionIC[step].caja_caja_nombre,
+        this.servicioOpinionIC[step].quejas_emi_queja,
+      ]
+      );
+    }
+    worksheet.columns = [
+      { key: "sucu", width: 30 },
+      { key: "tip", width: 25 },
+      { key: "cate", width: 25 },
+      { key: "fec", width: 20 },
+      { key: "hor", width: 20 },
+      { key: "caj", width: 50 },
+      { key: "opi", width: 50 },
+    ]
+    let columnas = []
+    columnas = [
+      { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+      { name: "TIPO", totalsRowLabel: "", filterButton: true },
+      { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
+      { name: "FECHA", totalsRowLabel: "", filterButton: true },
+      { name: "HORA", totalsRowLabel: "", filterButton: true },
+      { name: "CAJA", totalsRowLabel: "", filterButton: true },
+      { name: "OBSERVACION", totalsRowLabel: "", filterButton: true },
+    ]
+
+    worksheet.addTable({
+      name: "opiniones",
+      ref: "A6",
+      headerRow: true,
+      totalsRow: false,
+      style: {
+        theme: "TableStyleMedium16",
+        showRowStripes: true,
+      },
+      columns: columnas,
+      rows: jsonServicio,
+    });
+    const numeroFilas = jsonServicio.length;
+    for (let i = 0; i <= numeroFilas; i++) {
+      for (let j = 1; j <= 7; j++) {
+        const cell = worksheet.getRow(i + 6).getCell(j);
+        if (i === 0) {
+          cell.alignment = { vertical: "middle", horizontal: "center" };
+        } else {
+          cell.alignment = {
+            vertical: "middle",
+            horizontal: this.obtenerAlineacionHorizontal(j),
+          };
+        }
+        cell.border = this.bordeCompleto;
+      }
+    }
+    worksheet.getRow(6).font = this.fontTitulo;
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, "informeOpinionesExcel - " + nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
+    }
+  }
+
+  private obtenerAlineacionHorizontal(
+    j: number
+  ): "left" | "center" | "right" {
+    if (j === 1 || j === 9 || j === 10 || j === 11) {
+      return "center";
+    } else {
+      return "left";
+    }
+  }
+
+
+  /** **************************************************************************************** **
+   ** **                         INFORME GRAFICO DE SATISFACCION                            ** **
+   ** **************************************************************************************** **/
+
+  LeerGraficoOpiniones() {
     // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fD = this.fromDateOcupG.nativeElement.value.toString().trim();
-    var fH = this.toDateOcupG.nativeElement.value.toString().trim();
+    var fD = this.fechaDesdeG.nativeElement.value.toString().trim();
+    var fH = this.fechaHastaG.nativeElement.value.toString().trim();
 
     let horaInicio = this.horaInicioG.nativeElement.value;
     let horaFin = this.horaFinG.nativeElement.value;
@@ -424,33 +595,12 @@ export class OpinionComponent implements OnInit {
         (servicioocg: any) => {
           // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
           this.servicioocg = servicioocg.turnos;
-          // this.malRequestAtM = false;
-          this.malRequestAtMPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configAtM.currentPage > 1) {
-            this.configAtM.currentPage = 1;
-          }
         },
         (error) => {
           if (error.status == 400) {
             // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
             this.servicioocg = null;
             this.malRequestAtM = true;
-            this.malRequestAtMPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-             **/
-            if (this.servicioocg == null) {
-              this.configAtM.totalItems = 0;
-            } else {
-              this.configAtM.totalItems = this.servicioocg.length;
-            }
-
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configAtM = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
             // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
             this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
               timeOut: 6000,
@@ -552,13 +702,6 @@ export class OpinionComponent implements OnInit {
             },
             options: {
               scales: {
-                /* xAxes: [
-                   {
-                     ticks: {
-                       display: this.legend,
-                     },
-                   },
-                 ],*/
               },
               plugins: {
                 title: {
@@ -581,187 +724,10 @@ export class OpinionComponent implements OnInit {
         }
       );
     }
-    /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
-     *  EVITANDO SUPERPOSISION DEL NUEVO CHART
-     **/
-    if (this.chartPie != undefined || this.chartPie != null) {
-      this.chartPie.destroy();
-    }
-    if (this.chartBar != undefined || this.chartBar != null) {
-      this.chartBar.destroy();
-    }
-  }
-
-  leerGrafOpinionIC() {
-    // CAPTURA DE FECHAS PARA PROCEDER CON LA BUSQUEDA
-    var fD = this.fromDateOcupGIC.nativeElement.value.toString().trim();
-    var fH = this.toDateOcupGIC.nativeElement.value.toString().trim();
-
-    let horaInicio = this.horaInicioGIC.nativeElement.value;
-    let horaFin = this.horaFinGIC.nativeElement.value;
-
-    this.malRequestAtMIC = false;
-
-    if (this.sucursalesSeleccionadas.length !== 0) {
-      this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
-        (servicioocgIC: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          this.servicioocgIC = servicioocgIC.turnos;
-          this.malRequestAtMICPag = false;
-          // SETEO DE PAGINACION CUANDO SE HACE UNA NUEVA BUSQUEDA
-          if (this.configAtMIC.currentPage > 1) {
-            this.configAtMIC.currentPage = 1;
-          }
-        },
-        (error) => {
-          if (error.status == 400) {
-            // SI HAY ERROR 400 SE VACIA VARIABLE Y SE SETEA BANDERAS PARA QUE TABLAS NO SEAN VISISBLES  DE INTERFAZ
-            this.servicioocgIC = null;
-            this.malRequestAtMIC = true;
-            this.malRequestAtMICPag = true;
-            /** COMPROBACION DE QUE SI VARIABLE ESTA VACIA PUES SE SETEA LA PAGINACION CON 0 ITEMS
-             *  CASO CONTRARIO SE SETEA LA CANTIDAD DE ELEMENTOS
-             **/
-            if (this.servicioocgIC == null) {
-              this.configAtMIC.totalItems = 0;
-            } else {
-              this.configAtMIC.totalItems = this.servicioocgIC.length;
-            }
-
-            // POR ERROR 400 SE SETEA ELEMENTOS DE PAGINACION
-            this.configAtMIC = {
-              itemsPerPage: this.MAX_PAGS,
-              currentPage: 1,
-            };
-            // SE INFORMA QUE NO SE ENCONTRARON REGISTROS
-            this.toastr.info("No se han encontrado registros.", "Upss !!!.", {
-              timeOut: 6000,
-            });
-          }
-        }
-      );
-
-      this.serviceService.getgraficoopinionesIC(fD, fH, horaInicio, horaFin, this.sucursalesSeleccionadas, this.tiposSeleccionados).subscribe(
-        (servicio: any) => {
-          // SI SE CONSULTA CORRECTAMENTE SE GUARDA EN VARIABLE Y SETEA BANDERAS DE TABLAS
-          // SE VERIFICA EL ANCHO DE PANTALLA PARA COLOCAR O NO LABELS
-          this.legend = screen.width < 575 ? false : true;
-          // MAPEO DE PORCENTAJES PARA MOSTRAR EN PANTALLA
-          this.servicio = servicio.turnos;
-          let total = servicio.turnos.map((res) => res.queja_cantidad);
-          let tipo = servicio.turnos.map((res) => res.quejas_emi_categoria);
-          let Nombres: any = [];
-          let totalPorc = 0;
-          for (var i = 0; i < tipo.length; i++) {
-            totalPorc = totalPorc + total[i];
-          }
-          for (var i = 0; i < tipo.length; i++) {
-            Nombres.push(
-              tipo[i] +
-              "\n" +
-              Math.round(((total[i] * 100) / totalPorc) * 1000) / 1000 +
-              "%"
-            );
-          }
-
-          // SE CREA EL GRAFICO
-          this.chartPie = new Chart("canvas3", {
-            // EL TIPO DE GRAFICO
-            type: (this.tipo = "pie"),
-            data: {
-              labels: Nombres, // EJE X
-              datasets: [
-                {
-                  label: "Total",
-                  data: total, // EJE Y
-                  backgroundColor: [
-                    "rgba(255, 99, 132, 0.6)",
-                    "rgba(54, 162, 235, 0.6)",
-                    "rgba(255, 206, 86, 0.6)",
-                    "rgba(75, 192, 192, 0.6)",
-                    "rgba(153, 102, 255, 0.6)",
-                    "rgba(255, 159, 64, 0.6)",
-
-                    "rgba(104, 210, 34, 0.6)",
-                  ],
-                },
-              ],
-            },
-            // SE SETEA TITULO ASI COMO VALORES EN GRAFICO
-            options: {
-
-              plugins: {
-                title: {
-                  display: true,
-                },
-                datalabels: {
-                  color: "black",
-                  labels: {
-                    title: {
-                      color: "blue",
-                      font: {
-                        weight: "bold",
-                      },
-                    },
-                  },
-                },
-              },
-              responsive: true,
-            },
-          });
-          // SE CREA SEGUNDO GRAFICO
-          this.chartBar = new Chart("canvas4", {
-            // TIPO DE GRÁFICO BAR
-            type: (this.tipo = "bar"),
-            data: {
-              labels: Nombres, // EJE X
-              datasets: [
-                {
-                  label: "Total",
-                  data: total, // EJE Y
-                  backgroundColor: [
-                    "rgba(255, 99, 132, 0.6)",
-                    "rgba(54, 162, 235, 0.6)",
-                    "rgba(255, 206, 86, 0.6)",
-                    "rgba(75, 192, 192, 0.6)",
-                    "rgba(153, 102, 255, 0.6)",
-                    "rgba(255, 159, 64, 0.6)",
-
-                    "rgba(104, 210, 34, 0.6)",
-                  ],
-                },
-              ],
-            },
-            options: {
-              scales: {
-                /* xAxes: [
-                   {
-                     ticks: {
-                       display: this.legend,
-                     },
-                   },
-                 ],*/
-              },
-              plugins: {
-                title: {
-                  display: true,
-                },
-                legend: {
-                  display: false,
-                },
-              },
-
-              responsive: true,
-            },
-          });
-        },
-        (error) => {
-          if (error.status == 400) {
-            // POR ERROR 400 SE VACIA VARIABLE DE CONSULTA
-            this.servicio = null;
-          }
-        }
-      );
+    else {
+      this.toastr.info("No ha seleccionado datos.", "Upss !!!.", {
+        timeOut: 6000,
+      });
     }
     /** SI CHART ES VACIO NO PASE NADA, CASO CONTRARIO SI TIENEN YA DATOS, SE DESTRUYA PARA CREAR UNO NUEVO,
      *  EVITANDO SUPERPOSISION DEL NUEVO CHART
@@ -774,759 +740,14 @@ export class OpinionComponent implements OnInit {
     }
   }
 
-  obtenerNombreSucursal(sucursales: any) {
-    const listaSucursales = sucursales;
-    let nombreSucursal = "";
-
-    listaSucursales.forEach(elemento => {
-      const cod = elemento;
-      if (cod == "-1") {
-        nombreSucursal = "Todas las sucursales";
-        return;
-      }
-      const nombre = this.sucursales.find(
-        (sucursal) => sucursal.empr_codigo == cod
-      ).empr_nombre;
-      nombreSucursal += `${nombre} `;
-    });
-    return nombreSucursal;
-  }
-
-  // EXCEL
-
-  // Función para sumar un día a la fecha
-  addOneDay(date: Date): Date {
-    date.setDate(date.getDate() + 1);
-    return date;
-  }
-
-  async exportTOExcelOpiniones() {
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Informe General");
-    this.imagen = workbook.addImage({
-      base64: this.urlImagen,
-      extension: "png",
-    });
-
-    worksheet.addImage(this.imagen, {
-      tl: { col: 0, row: 0 },
-      ext: { width: 220, height: 105 },
-    });
-
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // COMBINAR CELDAS
-    worksheet.mergeCells("B1:H1");
-    worksheet.mergeCells("B2:H2");
-    worksheet.mergeCells("B3:H3");
-    worksheet.mergeCells("B4:H4");
-    worksheet.mergeCells("B5:H5");
-    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
-    worksheet.getCell("B1").value = 'REPORTE - INFORME GENERAL'.toUpperCase();
-    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
-    var fechaDesde = this.fromDateAtM.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateAtM.nativeElement.value
-      .toString()
-      .trim();
-    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
-
-    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
-    ["B1", "B2", "B3"].forEach((cell) => {
-      worksheet.getCell(cell).alignment = {
-        horizontal: "center",
-        vertical: "middle",
-      };
-      worksheet.getCell(cell).font = { bold: true, size: 14 };
-    });
-
-
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    if (this.todasSucursalesI || this.seleccionMultiple) {
-      for (let step = 0; step < this.servicioOpinion.length; step++) {
-
-        jsonServicio.push([
-          this.servicioOpinion[step].empresa_empr_nombre,
-          this.servicioOpinion[step].quejas_emi_tipo,
-          this.servicioOpinion[step].quejas_emi_categoria,
-          this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
-          this.servicioOpinion[step].hora,
-          this.servicioOpinion[step].caja_caja_nombre,
-          this.servicioOpinion[step].quejas_emi_queja,
-        ]);
-
-        worksheet.columns = [
-          { key: "suc", width: 50 },
-          { key: "tip", width: 50 },
-          { key: "cate", width: 20 },
-          { key: "fec", width: 20 },
-          { key: "hor", width: 20 },
-          { key: "caj", width: 20 },
-          { key: "opi", width: 20 },
-        ]
-
-        let columnas = []
-        columnas = [
-          { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-          { name: "TIPO", totalsRowLabel: "", filterButton: true },
-          { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
-          { name: "FECHA", totalsRowLabel: "", filterButton: true },
-          { name: "HORA", totalsRowLabel: "", filterButton: true },
-          { name: "CAJA", totalsRowLabel: "", filterButton: true },
-          { name: "OPINION", totalsRowLabel: "", filterButton: true },
-        ]
-
-        worksheet.addTable({
-          name: "turnostotales",
-          ref: "A6",
-          headerRow: true,
-          totalsRow: false,
-          style: {
-            theme: "TableStyleMedium16",
-            showRowStripes: true,
-          },
-          columns: columnas,
-          rows: jsonServicio,
-        });
-
-
-        const numeroFilas = jsonServicio.length;
-        for (let i = 0; i <= numeroFilas; i++) {
-          for (let j = 1; j <= 7; j++) {
-            const cell = worksheet.getRow(i + 6).getCell(j);
-            if (i === 0) {
-              cell.alignment = { vertical: "middle", horizontal: "center" };
-            } else {
-              cell.alignment = {
-                vertical: "middle",
-                horizontal: this.obtenerAlineacionHorizontal(j),
-              };
-            }
-            cell.border = this.bordeCompleto;
-          }
-        }
-        worksheet.getRow(6).font = this.fontTitulo;
-      }
-    } else {
-      for (let step = 0; step < this.servicioOpinion.length; step++) {
-        jsonServicio.push([
-          this.servicioOpinion[step].quejas_emi_tipo,
-          this.servicioOpinion[step].quejas_emi_categoria,
-          this.addOneDay(new Date(this.servicioOpinion[step].quejas_emi_fecha)),
-          this.servicioOpinion[step].hora,
-          this.servicioOpinion[step].caja_caja_nombre,
-          this.servicioOpinion[step].quejas_emi_queja,
-        ]);
-
-      }
-
-      worksheet.columns = [
-        { key: "tip", width: 50 },
-        { key: "cate", width: 20 },
-        { key: "fec", width: 20 },
-        { key: "hor", width: 20 },
-        { key: "caj", width: 20 },
-        { key: "opi", width: 20 },
-      ]
-
-      let columnas = []
-      columnas = [
-        { name: "TIPO", totalsRowLabel: "", filterButton: true },
-        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
-        { name: "FECHA", totalsRowLabel: "", filterButton: true },
-        { name: "HORA", totalsRowLabel: "", filterButton: true },
-        { name: "CAJA", totalsRowLabel: "", filterButton: true },
-        { name: "OPINION", totalsRowLabel: "", filterButton: true },
-      ]
-
-      worksheet.addTable({
-        name: "turnostotales",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
-
-
-      const numeroFilas = jsonServicio.length;
-      for (let i = 0; i <= numeroFilas; i++) {
-        for (let j = 1; j <= 6; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
-          }
-          cell.border = this.bordeCompleto;
-        }
-      }
-      worksheet.getRow(6).font = this.fontTitulo;
-    }
-
-
-    try {
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: "application/octet-stream" });
-      FileSaver.saveAs(blob, "informeOpinionesExcel - " + nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION);
-    } catch (error) {
-      console.error("Error al generar el archivo Excel:", error);
-    }
-  }
-
-  async exportTOExcelOpinionesIC() {
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Informe");
-    this.imagen = workbook.addImage({
-      base64: this.urlImagen,
-      extension: "png",
-    });
-
-    worksheet.addImage(this.imagen, {
-      tl: { col: 0, row: 0 },
-      ext: { width: 220, height: 105 },
-    });
-
-
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // COMBINAR CELDAS
-    worksheet.mergeCells("B1:H1");
-    worksheet.mergeCells("B2:H2");
-    worksheet.mergeCells("B3:H3");
-    worksheet.mergeCells("B4:H4");
-    worksheet.mergeCells("B5:H5");
-
-
-
-    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
-    worksheet.getCell("B1").value = 'REPORTE - INFORME QUEJAS Y RECLAMOS'.toUpperCase();
-    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
-    var fechaDesde = this.fromDateIC.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateIC.nativeElement.value
-      .toString()
-      .trim();
-    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
-
-    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
-    ["B1", "B2", "B3"].forEach((cell) => {
-      worksheet.getCell(cell).alignment = {
-        horizontal: "center",
-        vertical: "middle",
-      };
-      worksheet.getCell(cell).font = { bold: true, size: 14 };
-    });
-
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    if (this.todasSucursalesIC || this.seleccionMultiple) {
-      for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-        jsonServicio.push([
-          this.servicioOpinionIC[step].empresa_empr_nombre,
-          this.servicioOpinionIC[step].quejas_emi_tipo,
-          this.servicioOpinionIC[step].quejas_emi_categoria,
-          this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
-          this.servicioOpinionIC[step].hora,
-          this.servicioOpinionIC[step].caja_caja_nombre,
-          this.servicioOpinionIC[step].quejas_emi_queja,
-        ]
-
-        );
-      }
-      worksheet.columns = [
-        { key: "sucu", width: 20 },
-        { key: "tip", width: 50 },
-        { key: "cate", width: 20 },
-        { key: "fec", width: 20 },
-        { key: "hor", width: 20 },
-        { key: "caj", width: 20 },
-        { key: "opi", width: 20 },
-      ]
-
-      let columnas = []
-      columnas = [
-        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-        { name: "TIPO", totalsRowLabel: "", filterButton: true },
-        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
-        { name: "FECHA", totalsRowLabel: "", filterButton: true },
-        { name: "HORA", totalsRowLabel: "", filterButton: true },
-        { name: "CAJA", totalsRowLabel: "", filterButton: true },
-        { name: "OPINION", totalsRowLabel: "", filterButton: true },
-      ]
-
-      worksheet.addTable({
-        name: "turnostotales",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
-
-      const numeroFilas = jsonServicio.length;
-      let tamanioC = 0;
-      for (let i = 0; i <= numeroFilas; i++) {
-        for (let j = 1; j <= 7; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
-          }
-          cell.border = this.bordeCompleto;
-        }
-      }
-      worksheet.getRow(6).font = this.fontTitulo;
-
-
-    } else {
-      for (let step = 0; step < this.servicioOpinionIC.length; step++) {
-
-        jsonServicio.push([
-          this.servicioOpinionIC[step].quejas_emi_tipo,
-          this.servicioOpinionIC[step].quejas_emi_categoria,
-          this.addOneDay(new Date(this.servicioOpinionIC[step].quejas_emi_fecha)),
-          this.servicioOpinionIC[step].hora,
-          this.servicioOpinionIC[step].caja_caja_nombre,
-          this.servicioOpinionIC[step].quejas_emi_queja,
-        ])
-      }
-      worksheet.columns = [
-        { key: "tip", width: 50 },
-        { key: "cate", width: 20 },
-        { key: "fec", width: 20 },
-        { key: "hor", width: 20 },
-        { key: "caj", width: 20 },
-        { key: "opi", width: 20 },
-      ]
-
-      let columnas = []
-      columnas = [
-        { name: "TIPO", totalsRowLabel: "", filterButton: true },
-        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
-        { name: "FECHA", totalsRowLabel: "", filterButton: true },
-        { name: "HORA", totalsRowLabel: "", filterButton: true },
-        { name: "CAJA", totalsRowLabel: "", filterButton: true },
-        { name: "OPINION", totalsRowLabel: "", filterButton: true },
-      ]
-
-      worksheet.addTable({
-        name: "turnostotales",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
-
-      const numeroFilas = jsonServicio.length;
-      let tamanioC = 0;
-      for (let i = 0; i <= numeroFilas; i++) {
-
-        for (let j = 1; j <= 6; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
-          }
-          cell.border = this.bordeCompleto;
-        }
-      }
-      worksheet.getRow(6).font = this.fontTitulo;
-    }
-
-    try {
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: "application/octet-stream" });
-      FileSaver.saveAs(blob, "informeOpinionesExcel - " + nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION);
-    } catch (error) {
-      console.error("Error al generar el archivo Excel:", error);
-    }
-  }
-
-  private obtenerAlineacionHorizontal(
-    j: number
-  ): "left" | "center" | "right" {
-    if (j === 1 || j === 9 || j === 10 || j === 11) {
-      return "center";
-    } else {
-      return "left";
-    }
-  }
-
-  async exportTOExcelOpinionesGrafico() {
-
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Informe General");
-    this.imagen = workbook.addImage({
-      base64: this.urlImagen,
-      extension: "png",
-    });
-
-    worksheet.addImage(this.imagen, {
-      tl: { col: 0, row: 0 },
-      ext: { width: 220, height: 105 },
-    });
-
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // COMBINAR CELDAS
-    worksheet.mergeCells("B1:H1");
-    worksheet.mergeCells("B2:H2");
-    worksheet.mergeCells("B3:H3");
-    worksheet.mergeCells("B4:H4");
-    worksheet.mergeCells("B5:H5");
-    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
-    worksheet.getCell("B1").value = 'REPORTE - GRAFICO GENERAL'.toUpperCase();
-    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
-    var fechaDesde = this.fromDateOcupG.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.toDateOcupG.nativeElement.value
-      .toString()
-      .trim();
-    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
-
-    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
-    ["B1", "B2", "B3"].forEach((cell) => {
-      worksheet.getCell(cell).alignment = {
-        horizontal: "center",
-        vertical: "middle",
-      };
-      worksheet.getCell(cell).font = { bold: true, size: 14 };
-    });
-
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    if (this.todasSucursalesG || this.seleccionMultiple) {
-      for (let step = 0; step < this.servicioocg.length; step++) {
-
-        jsonServicio.push([
-          this.servicioocg[step].empresa_empr_nombre,
-          this.servicioocg[step].quejas_emi_tipo,
-          this.servicioocg[step].queja_cantidad,
-        ])
-      }
-
-      worksheet.columns = [
-        { key: "suc", width: 50 },
-        { key: "tip", width: 50 },
-        { key: "canti", width: 20 },
-      ]
-
-      let columnas = []
-      columnas = [
-        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-        { name: "TIPO", totalsRowLabel: "", filterButton: true },
-        { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
-      ]
-
-
-      worksheet.addTable({
-        name: "turnostotales",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
-
-
-      const numeroFilas = jsonServicio.length;
-      for (let i = 0; i <= numeroFilas; i++) {
-        for (let j = 1; j <= 3; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
-          }
-          cell.border = this.bordeCompleto;
-        }
-      }
-      worksheet.getRow(6).font = this.fontTitulo;
-
-
-    } else {
-      for (let step = 0; step < this.servicioocg.length; step++) {
-        jsonServicio.push([
-          this.servicioocg[step].quejas_emi_tipo,
-          this.servicioocg[step].queja_cantidad,
-        ])
-      }
-
-      worksheet.columns = [
-        { key: "tip", width: 50 },
-        { key: "canti", width: 20 },
-      ]
-
-      let columnas = []
-      columnas = [
-        { name: "TIPO", totalsRowLabel: "", filterButton: true },
-        { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
-      ]
-
-
-      worksheet.addTable({
-        name: "turnostotales",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
-
-
-      const numeroFilas = jsonServicio.length;
-      for (let i = 0; i <= numeroFilas; i++) {
-        for (let j = 1; j <= 2; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
-          }
-          cell.border = this.bordeCompleto;
-        }
-      }
-      worksheet.getRow(6).font = this.fontTitulo;
-
-    }
-    try {
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: "application/octet-stream" });
-      FileSaver.saveAs(blob, "informeOpinionesExcel - " + nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION);
-    } catch (error) {
-      console.error("Error al generar el archivo Excel:", error);
-    }
-
-  }
-
-  async exportTOExcelOpinionesGraficoIC() {
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Quejas y Reclamos");
-    this.imagen = workbook.addImage({
-      base64: this.urlImagen,
-      extension: "png",
-    });
-
-    worksheet.addImage(this.imagen, {
-      tl: { col: 0, row: 0 },
-      ext: { width: 220, height: 105 },
-    });
-
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-    // COMBINAR CELDAS
-    worksheet.mergeCells("B1:H1");
-    worksheet.mergeCells("B2:H2");
-    worksheet.mergeCells("B3:H3");
-    worksheet.mergeCells("B4:H4");
-    worksheet.mergeCells("B5:H5");
-    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
-    worksheet.getCell("B1").value = 'REPORTE - QUEJAS Y RECLAMOS'.toUpperCase();
-    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
-    var fechaDesde = this.fromDateOcupGIC.nativeElement.value
-      .toString()
-      .trim();
-    var fechaHasta = this.fromDateOcupGIC.nativeElement.value
-      .toString()
-      .trim();
-    worksheet.getCell("B3").value = "Periodo de " + fechaDesde + " hasta " + fechaHasta;
-
-    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
-    ["B1", "B2", "B3"].forEach((cell) => {
-      worksheet.getCell(cell).alignment = {
-        horizontal: "center",
-        vertical: "middle",
-      };
-      worksheet.getCell(cell).font = { bold: true, size: 14 };
-    });
-
-    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
-    let jsonServicio: any = [];
-    if (this.todasSucursalesGIC || this.seleccionMultiple) {
-      for (let step = 0; step < this.servicioocgIC.length; step++) {
-        jsonServicio.push([
-          this.servicioocgIC[step].empresa_empr_nombre,
-          this.servicioocgIC[step].quejas_emi_tipo,
-          this.servicioocgIC[step].quejas_emi_categoria,
-          this.servicioocgIC[step].queja_cantidad,
-        ]
-        );
-      }
-      worksheet.columns = [
-        { key: "suc", width: 50 },
-        { key: "tip", width: 50 },
-        { key: "cate", width: 20 },
-        { key: "cant", width: 20 },
-      ]
-
-      let columnas = []
-      columnas = [
-        { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
-        { name: "TIPO", totalsRowLabel: "", filterButton: true },
-        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
-        { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
-      ]
-
-      worksheet.addTable({
-        name: "turnostotales",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
-
-
-      const numeroFilas = jsonServicio.length;
-      for (let i = 0; i <= numeroFilas; i++) {
-        for (let j = 1; j <= 4; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
-          }
-          cell.border = this.bordeCompleto;
-        }
-      }
-      worksheet.getRow(6).font = this.fontTitulo;
-    } else {
-      for (let step = 0; step < this.servicioocgIC.length; step++) {
-        jsonServicio.push([
-          this.servicioocgIC[step].quejas_emi_tipo,
-          this.servicioocgIC[step].quejas_emi_categoria,
-          this.servicioocgIC[step].queja_cantidad,
-        ])
-      }
-
-      worksheet.columns = [
-        { key: "tip", width: 50 },
-        { key: "cate", width: 20 },
-        { key: "cant", width: 20 },
-      ]
-
-      let columnas = []
-      columnas = [
-        { name: "TIPO", totalsRowLabel: "", filterButton: true },
-        { name: "CATEGORIA", totalsRowLabel: "", filterButton: true },
-        { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
-      ]
-
-      worksheet.addTable({
-        name: "turnostotales",
-        ref: "A6",
-        headerRow: true,
-        totalsRow: false,
-        style: {
-          theme: "TableStyleMedium16",
-          showRowStripes: true,
-        },
-        columns: columnas,
-        rows: jsonServicio,
-      });
-
-
-      const numeroFilas = jsonServicio.length;
-      for (let i = 0; i <= numeroFilas; i++) {
-        for (let j = 1; j <= 3; j++) {
-          const cell = worksheet.getRow(i + 6).getCell(j);
-          if (i === 0) {
-            cell.alignment = { vertical: "middle", horizontal: "center" };
-          } else {
-            cell.alignment = {
-              vertical: "middle",
-              horizontal: this.obtenerAlineacionHorizontal(j),
-            };
-          }
-          cell.border = this.bordeCompleto;
-        }
-      }
-      worksheet.getRow(6).font = this.fontTitulo;
-    }
-
-    try {
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: "application/octet-stream" });
-      FileSaver.saveAs(blob, "informeOpinionesExcelG - " + nombreSucursal +
-        " - " +
-        new Date().toLocaleString() +
-        EXCEL_EXTENSION);
-    } catch (error) {
-      console.error("Error al generar el archivo Excel:", error);
-    }
-
-  }
-
-  //---PDF
   generarPdfOpiniones(action = "open", pdf: number) {
     // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
-    var fD = this.fromDateAtM.nativeElement.value.toString().trim();
-    var fH = this.toDateAtM.nativeElement.value.toString().trim();
+    var fD = this.fechaDesde.nativeElement.value.toString().trim();
+    var fH = this.fechaHasta.nativeElement.value.toString().trim();
 
     // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
     let documentDefinition: any;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentOpiniones(fD, fH);
-    } else if (pdf === 2) {
+    if (pdf === 2) {
       documentDefinition = this.getDocumentOpinionesGraficos(fD, fH);
     }
 
@@ -1549,264 +770,6 @@ export class OpinionComponent implements OnInit {
   }
 
   // FUNCION DELEGADA PARA SETEO DE INFORMACION
-  getDocumentOpiniones(fD: any, fH: any) {
-    // SE OBTIENE LA FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
-    return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      pageOrientation: 'landscape',
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Informe de opiniones",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo  de " + fD + " hasta " + fH,
-        },
-        this.opiniones(this.servicioOpinion), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [5, 5, 5, 5] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [80, 5, 80, 40], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  generarPdfOpinionesIC(action = "open", pdf: number) {
-    // SETEO DE RANGO DE FECHAS DE LA CONSULTA PARA IMPRESION EN PDF
-    var fD = this.fromDateIC.nativeElement.value.toString().trim();
-    var fH = this.toDateIC.nativeElement.value.toString().trim();
-
-    // DEFINICION DE FUNCION DELEGADA PARA SETEAR ESTRUCTURA DEL PDF
-    let documentDefinition: any;
-    if (pdf === 1) {
-      documentDefinition = this.getDocumentOpinionesIC(fD, fH);
-    } else if (pdf === 2) {
-      documentDefinition = this.getDocumentOpinionesGraficosIC(fD, fH);
-    }
-
-
-    // OPCIONES DE PDF DE LAS CUALES SE USARA LA DE OPEN, LA CUAL ABRE EN NUEVA PESTAÑA EL PDF CREADO
-    switch (action) {
-      case "open":
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-      case "print":
-        pdfMake.createPdf(documentDefinition).print();
-        break;
-      case "download":
-        pdfMake.createPdf(documentDefinition).download();
-        break;
-
-      default:
-        pdfMake.createPdf(documentDefinition).open();
-        break;
-    }
-  }
-
-  // FUNCION DELEGADA PARA SETEO DE INFORMACION
-  getDocumentOpinionesIC(fD, fH) {
-    // SE OBTIENE LA FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
-    return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      pageOrientation: 'landscape',
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Informe de opiniones",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
-          ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo  de " + fD + " hasta " + fH,
-        },
-        this.opinionesIC(this.servicioOpinionIC), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [5, 5, 5, 5] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [80, 5, 80, 40], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
-      },
-    };
-  }
-
-  // FUNCION DELEGADA PARA SETEO DE INFORMACION
   getDocumentOpinionesGraficos(fD: any, fH: any) {
     // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
     var canvas1 = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -1819,232 +782,80 @@ export class OpinionComponent implements OnInit {
     f.setUTCHours(f.getHours());
     this.date = f.toJSON();
     let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
+      pageSize: 'A4',
       pageOrientation: this.orientacion,
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
+      pageMargins: [40, 60, 40, 40],
+      watermark: { text: this.marca, color: 'blue', opacity: 0.1, bold: true, italics: false },
+      header: { text: 'Impreso por:  ' + this.userDisplayName, margin: 10, fontSize: 9, opacity: 0.3, alignment: 'right' },
+
+      footer: function (currentPage: any, pageCount: any, fecha: any, timer: any) {
         fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
+        timer = f.toJSON().split("T")[1].slice(0, 5);
+        return {
+          margin: 10,
           columns: [
+            { text: 'Fecha: ' + fecha + ' Hora: ' + timer, opacity: 0.3 },
             {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Opiniones",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
+              text: [
+                {
+                  text: '© Pag ' + currentPage.toString() + ' de ' + pageCount,
+                  alignment: 'right', opacity: 0.3
+                }
+              ],
+            }
           ],
-        },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fD + " hasta " + fH,
-        },
+          fontSize: 10
+        }
+      },
+      content: [
+        { image: this.urlImagen, width: 100, margin: [10, -25, 0, 5] },
+        { text: `REPORTE DEL MÓDULO DE SATISFACCIÓN`, bold: true, fontSize: 14, alignment: 'center', margin: [0, -30, 0, 5] },
+        { text: nombreSucursal?.toUpperCase(), bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
+        { text: `PERIODO DEL ${fD} HASTA ${fH}`, bold: true, fontSize: 12, alignment: 'center', margin: [0, 0, 0, 5], },
         this.opinionesGraficos(this.servicioocg),
         this.grafico(canvasImg),
         this.grafico(canvasImg1), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
       ],
       styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
+        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: this.p_color },
+        principal: { fontSize: 8, bold: true, alignment: 'center', fillColor: "#aafdc3" },
+        itemsTable: { fontSize: 8 },
+        tableMargin: { margin: [0, 0, 0, 0] },
       },
     };
   }
 
-  getDocumentOpinionesGraficosIC(fD: any, fH: any) {
-    // SELECCIONA DE LA INTERFAZ EL ELEMENTO QUE CONTIENE LA GRAFICA
-    var canvas1 = document.querySelector("#canvas3") as HTMLCanvasElement;
-    var canvas2 = document.querySelector("#canvas4") as HTMLCanvasElement;
-    // DE IMAGEN HTML, A MAPA64 BITS FORMATO CON EL QUE TRABAJA PDFMAKE
-    var canvasImg = canvas1.toDataURL("image/png");
-    var canvasImg1 = canvas2.toDataURL("image/png");
-    // SE OBTIENE LA FECHA ACTUAL
-    let f = new Date();
-    f.setUTCHours(f.getHours());
-    this.date = f.toJSON();
-    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
-
+  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
+  opinionesGraficos(servicio: any[]) {
     return {
-      // SETEO DE MARCA DE AGUA Y ENCABEZADO CON NOMBRE DE USUARIO LOGUEADO
-      watermark: {
-        text: this.marca,
-        color: "blue",
-        opacity: 0.1,
-        bold: true,
-        italics: false,
-        fontSize: 52,
-      },
-      header: {
-        text: "Impreso por:  " + this.userDisplayName,
-        margin: 10,
-        fontSize: 9,
-        opacity: 0.3,
-      },
-      pageOrientation: this.orientacion,
-      // SETEO DE PIE DE PAGINA, FECHA DE GENERACION DE PDF CON NUMERO DE PAGINAS
-      footer: function (currentPage: any, pageCount: any, fecha: any) {
-        fecha = f.toJSON().split("T")[0];
-        var timer = f.toJSON().split("T")[1].slice(0, 5);
-        return [
-          {
-            margin: [10, 20, 10, 0],
-            columns: [
-              "Fecha: " + fecha + " Hora: " + timer,
-              {
-                text: [
-                  {
-                    text:
-                      "© Pag " + currentPage.toString() + " of " + pageCount,
-                    alignment: "right",
-                    color: "blue",
-                    opacity: 0.5,
-                  },
-                ],
-              },
-            ],
-            fontSize: 9,
-            color: "#A4B8FF",
-          },
-        ];
-      },
-      // CONTENIDO DEL PDF, LOGO, NOMBRE DEL REPORTE, CON EL RENAGO DE FECHAS DE LOS DATOS
-      content: [
-        {
-          columns: [
-            {
-              image: this.urlImagen,
-              width: 90,
-              height: 45,
-            },
-            {
-              width: "*",
-              alignment: "center",
-              text: "Reporte - Opiniones",
-              bold: true,
-              fontSize: 15,
-              margin: [-90, 20, 0, 0],
-            },
+      style: "tableMargin",
+      table: {
+        alignment: "center",
+        headerRows: 1,
+        widths: ["*", "*", "*"],
+        body: [
+          [
+            { text: "SUCURSAL", style: "tableHeader" },
+            { text: "TIPO", style: "tableHeader" },
+            { text: "CANTIDAD", style: "tableHeader" },
           ],
+          ...servicio.map((res) => {
+            return [
+              { style: "itemsTable", text: res.empresa_empr_nombre },
+              { style: "itemsTable", text: res.quejas_emi_tipo },
+              { style: "itemsTable", text: res.queja_cantidad },
+            ];
+          }),
+        ],
+      },
+      layout: {
+        fillColor: function (rowIndex: any) {
+          return rowIndex % 2 === 0 ? "#E5E7E9" : null;
         },
-        {
-          style: "subtitulos",
-          text: nombreSucursal,
-        },
-        {
-          style: "subtitulos",
-          text: "Periodo de " + fD + " hasta " + fH,
-        },
-        this.opinionesGraficosIC(this.servicioocgIC),
-        this.grafico(canvasImg),
-        this.grafico(canvasImg1), // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF
-      ],
-      styles: {
-        tableTotal: {
-          fontSize: 30,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        tableHeader: {
-          fontSize: 9,
-          bold: true,
-          alignment: "center",
-          fillColor: this.p_color,
-        },
-        itemsTable: { fontSize: 8, margin: [0, 3, 0, 3] },
-        itemsTableInfo: { fontSize: 10, margin: [0, 5, 0, 5] },
-        subtitulos: {
-          fontSize: 16,
-          alignment: "center",
-          margin: [0, 5, 0, 10],
-        },
-        tableMargin: { margin: [0, 20, 0, 0], alignment: "center" },
-        CabeceraTabla: {
-          fontSize: 12,
-          alignment: "center",
-          margin: [0, 8, 0, 8],
-          fillColor: this.p_color,
-        },
-        quote: { margin: [5, -2, 0, -2], italics: true },
-        small: { fontSize: 8, color: "blue", opacity: 0.5 },
       },
     };
+
   }
 
   grafico(imagen: any) {
@@ -2066,277 +877,106 @@ export class OpinionComponent implements OnInit {
     }
   }
 
-  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
-  opiniones(servicio: any[]) {
-    if (this.todasSucursalesI || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          alignment: "center",
-          headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
+  async exportTOExcelOpinionesGrafico() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Informe General");
+    this.imagen = workbook.addImage({
+      base64: this.urlImagen,
+      extension: "png",
+    });
 
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Tipo", style: "tableHeader" },
-              { text: "Categoría", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Hora", style: "tableHeader" },
-              { text: "Caja", style: "tableHeader" },
-              { text: "Opinión", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.empresa_empr_nombre },
-                { style: "itemsTable", text: res.quejas_emi_tipo },
-                { style: "itemsTable", text: res.quejas_emi_categoria },
-                { style: "itemsTable", text: res.quejas_emi_fecha },
-                { style: "itemsTable", text: res.hora },
-                { style: "itemsTable", text: res.caja_caja_nombre },
-                { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          alignment: "center",
-          headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "*"],
+    worksheet.addImage(this.imagen, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 220, height: 105 },
+    });
 
-          body: [
-            [
-              { text: "Tipo", style: "tableHeader" },
-              { text: "Categoría", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Hora", style: "tableHeader" },
-              { text: "Caja", style: "tableHeader" },
-              { text: "Opinión", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.quejas_emi_tipo },
-                { style: "itemsTable", text: res.quejas_emi_categoria },
-                { style: "itemsTable", text: res.quejas_emi_fecha },
-                { style: "itemsTable", text: res.hora },
-                { style: "itemsTable", text: res.caja_caja_nombre },
-                { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
+    let nombreSucursal = this.obtenerNombreSucursal(this.sucursalesSeleccionadas);
+    // COMBINAR CELDAS
+    worksheet.mergeCells("B1:H1");
+    worksheet.mergeCells("B2:H2");
+    worksheet.mergeCells("B3:H3");
+    worksheet.mergeCells("B4:H4");
+    worksheet.mergeCells("B5:H5");
+    // AGREGAR LOS VALORES A LAS CELDAS COMBINADAS
+    worksheet.getCell("B1").value = 'REPORTE DEL MÓDULO DE SATISFACCIÓN'.toUpperCase();
+    worksheet.getCell("B2").value = nombreSucursal.toUpperCase();
+    var fechaDesde = this.fechaDesdeG.nativeElement.value
+      .toString()
+      .trim();
+    var fechaHasta = this.fechaHastaG.nativeElement.value
+      .toString()
+      .trim();
+    worksheet.getCell("B3").value = "PERIODO DE " + fechaDesde + " HASTA " + fechaHasta;
+
+    // APLICAR ESTILO DE CENTRADO Y NEGRITA A LAS CELDAS COMBINADAS
+    ["B1", "B2", "B3"].forEach((cell) => {
+      worksheet.getCell(cell).alignment = {
+        horizontal: "center",
+        vertical: "middle",
       };
+      worksheet.getCell(cell).font = { bold: true, size: 14 };
+    });
+
+    // MAPEO DE INFORMACIÓN DE CONSULTA A FORMATO JSON PARA EXPORTAR A EXCEL
+    let jsonServicio: any = [];
+    for (let step = 0; step < this.servicioocg.length; step++) {
+      jsonServicio.push([
+        this.servicioocg[step].empresa_empr_nombre,
+        this.servicioocg[step].quejas_emi_tipo,
+        this.servicioocg[step].queja_cantidad,
+      ])
     }
+    worksheet.columns = [
+      { key: "suc", width: 50 },
+      { key: "tip", width: 50 },
+      { key: "canti", width: 20 },
+    ]
+
+    let columnas = []
+    columnas = [
+      { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: false },
+      { name: "TIPO", totalsRowLabel: "", filterButton: true },
+      { name: "CANTIDAD", totalsRowLabel: "", filterButton: true },
+    ]
+    worksheet.addTable({
+      name: "opiniones",
+      ref: "A6",
+      headerRow: true,
+      totalsRow: false,
+      style: {
+        theme: "TableStyleMedium16",
+        showRowStripes: true,
+      },
+      columns: columnas,
+      rows: jsonServicio,
+    });
+    const numeroFilas = jsonServicio.length;
+    for (let i = 0; i <= numeroFilas; i++) {
+      for (let j = 1; j <= 3; j++) {
+        const cell = worksheet.getRow(i + 6).getCell(j);
+        if (i === 0) {
+          cell.alignment = { vertical: "middle", horizontal: "center" };
+        } else {
+          cell.alignment = {
+            vertical: "middle",
+            horizontal: this.obtenerAlineacionHorizontal(j),
+          };
+        }
+        cell.border = this.bordeCompleto;
+      }
+    }
+    worksheet.getRow(6).font = this.fontTitulo;
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      FileSaver.saveAs(blob, "informeOpinionesExcel - " + nombreSucursal +
+        " - " +
+        new Date().toLocaleString() +
+        EXCEL_EXTENSION);
+    } catch (error) {
+      console.error("Error al generar el archivo Excel:", error);
+    }
+
   }
 
-  opinionesIC(servicio: any[]) {
-    if (this.todasSucursalesIC || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          alignment: "center",
-          headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "auto", "*"],
-
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Tipo", style: "tableHeader" },
-              { text: "Categoría", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Hora", style: "tableHeader" },
-              { text: "Caja", style: "tableHeader" },
-              { text: "Opinión", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.empresa_empr_nombre },
-                { style: "itemsTable", text: res.quejas_emi_tipo },
-                { style: "itemsTable", text: res.quejas_emi_categoria },
-                { style: "itemsTable", text: res.quejas_emi_fecha },
-                { style: "itemsTable", text: res.hora },
-                { style: "itemsTable", text: res.caja_caja_nombre },
-                { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          alignment: "center",
-          headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "*"],
-
-          body: [
-            [
-              { text: "Tipo", style: "tableHeader" },
-              { text: "Categoría", style: "tableHeader" },
-              { text: "Fecha", style: "tableHeader" },
-              { text: "Hora", style: "tableHeader" },
-              { text: "Caja", style: "tableHeader" },
-              { text: "Opinión", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.quejas_emi_tipo },
-                { style: "itemsTable", text: res.quejas_emi_categoria },
-                { style: "itemsTable", text: res.quejas_emi_fecha },
-                { style: "itemsTable", text: res.hora },
-                { style: "itemsTable", text: res.caja_caja_nombre },
-                { style: "itemsTable", alignment: "left", text: res.quejas_emi_queja },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  // DEFINICION DE FUNCION DELEGADA PARA SETEAR INFORMACION DE TABLA DEL PDF la estructura
-  opinionesGraficos(servicio: any[]) {
-    if (this.todasSucursalesG || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          alignment: "center",
-          headerRows: 1,
-          widths: ["*", "*", "*"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Tipo", style: "tableHeader" },
-              { text: "Cantidad", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.empresa_empr_nombre },
-                { style: "itemsTable", text: res.quejas_emi_tipo },
-                { style: "itemsTable", text: res.queja_cantidad },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          alignment: "center",
-          headerRows: 1,
-          widths: ["*", "*"],
-          body: [
-            [
-              { text: "Tipo", style: "tableHeader" },
-              { text: "Cantidad", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.quejas_emi_tipo },
-                { style: "itemsTable", text: res.queja_cantidad },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
-
-  opinionesGraficosIC(servicio: any[]) {
-    if (this.todasSucursalesGIC || this.seleccionMultiple) {
-      return {
-        style: "tableMargin",
-        table: {
-          alignment: "center",
-          headerRows: 1,
-          widths: ["*", "*", "*", "auto"],
-          body: [
-            [
-              { text: "Sucursal", style: "tableHeader" },
-              { text: "Tipo", style: "tableHeader" },
-              { text: "Categoria", style: "tableHeader" },
-              { text: "Cantidad", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.empresa_empr_nombre },
-                { style: "itemsTable", text: res.quejas_emi_tipo },
-                { style: "itemsTable", text: res.quejas_emi_categoria },
-                { style: "itemsTable", text: res.queja_cantidad },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    } else {
-      return {
-        style: "tableMargin",
-        table: {
-          alignment: "center",
-          headerRows: 1,
-          widths: ["*", "*", "auto"],
-          body: [
-            [
-              { text: "Tipo", style: "tableHeader" },
-              { text: "Categoria", style: "tableHeader" },
-              { text: "Cantidad", style: "tableHeader" },
-            ],
-            ...servicio.map((res) => {
-              return [
-                { style: "itemsTable", text: res.quejas_emi_tipo },
-                { style: "itemsTable", text: res.queja_emi_categoria },
-                { style: "itemsTable", text: res.queja_cantidad },
-              ];
-            }),
-          ],
-        },
-        layout: {
-          fillColor: function (rowIndex: any) {
-            return rowIndex % 2 === 0 ? "#E5E7E9" : null;
-          },
-        },
-      };
-    }
-  }
 }

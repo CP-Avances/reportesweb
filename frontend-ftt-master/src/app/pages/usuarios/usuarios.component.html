@@ -167,6 +167,7 @@
                                         </mat-select>
                                     </div>
                                 </div>
+                                <br>
                                 <button type="button" class="btn btn-search" (click)="buscarTurnosTotalFecha()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
@@ -804,10 +805,10 @@
                                     <th scope="col" class="text-center" *ngIf="todasSucursalesTA || seleccionMultiple">
                                         Sucursal</th>
                                     <th scope="col" class="text-center" *ngIf="selectedItems.length>0">Cajero(a)</th>
-                                    <th scope="col" class="text-center">Fecha</th>
-                                    <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Servicio</th>
                                     <th scope="col" class="text-center">Subservicio</th>
+                                    <th scope="col" class="text-center">Fecha</th>
+                                    <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Cliente</th>
                                     <th scope="col" class="text-center">Turno</th>
                                     <th scope="col" class="text-center">Tiempo de espera</th>
@@ -819,10 +820,10 @@
                                     <td *ngIf="todasSucursalesTA || seleccionMultiple">
                                         {{servicioTiempoAtencion.nombreEmpresa}}</td>
                                     <td *ngIf="selectedItems.length>0">{{servicioTiempoAtencion.Nombre}}</td>
-                                    <td>{{servicioTiempoAtencion.turn_fecha}}</td>
-                                    <td>{{servicioTiempoAtencion.hora}}</td>
                                     <td>{{servicioTiempoAtencion.Servicio}}</td>
                                     <td>{{servicioTiempoAtencion.subservicio}}</td>
+                                    <td>{{servicioTiempoAtencion.turn_fecha}}</td>
+                                    <td>{{servicioTiempoAtencion.hora}}</td>
                                     <td>{{servicioTiempoAtencion.cliente}}</td>
                                     <td>{{servicioTiempoAtencion.turno}}</td>
                                     <td>{{servicioTiempoAtencion.espera}}</td>

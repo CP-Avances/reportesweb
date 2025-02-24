@@ -73,7 +73,7 @@ router.get("/opinion/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:t
         }
     });
 });
-router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos/:categorias", verifivarToken_1.TokenValidation, (req, res) => {
+router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/:tipos", verifivarToken_1.TokenValidation, (req, res) => {
     const fDesde = req.params.fechaDesde;
     const fHasta = req.params.fechaHasta;
     const hInicio = req.params.horaInicio;
@@ -82,11 +82,8 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
     const sucursalesArray = listaSucursales.split(",");
     const listaTipos = req.params.tipos;
     const tiposArray = listaTipos.split(",");
-    const listaCategorias = req.params.categorias;
-    const categoriasArray = listaCategorias.split(",");
     let todasSucursales = false;
     let todasTipos = false;
-    let todasCategorias = false;
     let diaCompleto = false;
     let hFinAux = 0;
     if (sucursalesArray.includes("-1")) {
@@ -95,24 +92,18 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
     if (tiposArray.includes("-1")) {
         todasTipos = true;
     }
-    if (categoriasArray.includes("-1")) {
-        todasCategorias = true;
-    }
     if ((hInicio == "-1") || (hFin == "-1") || (parseInt(hInicio) > parseInt(hFin))) {
         diaCompleto = true;
     }
     else {
         hFinAux = parseInt(hFin) - 1;
     }
-    let resultado = '';
-    if (!todasCategorias) {
-        const listaCategoriasConComillas = categoriasArray.map(categoria => `'${categoria}'`);
-        resultado = listaCategoriasConComillas.join(', ');
-    }
     const query = `
         SELECT quejas.emi_codigo AS quejas_emi_codigo, 
           IF((quejas.emi_tipo = 1), 'Queja', 
-          IF((quejas.emi_tipo = 2), 'Reclamo', 'No Existe')) AS quejas_emi_tipo, 
+          IF((quejas.emi_tipo = 2), 'Reclamo',
+          IF((quejas.emi_tipo = 3), 'Sugerencia',
+          IF((quejas.emi_tipo = 4), 'Felicitación', 'No Existe')))) AS quejas_emi_tipo, 
           quejas.emi_categoria AS quejas_emi_categoria, 
           CAST(STR_TO_DATE(quejas.emi_fecha,'%Y-%m-%d') AS CHAR) AS quejas_emi_fecha, 
           CAST(CONCAT(LPAD(quejas.emi_hora, 2, '0'), ':', LPAD(quejas.emi_minuto, 2, '0')) AS CHAR) AS hora, 
@@ -125,13 +116,12 @@ router.get("/opinionIC/:fechaDesde/:fechaHasta/:horaInicio/:horaFin/:sucursales/
           quejas ON empresa.empr_codigo = quejas.empr_codigo 
         WHERE 
           emi_fecha BETWEEN '${fDesde}' AND '${fHasta}' 
-          AND (quejas.emi_tipo = 1 OR quejas.emi_tipo = 2)
           ${!todasSucursales ? `AND empresa.empr_codigo IN (${listaSucursales})` : ''}
           ${!todasTipos ? `AND quejas.emi_tipo IN (${listaTipos})` : ''}
-          ${!todasCategorias ? `AND quejas.emi_categoria IN (${resultado})` : ''}
           ${!diaCompleto ? `AND quejas.emi_hora BETWEEN '${hInicio}' AND '${hFinAux}' ` : ''}
         ORDER BY quejas.emi_fecha DESC, hora DESC;
         `;
+    //console.log('ver opioniones ', query)
     mysql_1.default.ejecutarQuery(query, (err, turnos) => {
         if (err) {
             res.status(400).json({

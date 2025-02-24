@@ -3947,10 +3947,10 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
         let fila = [
           this.servicioTiempoAtencion[i].nombreEmpresa,
-          this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
-          this.servicioTiempoAtencion[i].hora,
           this.servicioTiempoAtencion[i].Servicio,
           this.servicioTiempoAtencion[i].subservicio,
+          this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
+          this.servicioTiempoAtencion[i].hora,
           this.servicioTiempoAtencion[i].cliente,
           this.servicioTiempoAtencion[i].turno,
           this.servicioTiempoAtencion[i].espera,
@@ -3966,10 +3966,10 @@ export class UsuariosComponent implements OnInit {
         worksheet.columns = [
           { key: "sucursal", width: 50 },
           { key: "cajero", width: 20 },
-          { key: "fecha", width: 20 },
-          { key: "hora", width: 20 },
           { key: "servicio", width: 50 },
           { key: "subservicio", width: 50 },
+          { key: "fecha", width: 20 },
+          { key: "hora", width: 20 },
           { key: "cliente", width: 50 },
           { key: "turno", width: 20 },
           { key: "TiempoEspera", width: 20 },
@@ -3978,10 +3978,10 @@ export class UsuariosComponent implements OnInit {
       } else {
         worksheet.columns = [
           { key: "sucursal", width: 50 },
-          { key: "fecha", width: 20 },
-          { key: "hora", width: 20 },
           { key: "servicio", width: 50 },
           { key: "subservicio", width: 50 },
+          { key: "fecha", width: 20 },
+          { key: "hora", width: 20 },
           { key: "cliente", width: 50 },
           { key: "turno", width: 20 },
           { key: "TiempoEspera", width: 20 },
@@ -3991,10 +3991,10 @@ export class UsuariosComponent implements OnInit {
 
       const columnas = [
         { name: "SUCURSAL", totalsRowLabel: "Total:", filterButton: true },
-        { name: "FECHA", totalsRowLabel: "", filterButton: true },
-        { name: "HORA", totalsRowLabel: "", filterButton: true },
         { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
         { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
         { name: "CLIENTE", totalsRowLabel: "", filterButton: true },
         { name: "TURNO", totalsRowLabel: "", filterButton: true },
         { name: "TIEMPO DE ESPERA", totalsRowLabel: "", filterButton: true },
@@ -4042,10 +4042,10 @@ export class UsuariosComponent implements OnInit {
       for (let i = 0; i < this.servicioTiempoAtencion.length; i++) {
 
         let fila = [
-          this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
-          this.servicioTiempoAtencion[i].hora,
           this.servicioTiempoAtencion[i].Servicio,
           this.servicioTiempoAtencion[i].subservicio,
+          this.addOneDay(new Date(this.servicioTiempoAtencion[i].turn_fecha)),
+          this.servicioTiempoAtencion[i].hora,
           this.servicioTiempoAtencion[i].cliente,
           this.servicioTiempoAtencion[i].turno,
           this.servicioTiempoAtencion[i].espera,
@@ -4059,10 +4059,10 @@ export class UsuariosComponent implements OnInit {
       if (incluirCajero) {
         worksheet.columns = [
           { key: "cajero", width: 20 },
-          { key: "fecha", width: 20 },
-          { key: "hora", width: 20 },
           { key: "servicio", width: 50 },
           { key: "subservicio", width: 50 },
+          { key: "fecha", width: 20 },
+          { key: "hora", width: 20 },
           { key: "cliente", width: 50 },
           { key: "turno", width: 20 },
           { key: "TiempoEspera", width: 20 },
@@ -4070,10 +4070,10 @@ export class UsuariosComponent implements OnInit {
         ]
       } else {
         worksheet.columns = [
-          { key: "fecha", width: 20 },
-          { key: "hora", width: 20 },
           { key: "servicio", width: 50 },
           { key: "subservicio", width: 50 },
+          { key: "fecha", width: 20 },
+          { key: "hora", width: 20 },
           { key: "cliente", width: 50 },
           { key: "turno", width: 20 },
           { key: "TiempoEspera", width: 20 },
@@ -4081,10 +4081,10 @@ export class UsuariosComponent implements OnInit {
         ]
       }
       const columnas = [
-        { name: "FECHA", totalsRowLabel: "", filterButton: true },
-        { name: "HORA", totalsRowLabel: "", filterButton: true },
         { name: "SERVICIO", totalsRowLabel: "", filterButton: true },
         { name: "SUBSERVICIO", totalsRowLabel: "", filterButton: true },
+        { name: "FECHA", totalsRowLabel: "", filterButton: true },
+        { name: "HORA", totalsRowLabel: "", filterButton: true },
         { name: "CLIENTE", totalsRowLabel: "", filterButton: true },
         { name: "TURNO", totalsRowLabel: "", filterButton: true },
         { name: "TIEMPO DE ESPERA", totalsRowLabel: "", filterButton: true },
@@ -7262,10 +7262,10 @@ export class UsuariosComponent implements OnInit {
               [
                 { text: "Sucursal", style: "tableHeader" },
                 { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Hora", style: "tableHeader" },
                 { text: "Servicio", style: "tableHeader" },
                 { text: "Subservicio", style: "tableHeader" },
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Hora", style: "tableHeader" },
                 { text: "Cliente", style: "tableHeader" },
                 { text: "Turno", style: "tableHeader" },
                 { text: "Tiempo de espera", style: "tableHeader" },
@@ -7275,10 +7275,10 @@ export class UsuariosComponent implements OnInit {
                 return [
                   { style: "itemsTable", text: res.nombreEmpresa },
                   { style: "itemsTable", text: res.Nombre },
-                  { style: "itemsTable", text: res.turn_fecha },
-                  { style: "itemsTable", text: res.hora },
                   { style: "itemsTable", text: res.Servicio },
                   { style: "itemsTable", text: res.subservicio },
+                  { style: "itemsTable", text: res.turn_fecha },
+                  { style: "itemsTable", text: res.hora },
                   { style: "itemsTable", text: res.cliente },
                   { style: "itemsTable", text: res.turno },
                   { style: "itemsTable", text: res.espera },
@@ -7303,10 +7303,10 @@ export class UsuariosComponent implements OnInit {
             body: [
               [
                 { text: "Sucursal", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Hora", style: "tableHeader" },
                 { text: "Servicio", style: "tableHeader" },
                 { text: "Subservicio", style: "tableHeader" },
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Hora", style: "tableHeader" },
                 { text: "Cliente", style: "tableHeader" },
                 { text: "Turno", style: "tableHeader" },
                 { text: "Tiempo de espera", style: "tableHeader" },
@@ -7315,10 +7315,10 @@ export class UsuariosComponent implements OnInit {
               ...servicio.map((res) => {
                 return [
                   { style: "itemsTable", text: res.nombreEmpresa },
-                  { style: "itemsTable", text: res.turn_fecha },
-                  { style: "itemsTable", text: res.hora },
                   { style: "itemsTable", text: res.Servicio },
                   { style: "itemsTable", text: res.subservicio },
+                  { style: "itemsTable", text: res.turn_fecha },
+                  { style: "itemsTable", text: res.hora },
                   { style: "itemsTable", text: res.cliente },
                   { style: "itemsTable", text: res.turno },
                   { style: "itemsTable", text: res.espera },
@@ -7347,10 +7347,10 @@ export class UsuariosComponent implements OnInit {
             body: [
               [
                 { text: "Cajero(a)", style: "tableHeader" },
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Hora", style: "tableHeader" },
                 { text: "Servicio", style: "tableHeader" },
                 { text: "Subservicio", style: "tableHeader" },
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Hora", style: "tableHeader" },
                 { text: "Cliente", style: "tableHeader" },
                 { text: "Turno", style: "tableHeader" },
                 { text: "Tiempo de espera", style: "tableHeader" },
@@ -7359,10 +7359,10 @@ export class UsuariosComponent implements OnInit {
               ...servicio.map((res) => {
                 return [
                   { style: "itemsTable", text: res.Nombre },
-                  { style: "itemsTable", text: res.turn_fecha },
-                  { style: "itemsTable", text: res.hora },
                   { style: "itemsTable", text: res.Servicio },
                   { style: "itemsTable", text: res.subservicio },
+                  { style: "itemsTable", text: res.turn_fecha },
+                  { style: "itemsTable", text: res.hora },
                   { style: "itemsTable", text: res.cliente },
                   { style: "itemsTable", text: res.turno },
                   { style: "itemsTable", text: res.espera },
@@ -7386,10 +7386,10 @@ export class UsuariosComponent implements OnInit {
             widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
             body: [
               [
-                { text: "Fecha", style: "tableHeader" },
-                { text: "Hora", style: "tableHeader" },
                 { text: "Servicio", style: "tableHeader" },
                 { text: "Subservicio", style: "tableHeader" },
+                { text: "Fecha", style: "tableHeader" },
+                { text: "Hora", style: "tableHeader" },
                 { text: "Cliente", style: "tableHeader" },
                 { text: "Turno", style: "tableHeader" },
                 { text: "Tiempo de espera", style: "tableHeader" },
@@ -7397,10 +7397,10 @@ export class UsuariosComponent implements OnInit {
               ],
               ...servicio.map((res) => {
                 return [
-                  { style: "itemsTable", text: res.turn_fecha },
-                  { style: "itemsTable", text: res.hora },
                   { style: "itemsTable", text: res.Servicio },
                   { style: "itemsTable", text: res.subservicio },
+                  { style: "itemsTable", text: res.turn_fecha },
+                  { style: "itemsTable", text: res.hora },
                   { style: "itemsTable", text: res.cliente },
                   { style: "itemsTable", text: res.turno },
                   { style: "itemsTable", text: res.espera },

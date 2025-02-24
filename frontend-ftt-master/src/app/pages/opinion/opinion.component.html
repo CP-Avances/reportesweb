@@ -6,19 +6,7 @@
                 <li class="nav-item" (click)="limpiar()">
                     <a class="nav-link active" id="opcategoria-tab" data-toggle="tab" href="#opcategoria" role="tab"
                         aria-controls="opcategoria" aria-selected="true">
-                        INFORME QUEJAS Y RECLAMOS
-                    </a>
-                </li>
-                <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
-                        aria-selected="false">
                         INFORME GENERAL
-                    </a>
-                </li>
-                <li class="nav-item" (click)="limpiar()">
-                    <a class="nav-link" id="ocserviciosgrafIC-tab" data-toggle="tab" href="#opserviciosgrafIC"
-                        role="tab" aria-controls="ocserviciosgrafIC" aria-selected="false">
-                        GRÁFICOS QUEJAS Y RECLAMOS
                     </a>
                 </li>
                 <li class="nav-item" (click)="limpiar()">
@@ -28,32 +16,36 @@
                     </a>
                 </li>
             </ul>
+
             <div class="tab-content" id="myTabContent">
-                <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+                <!--  ***************   INFORME GENERAL DE SATISFACCION  ***************  -->
+                <div class="tab-pane fade show active" id="opcategoria" role="tabpanel"
+                    aria-labelledby="opcategoria-tab">
                     <br><br>
                     <div class="container">
                         <div class="row">
                             <div class="col-6">
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
-                                        <label for="fromDateAtM">Fecha desde:</label>
-                                        <input type="date" id="fromDateAtM" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateAtM" #fromDateAtM>
+                                        <label for="fechaDesde">Fecha desde:</label>
+                                        <input type="date" id="fechaDesde" value="{{fromDate}}" [max]="toDate"
+                                            name="fechaDesde" #fechaDesde>
                                         <br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateAtM">Fecha hasta:</label>
-                                        <input type="date" id="toDateAtM" value="{{toDate}}" [max]="toDate"
-                                            name="toDateAtM" #toDateAtM>
+                                        <label for="fechaHasta">Fecha hasta:</label>
+                                        <input type="date" id="fechaHasta" value="{{toDate}}" [max]="toDate"
+                                            name="fechaHasta" #fechaHasta>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioI>
+                                    <select class="form-control" name="selectmake" #horaInicio>
                                         <option value="-1" selected>Hora Inicio</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
                                     </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinI>
+                                    <select class="form-control ml-2" name="selectmake" #horaFin>
                                         <option value="-1" selected>Hora Fin</option>
                                         <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
                                         </option>
@@ -63,11 +55,11 @@
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesI')">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursales')">
                                         Todas las sucursales
                                     </mat-option>
                                     <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesI">
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursales">
                                         {{option.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
@@ -77,129 +69,13 @@
                                     <mat-option [value]="-1" (click)="selectAll('todosTipos')">
                                         Todos los tipos
                                     </mat-option>
-                                    <mat-option *ngFor="let tipo of tipos" [value]="tipo.valor" [disabled]="todosTipos">
+                                    <mat-option (click)="selectAll('seleccionarTipos')" *ngFor="let tipo of tipos"
+                                        [value]="tipo.valor" [disabled]="todosTipos">
                                         {{tipo.nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <button type="button" class="btn btn-search" (click)="leerOpiniones()">
-                                    <span class="glyphicon glyphicon-filter"></span>
-                                    Buscar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-                    <h3>OPINIONES</h3>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="contentAtMul" #contentAtMul #tableAtMul>
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesI || seleccionMultiple">
-                                        Sucursal
-                                    </th>
-                                    <th scope="col" class="text-center">Tipo</th>
-                                    <th scope="col" class="text-center">Categoría</th>
-                                    <th scope="col" class="text-center">Fecha</th>
-                                    <th scope="col" class="text-center">Hora</th>
-                                    <th scope="col" class="text-center">Caja</th>
-                                    <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
-                                </tr>
-                            </thead>
-                            <tbody *ngIf="!malRequestAtM">
-                                <tr *ngFor="let servicioOpinion of servicioOpinion | paginate:configAtM">
-                                    <td *ngIf="todasSucursalesI || seleccionMultiple">
-                                        {{servicioOpinion.empresa_empr_nombre}}</td>
-                                    <td>{{servicioOpinion.quejas_emi_tipo}}</td>
-                                    <td>{{servicioOpinion.quejas_emi_categoria}}</td>
-                                    <td>{{servicioOpinion.quejas_emi_fecha}}</td>
-                                    <td>{{servicioOpinion.hora}}</td>
-                                    <td>{{servicioOpinion.caja_caja_nombre}}</td>
-                                    <td class="text-left">{{servicioOpinion.quejas_emi_queja}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <pagination-controls *ngIf="!malRequestAtMPag" id="AtendidosMatm"
-                            [previousLabel]="labels.previousLabel" [nextLabel]="labels.nextLabel"
-                            (pageChange)="pageChangedAtM($event)">
-                        </pagination-controls>
-                    </div>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpiniones()">
-                        EXCEL
-                    </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',1)">
-                        PDF
-                    </button>
-                </div>
-
-                <div class="tab-pane fade show active" id="opcategoria" role="tabpanel"
-                    aria-labelledby="opcategoria-tab">
-                    <br><br>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="contenedor-fechas mt-2 mb-2">
-                                    <div>
-                                        <label for="fromDateIC">Fecha desde:</label>
-                                        <input type="date" id="fromDateIC" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateIC" #fromDateIC>
-                                        <br><br>
-                                    </div>
-                                    <div>
-                                        <label for="toDateIC">Fecha hasta:</label>
-                                        <input type="date" id="toDateIC" value="{{toDate}}" [max]="toDate"
-                                            name="toDateIC" #toDateIC>
-                                    </div>
-                                </div>
-                                <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioIC>
-                                        <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinIC>
-                                        <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesIC')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesIC">
-                                        {{option.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select class="form-control" name="selectmake" [(value)]="tiposSeleccionados"
-                                    placeholder="Tipos">
-                                    <mat-option [value]="1" (click)="selectAll('tipo1')">
-                                        Quejas
-                                    </mat-option>
-                                    <mat-option [value]="2" (click)="selectAll('tipo2')">
-                                        Reclamos
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(value)]="categoriasSeleccionadas" placeholder="Categorias">
-                                    <mat-option *ngIf="mostrarCategorias" [value]="-1"
-                                        (click)="selectAll('todasCategorias')">
-                                        Todas las categorias
-                                    </mat-option>
-                                    <mat-option *ngFor="let categoria of categorias" [value]="categoria.emi_categoria"
-                                        [disabled]="todasCategorias">
-                                        {{categoria.emi_categoria}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <button type="button" class="btn btn-search" (click)="leerOpinionesC()">
+                                <button type="button" class="btn btn-search" (click)="LeerOpiniones()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
                                 </button>
@@ -213,19 +89,19 @@
                         <table class="table table-striped" id="contentIC" #contentIC #tableIC>
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" *ngIf="todasSucursalesIC || seleccionMultiple">
+                                    <th scope="col" class="text-center" *ngIf="todasSucursales || seleccionMultiple">
                                         Sucursal</th>
                                     <th scope="col" class="text-center">Tipo</th>
                                     <th scope="col" class="text-center">Categoría</th>
                                     <th scope="col" class="text-center">Fecha</th>
                                     <th scope="col" class="text-center">Hora</th>
                                     <th scope="col" class="text-center">Caja</th>
-                                    <th scope="col" class="text-center" style="width: 350px;">Opinión</th>
+                                    <th scope="col" class="text-center" style="width: 350px;">Observación</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let servicioOpinionIC of servicioOpinionIC | paginate:configIC">
-                                    <td *ngIf="todasSucursalesIC || seleccionMultiple">
+                                    <td *ngIf="todasSucursales || seleccionMultiple">
                                         {{servicioOpinionIC.empresa_empr_nombre}}</td>
                                     <td>{{servicioOpinionIC.quejas_emi_tipo}}</td>
                                     <td>{{servicioOpinionIC.quejas_emi_categoria}}</td>
@@ -241,14 +117,17 @@
                             (pageChange)="pageChangedIC($event)">
                         </pagination-controls>
                     </div>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesIC()">
+                    <button *ngIf="!malRequestICPag" type="button" class="btn btn-info mx-2"
+                        (click)="exportTOExcelSatisfaccion()">
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOpinionesIC('hola',1)">
+                    <button *ngIf="!malRequestICPag" type="button" class="btn btn-info"
+                        (click)="GenerarPDFOpiniones('hola',1)">
                         PDF
                     </button>
                 </div>
 
+                <!--  ***************   INFORME GRAFICO DE SATISFACCION  ***************  -->
                 <div class="tab-pane fade" id="opserviciosgraf" role="tabpanel" aria-labelledby="ocserviciosgraf-tab">
                     <br><br>
                     <div class="container">
@@ -256,15 +135,15 @@
                             <div class="col-6">
                                 <div class="contenedor-fechas mt-2 mb-2">
                                     <div>
-                                        <label for="fromDateOcupG">Fecha desde:</label>
-                                        <input type="date" id="fromDateOcupG" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateOcupG" #fromDateOcupG>
+                                        <label for="fechaDesdeG">Fecha desde:</label>
+                                        <input type="date" id="fechaDesdeG" value="{{fromDate}}" [max]="toDate"
+                                            name="fechaDesdeG" #fechaDesdeG>
                                         <br><br>
                                     </div>
                                     <div>
-                                        <label for="toDateOcupG">Fecha hasta:</label>
-                                        <input type="date" id="toDateOcupG" value="{{toDate}}" [max]="toDate"
-                                            name="toDateOcupG" #toDateOcupG>
+                                        <label for="fechaHastaG">Fecha hasta:</label>
+                                        <input type="date" id="fechaHastaG" value="{{toDate}}" [max]="toDate"
+                                            name="fechaHastaG" #fechaHastaG>
                                     </div>
                                 </div>
                                 <div class="contenedor-horas">
@@ -283,16 +162,16 @@
                             <div class="col-6">
                                 <mat-select multiple class="form-control" name="selectmake"
                                     [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesG')">
+                                    <mat-option [value]="-1" (click)="selectAll('todasSucursales')">
                                         Todas las sucursales
                                     </mat-option>
                                     <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesG">
+                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursales">
                                         {{option.empr_nombre}}
                                     </mat-option>
                                 </mat-select>
                                 <br><br>
-                                <button type="button" class="btn btn-search" (click)="leerGrafOpinion()">
+                                <button type="button" class="btn btn-search" (click)="LeerGraficoOpiniones()">
                                     <span class="glyphicon glyphicon-filter"></span>
                                     Buscar
                                 </button>
@@ -306,7 +185,7 @@
                         <canvas id="canvas2">{{chart}}</canvas>
                     </div>
                     <br>
-                    <fieldset>
+                    <fieldset *ngIf="!malRequestAtM">
                         <div>
                             <label>Orientación de página: </label>
 
@@ -319,100 +198,12 @@
                             <label for="horizontal">Horizontal</label>
                         </div>
                     </fieldset>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGrafico()">
+                    <button *ngIf="!malRequestAtM" type="button" class="btn btn-info mx-2"
+                        (click)="exportTOExcelOpinionesGrafico()">
                         EXCEL
                     </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOpiniones('hola',2)">
-                        PDF
-                    </button>
-                    <br>
-                </div>
-
-                <div class="tab-pane fade" id="opserviciosgrafIC" role="tabpanel"
-                    aria-labelledby="ocserviciosgrafIC-tab">
-                    <br><br>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="contenedor-fechas mt-2 mb-2">
-                                    <div>
-                                        <label for="fromDateOcupGIC">Fecha desde:</label>
-                                        <input type="date" id="fromDateOcupGIC" value="{{fromDate}}" [max]="toDate"
-                                            name="fromDateOcupGIC" #fromDateOcupGIC>
-                                        <br><br>
-                                    </div>
-                                    <div>
-                                        <label for="toDateOcupGIC">Fecha hasta:</label>
-                                        <input type="date" id="toDateOcupGIC" value="{{toDate}}" [max]="toDate"
-                                            name="toDateOcupGIC" #toDateOcupGIC>
-                                    </div>
-                                </div>
-                                <div class="contenedor-horas">
-                                    <select class="form-control" name="selectmake" #horaInicioGIC>
-                                        <option value="-1" selected>Hora Inicio</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                    <select class="form-control ml-2" name="selectmake" #horaFinGIC>
-                                        <option value="-1" selected>Hora Fin</option>
-                                        <option *ngFor="let hora of horas" value="{{hora}}" [value]="hora">{{hora}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <mat-select multiple class="form-control" name="selectmake"
-                                    [(ngModel)]="sucursalesSeleccionadas" placeholder="Sucursales">
-                                    <mat-option [value]="-1" (click)="selectAll('todasSucursalesGIC')">
-                                        Todas las sucursales
-                                    </mat-option>
-                                    <mat-option *ngFor="let option of sucursales" [value]="option.empr_codigo"
-                                        (click)="selectAll('sucursalesSeleccionadas')" [disabled]="todasSucursalesGIC">
-                                        {{option.empr_nombre}}
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <mat-select class="form-control" name="selectmake" [(value)]="tiposSeleccionados"
-                                    placeholder="Tipos">
-                                    <mat-option [value]="1">
-                                        Quejas
-                                    </mat-option>
-                                    <mat-option [value]="2">
-                                        Reclamos
-                                    </mat-option>
-                                </mat-select>
-                                <br><br>
-                                <button type="button" class="btn btn-search" (click)="leerGrafOpinionIC()">
-                                    <span class="glyphicon glyphicon-filter"></span>
-                                    Buscar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <br><br>
-                    <div *ngIf="!malRequestAtMIC" id="contentChartIC" #contentChartIC>
-                        <h3>GRÁFICO - OPINIONES</h3><br>
-                        <canvas id="canvas3">{{chart}}</canvas><br>
-                        <canvas id="canvas4">{{chart}}</canvas>
-                    </div>
-                    <br>
-                    <fieldset>
-                        <div>
-                            <label>Orientación de página:</label>
-
-                            <input type="radio" id="vertical" class="radio-col-light-blue" name="orientacion"
-                                value="portrait" (click)="cambiarOrientacion('portrait')" checked>
-                            <label for="vertical">Vertical</label>
-
-                            <input type="radio" id="horizontal" class="radio-col-light-blue" name="orientacion"
-                                value="landscape" (click)="cambiarOrientacion('landscape')">
-                            <label for="horizontal">Horizontal</label>
-                        </div>
-                    </fieldset>
-                    <button type="button" class="btn btn-info mx-2" (click)="exportTOExcelOpinionesGraficoIC()">
-                        EXCEL
-                    </button>
-                    <button type="button" class="btn btn-info" (click)="generarPdfOpinionesIC('hola',2)">
+                    <button *ngIf="!malRequestAtM" type="button" class="btn btn-info"
+                        (click)="generarPdfOpiniones('hola',2)">
                         PDF
                     </button>
                     <br>
