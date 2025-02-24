@@ -65,11 +65,6 @@ export class ServiceService {
     return this.http.get<empresa[]>(this.URL + "/getallsucursales");
   }
 
-  getAllCategorias(tipo: any): Observable<any> {
-    return this.http.get<any>(this.URL + "/categorias/" + tipo);
-  }
-
-
   // METODO PARA BUSCAR CAJEROS SEGUN SUCURSALES Y ESTADO
   getCajerosSucursalEstado(sucursales: any, estado: any): Observable<cajero[]> {
     return this.http.get<cajero[]>(this.URL + "/getallcajeros/" + sucursales + "/" + estado);
@@ -171,10 +166,6 @@ export class ServiceService {
    ** **                                           OPINIONES                                                          ** **
    ** ****************************************************************************************************************** **/
 
-  getopiniones(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, tipos: any): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/opinion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + tipos);
-  }
-
   getopinionesIC(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, tipos: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/opinionIC/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + tipos);
   }
@@ -182,13 +173,6 @@ export class ServiceService {
   getgraficoopinion(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any): Observable<servicio[]> {
     return this.http.get<servicio[]>(this.URL + "/graficoopinion/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales);
   }
-
-  getgraficoopinionesIC(fechaDesde: string, fechaHasta: string, horaInicio: any, horaFin: any, sucursales: any, tipos: any): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/graficoopinionIC/" + fechaDesde + "/" + fechaHasta + "/" + horaInicio + "/" + horaFin + "/" + sucursales + "/" + tipos);
-  }
-
-
-
 
 
   /** ****************************************************************************************************************** **
@@ -221,14 +205,6 @@ export class ServiceService {
 
   getOpcionesEvaluacion(): Observable<any> {
     return this.http.get<any>(this.URL + "/opcionesEvaluacion");
-  }
-
-  getIdentificacionCliente(): Observable<any> {
-    return this.http.get<any>(this.URL + "/identificacionCliente");
-  }
-
-  getturnos(): Observable<servicio[]> {
-    return this.http.get<servicio[]>(this.URL + "/tiempopromedioatencion");
   }
 
   setImagen(formdata: any) {

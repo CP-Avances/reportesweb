@@ -10,7 +10,6 @@ const morgan_1 = __importDefault(require("morgan"));
 const router_1 = __importDefault(require("./router/router"));
 const usuarios_1 = __importDefault(require("./router/usuarios"));
 const evaluacion_1 = __importDefault(require("./router/evaluacion"));
-const atencion_1 = __importDefault(require("./router/atencion"));
 const satisfaccion_1 = __importDefault(require("./router/satisfaccion"));
 const disestadoturno_1 = __importDefault(require("./router/disestadoturno"));
 const opinion_1 = __importDefault(require("./router/opinion"));
@@ -43,7 +42,6 @@ class Servidor {
         this.app.use(router_1.default);
         this.app.use(usuarios_1.default);
         this.app.use(evaluacion_1.default);
-        this.app.use(atencion_1.default);
         this.app.use(satisfaccion_1.default);
         this.app.use(disestadoturno_1.default);
         this.app.use(opinion_1.default);

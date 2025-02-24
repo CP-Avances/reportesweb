@@ -6,7 +6,6 @@ import morgan from 'morgan';
 import router from './router/router';
 import usuarios from './router/usuarios';
 import evaluacion from './router/evaluacion';
-import atencion from './router/atencion';
 import satisfacciones from './router/satisfaccion'
 import disestadoturno from './router/disestadoturno';
 import opinion from './router/opinion';
@@ -48,7 +47,6 @@ class Servidor {
         this.app.use(router);
         this.app.use(usuarios);
         this.app.use(evaluacion);
-        this.app.use(atencion);
         this.app.use(satisfacciones);
         this.app.use(disestadoturno);
         this.app.use(opinion);

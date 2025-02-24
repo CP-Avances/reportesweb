@@ -652,44 +652,6 @@ t.caje_codigo != 0 AND
         }
     });
 });
-router.get("/tiempopromedioatencion", verifivarToken_1.TokenValidation, (req, res) => {
-    const query = `
-      SELECT 
-        s.serv_nombre AS Servicio, 
-        c.caje_nombre AS Nombre, 
-        ss.id AS id_subservicio, 
-        ss.nombre AS subservicio,
-        COUNT(t.turn_codigo) AS Turnos, 
-        TIME_FORMAT(SEC_TO_TIME(AVG(IFNULL(t.turn_duracionatencion, 0))), '%H:%i:%s') AS Promedio
-      FROM 
-        turno t
-      INNER JOIN 
-        cajero c ON t.caje_codigo = c.caje_codigo
-      INNER JOIN 
-        sub_servicio ss ON t.id_sub_serv = ss.id
-      INNER JOIN 
-        servicio s ON t.serv_codigo = s.serv_codigo
-      GROUP BY 
-        c.caje_nombre, 
-        s.serv_nombre, 
-        ss.id, 
-        ss.nombre;
-    `;
-    mysql_1.default.ejecutarQuery(query, (err, turnos) => {
-        if (err) {
-            res.status(400).json({
-                ok: false,
-                error: err,
-            });
-        }
-        else {
-            res.json({
-                ok: true,
-                turnos,
-            });
-        }
-    });
-});
 /** ************************************************************************************************************ **
  ** **                               ENTRADAS Y SALIDAD DEL SISTEMA                                           ** **
  ** ************************************************************************************************************ **/

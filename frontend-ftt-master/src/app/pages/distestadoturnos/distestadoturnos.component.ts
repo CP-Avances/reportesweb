@@ -88,7 +88,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
 
   // VARIABLE USADA EN EXPORTACION A EXCEL
   p_color: any = '#0077b6';
-  
+
   mostrarServicios: boolean = false;
   mostrarSubservicios: boolean = false;
 
@@ -221,6 +221,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
   }
 
   selectAll(opcion: string) {
+    this.mostrar_resultado = false;
     switch (opcion) {
       case 'allSelected':
         this.allSelected = !this.allSelected;
@@ -232,7 +233,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
 
       case 'sucursalesSeleccionadas':
         this.seleccionMultiple = this.sucursalesSeleccionadas.length > 1;
-        this.sucursalesSeleccionadas.length > 0 ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : this.cajerosUsuarios = [], this.serviciosServs = [];
+        this.sucursalesSeleccionadas.length > 0 ? (this.getCajeros(this.sucursalesSeleccionadas), this.getServicios(this.sucursalesSeleccionadas)) : this.cajerosUsuarios = [], this.serviciosServs = [], this.selectedItems = [], this.serviciosSeleccionadas = [], this.todasServiciosTF = false, this.allSelected = false, this.subservicios = [], this.sub_serviciosSeleccionadas = [], this.seleccionMultipleSubServicios = false;
         break;
       case 'todasServiciosTF':
         this.todasServiciosTF = !this.todasServiciosTF;
@@ -240,7 +241,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
         break;
       case 'serviciosSeleccionadas':
         this.seleccionMultipleServicios = this.serviciosSeleccionadas.length > 1;
-        this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : this.subservicios = [];
+        this.serviciosSeleccionadas.length > 0 ? (this.getSub_servicios(this.serviciosSeleccionadas)) : this.subservicios = [], this.sub_serviciosSeleccionadas = [], this.seleccionMultipleSubServicios = false;
         break;
       case 'todasSubServiciosTF':
         this.seleccionMultipleSubServicios = !this.seleccionMultipleSubServicios;
@@ -248,6 +249,7 @@ export class DistestadoturnosComponent implements OnInit, OnDestroy {
       default:
         break;
     }
+
   }
 
   // SE DESLOGUEA DE LA APLICACION

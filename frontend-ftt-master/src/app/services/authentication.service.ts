@@ -22,7 +22,6 @@ export class AuthenticationService {
     private http: HttpClient
   ) {
     this.leerToken();
-    this.obtenerUsuario();
   }
 
   logout() {
@@ -68,10 +67,6 @@ export class AuthenticationService {
 
   estaAutenticado(): boolean {
     return this.userToken.length > 2;
-  }
-
-  obtenerUsuario() {
-    let token = localStorage.getItem('token');
   }
 
 }
